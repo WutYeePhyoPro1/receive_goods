@@ -297,14 +297,21 @@
         <script  type="module">
             $(document).ready(function(e){
                 // $('#showProductModal').show();
-
+                setInterval(() => {
+                    time_count();
+                }, 1000);
                 // console.log(Math.floor(2-1));
 
                 function time_count(){
-                    $time = new Date($('#started_time').val()).getTime();
-                    $now  = new Date().getTime();
-                    $diff = Math.floor($now - $time);
-                    // $hour =
+                    let time = new Date($('#started_time').val()).getTime();
+
+                    let now  = new Date().getTime();
+                    let diff = Math.floor(now - time);
+                    let hour = Math.floor(diff / (60*60*1000));
+                    let min = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+                    let sec = Math.floor((diff % (60 * 60 * 1000)) % (60 * 1000) / (1000));
+
+                    $('#time_count').text(hour.toString().padStart(2, '0') + ' : ' + min.toString().padStart(2, '0') + ' : ' + sec.toString().padStart(2, '0'));
                 }
             })
         </script>

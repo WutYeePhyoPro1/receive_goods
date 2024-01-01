@@ -36,7 +36,7 @@ class userController extends Controller
         $hour   = (int)($time_str / 3600);
         $min    = (int)(($time_str % 3600) / 60);
         $sec    = (int)(($time_str % 3600) % 60);
-        $pass   = $hour .':'. $min .':'. $sec;
+        $pass   = sprintf('%02d : %02d : %02d', $hour, $min, $sec);
         // $time_start = Carbon::parse($time_str)->format('H:i:s');
         return view('user.receive_goods.receive_goods',compact('data','pass'));
     }
