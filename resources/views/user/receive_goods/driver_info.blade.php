@@ -23,7 +23,7 @@
 
                     <div class="flex flex-col px-10">
                         <label for="driver_phone">Driver Phone :</label>
-                        <input type="number" name="driver_phone" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none">
+                        <input type="number" name="driver_phone" id="driver_phone" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none">
                         @error('driver_phone')
                         <small class="text-rose-500 ms-1">{{ $message }}</small>
                     @enderror
@@ -63,4 +63,26 @@
             </form>
         </fieldset>
     </div>
+
+    @push('js')
+        <script type="module">
+            $(document).on('keypress','#driver_phone',function(e){
+                let filter = true;
+
+                if($(this).val().length < 11){
+                    if  ( e.keyCode >=48 && e.keyCode <= 57){
+                        filter = true;
+                    }else{
+                        filter = false;
+                    }
+                }else{
+                    filter = false;
+                }
+
+                if(!filter){
+                    e.preventDefault();
+                }
+            })
+        </script>
+    @endpush
 @endsection

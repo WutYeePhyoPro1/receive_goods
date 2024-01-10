@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['document_id','bar_code','supplier_name','qty','scanned_qty'];
+
+    public function doc(){
+        return $this->belongsTo(Document::class, 'document_id', 'id');
+    }
+
 }

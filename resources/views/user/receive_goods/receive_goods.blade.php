@@ -3,101 +3,104 @@
 @section('content')
     {{-- <span>this is received_good</span> --}}
     <div class="flex justify-between">
-        <div class="flex">
-            <input type="text" class="w-80 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none">
-            <button class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500">Search</button>
+        <div class="flex {{ $data->duration ? 'invisible pointer-events-none' : '' }}">
+            <input type="text" id="docu_ipt" class="w-80 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none">
+            <button  class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500" id="search_btn">Search</button>
+            <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info"><i class='bx bx-id-card'></i></button>
         </div>
-        <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-16 tracking-wider font-semibold rounded-lg">Confirm</button>
-        <span class="mr-20 text-5xl font-semibold tracking-wider select-none text-amber-400" id="time_count">{{ $pass }}</span>
+        <div class="flex">
+            <span class=" mt-2 -translate-x-6 hidden 2xl:block" >Vendor Name : <b class="text-2xl" id="vendor_name">{{ $data->vendor_name ?? '' }}</b></span>
+            <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-16 tracking-wider font-semibold rounded-lg" id="confirm_btn">Confirm</button>
+        </div>
+        <?php
+            if($data->duration)
+            {
+                list($hour, $min, $sec) = explode(':', $data->duration);
+                $total_sec    = $hour*3600 + $min*60 + $sec;
+                $edit_start = strtotime($data->edit_start_time);
+                $diff = strtotime(\Carbon\Carbon::now()) - $edit_start;
+                $combine = $total_sec + $diff;
+                $hour   = (int)($combine / 3600);
+                $min    = (int)(($combine % 3600) / 60);
+                $sec    = (int)(($combine % 3600) % 60);
+                $sec_pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+            }
+        ?>
+
+        <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap" id="time_count">{{ $data->duration ? $sec_pass : $pass }}</span>
     </div>
+    <input type="hidden" id="bar_code" value="" >
     <div class="grid grid-cols-2 gap-2">
-        <div class="mt-5 border border-slate-400 rounded-md" style="min-height: 85vh;max-height:85vh;width:100%;overflow-x:hidden;overflow-y:auto">
+    <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 85vh;max-height:85vh;width:100%;overflow-x:hidden;overflow-y:auto">
             <div class="border border-b-slate-400 h-10 bg-sky-50">
                 <span class="font-semibold leading-9 ml-3">
                     List Of Products
                 </span>
             </div>
-            <input type="hidden" id="started_time" value="{{ $data->start_date.' '.$data->start_time }}">
-                <table class="w-full">
+            <input type="hidden" id="started_time" value="{{ $data->duration ? $data->edit_start_time : $data->start_date.' '.$data->start_time }}">
+            <input type="hidden" id="duration" value="{{ $total_sec ?? 0 }}">
+            <input type="hidden" id="receive_id" value="{{ $data->id }}">
+            <div class="main_table">
+                <table class="w-full" class="main_tb_body">
                     <thead>
                         <tr class="h-10">
                             <th class="border border-slate-400 border-t-0 w-8 border-l-0"></th>
                             <th class="border border-slate-400 border-t-0">Document No</th>
                             <th class="border border-slate-400 border-t-0">Box Barcode</th>
-                            <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
-                            <th class="border border-slate-400 border-t-0">Quantity(Box)</th>
-                            <th class="border border-slate-400 border-t-0">Scanned(BOX)</th>
+                            <th class="border border-slate-400 border-t-0">Product Name</th>
+                            <th class="border border-slate-400 border-t-0">Quantity</th>
+                            <th class="border border-slate-400 border-t-0">Scanned</th>
                             <th class="border border-slate-400 border-t-0 border-r-0">Remaining</th>
                         </tr>
                     </thead>
-                    <div class="main_tb_body">
-                        <tbody class="main_body">
-                            <tr class="h-10">
-                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">1</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 ">POI123412-001</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-amber-100 text-amber-600">12324464561</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-amber-100 text-amber-600">Opple Light</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-amber-100 text-amber-600">7</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-amber-100 text-amber-600">4</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-amber-100 text-amber-600 border-r-0">3</td>
-                            </tr>
-                            <tr class="h-10">
-                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                <td class="ps-2 border border-slate-400 border-t-0"></td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-rose-100 text-rose-600">123212364561</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-rose-100 text-rose-600">Opple heavy</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-rose-100 text-rose-600">10</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-rose-100 text-rose-600">0</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-rose-100 text-rose-600 border-r-0">10</td>
-                            </tr>
-                            <tr class="h-10">
-                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                <td class="ps-2 border border-slate-400 border-t-0"></td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-emerald-100 text-emerald-600">1232409194561</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-emerald-100 text-emerald-600">Opple feathur</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-emerald-100 text-emerald-600">5</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-emerald-100 text-emerald-600">5</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 bg-emerald-100 text-emerald-600 border-r-0">0</td>
-                            </tr>
-                            <tr class="h-10">
-                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">2</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">POI123412-002</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">12324464561</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">Opple Light</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">7</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">4</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0">3</td>
-                            </tr>
-                            <tr class="h-10">
-                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                <td class="ps-2 border border-slate-400 border-t-0"></td>
-                                <td class="ps-2 border border-slate-400 border-t-0">123212364561</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">Opple heavy</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">10</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">4</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0">6</td>
-                            </tr>
-                            <tr class="h-10">
-                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                <td class="ps-2 border border-slate-400 border-t-0"></td>
-                                <td class="ps-2 border border-slate-400 border-t-0">1232409194561</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">Opple feathur</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">5</td>
-                                <td class="ps-2 border border-slate-400 border-t-0">3</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0">2</td>
-                            </tr>
-                        </tbody>
-                    </div>
+
+
+                            <?php
+                                $i = 0;
+                            ?>
+                            @foreach($document as $item)
+                                @if (count(search_pd($item->id)) > 0)
+                                    <tbody class="main_body">
+                                        @foreach (search_pd($item->id) as $key=>$tem)
+
+                                            <?php
+                                                $color = check_color($tem->id);
+                                            ?>
+                                            <tr class="h-10">
+                                                @if ($key == 0)
+                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0 doc_times">{{ $i+1 }}</td>
+                                                    <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
+                                                @else
+                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0 doc_times"></td>
+                                                    <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
+                                                @endif
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">{{ $tem->qty }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">{{ $tem->scanned_qty }}</td>
+                                                <input type="hidden" class="real_scan" value="{{ $tem->scanned_qty }}">
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                        <?php $i++ ?>
+                                @endif
+                            @endforeach
+
+                            <input type="hidden" id="count" value="{{ $i }}">
+
                 </table>
+            </div>
 
         </div>
         <div class="mt-5 grid grid-rows-2 gap-2" style="max-height: 85vh;width:100%; overflow:hidden">
-            <div class="border border-slate-400 rounded-md" style="max-height: 42.5vh;width:100%">
+            <div class="border border-slate-400 rounded-md overflow-y-auto overflow-x-hidden main_product_table" style="max-height: 42.5vh;width:100%;">
                 <div class="border border-b-slate-400 h-10 bg-sky-50">
                     <span class="font-semibold leading-9 ml-3">
                         List Of Scanned Products
                     </span>
-                </div>
+                </div >
+                <div class="scan_parent">
                     <table class="w-full">
                         <thead>
                             <tr class="h-10">
@@ -108,33 +111,47 @@
                                 <th class="border border-slate-400 border-t-0 border-r-0">Quantity(Box)</th>
                             </tr>
                         </thead>
-                        <div class="scan_tb_body">
-                            <tbody class="scan_body">
-                                <tr class="h-10">
-                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0">1</td>
-                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0">POI123412-001</td>
-                                    <td class="ps-2 border border-slate-400 border-t-0 bg-emerald-100 text-emerald-600">1232409194561</td>
-                                    <td class="ps-2 border border-slate-400 border-t-0 bg-emerald-100 text-emerald-600">Opple feathur</td>
-                                    <td class="ps-2 border border-slate-400 border-t-0 bg-emerald-100 text-emerald-600 border-r-0">5</td>
-                                </tr>
-                                <tr class="h-10">
-                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                    <td class="ps-2 border border-slate-400 border-t-0"></td>
-                                    <td class="ps-2 border border-slate-400 border-t-0 bg-amber-100 text-amber-600">12324464561</td>
-                                    <td class="ps-2 border border-slate-400 border-t-0 bg-amber-100 text-amber-600">Opple Light</td>
-                                    <td class="ps-2 border border-slate-400 border-t-0 bg-amber-100 text-amber-600 border-r-0">4</td>
-                                </tr>
-                            </tbody>
-                        </div>
+                            <?php $i=0 ?>
+                            @foreach ($document as $item)
+                            @if (count(search_scanned_pd($item->id))>0)
+                            <?php
+                                $i++;
+                            ?>
+                                <tbody class="scan_body" >
+                                @foreach (search_scanned_pd($item->id) as $index=>$tem)
+                                <?php
+                                            $color = check_scanned_color($tem->id);
+                                            $scanned[]  = $tem->bar_code;
+                                            ?>
+                                            <tr class="h-10">
+                                                @if ($index == 0)
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
+                                                @else
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                @endif
+                                                        <td class="ps-2 border border-slate-400 border-t-0  {{ $color }}">{{ $tem->bar_code }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+
+                            @endif
+                                @endforeach
+
+
                     </table>
+                </div>
             </div>
-            <div class="border border-slate-400 rounded-md" style="max-height: 42.5vh;width:100%">
+            <div class="border border-slate-400 rounded-md overflow-x-hidden overflow-y-auto" style="max-height: 42.5vh;width:100%">
                 <div class="border border-b-slate-400 h-10 bg-sky-50">
                     <span class="font-semibold leading-9 ml-3">
                         List Of Scanned Products (excess)
                     </span>
                 </div>
-                <div class="">
+                <div class="excess_div">
                     <table class="w-full">
                         <thead>
                             <tr class="h-10">
@@ -145,18 +162,34 @@
                                 <th class="border border-slate-400 border-t-0 border-r-0">Quantity(Box)</th>
                             </tr>
                         </thead>
-                        <div class="excess_tb_body">
-                            <tbody class="exceed_body">
-                                <tr class="h-10">
-                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0">1</td>
-                                    <td class="ps-2 border border-slate-400 border-t-0 ">POI123412-001</td>
-                                    <td class="ps-2 border border-slate-400 border-t-0">12324464561</td>
-                                    <td class="ps-2 border border-slate-400 border-t-0">Opple Light</td>
 
-                                    <td class="ps-2 border border-slate-400 border-t-0 border-r-0">3</td>
-                                </tr>
-                            </tbody>
-                        </div>
+                            <?php $i=0 ?>
+                            @foreach ($document as $item)
+                            @if (count(search_excess_pd($item->id))>0)
+                            <?php
+                                $i++;
+                            ?>
+                                <tbody class="excess_body" >
+                                @foreach (search_excess_pd($item->id) as $index=>$tem)
+                                <?php
+                                            ?>
+                                            <tr class="h-10">
+                                                @if ($index == 0)
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
+                                                @else
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                @endif
+                                                        <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->bar_code }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-r-0">{{ $tem->scanned_qty - $tem->qty  }}</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+
+                            @endif
+                                @endforeach
                     </table>
                 </div>
             </div>
@@ -170,8 +203,8 @@
             <div class="card rounded">
                 <div
                     class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
-                    <div class="flex px-4 py-2 justify-between items-center bg-cyan-500 ">
-                        <h3 class="font-bold text-gray-50 ml-5 sm:flex">All Products &nbsp;<span
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Car Info &nbsp;<span
                                 id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                 class="w-6 h-6 hidden svgclass">
@@ -188,131 +221,240 @@
                             </svg>
                         </button>
                     </div>
-                    @can('send-to-adjust-stock')
-                        <div id="completed" class="hidden">
-                            <div class="flex sm:items-center ml-3">
-                                <div class="p-4">
-                                    <textarea class="rounded-md border border-gray-200 shadow" name="bracc_remark" id="bracc_remark" cols="20"
-                                        rows="3"></textarea>
-                                </div>
-                                <div class="my-3 sm:flex sm:w-50">
-                                    <button type="button" id="sendBtn"
-                                        class="inline-flex items-center justify-center rounded border border-transparent bg-teal-600 px-3 py-2 text-sm font-bold text-white shadow-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 sm:w-auto mr-2"
-                                        value="4">
-                                        Confirm Send Adjust
-                                    </button>
-
-                                    <button type="button"
-                                        class="inline-flex items-center justify-center rounded border border-transparent bg-yellow-600 px-3 py-2 text-sm font-bold text-white shadow-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:w-auto mr-2"
-                                        onclick="closeModal('#showProductModal')">
-                                        Cancel
-                                    </button>
-
-                                </div>
-                            </div>
-                        </div>
-                    @endcan
-
                 </div>
                 <div class="card-body pt-4">
-                    <table class="min-w-full d-table border-spacing-y-2 mx-auto border-separate">
-                        <thead>
-                            <tr
-                                class="shadow border-l-2 rounded-l-md border-r-2 rounded-r-md mt-1 border-gray-500 py-2 text-cyan-600 text-center">
-                                <th scope="col" colspan="4"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-xs font-semibold ">
-                                    Product Detail</th>
-                                <th scope="col" colspan="4"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-xs font-semibold">
-                                    Difference Value</th>
-                                <th scope="col" colspan="3"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-xs font-semibold">
-                                    Selected Difference </th>
-                                <th scope="col"
-                                    class=" whitespace-nowrap top-0 z-10 py-2 px-4 text-xs font-semibold">
-                                    Remark by Branch Account</th>
-                            </tr>
-                            <tr class="bg-cyan-600 ">
-                                <th scope="col"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-left text-xs font-semibold text-gray-700">
-                                    #</th>
-                                {{-- <th scope="col" class="whitespace-nowrap top-0 z-10 py-2 px-4 text-left text-xs font-semibold text-gray-700">Document No</th> --}}
-                                <th scope="col"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-left text-xs font-semibold text-gray-700">
-                                    Product Code</th>
-                                <th scope="col"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-left text-xs font-semibold text-gray-700">
-                                    Product Name</th>
-                                <th scope="col"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-left text-xs font-semibold text-gray-700">
-                                    System Qty</th>
-
-
-                                <th scope="col"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-left text-xs font-semibold text-gray-700">
-                                    User </th>
-                                <th scope="col"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-left text-xs font-semibold text-gray-700">
-                                    Br Mng </th>
-                                <th scope="col"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-left text-xs font-semibold text-gray-700">
-                                    Op Analysis </th>
-                                <th scope="col"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-left text-xs font-semibold text-gray-700">
-                                    Br Acc </th>
-
-                                <th scope="col"
-                                    class=" whitespace-nowrap top-0 z-10 py-2 px-4 text-right text-xs font-semibold text-gray-700">
-                                    Diff Qty</th>
-                                <th scope="col"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-right text-xs font-semibold text-gray-700">
-                                    Diff Amt </th>
-                                <th scope="col"
-                                    class="whitespace-nowrap top-0 z-10 py-2 px-4 text-left text-xs font-semibold text-gray-700">
-                                    Status </th>
-
-                                <th scope="col"
-                                    class=" whitespace-nowrap top-0 z-10 py-2 pl-4 text-left text-xs font-semibold text-gray-700">
-                                    Remark</th>
-                            </tr>
-
-                        </thead>
-                        <tbody id="product_tbody">
-
-
-                        </tbody>
-                    </table>
-                    <div class="flex justify-center text-xs mt-2">
-                        Total <span class="text-red-600 px-2" id="total_products"></span>Record
-                        {{-- <input type="hidden" id="main_doc_id" > --}}
-                        {{-- <input type="hidden" id="total_diff_amt" > --}}
-                    </div>
+                   <div class="grid grid-cols-2 gap-5">
+                        <div class="flex flex-col">
+                            <span class="mb-4 text-xl">Driver's Name     </span>
+                            <span class="mb-4 text-xl">Driver's Phone No </span>
+                            <span class="mb-4 text-xl">Driver's NRC No </span>
+                            <span class="mb-4 text-xl">Truck's No        </span>
+                            <span class="mb-4 text-xl">Truck's Type      </span>
+                            <span class="mb-4 text-xl 2xl:hidden">Vendor Name      </span>
+                        </div>
+                        <div class="flex flex-col">
+                            <b class="mb-4 text-xl">:&nbsp;{{ $driver->driver_name }}</b>
+                            <b class="mb-4 text-xl">:&nbsp;{{ $driver->ph_no }} </b>
+                            <b class="mb-4 text-xl">:&nbsp;{{ $driver->nrc_no }}</b>
+                            <b class="mb-4 text-xl">:&nbsp;{{ $driver->truck_no }}</b>
+                            <b class="mb-4 text-xl">:&nbsp;{{ $driver->type_truck }}</b>
+                            <b class="mb-4 text-xl 2xl:hidden">:&nbsp;{{ $data->vendor_name ?? '' }}</b>
+                        </div>
+                   </div>
                 </div>
             </div>
         </div>
-    </div>
+</div>
 </div>
 {{-- End Modal --}}
     @push('js')
-        <script  type="module">
+        <script >
             $(document).ready(function(e){
-                // $('#showProductModal').show();
+                var token = $("meta[name='__token']").attr('content');
+
                 setInterval(() => {
                     time_count();
                 }, 1000);
                 // console.log(Math.floor(2-1));
 
+                var key = '';
+                $(document).on('keypress input',function(e){
+
+                    if (e.key === 'Enter') {
+
+                        $('#bar_code').val(key);
+                        $('#bar_code').trigger('barcode_enter');
+                        key = '';
+                    } else {
+                        key += e.key;
+                    }
+                });
+
+
+
+                $(document).on('barcode_enter','#bar_code',function(e){
+                    $val  = $(this).val();
+                    $recieve_id = $('#receive_id').val();
+                    $this       = $(this);
+                    $code       =  $val.replace(/\D/g, '');
+                    if($val){
+                        $.ajax({
+                            url : "{{ route('barcode_scan') }}",
+                            type: 'POST',
+                            data: {_token:token , data:$val,id:$recieve_id},
+                            success:function(res){
+                                $('.main_table').load(location.href + ' .main_table');
+                                // $('.bar_code').each((i,v)=>{
+                                    // if($(v).text() == $code){
+                                        // $scan   = parseInt($(v).parent().find('.scanned_qty').text());
+                                        // $real_scan = parseInt($(v).parent().find('.real_scan').val());
+                                        // $remain = parseInt($(v).parent().find('.remain_qty').text());
+                                        // $qty    = parseInt($(v).parent().find('.qty').text());
+                                        // $(v).parent().find('.scanned_qty').text($scan+1 >= $qty ? $qty : Math.floor($scan + res.scanned_qty));
+                                        // $(v).parent().find('.remain_qty').text($remain-res.scanned_qty <= 0 ? 0 : Math.floor($remain - res.scanned_qty));
+                                        // $(v).parent().find('.real_scan').val(Math.floor($real_scan+1));
+                                        // if($scan+res.scanned_qty > 0 && $scan+res.scanned_qty < $qty){
+                                        //     console.log('yes');
+                                        //     $(v).parent().find('.color_add').each((i,v)=>{
+                                        //         $(v).removeClass('bg-amber-200 text-amber-600');
+                                        //         $(v).addClass('bg-amber-200 text-amber-600');
+                                        //     })
+
+                                        // }else if($scan+res.scanned_qty == $qty){
+                                        //     $no = 0;
+                                        //     $doc= '';
+                                        //     $parent = $(v).parent().parent();
+                                        //     $(v).parent().parent().find('tr').each((i,v)=>{
+                                        //         if(i == 0){
+                                        //             $no = $(v).find('.doc_times').text();
+                                        //             $doc = $(v).find('.doc_no').text();
+                                        //         }
+                                        //         return false;
+                                        //     })
+                                        //     $(v).parent().remove();
+                                        //     $parent.find('tr').each((i,v)=>{
+                                        //         if(i == 0){
+                                        //             $(v).find('.doc_times').text($no);
+                                        //             $(v).find('.doc_no').text($doc);
+                                        //         }
+                                        //         return false;
+                                        //     })
+                                        //     if($parent.find('tr').length == 0){
+                                        //         $parent.remove()
+                                        //     }
+                                        //     $('.main_body').each((i,v)=>{
+                                        //         $(v).find('tr').eq(0).find('td').eq(0).text(i+1);
+                                        //     })
+                                        // }
+                                        // return false;
+                                    // }
+                                // })
+                                $('.scan_parent').load(location.href + ' .scan_parent');
+                                if(res.data.scanned_qty > res.data.qty){
+                                    $('.excess_div').load(location.href + ' .excess_div');
+                                }
+
+                            },
+                            error : function(xhr,status,error){
+
+                            },
+                            complete:function(){
+                                $this.val('');
+                            }
+
+                        })
+                    }
+                })
+
+
+
                 function time_count(){
                     let time = new Date($('#started_time').val()).getTime();
+                    let duration = ($('#duration').val() * 1000);
+
 
                     let now  = new Date().getTime();
-                    let diff = Math.floor(now - time);
+                    let diff = Math.floor(now - time + duration);
                     let hour = Math.floor(diff / (60*60*1000));
                     let min = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
                     let sec = Math.floor((diff % (60 * 60 * 1000)) % (60 * 1000) / (1000));
 
-                    $('#time_count').text(hour.toString().padStart(2, '0') + ' : ' + min.toString().padStart(2, '0') + ' : ' + sec.toString().padStart(2, '0'));
+                    $('#time_count').text(hour.toString().padStart(2, '0') + ':' + min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0'));
                 }
+
+                $count = parseInt($('#count').val()) || 0;
+
+                $(document).on('keypress', '#docu_ipt', function(e) {
+                    if (e.keyCode === 13) {
+                        e.preventDefault();
+                        $('#search_btn').click();
+                        $(this).val('');
+                    }
+                });
+
+                $(document).on('click','#driver_info',function(e){
+                    $('#showProductModal').toggle();
+                })
+
+                $(document).on('click','#search_btn',function(e){
+                    let id = $('#receive_id').val();
+                        let val = $('#docu_ipt').val();
+                        $this = $('#docu_ipt');
+                        $vendor = $('#vendor_name').text();
+                        $.ajax({
+                            url     : "{{ route('search_doc') }}",
+                            type    : 'POST',
+                            data    :  {_token:token,data:val,id:id},
+                            success : function(res){
+                                if($vendor == ''){
+                                    $('#vendor_name').text(res[0].vendorname);
+                                }
+                                $list = '<tbody class="main_body">';
+                                for($i = 0 ; $i < res.length ; $i++)
+                                {
+                                    if($i == 0){
+                                        $list += `
+                                        <tr class="h-10">
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${Math.floor($count+1)}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 ">${res[$i].purchaseno}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0  px-2 bar_code">${res[$i].productcode}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0">${res[$i].productname}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 qty">${parseInt(res[$i].goodqty)}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 scanned_qty">0</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-r-0 remain_qty">${parseInt(res[$i].goodqty)}</td>
+                                        </tr>
+                                    `;
+                                    $count++;
+                                    }else{
+                                        $list += `
+                                        <tr class="h-10">
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 "></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0  px-2 bar_code">${res[$i].productcode}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 ">${res[$i].productname}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 qty">${parseInt(res[$i].goodqty)}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 scanned_qty">0</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-r-0 remain_qty">${parseInt(res[$i].goodqty)}</td>
+                                        </tr>
+                                        `;
+                                    }
+
+                                }
+                                $list += `</tbody>`;
+                                $length = $('.main_body').length;
+                                if($length > 0){
+                                    $('.main_body').eq($length-1).after($list);
+                                }else{
+                                    $('.main_table').load(location.href + ' .main_table');
+
+                                }
+                            },
+                            error   : function(xhr,status,error){
+                                Swal.fire({
+                                    icon:'error',
+                                    title: 'Warning',
+                                    text: 'Document မတွေ့ပါ'
+                                })
+                            },
+                            complete:function(){
+                                $this.val('');
+                            }
+                        })
+                })
+
+                $(document).on('click','#confirm_btn',function(e){
+                    $id = $('#receive_id').val();
+                    $.ajax({
+                        url : "{{ route('confirm') }}",
+                        type: 'POST',
+                        data:{_token : token , id :$id},
+                        success:function(res){
+                            location.href = '/list';
+                        }
+
+                    })
+
+                })
             })
         </script>
     @endpush

@@ -36,5 +36,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('receive_goods/{id}','receive_goods')->name('receive_goods');
 
             route::post('car_info','store_car_info')->name('store_car_info');
+
+            //ajax
+            route::post('search_doc','search_doc')->name('search_doc');
+            route::post('barcode_scan','barcode_scan')->name('barcode_scan');
+            route::post('confirm_btn','confirm')->name('confirm');
+            route::get('edit_goods/{id}','edit_goods')->name('edit_goods');
         });
 });

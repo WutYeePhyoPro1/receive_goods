@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="__token" content="{{ csrf_token() }}">
     <title>Goods Receive</title>
     <link rel="stylesheet" href="{{ asset('css/boxicons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('css')
 </head>
@@ -36,7 +38,7 @@
                 </li>
 
                 <li class="sidebar_items" onclick="javascript:window.location.href='/car_info'">
-                    @if (request()->is('receive_good'))
+                    @if (request()->is('receive_good*') || request()->is('car_info*'))
                     <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                     </div>
                 @endif
@@ -61,14 +63,14 @@
                 </li>
             </ul>
         </div>
-        <div class="content">
+        <div class="content pb-16">
             @yield('content')
         </div>
         <div class="footer flex justify-between">
             <div class="logo">
                 <img src="{{ asset('image/background_img/finallogo.png') }}" alt="">
                 <div class="logo_content">
-                    <span>Company&nbsp;&nbsp; : &nbsp;&nbsp;PRO 1 Global Home Center</span>
+                    <span>PRO 1 Global Home Center</span>
                 </div>
             </div>
             <div class="flexv whitespace-nowrap" style="line-height: 60px">
@@ -84,10 +86,8 @@
             </div>
         </div>
 </body>
-    <script type="module">
-        $(document).ready(function(e){
-        })
-    </script>
+
+
         @stack('js')
 
 </html>

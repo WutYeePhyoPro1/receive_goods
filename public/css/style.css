@@ -1,3 +1,22 @@
+body{
+    background-color: rgb(255, 251, 224,0.2);
+
+}
+
+.main_product_table::-webkit-scrollbar{
+    width: 5px;
+
+}
+
+.main_product_table::-webkit-scrollbar-track{
+    background-color: rgb(216, 216, 216);
+}
+
+.main_product_table::-webkit-scrollbar-thumb{
+    background-color: rgb(255, 166, 0);
+    border-radius: 10px;
+}
+
 .side_bar {
     position: fixed;
     top: 40px;
