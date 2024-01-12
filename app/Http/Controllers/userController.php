@@ -101,7 +101,7 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
-        // dd($request->all());
+        $branch_id = getAuth()->branch->id;
         // dd(Carbon::now()->format('H:i:s'));
         $data = $request->validate([
             'driver_name'       => 'required',
@@ -122,6 +122,7 @@ class userController extends Controller
         $main->document_no  = $name;
         $main->start_date   = Carbon::now()->format('Y-m-d');
         $main->start_time   = Carbon::now()->format('H:i:s');
+        $main->branch_id      =$branch_id;
         $main->user_id      = getAuth()->id;
 
         $main_data = $main->save();
@@ -215,7 +216,8 @@ class userController extends Controller
         if($product){
             $doc_no = $product->doc->document_no;
             $conn = DB::connection('master_product');
-            $data = $conn->select("
+            try {
+                $data = $conn->select("
             select * from
             (
             select	 product_code, qty
@@ -239,6 +241,10 @@ class userController extends Controller
                 'scanned_qty' => $scanned
             ]);
             return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty],200);
+            } catch (\Exception $e) {
+                logger($e);
+                return response()->json(['error'=>'Not found'],500);
+            }
         }else{
             return response()->json(404);
         }

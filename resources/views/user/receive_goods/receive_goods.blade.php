@@ -15,7 +15,7 @@
             @endif
         </div>
         <?php
-            if($data->duration && !$data->edit_duration)
+            if($data->duration && !$data->edit_duration && $data->edit_start_time)
             {
                 list($hour, $min, $sec) = explode(':', $data->duration);
                 $total_sec    = $hour*3600 + $min*60 + $sec;
@@ -28,6 +28,8 @@
                 $sec_pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
             }elseif($data->edit_duration){
                 $sec_pass = get_duration($data->id);
+            }else{
+                $sec_pass  = $data->duration;
             }
         ?>
 
@@ -35,7 +37,7 @@
 
     </div>
     <input type="hidden" id="bar_code" value="" >
-    <input type="hidden" id="finished" value="{{ $data->edit_duration ? true : false }}">
+    <input type="hidden" id="finished" value="{{ $data->status == 'complete' ? true : false }}">
     <div class="grid grid-cols-2 gap-2">
     <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
             <div class="border border-b-slate-400 h-10 bg-sky-50">
@@ -344,7 +346,14 @@
 
                                 },
                                 error : function(xhr,status,error){
-
+                                    if(xhr.status == 500)
+                                    {
+                                        Swal.fire({
+                                            icon : 'error',
+                                            title: 'Warning',
+                                            text : 'Server Time Out Please Contact SD Dep'
+                                        });
+                                    }
                                 },
                                 complete:function(){
                                     $this.val('');
