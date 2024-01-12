@@ -3,19 +3,64 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Branch;
+use App\Models\Product;
 use App\Models\Document;
 use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
-use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\Date;
+use App\Interfaces\UserRepositoryInterface;
+use App\Models\Department;
+use Symfony\Component\CssSelector\Node\FunctionNode;
 
 class userController extends Controller
 {
+    private UserRepositoryInterface $repository;
+
+    public function __construct(UserRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
     public function list()
     {
-        $data = GoodsReceive::paginate(30);
+
+        if(request('search') && !request('search_data'))
+        {
+            return back()->with('error','Please add search data');
+        }else if(!request('search') && request('search_data')){
+            return back()->with('error','Please add search method');
+        }
+        $ids=[];
+        if(request('search') == 'truck_no' || request('search') == 'driver_name'){
+            $ids = DriverInfo::where(request('search'),request('search_data'))->pluck('received_goods_id');
+        }
+        $data = GoodsReceive::when(request('search') == 'document_no' && request('search_data'),function($q){
+                            $q->where('document_no',request('search_data'));
+        })
+                            ->when(request('search') != 'document_no' && request('search_data'),function($q) use($ids){
+                                $q->whereIn('id',$ids);
+                            })
+                            ->when(request('branch'),function($q){
+                                $q->where('branch_id',request('branch'));
+                            })
+                            ->when(request('status'),function($q){
+                                $q->where('status',request('status'));
+                            })
+                            ->when(request('from_date'),function($q){
+                                $q->where('start_date','>=',request('from_date'));
+                            })
+                            ->when(request('to_date'),function($q){
+                                $q->where('start_date','<=',request('to_date'));
+                            })
+                            ->whereNotNull('duration')
+                            ->paginate(15);
+        $branch = Branch::get();
+        view()->share(['branch'=>$branch]);
         return view('user.list',compact('data'));
     }
 
@@ -36,10 +81,9 @@ class userController extends Controller
 
     public function receive_goods($id)
     {
-
         $data = GoodsReceive::where('id',$id)->first();
         $driver = DriverInfo::where('received_goods_id',$id)->first();
-        $document = Document::where('received_good_id',$id)->orderBy('id')->get();
+        $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $time_str = strtotime(Carbon::now())-strtotime($data->start_date.' '.$data->start_time);
         $hour   = (int)($time_str / 3600);
         $min    = (int)(($time_str % 3600) / 60);
@@ -47,6 +91,12 @@ class userController extends Controller
         $pass   = sprintf('%02d : %02d : %02d', $hour, $min, $sec);
         // $time_start = Carbon::parse($time_str)->format('H:i:s');
         return view('user.receive_goods.receive_goods',compact('data','pass','document','driver'));
+    }
+
+    public function user()
+    {
+        $data = User::paginate(15);
+        return view('user.user',compact('data'));
     }
 
     public function store_car_info(Request $request)
@@ -64,7 +114,7 @@ class userController extends Controller
         $same = GoodsReceive::where('start_date',Carbon::now()->format('Y-m-d'))->count();
         $shr  = 'REG'.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         if($same > 0){
-            $name = $shr.'-'.sprintf("%04d",$same);
+            $name = $shr.'-'.sprintf("%04d",$same+1);
         }else{
             $name = $shr.'-'.sprintf("%04d",1);
         }
@@ -95,6 +145,11 @@ class userController extends Controller
     {
         $val = $request->data;
         $type = substr($val,0,2);
+        $docs = Document::where('received_goods_id',$request->id)->pluck('document_no')->toArray();
+
+        if(in_array($val,$docs)){
+            return response()->json(['error'=>'dublicate'],500);
+        }
         // dd($type);
         $conn = DB::connection('master_product');
         if($type == "PO")
@@ -131,7 +186,7 @@ class userController extends Controller
             }
             $doc = Document::create([
                 'document_no'       => $data[0]->purchaseno,
-                'received_good_id'  => $request->id
+                'received_goods_id'  => $request->id
             ]);
             for($i = 0 ; $i < count($data) ; $i++){
                 $pd_code                = new Product();
@@ -152,7 +207,7 @@ class userController extends Controller
     {
         $all = $request->data;
         $item= preg_replace('/\D/','',$all);
-        $doc_ids = Document::where('received_good_id',$request->id)->pluck('id');
+        $doc_ids = Document::where('received_goods_id',$request->id)->pluck('id');
 
         $product = Product::whereIn('document_id',$doc_ids)
                             ->where('bar_code',$item)
@@ -192,33 +247,28 @@ class userController extends Controller
     public function confirm(Request $request)
     {
         $receive = GoodsReceive::where('id',$request->id)->first();
+        $doc = Document::where('received_goods_id',$request->id)->get();
+        // dd(count($doc));
+        if(count($doc) <= 0){
+            dd('yes');
+            exit;
+            return response()->json(['error'=>'Fill atleast one doc'],500);
+        }
         $start = strtotime($receive->start_date.' '.$receive->start_time);
         $now    = Carbon::now()->timestamp;
         $diff = $now - $start;
 
-        $doc   = Document::where('received_good_id',$request->id)->pluck('id');
-        $goods = Product::whereIn('document_id',$doc)->get();
-        $remaining  = 0;
-        $exceed     = 0;
-        foreach($goods as $item)
-        {
-            if($item->scanned_qty < $item->qty)
-            {
-                $remaining = $remaining + ($item->qty - $item->scanned_qty);
-            }elseif($item->scanned_qty > $item->qty){
-                $exceed = $exceed + ($item->scanned_qty - $item->qty);
-            }
-        }
+        $data =  $this->repository->get_remain($request->id);
 
         $hour   = (int)($diff / 3600);
         $min    = (int)(($diff % 3600) / 60);
         $sec    = (int)(($diff % 3600) % 60);
         $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
-        $status = $remaining == 0 ? 'complete' : 'incomplete';
+        $status = $data['remaining'] == 0 ? 'complete' : 'incomplete';
         $receive->update([
             'duration'      => $pass,
-            'remaining_qty' => $remaining,
-            'exceed_qty'    => $exceed,
+            'remaining_qty' => $data['remaining'],
+            'exceed_qty'    => $data['exceed'],
             'status'        => $status
         ]);
 
@@ -239,5 +289,41 @@ class userController extends Controller
         }
 
         return response()->json(200);
+    }
+
+    public function finish_goods($id)
+    {
+        $receive = GoodsReceive::where('id',$id)->first();
+
+        $start_time = strtotime($receive->edit_start_time);
+        $now        = strtotime(Carbon::now()->format('Y-m-d H:i:s'));
+
+        $data =  $this->repository->get_remain($id);
+        $diff = $now - $start_time;
+        $hour   = (int)($diff / 3600);
+        $min    = (int)(($diff % 3600) / 60);
+        $sec    = (int)(($diff % 3600) % 60);
+        $time   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+
+        $receive->update([
+            'status'        => 'complete',
+            'edit_duration' => $time,
+            'remaining_qty' => $data['remaining'],
+            'exceed_qty'    => $data['exceed']
+        ]);
+        return response()->json(200);
+    }
+
+    public function create_user()
+    {
+        $branch = Branch::get();
+        $department = Department::get();
+        view()->share(['branch'=>$branch,'department'=>$department]);
+        return view('user.create_edit');
+    }
+
+    public function store_user(Request $request)
+    {
+        dd($request->all());
     }
 }

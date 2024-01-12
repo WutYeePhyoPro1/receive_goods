@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('vendor_name')->nullable();
             $table->string('status')->nullable();
             $table->string('user_id');
+            $table->string('branch_id');
             $table->string('edit_user')->nullable();
             $table->time('duration')->nullable();
             $table->datetime('edit_start_time')->nullable();

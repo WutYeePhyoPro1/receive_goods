@@ -10,10 +10,12 @@
         </div>
         <div class="flex">
             <span class=" mt-2 -translate-x-6 hidden 2xl:block" >Vendor Name : <b class="text-2xl" id="vendor_name">{{ $data->vendor_name ?? '' }}</b></span>
-            <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-16 tracking-wider font-semibold rounded-lg" id="confirm_btn">Confirm</button>
+            @if (!$data->edit_duration)
+                <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-16 tracking-wider font-semibold rounded-lg" id="{{ $data->duration ? 'finish_btn' : 'confirm_btn' }}">{{ $data->duration ? 'Finish' : 'Confirm' }}</button>
+            @endif
         </div>
         <?php
-            if($data->duration)
+            if($data->duration && !$data->edit_duration)
             {
                 list($hour, $min, $sec) = explode(':', $data->duration);
                 $total_sec    = $hour*3600 + $min*60 + $sec;
@@ -24,14 +26,18 @@
                 $min    = (int)(($combine % 3600) / 60);
                 $sec    = (int)(($combine % 3600) % 60);
                 $sec_pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+            }elseif($data->edit_duration){
+                $sec_pass = get_duration($data->id);
             }
         ?>
 
         <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap" id="time_count">{{ $data->duration ? $sec_pass : $pass }}</span>
+
     </div>
     <input type="hidden" id="bar_code" value="" >
+    <input type="hidden" id="finished" value="{{ $data->edit_duration ? true : false }}">
     <div class="grid grid-cols-2 gap-2">
-    <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 85vh;max-height:85vh;width:100%;overflow-x:hidden;overflow-y:auto">
+    <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
             <div class="border border-b-slate-400 h-10 bg-sky-50">
                 <span class="font-semibold leading-9 ml-3">
                     List Of Products
@@ -93,7 +99,7 @@
             </div>
 
         </div>
-        <div class="mt-5 grid grid-rows-2 gap-2" style="max-height: 85vh;width:100%; overflow:hidden">
+        <div class="mt-5 grid grid-rows-2 gap-2" style="max-height: 83vh;width:100%; overflow:hidden">
             <div class="border border-slate-400 rounded-md overflow-y-auto overflow-x-hidden main_product_table" style="max-height: 42.5vh;width:100%;">
                 <div class="border border-b-slate-400 h-10 bg-sky-50">
                     <span class="font-semibold leading-9 ml-3">
@@ -145,7 +151,7 @@
                     </table>
                 </div>
             </div>
-            <div class="border border-slate-400 rounded-md overflow-x-hidden overflow-y-auto" style="max-height: 42.5vh;width:100%">
+            <div class="border border-slate-400 rounded-md overflow-x-hidden overflow-y-auto main_product_table" style="max-height: 42.5vh;width:100%">
                 <div class="border border-b-slate-400 h-10 bg-sky-50">
                     <span class="font-semibold leading-9 ml-3">
                         List Of Scanned Products (excess)
@@ -230,6 +236,7 @@
                             <span class="mb-4 text-xl">Driver's NRC No </span>
                             <span class="mb-4 text-xl">Truck's No        </span>
                             <span class="mb-4 text-xl">Truck's Type      </span>
+                            <span class="mb-4 text-xl ">Branch      </span>
                             <span class="mb-4 text-xl 2xl:hidden">Vendor Name      </span>
                         </div>
                         <div class="flex flex-col">
@@ -238,6 +245,7 @@
                             <b class="mb-4 text-xl">:&nbsp;{{ $driver->nrc_no }}</b>
                             <b class="mb-4 text-xl">:&nbsp;{{ $driver->truck_no }}</b>
                             <b class="mb-4 text-xl">:&nbsp;{{ $driver->type_truck }}</b>
+                            <b class="mb-4 text-xl">:&nbsp;{{ $data->user->branch->branch_name }}</b>
                             <b class="mb-4 text-xl 2xl:hidden">:&nbsp;{{ $data->vendor_name ?? '' }}</b>
                         </div>
                    </div>
@@ -251,104 +259,102 @@
         <script >
             $(document).ready(function(e){
                 var token = $("meta[name='__token']").attr('content');
+                $finish = $('#finished').val();
 
-                setInterval(() => {
-                    time_count();
-                }, 1000);
-                // console.log(Math.floor(2-1));
-
-                var key = '';
-                $(document).on('keypress input',function(e){
-
-                    if (e.key === 'Enter') {
-
-                        $('#bar_code').val(key);
-                        $('#bar_code').trigger('barcode_enter');
-                        key = '';
-                    } else {
-                        key += e.key;
-                    }
-                });
+                if(!$finish){
+                    setInterval(() => {
+                        time_count();
+                    }, 1000);
 
 
+                    var key = '';
+                    $(document).on('keypress input',function(e){
 
-                $(document).on('barcode_enter','#bar_code',function(e){
-                    $val  = $(this).val();
-                    $recieve_id = $('#receive_id').val();
-                    $this       = $(this);
-                    $code       =  $val.replace(/\D/g, '');
-                    if($val){
-                        $.ajax({
-                            url : "{{ route('barcode_scan') }}",
-                            type: 'POST',
-                            data: {_token:token , data:$val,id:$recieve_id},
-                            success:function(res){
-                                $('.main_table').load(location.href + ' .main_table');
-                                // $('.bar_code').each((i,v)=>{
-                                    // if($(v).text() == $code){
-                                        // $scan   = parseInt($(v).parent().find('.scanned_qty').text());
-                                        // $real_scan = parseInt($(v).parent().find('.real_scan').val());
-                                        // $remain = parseInt($(v).parent().find('.remain_qty').text());
-                                        // $qty    = parseInt($(v).parent().find('.qty').text());
-                                        // $(v).parent().find('.scanned_qty').text($scan+1 >= $qty ? $qty : Math.floor($scan + res.scanned_qty));
-                                        // $(v).parent().find('.remain_qty').text($remain-res.scanned_qty <= 0 ? 0 : Math.floor($remain - res.scanned_qty));
-                                        // $(v).parent().find('.real_scan').val(Math.floor($real_scan+1));
-                                        // if($scan+res.scanned_qty > 0 && $scan+res.scanned_qty < $qty){
-                                        //     console.log('yes');
-                                        //     $(v).parent().find('.color_add').each((i,v)=>{
-                                        //         $(v).removeClass('bg-amber-200 text-amber-600');
-                                        //         $(v).addClass('bg-amber-200 text-amber-600');
-                                        //     })
+                        if (e.key === 'Enter') {
 
-                                        // }else if($scan+res.scanned_qty == $qty){
-                                        //     $no = 0;
-                                        //     $doc= '';
-                                        //     $parent = $(v).parent().parent();
-                                        //     $(v).parent().parent().find('tr').each((i,v)=>{
-                                        //         if(i == 0){
-                                        //             $no = $(v).find('.doc_times').text();
-                                        //             $doc = $(v).find('.doc_no').text();
-                                        //         }
-                                        //         return false;
-                                        //     })
-                                        //     $(v).parent().remove();
-                                        //     $parent.find('tr').each((i,v)=>{
-                                        //         if(i == 0){
-                                        //             $(v).find('.doc_times').text($no);
-                                        //             $(v).find('.doc_no').text($doc);
-                                        //         }
-                                        //         return false;
-                                        //     })
-                                        //     if($parent.find('tr').length == 0){
-                                        //         $parent.remove()
-                                        //     }
-                                        //     $('.main_body').each((i,v)=>{
-                                        //         $(v).find('tr').eq(0).find('td').eq(0).text(i+1);
-                                        //     })
+                            $('#bar_code').val(key);
+                            $('#bar_code').trigger('barcode_enter');
+                            key = '';
+                        } else {
+                            key += e.key;
+                        }
+                    });
+
+                    $(document).on('barcode_enter','#bar_code',function(e){
+                        $val  = $(this).val();
+                        $recieve_id = $('#receive_id').val();
+                        $this       = $(this);
+                        $code       =  $val.replace(/\D/g, '');
+                        if($val){
+                            $.ajax({
+                                url : "{{ route('barcode_scan') }}",
+                                type: 'POST',
+                                data: {_token:token , data:$val,id:$recieve_id},
+                                success:function(res){
+                                    $('.main_table').load(location.href + ' .main_table');
+                                    // $('.bar_code').each((i,v)=>{
+                                        // if($(v).text() == $code){
+                                            // $scan   = parseInt($(v).parent().find('.scanned_qty').text());
+                                            // $real_scan = parseInt($(v).parent().find('.real_scan').val());
+                                            // $remain = parseInt($(v).parent().find('.remain_qty').text());
+                                            // $qty    = parseInt($(v).parent().find('.qty').text());
+                                            // $(v).parent().find('.scanned_qty').text($scan+1 >= $qty ? $qty : Math.floor($scan + res.scanned_qty));
+                                            // $(v).parent().find('.remain_qty').text($remain-res.scanned_qty <= 0 ? 0 : Math.floor($remain - res.scanned_qty));
+                                            // $(v).parent().find('.real_scan').val(Math.floor($real_scan+1));
+                                            // if($scan+res.scanned_qty > 0 && $scan+res.scanned_qty < $qty){
+                                            //     console.log('yes');
+                                            //     $(v).parent().find('.color_add').each((i,v)=>{
+                                            //         $(v).removeClass('bg-amber-200 text-amber-600');
+                                            //         $(v).addClass('bg-amber-200 text-amber-600');
+                                            //     })
+
+                                            // }else if($scan+res.scanned_qty == $qty){
+                                            //     $no = 0;
+                                            //     $doc= '';
+                                            //     $parent = $(v).parent().parent();
+                                            //     $(v).parent().parent().find('tr').each((i,v)=>{
+                                            //         if(i == 0){
+                                            //             $no = $(v).find('.doc_times').text();
+                                            //             $doc = $(v).find('.doc_no').text();
+                                            //         }
+                                            //         return false;
+                                            //     })
+                                            //     $(v).parent().remove();
+                                            //     $parent.find('tr').each((i,v)=>{
+                                            //         if(i == 0){
+                                            //             $(v).find('.doc_times').text($no);
+                                            //             $(v).find('.doc_no').text($doc);
+                                            //         }
+                                            //         return false;
+                                            //     })
+                                            //     if($parent.find('tr').length == 0){
+                                            //         $parent.remove()
+                                            //     }
+                                            //     $('.main_body').each((i,v)=>{
+                                            //         $(v).find('tr').eq(0).find('td').eq(0).text(i+1);
+                                            //     })
+                                            // }
+                                            // return false;
                                         // }
-                                        // return false;
-                                    // }
-                                // })
-                                $('.scan_parent').load(location.href + ' .scan_parent');
-                                if(res.data.scanned_qty > res.data.qty){
-                                    $('.excess_div').load(location.href + ' .excess_div');
+                                    // })
+                                    $('.scan_parent').load(location.href + ' .scan_parent');
+                                    if(res.data.scanned_qty > res.data.qty){
+                                        $('.excess_div').load(location.href + ' .excess_div');
+                                    }
+
+                                },
+                                error : function(xhr,status,error){
+
+                                },
+                                complete:function(){
+                                    $this.val('');
                                 }
 
-                            },
-                            error : function(xhr,status,error){
+                            })
+                        }
+                    })
 
-                            },
-                            complete:function(){
-                                $this.val('');
-                            }
-
-                        })
-                    }
-                })
-
-
-
-                function time_count(){
+                    function time_count(){
                     let time = new Date($('#started_time').val()).getTime();
                     let duration = ($('#duration').val() * 1000);
 
@@ -430,11 +436,21 @@
                                 }
                             },
                             error   : function(xhr,status,error){
-                                Swal.fire({
+                                console.log(xhr.status);
+                                if(xhr.status == 500){
+                                    Swal.fire({
+                                    icon:'error',
+                                    title: 'Warning',
+                                    text: 'Doucment တခုကို နှစ်ကြိမ်ထည့်ခွင့်မရှိပါ'
+                                })
+                                }else if(xhr.status == 404){
+                                    Swal.fire({
                                     icon:'error',
                                     title: 'Warning',
                                     text: 'Document မတွေ့ပါ'
                                 })
+                                }
+
                             },
                             complete:function(){
                                 $this.val('');
@@ -450,11 +466,48 @@
                         data:{_token : token , id :$id},
                         success:function(res){
                             location.href = '/list';
+                        },
+                        error:function(xhr,status,error){
+                            Swal.fire({
+                                icon : 'error',
+                                title: 'Warning',
+                                text : 'ကျေးဇူးပြုပြီး doc တစောင် အနည်းဆုံးထည့်ပေးပါ'
+                            })
                         }
 
                     })
 
                 })
+
+                $(document).on('click','#finish_btn',function(e){
+                    $finish = true;
+                    $id = $('#receive_id').val();
+                   $('.remain_qty').each((i,v)=>{
+
+                    if(parseInt($(v).text()) > 0){
+                        Swal.fire({
+                            icon : 'error',
+                            title: 'Warning',
+                            text : 'Scan ဖတ်ရန်ကျန်နေပါသေးသည်'
+                        })
+                        $finish = false;
+                        return false;
+                    }
+                   })
+
+                   if($finish)
+                   {
+                        $.ajax({
+                            url : "/finish_goods/"+$id,
+                            type: 'get',
+                            success: function(res){
+                                location.href = '/list';
+                            }
+                        })
+                   }
+                })
+                }
+                // console.log(Math.floor(2-1));
             })
         </script>
     @endpush

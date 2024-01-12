@@ -48,6 +48,19 @@
                     </div>
                 </li>
 
+                @if (getAuth()->role == 1)
+                    <li class="sidebar_items" onclick="javascript:window.location.href='/user'">
+                        @if (request()->is('user*'))
+                        <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
+                        </div>
+                    @endif
+                        <div class="sidebar_text">
+                            <i class='bx bxs-user-rectangle' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
+                            <span>User</span>
+                        </div>
+                    </li>
+                @endif
+
                 <li style="margin:50px 0;border-bottom:1px solid rgb(110, 109, 109)">
 
                 </li>

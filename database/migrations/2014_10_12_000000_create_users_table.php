@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('password_str');
+            $table->string('role');
             $table->integer('department_id');
             $table->integer('branch_id');
             $table->boolean('active')->default(true);

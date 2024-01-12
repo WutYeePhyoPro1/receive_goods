@@ -22,6 +22,7 @@ class User extends Authenticatable
         'employee_code',
         'password',
         'password_str',
+        'role',
         'department_id',
         'branch_id',
         'active'
@@ -46,4 +47,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class,'branch_id','id');
+    }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
             $table->string('document_no');
-            $table->integer('received_good_id');
+            $table->integer('received_goods_id');
             $table->timestamps();
         });
     }

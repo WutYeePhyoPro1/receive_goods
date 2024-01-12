@@ -17,9 +17,10 @@ class UserSeeder extends Seeder
     {
         $user                   = new User();
         $user->name             = 'admin';
-        $user->employee_code    = '000-000000';
+        $user->employee_code    = 'superadmin@mail.com';
         $user->password         = Hash::make('admin123');
-        $user->password_str    = 'admin123';
+        $user->password_str     = 'admin123';
+        $user->role             = 1;
         $user->department_id    = 1;
         $user->branch_id        = 1;
         $user->active           = true;

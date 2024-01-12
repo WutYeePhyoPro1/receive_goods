@@ -34,13 +34,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('list','list')->name('list');
             route::get('car_info','car_info')->name('car_info');
             route::get('receive_goods/{id}','receive_goods')->name('receive_goods');
+            route::get('user','user')->name('user');
+            route::get('create_user','create_user')->name('create_user');
 
             route::post('car_info','store_car_info')->name('store_car_info');
+            route::post('store_user','store_user')->name('store_user');
 
             //ajax
             route::post('search_doc','search_doc')->name('search_doc');
             route::post('barcode_scan','barcode_scan')->name('barcode_scan');
             route::post('confirm_btn','confirm')->name('confirm');
             route::get('edit_goods/{id}','edit_goods')->name('edit_goods');
+            route::get('finish_goods/{id}','finish_goods')->name('finish_goods');
         });
 });
