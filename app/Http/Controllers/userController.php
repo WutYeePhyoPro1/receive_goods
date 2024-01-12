@@ -7,14 +7,15 @@ use App\Models\User;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Document;
+use App\Models\Department;
 use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Hash;
 use App\Interfaces\UserRepositoryInterface;
-use App\Models\Department;
 use Symfony\Component\CssSelector\Node\FunctionNode;
 
 class userController extends Controller
@@ -101,6 +102,7 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
+        $branch_id = getAuth()->branch->id;
         // dd($request->all());
         // dd(Carbon::now()->format('H:i:s'));
         $data = $request->validate([
@@ -122,6 +124,7 @@ class userController extends Controller
         $main->document_no  = $name;
         $main->start_date   = Carbon::now()->format('Y-m-d');
         $main->start_time   = Carbon::now()->format('H:i:s');
+        $main->branch_id      =$branch_id;
         $main->user_id      = getAuth()->id;
 
         $main_data = $main->save();
@@ -206,6 +209,7 @@ class userController extends Controller
     public function barcode_scan(Request $request)
     {
         $all = $request->data;
+        // dd($all);
         $item= preg_replace('/\D/','',$all);
         $doc_ids = Document::where('received_goods_id',$request->id)->pluck('id');
 
@@ -232,6 +236,7 @@ class userController extends Controller
             )as erpdb
             ");
             $qty = (int)($data[0]->qty);
+            // dd($qty);
             $scanned = $product->scanned_qty + $qty;
 
             // dd($scanned);
@@ -324,6 +329,32 @@ class userController extends Controller
 
     public function store_user(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
+        $request->validate([
+            'name'          => 'required',
+            'employee_code' => 'required',
+            'password'      => 'required|confirmed',
+            'confirm'       => 'required|same:password',
+            'department'    => 'required',
+            'branch'        => 'required',
+            'status'        => 'required'
+        ]);
+
+        $user                   = new User();
+        $user->name             = $request->name;
+        $user->employee_code    = $request->employee_code;
+        $user->password         = Hash::make($request->password);
+        $user->password_str     = $request->password;
+        $user->department_id    = $request->department;
+        $user->branch_id        = $request->branch;
+        $user->active           = $request->status == 'active' ? true : false;
+        $user->role             = 2;
+        $succ = $user->save();
+
+        if($succ){
+            return redirect()->route('user')->with('success','User Create Success');
+        }else{
+            return redirect()->route('user')->with('fails','User Create Fails');
+        }
     }
 }
