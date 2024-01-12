@@ -219,7 +219,8 @@ class userController extends Controller
         if($product){
             $doc_no = $product->doc->document_no;
             $conn = DB::connection('master_product');
-            $data = $conn->select("
+            try {
+                $data = $conn->select("
             select * from
             (
             select	 product_code, qty
@@ -244,6 +245,10 @@ class userController extends Controller
                 'scanned_qty' => $scanned
             ]);
             return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty],200);
+            } catch (\Exception $e) {
+                logger($e);
+                return response()->json(['error'=>'Not found'],500);
+            }
         }else{
             return response()->json(404);
         }
