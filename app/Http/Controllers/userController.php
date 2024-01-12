@@ -246,7 +246,7 @@ class userController extends Controller
                 return response()->json(['error'=>'Not found'],500);
             }
         }else{
-            return response()->json(404);
+            return response()->json(['error'=>'Not found'],404);
         }
     }
 

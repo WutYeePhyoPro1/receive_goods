@@ -353,7 +353,16 @@
                                             title: 'Warning',
                                             text : 'Server Time Out Please Contact SD Dep'
                                         });
+                                    }else if(xhr.status == 404){
+                                        Swal.fire({
+                                            icon : 'error',
+                                            title: 'Warning',
+                                            text : 'Bar Code Not found'
+                                        });
                                     }
+                                    setTimeout(() => {
+                                        Swal.close();
+                                        }, 2000);
                                 },
                                 complete:function(){
                                     $this.val('');
