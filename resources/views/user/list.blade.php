@@ -73,14 +73,12 @@
                         <th class="py-2 bg-slate-400 border">Branch</th>
                         <th class="py-2 bg-slate-400 border">Status</th>
                         <th class="py-2 bg-slate-400 border">Document</th>
-                        <th class="py-2 bg-slate-400 border">Driver Name</th>
-                        <th class="py-2 bg-slate-400 border">Truck No</th>
-                        <th class="py-2 bg-slate-400 border">Type Of Truck</th>
-                        <th class="py-2 bg-slate-400 border">Remain Goods</th>
-                        <th class="py-2 bg-slate-400 border">Exceed Goods</th>
-                        <th class="py-2 bg-slate-400 border">Supplier</th>
+                        <th class="py-2 bg-slate-400 border">PO QTY</th>
+                        <th class="py-2 bg-slate-400 border">Remain QTY</th>
+                        <th class="py-2 bg-slate-400 border">Exceed QTY</th>
+                        <th class="py-2 bg-slate-400 border">Source</th>
                         <th class="py-2 bg-slate-400 border">Start Date</th>
-                        <th class="py-2 bg-slate-400  rounded-tr-md">Duration</th>
+                        <th class="py-2 bg-slate-400  rounded-tr-md">Total Unload Time</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -98,15 +96,12 @@
                                 <i class='bx bxs-folder text-amber-400 cursor-pointer ms-3 text-lg' onclick="javascript:window.location.href = '/receive_goods/'+{{$item->id}}"></i>
                                 @endif
                             </td>
-
-                            <td class="h-10 text-center border border-slate-400">{{ $item->car_info->driver_name }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->car_info->truck_no }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->car_info->type_truck }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ get_total_qty($item->id) }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->remaining_qty }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->exceed_qty }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->vendor_name }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->source_good->name }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->start_date }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ get_duration($item->id) }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ get_all_duration($item->id) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -128,14 +123,7 @@
             $(document).ready(function(){
                 $(document).on('click','.edit_view',function(e){
                     $id = $(this).data('id');
-
-                    $.ajax({
-                        url : 'edit_goods/'+$id,
-                        type: 'get',
-                        success: function(res){
-                            window.location.href = 'receive_goods/'+$id;
-                        }
-                    })
+                    window.location.href = 'car_info/'+$id;
                 })
             })
         </script>

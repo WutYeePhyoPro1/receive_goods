@@ -20,12 +20,11 @@ return new class extends Migration
             $table->string('status')->nullable();
             $table->string('user_id');
             $table->string('branch_id');
-            $table->string('edit_user')->nullable();
-            $table->time('duration')->nullable();
-            $table->datetime('edit_start_time')->nullable();
-            $table->time('edit_duration')->nullable();
-            $table->integer('remaining_qty')->nullable();
-            $table->integer('exceed_qty')->nullable();
+            $table->string('source');
+            $table->time('total_duration')->nullable();
+            $table->double('remaining_qty')->nullable();
+            $table->double('exceed_qty')->nullable();
+            $table->text('remark')->nullable();
             $table->timestamps();
         });
     }

@@ -9,5 +9,10 @@ class DriverInfo extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['ph_no','type_truck','received_goods_id','dirver_name','truck_no','nrc_no'];
+    protected $fillable = ['ph_no','type_truck','received_goods_id','dirver_name','scanned_goods','truck_no','nrc_no','start_date','start_time','duration'];
+
+    public function truck()
+    {
+        return $this->belongsTo(Truck::class,'type_truck','id');
+    }
 }

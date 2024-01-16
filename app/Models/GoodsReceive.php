@@ -10,14 +10,18 @@ class GoodsReceive extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['document_no','start_date','start_time','vendor_name','status','user_id','branch_id','edit_user','duration','edit_start_time','edit_duration','remaining_qty','exceed_qty'];
+    protected $fillable = ['document_no','start_date','start_time','vendor_name','status','user_id','branch_id','source','total_duration','remaining_qty','exceed_qty'];
 
     public function car_info(){
-        return $this->belongsTo(DriverInfo::class,'id', 'received_goods_id');
+        return $this->hasMany(DriverInfo::class,'id', 'received_goods_id');
     }
 
     public function user(){
         return $this->belongsTo(User::class,'user_id','id');
+    }
+
+    public function source_good(){
+        return $this->belongsTo(Source::class,'source','id');
     }
 
     // public function documents()

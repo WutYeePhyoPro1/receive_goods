@@ -5,8 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Document extends Model
+class Source extends Model
 {
     use HasFactory;
-    protected $fillable = ['document_no','received_goods_id','remark'];
+
+    protected $fillable = ['name'];
 }

@@ -1,6 +1,15 @@
 @extends('layout.layout')
 
 @section('content')
+<div class="error_msg">
+    @if (Session::has('fails'))
+    <div class="m-5 text-rose-500 bg-rose-200 ps-5 border-l-4 border-rose-500 py-2">{{ Session::get('fails') }}</div>
+@endif
+@if (Session::has('success'))
+    <div class="m-5 text-emerald-500 bg-emerald-200 ps-5 border-l-4 border-emerald-500 py-2">{{ Session::get('success') }}</div>
+@endif
+
+</div>
     <div class="m-5">
         <div class="ms-1 flex justify-between">
             <span class="text-2xl font-serif tracking-wide">Users List</span>
@@ -78,11 +87,22 @@
                             <td class="h-10 text-center border border-slate-400">{{ $item->name }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->employee_code }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->branch->branch_name }}</td>
-                            <td class="h-10 text-center border border-slate-400 {{ $item->active ? 'text-emerald-600' : 'text-rose-600' }}">{{ $item->active ? 'Active' : 'Inactive' }}</td>
+                            <td class="h-10 text-center border border-slate-400 {{ $item->active ? 'text-emerald-600' : 'text-rose-600' }} ">
+                                @if($item->role != 1)
+                                <span class="user_status">
+                                    {{ $item->active ? 'Active' : 'Inactive' }}
+                                </span>
+
+                                    <label class="relative inline-flex items-center cursor-pointer translate-y-1 ms-5">
+                                        <input type="checkbox" value="{{ $item->id }}" class="sr-only peer user_active" {{ $item->active == 1 ? 'checked' : '' }}>
+                                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                      </label>
+                                    @endif
+                            </td>
                             <td class="h-10 text-center border border-slate-400 ">
                                 @if ($item->role != 1)
-                                <button class="bg-sky-500 px-1 rounded-md mr-1"><i class='bx bxs-edit text-white mt-1' ></i></button>
-                                <button class="bg-rose-500 px-1 rounded-md mr-1"><i class='bx bxs-trash-alt text-white mt-1'></i></button>
+                                <button class="bg-sky-500 hover:bg-sky-700 px-1 rounded-md mr-1" onclick="window.location.href = 'edit_user/{{ $item->id }}'"><i class='bx bxs-edit text-white mt-1' ></i></button>
+                                <button class="bg-rose-500 hover:bg-rose-700 px-1 rounded-md mr-1 del_btn" data-id="{{ $item->id }}"><i class='bx bxs-trash-alt text-white mt-1'></i></button>
                                 @endif
                             </td>
                         </tr>
@@ -90,11 +110,11 @@
                 </tbody>
             </table>
         </div>
-        @if (request('search') || request('search_data') || request('branch') || request('status') || request('from_date') || request('to_date'))
+        {{-- @if (request('search') || request('search_data') || request('branch') || request('status') || request('from_date') || request('to_date'))
         <div class="mt-2">
             <button class="bg-sky-600 text-white px-3 py-2 rounded-md" onclick="javascirpt:window.location.href = 'list'">Back to Default</button>
         </div>
-        @endif
+        @endif --}}
         <div class="flex justify-center text-xs mt-2 bg-white mt-6">
             {{ $data->appends(request()->query())->links() }}
 
@@ -102,5 +122,67 @@
     </div>
 
     @push('js')
+        <script>
+            $(document).ready(function(){
+
+                var token = $("meta[name='__token']").attr('content');
+
+                $(document).on('click','.user_active',function(e){
+                    $this = $(this);
+                    $id = $this.val();
+                    if($(this).prop('checked') == true){
+                        $data = 1;
+                    }else{
+
+                        $data = 0;
+                    }
+                    $.ajax({
+                        url : "{{ route('active_user') }}",
+                        type: "POST",
+                        data: {_token : token , data : $data , id : $id},
+                        success : function(res){
+                            if($data == 0)
+                            {
+                                $this.prop('checked',false);
+                                $this.parent().parent().find('.user_status').text('Inactive');
+                                $this.parent().parent().removeClass('text-emerald-600 text-rose-600');
+                                $this.parent().parent().addClass('text-rose-600');
+                            }else{
+                                $this.prop('checked',true);
+                                $this.parent().parent().find('.user_status').text('Active');
+                                $this.parent().parent().removeClass('text-emerald-600 text-rose-600');
+                                $this.parent().parent().addClass('text-emerald-600');
+                            }
+                        }
+                    })
+                })
+
+                $(document).on('click','.del_btn',function(e){
+                   $id = $(this).data('id');
+                    $this = $(this);
+                   Swal.fire({
+                    icon : 'info',
+                    title: 'Are You Sure?',
+                    showCancelButton:true,
+                    confirmButtonText:'Yes',
+                    cancelButtonText: "No",
+                   }).then((result)=>{
+                    if(result.isConfirmed){
+                        $.ajax({
+                            url : "{{ route('del_user') }}",
+                            type: 'post',
+                            data: {_token:token , id : $id},
+                            success: function(res){
+                                $this.parent().parent().remove();
+                                $('.error_msg').append(`
+                                <div class="m-5 text-emerald-500 bg-emerald-200 ps-5 border-l-4 border-emerald-500 py-2">Delete Success</div>
+                                `);
+                            }
+                        })
+                    }
+                   })
+                })
+            })
+        </script>
     @endpush
 @endsection

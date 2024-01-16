@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             departmentSeeder::class,
             branchSeeder::class,
+            TruckSeeder::class,
+            SourceSeeder::class,
             // Add more seeder classes as needed
         ]);
     }

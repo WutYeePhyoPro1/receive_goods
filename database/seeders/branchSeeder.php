@@ -32,6 +32,7 @@ class branchSeeder extends Seeder
         Branch::factory()->create([ 'branch_name' =>'WH-Mingalardon','branch_code' => 'MM-505']);
         Branch::factory()->create([ 'branch_name' =>'DC-Myawaddy','branch_code' => 'MM-509']);
         Branch::factory()->create([ 'branch_name' =>'DC-Mingalardon2','branch_code' => 'MM-510']);
+        Branch::factory()->create([ 'branch_name' =>'DC-Mingalardon3','branch_code' => 'MM-511']);
         Branch::factory()->create(['branch_name'=>'Da Nyin Gone','branch_code'=> 'MM-114']);
         Branch::factory()->create(['branch_name'=>'Clearance Sale','branch_code'=> 'MM-205']);
     }

@@ -1,7 +1,10 @@
 <?php
 
-use App\Models\GoodsReceive;
+use Carbon\Carbon;
 use App\Models\Product;
+use App\Models\Document;
+use App\Models\DriverInfo;
+use App\Models\GoodsReceive;
 use Illuminate\Support\Facades\DB;
 
     function getAuth()
@@ -58,21 +61,95 @@ use Illuminate\Support\Facades\DB;
         return $msg;
     }
 
-    function get_duration($id)
+    function get_total_qty($id)
+    {
+        $doc = Document::where('received_goods_id',$id)->pluck('id');
+        $total = (int)0;
+        foreach($doc as $item)
+        {
+            $total += Product::where('document_id',$item)->sum('qty');
+        }
+        return $total;
+    }
+
+    function get_all_duration($id)
     {
         $data = GoodsReceive::where('id',$id)->first();
-        list($hour, $min, $sec) = explode(':', $data->duration);
-        $total_sec    = $hour*3600 + $min*60 + $sec;
-        $total_sec1 = 0;
-        if($data->edit_duration){
-            list($hour1, $min1, $sec1) = explode(':', $data->edit_duration);
-            $total_sec1    = $hour1*3600 + $min1*60 + $sec1;
+        $finish_driver  = DriverInfo::where('received_goods_id',$id)->whereNotNull('duration')->pluck('duration');
+        $pending_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
+        // dd($pending_driver);
+        $diff = (int)0;
+        if($pending_driver)
+        {
+            $cur_sec = strtotime($pending_driver->start_date.' '.$pending_driver->start_time);
+            $now     = Carbon::now()->timestamp;
+            $diff = $now - $cur_sec;
         }
-
-        $combine = $total_sec + $total_sec1;
+        $total_sec =(int)0;
+        foreach($finish_driver as $item)
+        {
+            list($hour, $min, $sec) = explode(':', $item);
+            $total_sec    += $hour*3600 + $min*60 + $sec;
+        }
+        $combine = $total_sec + $diff;
         $hour   = (int)($combine / 3600);
         $min    = (int)(($combine % 3600) / 60);
         $sec    = (int)(($combine % 3600) % 60);
         $sec_pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
         return $sec_pass;
     }
+
+    function get_done_duration($id)
+    {
+        $data = GoodsReceive::where('id',$id)->first();
+        $finish_driver  = DriverInfo::where('received_goods_id',$id)->whereNotNull('duration')->pluck('duration');
+        $total_sec =(int)0;
+        foreach($finish_driver as $item)
+        {
+            list($hour, $min, $sec) = explode(':', $item);
+            $total_sec    += $hour*3600 + $min*60 + $sec;
+        }
+
+        return $total_sec;
+    }
+
+    function scan_zero($id)
+    {
+        $product = Product::where('document_id',$id)->pluck('scanned_qty');
+        $zero = true;
+        foreach($product as $item)
+        {
+            if($item > 0)
+            {
+                $zero = false;
+                break;
+            }
+        }
+        return $zero;
+    }
+
+    function get_scanned_qty($id)
+    {
+        $scan_goods = DriverInfo::where('received_goods_id',$id)
+                                ->whereNotNull('scanned_goods')
+                                ->sum('scanned_goods');
+        $doc = Document::where('received_goods_id',$id)->pluck('id');
+        $scanned = (int)0;
+        foreach($doc as $item)
+        {
+            $pd = Product::where('document_id',$item)->sum('scanned_qty');
+            $scanned += $pd;
+        }
+
+        if($scanned > 0){
+            $this_goods = $scanned - $scan_goods;
+        }else{
+
+            $this_goods = $scanned;
+        }
+
+        return $this_goods;
+
+    }
+
+

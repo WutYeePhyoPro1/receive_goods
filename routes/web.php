@@ -33,18 +33,25 @@ Route::middleware(['auth:sanctum'])->group(function () {
         route::group(['controller'=>userController::class],function(){
             route::get('list','list')->name('list');
             route::get('car_info','car_info')->name('car_info');
+            route::get('car_info/{id}','car')->name('car');
             route::get('receive_goods/{id}','receive_goods')->name('receive_goods');
             route::get('user','user')->name('user');
             route::get('create_user','create_user')->name('create_user');
+            route::get('edit_user/{id}','edit_user')->name('edit_user');
 
             route::post('car_info','store_car_info')->name('store_car_info');
             route::post('store_user','store_user')->name('store_user');
+            route::post('update_user','update_user')->name('update_user');
 
             //ajax
             route::post('search_doc','search_doc')->name('search_doc');
             route::post('barcode_scan','barcode_scan')->name('barcode_scan');
             route::post('confirm_btn','confirm')->name('confirm');
-            route::get('edit_goods/{id}','edit_goods')->name('edit_goods');
+            // route::get('edit_goods/{id}','edit_goods')->name('edit_goods');
             route::get('finish_goods/{id}','finish_goods')->name('finish_goods');
+            route::get('get_driver_info/{id}','driver_info');
+            route::post('active_user','active_user')->name('active_user');
+            route::post('del_user','del_user')->name('del_user');
+            route::post('del_doc','del_doc')->name('del_doc');
         });
 });

@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Document;
 use App\Models\Department;
 use App\Models\DriverInfo;
+use App\Models\Truck;
 use App\Models\GoodsReceive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\Source;
 use Symfony\Component\CssSelector\Node\FunctionNode;
 
 class userController extends Controller
@@ -58,7 +60,7 @@ class userController extends Controller
                             ->when(request('to_date'),function($q){
                                 $q->where('start_date','<=',request('to_date'));
                             })
-                            ->whereNotNull('duration')
+                            ->whereNotNull('total_duration')
                             ->paginate(15);
         $branch = Branch::get();
         view()->share(['branch'=>$branch]);
@@ -68,14 +70,19 @@ class userController extends Controller
     public function car_info()
     {
         $id = getAuth()->id;
-        $data = GoodsReceive::where('user_id',$id)
-                                    ->whereNull('duration')
-                                    ->first();
-
+        $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
+                        ->leftJoin('goods_receives', 'driver_infos.received_goods_id', '=', 'goods_receives.id')
+                        ->where('driver_infos.received_goods_id', $id)
+                        ->where('goods_receives.user_id', getAuth()->id)
+                        ->whereNull('driver_infos.duration')
+                        ->first();
 
         if($data){
             return redirect()->route('receive_goods', ['id' => $data->id]);
         }else{
+            $type = Truck::get();
+            $source = Source::get();
+            view()->share(['truck'=>$type,'source'=>$source]);
             return view('user.receive_goods.driver_info');
         }
     }
@@ -83,15 +90,16 @@ class userController extends Controller
     public function receive_goods($id)
     {
         $data = GoodsReceive::where('id',$id)->first();
-        $driver = DriverInfo::where('received_goods_id',$id)->first();
+        $driver = DriverInfo::where('received_goods_id',$id)->get();
+        $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $time_str = strtotime(Carbon::now())-strtotime($data->start_date.' '.$data->start_time);
         $hour   = (int)($time_str / 3600);
         $min    = (int)(($time_str % 3600) / 60);
         $sec    = (int)(($time_str % 3600) % 60);
-        $pass   = sprintf('%02d : %02d : %02d', $hour, $min, $sec);
+        $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
         // $time_start = Carbon::parse($time_str)->format('H:i:s');
-        return view('user.receive_goods.receive_goods',compact('data','pass','document','driver'));
+        return view('user.receive_goods.receive_goods',compact('data','pass','document','driver','cur_driver'));
     }
 
     public function user()
@@ -102,56 +110,84 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
-        $branch_id = getAuth()->branch->id;
-        // dd($request->all());
-        // dd(Carbon::now()->format('H:i:s'));
-        $data = $request->validate([
-            'driver_name'       => 'required',
-            'driver_phone'      => 'required|numeric',
-            'driver_nrc'        => 'required',
-            'truck_no'          => 'required',
-            'truck_type'        => 'required'
-        ]);
+        if($request->main_id){
+            $data = $request->validate([
+                'driver_name'       => 'required',
+                'driver_phone'      => 'required|numeric',
+                'driver_nrc'        => 'required',
+                'truck_no'          => 'required',
+                'truck_type'        => 'required',
+            ]);
 
-        $same = GoodsReceive::where('start_date',Carbon::now()->format('Y-m-d'))->count();
-        $shr  = 'REG'.str_replace('-', '', Carbon::now()->format('Y-m-d'));
-        if($same > 0){
-            $name = $shr.'-'.sprintf("%04d",$same+1);
-        }else{
-            $name = $shr.'-'.sprintf("%04d",1);
-        }
-        $main               = new GoodsReceive();
-        $main->document_no  = $name;
-        $main->start_date   = Carbon::now()->format('Y-m-d');
-        $main->start_time   = Carbon::now()->format('H:i:s');
-        $main->branch_id      =$branch_id;
-        $main->user_id      = getAuth()->id;
-
-        $main_data = $main->save();
-
-        if($main_data){
             $driver = new DriverInfo();
             $driver->ph_no              = $request->driver_phone;
             $driver->type_truck         = $request->truck_type;
-            $driver->received_goods_id  = $main->id;
+            $driver->received_goods_id  = $request->main_id;
             $driver->driver_name        = $request->driver_name;
             $driver->truck_no           = $request->truck_no;
-            $driver->nrc_no           = $request->driver_nrc;
+            $driver->nrc_no             = $request->driver_nrc;
+            $driver->start_date         = Carbon::now()->format('Y-m-d');
+            $driver->start_time         = Carbon::now()->format('H:i:s');
+
             $driver->save();
 
-            return redirect()->route('receive_goods',$main->id);
+            return redirect()->route('receive_goods',$request->main_id);
+        }else{
+            $branch_id = getAuth()->branch->id;
+            $data = $request->validate([
+                'driver_name'       => 'required',
+                'driver_phone'      => 'required|numeric',
+                'driver_nrc'        => 'required',
+                'truck_no'          => 'required',
+                'truck_type'        => 'required',
+                'source'            => 'required',
+            ]);
+
+            $same = GoodsReceive::where('start_date',Carbon::now()->format('Y-m-d'))->count();
+            $shr  = 'REG'.str_replace('-', '', Carbon::now()->format('Y-m-d'));
+            if($same > 0){
+                $name = $shr.'-'.sprintf("%04d",$same+1);
+            }else{
+                $name = $shr.'-'.sprintf("%04d",1);
+            }
+            $main               = new GoodsReceive();
+            $main->document_no  = $name;
+            $main->start_date   = Carbon::now()->format('Y-m-d');
+            $main->start_time   = Carbon::now()->format('H:i:s');
+            $main->branch_id      =$branch_id;
+            $main->source           = $request->source;
+            $main->user_id      = getAuth()->id;
+
+            $main_data = $main->save();
+
+            if($main_data){
+                $driver = new DriverInfo();
+                $driver->ph_no              = $request->driver_phone;
+                $driver->type_truck         = $request->truck_type;
+                $driver->received_goods_id  = $main->id;
+                $driver->driver_name        = $request->driver_name;
+                $driver->truck_no           = $request->truck_no;
+                $driver->nrc_no             = $request->driver_nrc;
+                $driver->start_date         = Carbon::now()->format('Y-m-d');
+                $driver->start_time         = Carbon::now()->format('H:i:s');
+
+                $driver->save();
+
+                return redirect()->route('receive_goods',$main->id);
+            }
         }
+
         return back()->with('fails','Fail To Store Driver Info');
     }
 
     public function search_doc(Request $request)
     {
+
         $val = $request->data;
         $type = substr($val,0,2);
         $docs = Document::where('received_goods_id',$request->id)->pluck('document_no')->toArray();
-
         if(in_array($val,$docs)){
-            return response()->json(['error'=>'dublicate'],500);
+            return response()->json(['message'=>'dublicate'],400);
         }
         // dd($type);
         $conn = DB::connection('master_product');
@@ -178,7 +214,7 @@ class userController extends Controller
                 and tohd.statusid <> 'C'
             ");
         }
-
+        // dd($data);
         if($data){
             $receive = GoodsReceive::where('id', $request->id)->first();
 
@@ -188,7 +224,7 @@ class userController extends Controller
                 ]);
             }
             $doc = Document::create([
-                'document_no'       => $data[0]->purchaseno,
+            'document_no'       => $data[0]->purchaseno,
                 'received_goods_id'  => $request->id
             ]);
             for($i = 0 ; $i < count($data) ; $i++){
@@ -202,7 +238,7 @@ class userController extends Controller
             }
             return response()->json($data,200);
         }else{
-            return response()->json(['error','not found'],404);
+            return response()->json(['message','not found'],404);
         }
     }
 
@@ -247,10 +283,10 @@ class userController extends Controller
             return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty],200);
             } catch (\Exception $e) {
                 logger($e);
-                return response()->json(['error'=>'Not found'],500);
+                return response()->json(['message'=>'Not found'],500);
             }
         }else{
-            return response()->json(['error'=>'Not found'],404);
+            return response()->json(['message'=>'Not found'],404);
         }
     }
 
@@ -258,13 +294,13 @@ class userController extends Controller
     {
         $receive = GoodsReceive::where('id',$request->id)->first();
         $doc = Document::where('received_goods_id',$request->id)->get();
-        // dd(count($doc));
-        if(count($doc) <= 0){
-            dd('yes');
-            exit;
-            return response()->json(['error'=>'Fill atleast one doc'],500);
-        }
-        $start = strtotime($receive->start_date.' '.$receive->start_time);
+        $driver =  DriverInfo::where('received_goods_id',$request->id)
+                            ->whereNull('duration')->first();
+
+        $finish_driver = DriverInfo::where('received_goods_id',$request->id)
+                            ->whereNotNull('duration')->get();
+
+        $start = strtotime($driver->start_date.' '.$driver->start_time);
         $now    = Carbon::now()->timestamp;
         $diff = $now - $start;
 
@@ -274,38 +310,52 @@ class userController extends Controller
         $min    = (int)(($diff % 3600) / 60);
         $sec    = (int)(($diff % 3600) % 60);
         $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
-        $status = $data['remaining'] == 0 ? 'complete' : 'incomplete';
+        $this_scanned = get_scanned_qty($request->id);
         $receive->update([
-            'duration'      => $pass,
-            'remaining_qty' => $data['remaining'],
-            'exceed_qty'    => $data['exceed'],
-            'status'        => $status
+            'total_duration'        => get_all_duration($request->id),
+            'remaining_qty'         => $data['remaining'],
+            'exceed_qty'            => $data['exceed'],
+            'status'                => 'complete'
+        ]);
+
+        $driver->update([
+            'scanned_goods' => $this_scanned,
+            'duration'      => $pass
         ]);
 
         return response()->json(200);
     }
 
-    public  function edit_goods($id)
+    // public  function edit_goods($id)
+    // {
+    //     $user_id =getAuth()->id;
+    //     $data = GoodsReceive::where('id',$id)->first();
+
+    //     return response()->json(200);
+    // }
+
+    public function car($id)
     {
-        $user_id =getAuth()->id;
-        $data = GoodsReceive::where('id',$id)->first();
-        $now = Carbon::now()->format('Y-m-d H:i:s');
+        $driver = DriverInfo::where('received_goods_id',$id)->get();
+        $main   = GoodsReceive::where('id',$driver[0]->received_goods_id)->first();
+        $type = Truck::get();
+        $source = Source::get();
 
-        if(!$data->edit_start_time){
-            $data->update([
-                'edit_user'         => $user_id,
-                'edit_start_time'   => $now
-            ]);
-        }
-
-        return response()->json(200);
+        view()->share(['truck'=>$type,'source'=>$source]);
+        return view('user.receive_goods.driver_info',compact('driver','main'));
+        // dd($driver);
     }
 
     public function finish_goods($id)
     {
         $receive = GoodsReceive::where('id',$id)->first();
+        $driver = DriverInfo::where('received_goods_id',$id)
+                            ->whereNull('duration')->first();
 
-        $start_time = strtotime($receive->edit_start_time);
+        $finish_driver = DriverInfo::where('received_goods_id',$id)
+                                    ->whereNotNull('duration')->get();
+
+        $start_time = strtotime($driver->start_date.' '.$driver->start_time);
         $now        = strtotime(Carbon::now()->format('Y-m-d H:i:s'));
 
         $data =  $this->repository->get_remain($id);
@@ -314,13 +364,22 @@ class userController extends Controller
         $min    = (int)(($diff % 3600) / 60);
         $sec    = (int)(($diff % 3600) % 60);
         $time   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+        $this_scanned = get_scanned_qty($id);
+
+
 
         $receive->update([
-            'status'        => 'complete',
-            'edit_duration' => $time,
-            'remaining_qty' => $data['remaining'],
-            'exceed_qty'    => $data['exceed']
+            'total_duration'        => get_all_duration($id),
+            'remaining_qty'         => $data['remaining'],
+            'exceed_qty'            => $data['exceed'],
+            'status'                => 'complete'
         ]);
+
+        $driver->update([
+            'scanned_goods' => $this_scanned,
+            'duration'      => $time
+        ]);
+
         return response()->json(200);
     }
 
@@ -339,12 +398,12 @@ class userController extends Controller
             'name'          => 'required',
             'employee_code' => 'required',
             'password'      => 'required|confirmed',
-            'confirm'       => 'required|same:password',
+            'password_confirmation'       => 'required|same:password',
             'department'    => 'required',
             'branch'        => 'required',
             'status'        => 'required'
         ]);
-
+        // dd('yes');
         $user                   = new User();
         $user->name             = $request->name;
         $user->employee_code    = $request->employee_code;
@@ -361,5 +420,99 @@ class userController extends Controller
         }else{
             return redirect()->route('user')->with('fails','User Create Fails');
         }
+    }
+
+    public function active_user(Request $request)
+    {
+        $active = $request->data == 1 ? true : false;
+        $user = User::where('id',$request->id)->update([
+            'active'    => $active
+        ]);
+        if($user)
+        {
+            return response()->json(200);
+        }else{
+            return response()->json(['fails'=>'fails'],500);
+        }
+    }
+
+    public function del_user(Request $request)
+    {
+        // dd($request->all());
+        $action = User::where('id',$request->id)->delete();
+        if($action){
+            return response()->json(200);
+        }
+    }
+
+    public function edit_user($id)
+    {
+        $data = User::where('id',$id)->first();
+        $branch = Branch::get();
+        $department = Department::get();
+        view()->share(['branch'=>$branch,'department'=>$department]);
+        return view('user.create_edit',compact('data'));
+    }
+
+    public function update_user(Request $request)
+    {
+        // dd($request->all());
+        $id = $request->id;
+        $request->validate([
+            'name'                      => 'required',
+            'employee_code'             => "required|unique:users,employee_code,$id,id",
+            'password'                  => 'required|confirmed',
+            'password_confirmation'     => 'required|same:password',
+            'department'                => 'required',
+            'branch'                    => 'required',
+            'status'                    => 'required',
+        ]);
+
+        if(getAuth()->role == 1)
+        {
+            User::where('id',$id)->update([
+                'name'          => $request->name,
+                'employee_code' => $request->employee_code,
+                'password'      => Hash::make($request->password),
+                'password_str'  => $request->password,
+                'department_id' => $request->department,
+                'branch_id'     => $request->branch,
+                'active'     => $request->status == 'active' ? true : false,
+            ]);
+
+            return redirect()->route('user')->with('success','User Update Success');
+        }
+    }
+
+    public function del_doc(Request $request)
+    {
+        $doc = Document::where(['document_no'=>$request->data , 'received_goods_id' => $request->id])->first();
+        $product = Product::where('document_id',$doc->id)->pluck('scanned_qty')->toArray();
+        $zero = true;
+        foreach($product as $item)
+        {
+            if($item > 0)
+            {
+                $zero = false;
+                break;
+            }
+        }
+        if($zero)
+        {
+            Product::where('document_id',$doc->id)->delete();
+            $doc->delete();
+            return response()->json(200);
+        }else{
+            return response()->json(['message'=>"You Cannot Remove"],404);
+        }
+
+        // $doc->delete();
+
+    }
+
+    public function driver_info($id)
+    {
+        $data = DriverInfo::where('id',$id)->first();
+        return response()->json($data,200);
     }
 }
