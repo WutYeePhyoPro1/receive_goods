@@ -9,6 +9,7 @@
                     <input type="text" name="doc" id="doc_name" class="px-4 w-[80%] h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2">
                 </div> --}}
 
+                <input type="hidden" id="user_role" value="{{ getAuth()->role }}">
                     <div class="flex flex-col">
                         <label for="branch">Choose Branch :</label>
                         <Select name="branch" id="branch" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
@@ -73,10 +74,10 @@
                         <th class="py-2 bg-slate-400 border">Branch</th>
                         <th class="py-2 bg-slate-400 border">Status</th>
                         <th class="py-2 bg-slate-400 border">Document</th>
-                        <th class="py-2 bg-slate-400 border">PO QTY</th>
-                        <th class="py-2 bg-slate-400 border">Remain QTY</th>
-                        <th class="py-2 bg-slate-400 border">Exceed QTY</th>
                         <th class="py-2 bg-slate-400 border">Source</th>
+                        {{-- <th class="py-2 bg-slate-400 border">PO QTY</th>
+                        <th class="py-2 bg-slate-400 border">Remain QTY</th>
+                        <th class="py-2 bg-slate-400 border">Exceed QTY</th> --}}
                         <th class="py-2 bg-slate-400 border">Start Date</th>
                         <th class="py-2 bg-slate-400  rounded-tr-md">Total Unload Time</th>
                     </tr>
@@ -88,18 +89,20 @@
                             <td class="h-10 text-center border border-slate-400">{{ getAuth()->branch->branch_name }}</td>
                             <td class="h-10 text-center border border-slate-400 {{ $item->status == 'complete' ? 'text-green-600' : 'text-amber-600' }}">{{ $item->status }}</td>
                             <td class="h-10 text-center border border-slate-400">
+                                <input type="hidden" class="check_empty" value="{{ check_empty($item->id) }}">
                                 {{ $item->document_no }} &nbsp;
 
                                 @if ($item->status == 'incomplete')
-                                    <i class='bx bx-message-square-edit text-amber-600 cursor-pointer ms-3 text-lg edit_view' data-id="{{ $item->id }}" style="transform: translateY(2px)"></i>
+                                    <i class='bx bx-message-square-edit text-sky-600 cursor-pointer ms-3 text-lg edit_view' data-id="{{ $item->id }}" style="transform: translateY(2px)"></i>
                                 @else
-                                <i class='bx bxs-folder text-amber-400 cursor-pointer ms-3 text-lg' onclick="javascript:window.location.href = '/receive_goods/'+{{$item->id}}"></i>
+                                <i class='bx bxs-folder text-emerald-400 cursor-pointer ms-3 text-lg' onclick="javascript:window.location.href = '/receive_goods/'+{{$item->id}}"></i>
                                 @endif
+                                <i class='bx bxs-show text-amber-400 cursor-pointer ms-3 text-lg' onclick="javascript:window.location.href = '/view_goods/'+{{$item->id}}"></i>
                             </td>
-                            <td class="h-10 text-center border border-slate-400">{{ get_total_qty($item->id) }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->remaining_qty }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->exceed_qty }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->source_good->name }}</td>
+                            {{-- <td class="h-10 text-center border border-slate-400">{{ get_total_qty($item->id) }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->remaining_qty }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->exceed_qty }}</td> --}}
                             <td class="h-10 text-center border border-slate-400">{{ $item->start_date }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ get_all_duration($item->id) }}</td>
                         </tr>
@@ -120,10 +123,27 @@
 
     @push('js')
         <script>
+
             $(document).ready(function(){
+
                 $(document).on('click','.edit_view',function(e){
+                    $role = $('#user_role').val();
                     $id = $(this).data('id');
-                    window.location.href = 'car_info/'+$id;
+                    $empty = $(this).parent().find('.check_empty').val();
+                    if($empty)
+                    {
+                        Swal.fire({
+                            icon  : 'error',
+                            title : 'Warning',
+                            text  : 'Receive Goods မှာ မပြီးပြတ်သေးတဲ့ document ရှိနေပါသည်။ continue/complete အရင်နှိပ်ပါ'
+                        })
+                    }else{
+                        if($role == 2){
+                            window.location.href = 'car_info/'+$id;
+                        }else{
+                            window.location.href = 'receive_goods/'+$id;
+                        }
+                    }
                 })
             })
         </script>

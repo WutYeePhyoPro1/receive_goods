@@ -2,28 +2,47 @@
 
 @section('content')
     {{-- <span>this is received_good</span> --}}
+    @if($errors->any())
+        <script>
+            $(document).ready(function(e){
+                $('#add_car').show();
+            })
+        </script>
+    @endif
     <div class="flex justify-between">
         <div class="flex">
-            {{-- <div class="flex {{ $data->duration ? 'invisible pointer-events-none' : '' }}"> --}}
-            <input type="text" id="docu_ipt" class="w-80 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none {{ $data->status == 'complete' ? 'hidden' : '' }}">
+            {{-- <div class="flex {{ $main->duration ? 'invisible pointer-events-none' : '' }}"> --}}
+
+            @if (($main->status == 'incomplete' && $main->status == null) || !isset($status))
+        <input type="text" id="docu_ipt" class="w-80 h-1/2 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none" placeholder="PO/POI/TO Document...">
             <button  class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500" id="search_btn" hidden>Search</button>
-            <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info"><i class='bx bx-id-card'></i></button>
+            @endif
+            @if (count($driver) > 0)
+                <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info"><i class='bx bx-id-card'></i></button>
+            @else
+                <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="add_driver"><i class='bx bx-car'></i></button>
+            @endif
         </div>
         <div class="flex">
-            <span class=" mt-2 -translate-x-6 hidden 2xl:block mr-3" >Document No : <b class="text-2xl" id="doc_no">{{ $data->document_no ?? '' }}</b></span>
-            <span class=" mt-2 -translate-x-6 hidden 2xl:block ms-3" >Source : <b class="text-2xl" id="source">{{ $data->source_good->name ?? '' }}</b></span>
-            <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $data->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
-            <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-16 tracking-wider font-semibold rounded-lg  {{ $data->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
+            <div class="">
+                <span class=" mt-2 -translate-x-6 hidden 2xl:block mr-3" >Document No : <b class="text-xl" id="doc_no">{{ $main->document_no ?? '' }}</b></span>
+                <span class=" mt-2 -translate-x-6 hidden 2xl:block ms-3" >Source : <b class="text-xl" id="source">{{ $main->source_good->name ?? '' }}</b></span>
+            </div>
+            @if (!isset($status))
+            <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
+            <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
+            @endif
         </div>
         <?php
-                $total_sec    = get_done_duration($data->id);
+                $total_sec    = get_done_duration($main->id);
         ?>
 
-        <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap" id="time_count">{{ get_all_duration($data->id) }}</span>
+        <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap" id="time_count">{{ get_all_duration($main->id) ?? '00:00:00' }}</span>
 
     </div>
+    <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
     <input type="hidden" id="bar_code" value="" >
-    <input type="hidden" id="finished" value="{{ $data->status == 'complete' ? true : false }}">
+    <input type="hidden" id="finished" value="{{ $main->status == 'complete' ? true : false }}">
     <div class="grid grid-cols-2 gap-2">
     <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
             <div class="border border-b-slate-400 h-10 bg-sky-50">
@@ -31,10 +50,10 @@
                     List Of Products
                 </span>
             </div>
-            @if($data->status != 'complete')
-            <input type="hidden" id="started_time" value="{{ $cur_driver->start_date.' '.$cur_driver->start_time}}">
+            @if($main->status != 'complete')
+            <input type="hidden" id="started_time" value="{{ isset($cur_driver->start_date) ? ($cur_driver->start_date.' '.$cur_driver->start_time) : ''}}">
             <input type="hidden" id="duration" value="{{ $total_sec ?? 0 }}">
-            <input type="hidden" id="receive_id" value="{{ $data->id }}">
+            <input type="hidden" id="receive_id" value="{{ $main->id }}">
             @endif
             <div class="main_table">
                 <table class="w-full" class="main_tb_body">
@@ -146,6 +165,7 @@
                     </table>
                 </div>
             </div>
+            <input type="hidden" id="user_role" value="{{ getAuth()->role }}">
             <div class="border border-slate-400 rounded-md overflow-x-hidden overflow-y-auto main_product_table" style="max-height: 42.5vh;width:100%">
                 <div class="border border-b-slate-400 h-10 bg-sky-50">
                     <span class="font-semibold leading-9 ml-3">
@@ -157,6 +177,7 @@
                         <thead>
                             <tr class="h-10">
                                 <th class="border border-slate-400 border-t-0 w-8 border-l-0"></th>
+                                <th class="border border-slate-400 border-t-0 w-8"></th>
                                 <th class="border border-slate-400 border-t-0">Document No</th>
                                 <th class="border border-slate-400 border-t-0">Box Barcode</th>
                                 <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
@@ -175,6 +196,11 @@
                                 <?php
                                             ?>
                                             <tr class="h-10">
+                                                <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
+                                                    @if ($main->status == 'incomplete' && getAuth()->role != 2)
+                         <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
+                                                    @endif
+                                                </td>
                                                 @if ($index == 0)
                                                         <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
                                                         <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
@@ -196,8 +222,8 @@
             </div>
         </div>
     </div>
- {{-- Product Modal --}}
- <div class="hidden" id="showProductModal">
+ {{-- Car info Modal --}}
+ <div class="hidden" id="car_info">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
         <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
             <!-- Modal content -->
@@ -214,7 +240,7 @@
                             </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
 
                         <button type="button" class="text-rose-600 font-extrabold"
-                            onclick="$('#showProductModal').hide()">
+                            onclick="$('#car_info').hide()">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                 stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -230,8 +256,8 @@
                             <span class="mb-4 text-xl ">Branch      </span>
                         </div>
                         <div class="flex flex-col">
-                            <b class="mb-4 text-xl">:&nbsp;{{ $data->vendor_name ?? '' }}</b>
-                            <b class="mb-4 text-xl">:&nbsp;{{ $data->user->branch->branch_name }}</b>
+                            <b class="mb-4 text-xl">:&nbsp;{{ $main->vendor_name ?? '' }}</b>
+                            <b class="mb-4 text-xl">:&nbsp;{{ $main->user->branch->branch_name }}</b>
                         </div>
                     </div>
 
@@ -266,27 +292,242 @@
 </div>
 </div>
 {{-- End Modal --}}
+
+{{-- Add Car Modal --}}
+<div class="hidden" id="add_car">
+    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                <div
+                    class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Car Info &nbsp;<span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold"
+                            onclick="$('#add_car').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <form action="{{ route('store_car_info') }}" method="POST">
+                        @csrf
+                            <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
+                            <div class="grid grid-cols-2 gap-5 my-5">
+                                <div class="flex flex-col px-10">
+                                    <label for="driver_name">Driver Name<span class="text-rose-600">*</span> :</label>
+                                    <input type="text" name="driver_name" id="driver_name" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" placeholder="name..." value="{{ old('driver_name') }}">
+                                    @error('driver_name')
+                                        <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <div class="flex flex-col px-10">
+                                    <label for="driver_phone">Driver Phone<span class="text-rose-600">*</span> :</label>
+                                    <input type="number" name="driver_phone" id="driver_phone" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('driver_phone') }}" placeholder="09*********">
+                                    @error('driver_phone')
+                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                @enderror
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-5 my-5">
+                                <div class="flex flex-col px-10">
+                                    <label for="driver_nrc">Driver NRC<span class="text-rose-600">*</span> :</label>
+                                    <input type="text" name="driver_nrc" id="driver_nrc" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('driver_nrc') }}" placeholder="nrc...">
+                                    @error('driver_nrc')
+                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                @enderror
+                                </div>
+
+                                <div class="flex flex-col px-10">
+                                    <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
+                                    <input type="text" name="truck_no" id="truck_no" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck...">
+                                    @error('truck_no')
+                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                @enderror
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-5 my-5">
+                                <div class="flex flex-col px-10">
+                                    <label for="truck_type">Type of Truck<span class="text-rose-600">*</span> :</label>
+                                    <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                        <option value="">Choose Type of Truck</option>
+                                        @foreach ($truck as $item)
+                                            <option value="{{ $item->id }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option>
+                                        @endforeach
+                                    </Select>
+                                    @error('truck_type')
+                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                @enderror
+                                </div>
+
+
+
+                        <div class="grid grid-cols-2 gap-5 my-5">
+
+                            <div class="">
+
+                            </div>
+                            <div class="">
+                                <button type="submit" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+{{-- End Modal --}}
     @push('js')
         <script >
             $(document).ready(function(e){
                 var token = $("meta[name='__token']").attr('content');
                 $finish = $('#finished').val();
+                $status = $('#view_').val();
+                $role = $('#user_role').val();
+                $all_begin = $('#started_time').val();
+                $count = parseInt($('#count').val()) || 0;
 
-                if(!$finish){
-                    setInterval(() => {
-                        time_count();
-                    }, 1000);
+                $(document).on('click','#driver_info',function(e){
+                $('#car_info').toggle();
+            })
+                if($status != 'view')
+                {
 
+                $(document).on('click','#add_driver',function(e){
+                    $('#add_car').toggle();
+                })
 
-                    var key = '';
+                if(!$finish && $role == 2)
+                {
+                    $(document).on('keypress', '#docu_ipt', function(e) {
+                    if (e.keyCode === 13) {
+                        e.preventDefault();
+                        $('#search_btn').click();
+                        $(this).val('');
+                    }
+                });
+
+                $(document).on('click','#search_btn',function(e){
+                    let id = $('#receive_id').val();
+                        let val = $('#docu_ipt').val();
+                        $this = $('#docu_ipt');
+                        $vendor = $('#vendor_name').text();
+                        $.ajax({
+                            url     : "{{ route('search_doc') }}",
+                            type    : 'POST',
+                            data    :  {_token:token,data:val,id:id},
+                            success : function(res){
+                                if($vendor == ''){
+                                    $('#vendor_name').text(res[0].vendorname);
+                                }
+                                $list = '<tbody class="main_body">';
+                                for($i = 0 ; $i < res.length ; $i++)
+                                {
+                                    if($i == 0){
+                                        $list += `
+                                        <tr class="h-10">
+                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
+                                                        <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc hidden"  data-doc="${res[$i].purchaseno}"><i class='bx bx-minus'></i></button>
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${Math.floor($count+1)}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0">${res[$i].purchaseno}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0  px-2 bar_code">${res[$i].productcode}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0">${res[$i].productname}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 qty">${parseInt(res[$i].goodqty)}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 scanned_qty">0</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-r-0 remain_qty">${parseInt(res[$i].goodqty)}</td>
+                                        </tr>
+                                    `;
+                                    $count++;
+                                    }else{
+                                        $list += `
+                                        <tr class="h-10">
+                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 "></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0  px-2 bar_code">${res[$i].productcode}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 ">${res[$i].productname}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 qty">${parseInt(res[$i].goodqty)}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 scanned_qty">0</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-r-0 remain_qty">${parseInt(res[$i].goodqty)}</td>
+                                        </tr>
+                                        `;
+                                    }
+
+                                }
+                                $list += `</tbody>`;
+                                $length = $('.main_body').length;
+                                if($length > 0){
+                                    $('.main_body').eq($length-1).after($list);
+                                }else{
+                                    $('.main_table').load(location.href + ' .main_table');
+
+                                }
+                            },
+                            error   : function(xhr,status,error){
+                                if(xhr.status == 400){
+                                    Swal.fire({
+                                    icon:'error',
+                                    title: 'Warning',
+                                    text: 'Doucment တခုကို နှစ်ကြိမ်ထည့်ခွင့်မရှိပါ'
+                                })
+                                }else if(xhr.status == 404){
+                                    Swal.fire({
+                                    icon:'error',
+                                    title: 'Warning',
+                                    text: 'Document မတွေ့ပါ'
+                                })
+                                }
+
+                            },
+                            complete:function(){
+                                $this.val('');
+                            }
+                        })
+                })
+
+                var key = '';
                     $(document).on('keypress input',function(e){
-                        $doc_ipt = e.target.matches('#docu_ipt ');
-                        if (e.key === 'Enter' && !$doc_ipt) {
-                            $('#bar_code').val(key);
-                            $('#bar_code').trigger('barcode_enter');
+                        $doc_ipt = e.target.matches('#docu_ipt');
+                        $bar_ipt = $('#bar_code').val();
+                        if (e.key === 'Enter' && !$doc_ipt && $bar_ipt != '') {
+                            if($all_begin != '')
+                            {
+                                $('#bar_code').val(key);
+                                $('#bar_code').trigger('barcode_enter');
+                            }else{
+                                Swal.fire({
+                                    icon : 'error',
+                                    title: 'Warning',
+                                    text : 'ကားအချက်အလက် ဖြည့်ပြီးမှ scan ဖတ်နိုင်ပါမည်',
+                                    // showConfirmButton:false
+                                })
+                                setTimeout(() => {
+                                    Swal.close();
+                                }, 2000);
+                            }
+                            $('#bar_code').val('');
                             key = '';
                         } else {
-                            key += e.key;
+                            if(e.key != 'Enter')
+                            {
+                                key += e.key;
+                                $('#bar_code').val(key);
+                            }
                         }
                     });
 
@@ -379,6 +620,14 @@
                             })
                         }
                     })
+                }
+
+                if(!$finish && $role == 2 && $all_begin != ''){
+                    setInterval(() => {
+                        time_count();
+                    }, 1000);
+
+
 
                     function time_count(){
                     let time = new Date($('#started_time').val()).getTime();
@@ -392,100 +641,45 @@
                     $('#time_count').text(hour.toString().padStart(2, '0') + ':' + min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0'));
                 }
 
-                $count = parseInt($('#count').val()) || 0;
 
-                $(document).on('keypress', '#docu_ipt', function(e) {
-                    if (e.keyCode === 13) {
-                        e.preventDefault();
-                        $('#search_btn').click();
-                        $(this).val('');
-                    }
-                });
 
-                $(document).on('click','#driver_info',function(e){
-                    $('#showProductModal').toggle();
-                })
 
-                $(document).on('click','#search_btn',function(e){
-                    let id = $('#receive_id').val();
-                        let val = $('#docu_ipt').val();
-                        $this = $('#docu_ipt');
-                        $vendor = $('#vendor_name').text();
-                        $.ajax({
-                            url     : "{{ route('search_doc') }}",
-                            type    : 'POST',
-                            data    :  {_token:token,data:val,id:id},
-                            success : function(res){
-                                if($vendor == ''){
-                                    $('#vendor_name').text(res[0].vendorname);
-                                }
-                                $list = '<tbody class="main_body">';
-                                for($i = 0 ; $i < res.length ; $i++)
+
+                $(document).on('click','.del_doc',function(e){
+                    $val = $(this).data('doc');
+                    $id = $('#receive_id').val();
+                    $this = $(this);
+                    Swal.fire({
+                        icon : 'info',
+                        title: 'Are You Sure?',
+                        showCancelButton:true,
+                        confirmButtonText:'Yes',
+                        cancelButtonText: "No",
+                    }).then((result)=>{
+                        if(result.isConfirmed)
+                        {
+                            $.ajax({
+                                url : "{{ route('del_doc') }}",
+                                type: 'POST',
+                                data: {_token:token , data:$val , id : $id},
+                                success: function(res){
+                                    $this.parent().parent().parent().remove();
+                                },
+                                error: function(xhr,status,error)
                                 {
-                                    if($i == 0){
-                                        $list += `
-                                        <tr class="h-10">
-                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                        <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc hidden"  data-doc="${res[$i].purchaseno}"><i class='bx bx-minus'></i></button>
-                                            </td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${Math.floor($count+1)}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0">${res[$i].purchaseno}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0  px-2 bar_code">${res[$i].productcode}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0">${res[$i].productname}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 qty">${parseInt(res[$i].goodqty)}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 scanned_qty">0</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 border-r-0 remain_qty">${parseInt(res[$i].goodqty)}</td>
-                                        </tr>
-                                    `;
-                                    $count++;
-                                    }else{
-                                        $list += `
-                                        <tr class="h-10">
-                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 "></td>
-                                            <td class="ps-2 border border-slate-400 border-t-0  px-2 bar_code">${res[$i].productcode}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 ">${res[$i].productname}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 qty">${parseInt(res[$i].goodqty)}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 scanned_qty">0</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 border-r-0 remain_qty">${parseInt(res[$i].goodqty)}</td>
-                                        </tr>
-                                        `;
-                                    }
 
                                 }
-                                $list += `</tbody>`;
-                                $length = $('.main_body').length;
-                                if($length > 0){
-                                    $('.main_body').eq($length-1).after($list);
-                                }else{
-                                    $('.main_table').load(location.href + ' .main_table');
+                            })
+                        }
+                    })
 
-                                }
-                            },
-                            error   : function(xhr,status,error){
-                                if(xhr.status == 400){
-                                    Swal.fire({
-                                    icon:'error',
-                                    title: 'Warning',
-                                    text: 'Doucment တခုကို နှစ်ကြိမ်ထည့်ခွင့်မရှိပါ'
-                                })
-                                }else if(xhr.status == 404){
-                                    Swal.fire({
-                                    icon:'error',
-                                    title: 'Warning',
-                                    text: 'Document မတွေ့ပါ'
-                                })
-                                }
 
-                            },
-                            complete:function(){
-                                $this.val('');
-                            }
-                        })
                 })
 
-                $(document).on('click','#confirm_btn',function(e){
+            }
+
+
+            $(document).on('click','#confirm_btn',function(e){
                     $id = $('#receive_id').val();
                     $.ajax({
                         url : "{{ route('confirm') }}",
@@ -545,36 +739,20 @@
                         })
                 }
 
-                $(document).on('click','.del_doc',function(e){
-                    $val = $(this).data('doc');
-                    $id = $('#receive_id').val();
-                    $this = $(this);
-                    Swal.fire({
-                        icon : 'info',
-                        title: 'Are You Sure?',
-                        showCancelButton:true,
-                        confirmButtonText:'Yes',
-                        cancelButtonText: "No",
-                    }).then((result)=>{
-                        if(result.isConfirmed)
-                        {
-                            $.ajax({
-                                url : "{{ route('del_doc') }}",
-                                type: 'POST',
-                                data: {_token:token , data:$val , id : $id},
-                                success: function(res){
-                                    $this.parent().parent().parent().remove();
-                                },
-                                error: function(xhr,status,error)
-                                {
-
-                                }
-                            })
+            if(!$finish && $role !=2){
+                $(document).on('click','.del_exceed',function(e){
+                    $id = $(this).data('id');
+                    $.ajax({
+                        url: "{{ route('del_exceed') }}",
+                        type: 'POST',
+                        data: {_token : token , id : $id},
+                        success: function(res){
+                            $('.scan_parent').load(location.href + ' .scan_parent');
+                            $('.excess_div').load(location.href + ' .excess_div');
                         }
                     })
-
-
                 })
+            }
                 }
                 // console.log(Math.floor(2-1));
             })

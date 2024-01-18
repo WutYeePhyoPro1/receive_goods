@@ -26,6 +26,18 @@
                     </div>
                 </li>
 
+
+                <li class="sidebar_items" onclick="javascript:window.location.href='/car_info'">
+                    @if (request()->is('receive_good*') || request()->is('car_info*') || request()->is('view_goods*'))
+                    <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
+                    </div>
+                @endif
+                    <div class="sidebar_text">
+                        <i class='bx bxs-truck' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
+                        <span>Receive Goods</span>
+                    </div>
+                </li>
+
                 <li class="sidebar_items" onclick="javascript:window.location.href='/list'">
                     @if (request()->is('list'))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
@@ -37,16 +49,6 @@
                     </div>
                 </li>
 
-                <li class="sidebar_items" onclick="javascript:window.location.href='/car_info'">
-                    @if (request()->is('receive_good*') || request()->is('car_info*'))
-                    <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
-                    </div>
-                @endif
-                    <div class="sidebar_text">
-                        <i class='bx bxs-truck' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
-                        <span>Receive Goods</span>
-                    </div>
-                </li>
 
                 @if (getAuth()->role == 1)
                     <li class="sidebar_items" onclick="javascript:window.location.href='/user'">
@@ -102,5 +104,26 @@
 
 
         @stack('js')
+        <script>
+            $(document).ready(function(e){
+                $(document).on('keypress','#driver_phone',function(e){
+                    let filter = true;
+
+                    if($(this).val().length < 11){
+                        if  ( e.keyCode >=48 && e.keyCode <= 57){
+                            filter = true;
+                        }else{
+                            filter = false;
+                        }
+                    }else{
+                        filter = false;
+                    }
+
+                    if(!filter){
+                        e.preventDefault();
+                    }
+                })
+            })
+        </script>
 
 </html>

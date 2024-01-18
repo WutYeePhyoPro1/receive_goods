@@ -152,4 +152,16 @@ use Illuminate\Support\Facades\DB;
 
     }
 
+    function check_empty($id)
+    {
+        $data = GoodsReceive::where('user_id',getAuth()->id)
+                            ->whereNull('total_duration')
+                            ->first();
+        $empty = false;
+        if($data){
+            $empty = true;
+        }
+        return $empty;
+    }
+
 
