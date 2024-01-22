@@ -40,7 +40,7 @@
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="status">Choose Search Method :</label>
+                        <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
                         <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
                             <option value="" selected>Choose Method</option>
                             <option value="document_no" {{ request('search')=='document_no' ? 'selected' : '' }}>Document No</option>

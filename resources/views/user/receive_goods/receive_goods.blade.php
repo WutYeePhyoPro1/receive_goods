@@ -25,19 +25,19 @@
         </div>
         <div class="flex">
             <div class="">
-                <span class=" mt-2 -translate-x-6 hidden 2xl:block mr-3" >Document No : <b class="text-xl" id="doc_no">{{ $main->document_no ?? '' }}</b></span>
-                <span class=" mt-2 -translate-x-6 hidden 2xl:block ms-3" >Source : <b class="text-xl" id="source">{{ $main->source_good->name ?? '' }}</b></span>
+                <span class=" mt-2 -translate-x-6  mr-3" >Document No : <b class="text-xl" id="doc_no">{{ $main->document_no ?? '' }}</b></span>
+                <span class=" mt-2 -translate-x-6  ms-3" >Source : <b class="text-xl" id="source">{{ $main->source_good->name ?? '' }}</b></span>
             </div>
             @if (!isset($status))
-            <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
-            <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
+            <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
+            <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
             @endif
         </div>
         <?php
                 $total_sec    = get_done_duration($main->id);
         ?>
 
-        <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap" id="time_count">{{ get_all_duration($main->id) ?? '00:00:00' }}</span>
+        <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count">{{ get_all_duration($main->id) ?? '00:00:00' }}</span>
 
     </div>
     <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
@@ -69,7 +69,7 @@
                             <th class="border border-slate-400 border-t-0 border-r-0">Remaining</th>
                         </tr>
                     </thead>
-
+                    <input type="hidden" id="doc_total" value="{{ count($document) }}">
 
                             <?php
                                 $i = 0;
@@ -222,6 +222,46 @@
             </div>
         </div>
     </div>
+    {{-- Decision Modal --}}
+ <div class="hidden" id="decision">
+    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                <div
+                    class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Choose Document No &nbsp;<span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold"
+                            onclick="$('#decision').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="mb-4">
+                        <span class="">Product Code တူ Document များရှိပါသည်။ မည်သည့် Document တွင် ပေါင်းထည့်ချင်လဲ ရွေးပါ</span>
+                    </div>
+                    <div class="decision_model">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+{{-- End Modal --}}
  {{-- Car info Modal --}}
  <div class="hidden" id="car_info">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
@@ -402,8 +442,8 @@
                 $count = parseInt($('#count').val()) || 0;
 
                 $(document).on('click','#driver_info',function(e){
-                $('#car_info').toggle();
-            })
+                    $('#car_info').toggle();
+                })
                 if($status != 'view')
                 {
 
@@ -542,57 +582,72 @@
                                 type: 'POST',
                                 data: {_token:token , data:$val,id:$recieve_id},
                                 success:function(res){
-                                    $('.main_table').load(location.href + ' .main_table');
-                                    // $('.bar_code').each((i,v)=>{
-                                        // if($(v).text() == $code){
-                                            // $scan   = parseInt($(v).parent().find('.scanned_qty').text());
-                                            // $real_scan = parseInt($(v).parent().find('.real_scan').val());
-                                            // $remain = parseInt($(v).parent().find('.remain_qty').text());
-                                            // $qty    = parseInt($(v).parent().find('.qty').text());
-                                            // $(v).parent().find('.scanned_qty').text($scan+1 >= $qty ? $qty : Math.floor($scan + res.scanned_qty));
-                                            // $(v).parent().find('.remain_qty').text($remain-res.scanned_qty <= 0 ? 0 : Math.floor($remain - res.scanned_qty));
-                                            // $(v).parent().find('.real_scan').val(Math.floor($real_scan+1));
-                                            // if($scan+res.scanned_qty > 0 && $scan+res.scanned_qty < $qty){
-                                            //     console.log('yes');
-                                            //     $(v).parent().find('.color_add').each((i,v)=>{
-                                            //         $(v).removeClass('bg-amber-200 text-amber-600');
-                                            //         $(v).addClass('bg-amber-200 text-amber-600');
-                                            //     })
+                                    if(res.msg == 'decision')
+                                    {
+                                        $('.decision_model').html('');
+                                        $list = `<input type="hidden" id="scan_qty" value="${res.qty}">`;
+                                        for($i = 0 ; $i < res.doc.length ; $i++)
+                                        {
+                                            $list +=`
+                                            <div data-id="${res.ids[$i]}" class="text-center mb-4 shadow-lg rounded-md border border-slate-200 py-3 cursor-pointer hover:bg-slate-200 decision_doc">
+                                                <span>${res.doc[$i]}</span>
+                                            </div>
+                                            `;
+                                        }
+                                        $('.decision_model').append($list);
+                                        $('#decision').show();
+                                    }else{
+                                        $('.main_table').load(location.href + ' .main_table');
+                                        // $('.bar_code').each((i,v)=>{
+                                            // if($(v).text() == $code){
+                                                // $scan   = parseInt($(v).parent().find('.scanned_qty').text());
+                                                // $real_scan = parseInt($(v).parent().find('.real_scan').val());
+                                                // $remain = parseInt($(v).parent().find('.remain_qty').text());
+                                                // $qty    = parseInt($(v).parent().find('.qty').text());
+                                                // $(v).parent().find('.scanned_qty').text($scan+1 >= $qty ? $qty : Math.floor($scan + res.scanned_qty));
+                                                // $(v).parent().find('.remain_qty').text($remain-res.scanned_qty <= 0 ? 0 : Math.floor($remain - res.scanned_qty));
+                                                // $(v).parent().find('.real_scan').val(Math.floor($real_scan+1));
+                                                // if($scan+res.scanned_qty > 0 && $scan+res.scanned_qty < $qty){
+                                                //     console.log('yes');
+                                                //     $(v).parent().find('.color_add').each((i,v)=>{
+                                                //         $(v).removeClass('bg-amber-200 text-amber-600');
+                                                //         $(v).addClass('bg-amber-200 text-amber-600');
+                                                //     })
 
-                                            // }else if($scan+res.scanned_qty == $qty){
-                                            //     $no = 0;
-                                            //     $doc= '';
-                                            //     $parent = $(v).parent().parent();
-                                            //     $(v).parent().parent().find('tr').each((i,v)=>{
-                                            //         if(i == 0){
-                                            //             $no = $(v).find('.doc_times').text();
-                                            //             $doc = $(v).find('.doc_no').text();
-                                            //         }
-                                            //         return false;
-                                            //     })
-                                            //     $(v).parent().remove();
-                                            //     $parent.find('tr').each((i,v)=>{
-                                            //         if(i == 0){
-                                            //             $(v).find('.doc_times').text($no);
-                                            //             $(v).find('.doc_no').text($doc);
-                                            //         }
-                                            //         return false;
-                                            //     })
-                                            //     if($parent.find('tr').length == 0){
-                                            //         $parent.remove()
-                                            //     }
-                                            //     $('.main_body').each((i,v)=>{
-                                            //         $(v).find('tr').eq(0).find('td').eq(0).text(i+1);
-                                            //     })
+                                                // }else if($scan+res.scanned_qty == $qty){
+                                                //     $no = 0;
+                                                //     $doc= '';
+                                                //     $parent = $(v).parent().parent();
+                                                //     $(v).parent().parent().find('tr').each((i,v)=>{
+                                                //         if(i == 0){
+                                                //             $no = $(v).find('.doc_times').text();
+                                                //             $doc = $(v).find('.doc_no').text();
+                                                //         }
+                                                //         return false;
+                                                //     })
+                                                //     $(v).parent().remove();
+                                                //     $parent.find('tr').each((i,v)=>{
+                                                //         if(i == 0){
+                                                //             $(v).find('.doc_times').text($no);
+                                                //             $(v).find('.doc_no').text($doc);
+                                                //         }
+                                                //         return false;
+                                                //     })
+                                                //     if($parent.find('tr').length == 0){
+                                                //         $parent.remove()
+                                                //     }
+                                                //     $('.main_body').each((i,v)=>{
+                                                //         $(v).find('tr').eq(0).find('td').eq(0).text(i+1);
+                                                //     })
+                                                // }
+                                                // return false;
                                             // }
-                                            // return false;
+                                        // })
+                                        $('.scan_parent').load(location.href + ' .scan_parent');
+                                        // if(res.data.scanned_qty > res.data.qty){
+                                            $('.excess_div').load(location.href + ' .excess_div');
                                         // }
-                                    // })
-                                    $('.scan_parent').load(location.href + ' .scan_parent');
-                                    if(res.data.scanned_qty > res.data.qty){
-                                        $('.excess_div').load(location.href + ' .excess_div');
                                     }
-
                                 },
                                 error : function(xhr,status,error){
                                     if(xhr.status == 500)
@@ -600,7 +655,7 @@
                                         Swal.fire({
                                             icon : 'error',
                                             title: 'Warning',
-                                            text : 'Server Time Out Please Contact SD Dep'
+                                            text : 'Server Time Out Please Try Again'
                                         });
                                     }else if(xhr.status == 404){
                                         Swal.fire({
@@ -611,7 +666,7 @@
                                     }
                                     setTimeout(() => {
                                         Swal.close();
-                                        }, 2000);
+                                        }, 3000);
                                 },
                                 complete:function(){
                                     $this.val('');
@@ -619,6 +674,25 @@
 
                             })
                         }
+                    })
+
+                    $(document).on('click','.decision_doc',function(e)
+                    {
+                        $id = $(this).data('id');
+                        $qty= $('#scan_qty').val();
+
+                        $.ajax({
+                            url : "{{ route('add_product_qty') }}",
+                            type: "POST",
+                            data: {_token:token,id:$id,qty:$qty},
+                            success: function(res){
+                                $('.scan_parent').load(location.href + ' .scan_parent');
+                                $('.excess_div').load(location.href + ' .excess_div');
+                            },
+                            complete: function(){
+                                $('#decision').hide();
+                            }
+                        })
                     })
                 }
 
@@ -700,6 +774,7 @@
                     // return;
                     $finish = true;
                     $id = $('#receive_id').val();
+                    $doc_count = $('#doc_total').val();
                    $('.remain_qty').each((i,v)=>{
 
                     if(parseInt($(v).text()) > 0){
@@ -722,6 +797,12 @@
                             if(result.isConfirmed){
                                 finish($id);
                             }
+                        })
+                   }else if($doc_count < 1){
+                    Swal.fire({
+                            'icon'      : 'error',
+                            'title'     : 'Warning',
+                            'text'      : 'Document မရှိလျှင် Complete လုပ်ခွင့်မပေးပါ',
                         })
                    }else{
                     finish($id);

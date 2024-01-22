@@ -9,4 +9,9 @@ class Document extends Model
 {
     use HasFactory;
     protected $fillable = ['document_no','received_goods_id','remark'];
+
+    public function received()
+    {
+        return $this->belongsTo(GoodsReceive::class,'received_goods_id','id');
+    }
 }

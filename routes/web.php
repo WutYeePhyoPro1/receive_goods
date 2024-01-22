@@ -56,5 +56,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('del_user','del_user')->name('del_user');
             route::post('del_doc','del_doc')->name('del_doc');
             route::post('del_exceed','del_exceed')->name('del_exceed');
+            route::post('add_product_qty','add_product_qty')->name('add_product_qty');
         });
 });

@@ -27,19 +27,21 @@
                 </li>
 
 
-                <li class="sidebar_items" onclick="javascript:window.location.href='/car_info'">
-                    @if (request()->is('receive_good*') || request()->is('car_info*') || request()->is('view_goods*'))
-                    <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
-                    </div>
+                @if (getAuth()->role == 2)
+                    <li class="sidebar_items" onclick="javascript:window.location.href='/car_info'">
+                        @if (request()->is('receive_good*') || request()->is('car_info*') || request()->is('view_goods*'))
+                        <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
+                        </div>
+                    @endif
+                        <div class="sidebar_text">
+                            <i class='bx bxs-truck' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
+                            <span>Receive Goods</span>
+                        </div>
+                    </li>
                 @endif
-                    <div class="sidebar_text">
-                        <i class='bx bxs-truck' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
-                        <span>Receive Goods</span>
-                    </div>
-                </li>
 
                 <li class="sidebar_items" onclick="javascript:window.location.href='/list'">
-                    @if (request()->is('list'))
+                    @if (request()->is('list') || (getAuth()->role != 2 && (request()->is('receive_good*') || request()->is('view_goods*'))))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
                     @endif
@@ -92,7 +94,7 @@
                 <span class="mr-4"><i class='bx bxs-user-account mr-1' style="transform: translateY(2px)"></i> User : {{ getAuth()->name }}</span> |&nbsp;&nbsp;
                 <span class="mr-4"><i class='bx bx-signal-5 mr-1' style="transform: translateY(2px)"></i> Server Link :
                    @if(isset($_SERVER['SERVER_ADDR']))
-                       Server IP Address: {{ $_SERVER['SERVER_ADDR'] }}
+                        {{ $_SERVER['SERVER_ADDR'] }}
                    @else
                        server is not set.
                    @endif

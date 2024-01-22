@@ -17,6 +17,7 @@ use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\RemoveTrack;
 use App\Models\Source;
 use App\Models\Tracking;
 use Symfony\Component\CssSelector\Node\FunctionNode;
@@ -168,6 +169,7 @@ class userController extends Controller
                 $driver->nrc_no             = $request->driver_nrc;
                 $driver->start_date         = Carbon::now()->format('Y-m-d');
                 $driver->start_time         = Carbon::now()->format('H:i:s');
+                $driver->user_id            = getAuth()->id;
 
                 $driver->save();
         }
@@ -246,14 +248,25 @@ class userController extends Controller
             'document_no'       => $data[0]->purchaseno,
                 'received_goods_id'  => $request->id
             ]);
+            $dub_pd = [];
             for($i = 0 ; $i < count($data) ; $i++){
-                $pd_code                = new Product();
-                $pd_code->document_id   = $doc->id;
-                $pd_code->bar_code       = $data[$i]->productcode;
-                $pd_code->supplier_name = $data[$i]->productname;
-                $pd_code->qty           = (int)($data[$i]->goodqty);
-                $pd_code->scanned_qty   = 0;
-                $pd_code->save();
+                if(!in_array($data[$i]->productcode,$dub_pd))
+                {
+                    $pd_code                = new Product();
+                    $pd_code->document_id   = $doc->id;
+                    $pd_code->bar_code       = $data[$i]->productcode;
+                    $pd_code->supplier_name = $data[$i]->productname;
+                    $pd_code->qty           = (int)($data[$i]->goodqty);
+                    $pd_code->scanned_qty   = 0;
+                    $pd_code->save();
+                    $dub_pd[]    = $data[$i]->productcode;
+                }else{
+                    $search_dub = Product::where(['document_id'=>$doc->id,'bar_code'=>$data[$i]->productcode])->first();
+                    $qty = $search_dub->qty;
+                    $search_dub->update([
+                        'qty'   => $qty+(int)($data[$i]->goodqty)
+                    ]);
+                }
             }
             return response()->json($data,200);
         }else{
@@ -264,6 +277,7 @@ class userController extends Controller
     public function barcode_scan(Request $request)
     {
         $all = $request->data;
+
         // dd($all);
         $item= preg_replace('/\D/','',$all);
         $doc_ids = Document::where('received_goods_id',$request->id)->pluck('id');
@@ -272,6 +286,10 @@ class userController extends Controller
                             ->where('bar_code',$item)
                             ->first();
         if($product){
+            $all_product =Product::whereIn('document_id',$doc_ids)
+                                ->where('bar_code',$item)
+                                ->orderBy('id','asc')
+                                ->get();
             $doc_no = $product->doc->document_no;
             $conn = DB::connection('master_product');
             try {
@@ -292,15 +310,79 @@ class userController extends Controller
             )as erpdb
             ");
             $qty = (int)($data[0]->qty);
-            // dd($qty);
-            $scanned = $product->scanned_qty + $qty;
 
-            // dd($scanned);
-            $product->update([
-                'scanned_qty' => $scanned
-            ]);
-            $track = new Tracking();
-            // $track->driver_info_id = 
+            if(count($all_product) == 1)
+            {
+                $scanned = $product->scanned_qty + $qty;
+                $driver_info = DriverInfo::where(['received_goods_id'=>$request->id , 'user_id'=>getAuth()->id])
+                                        ->whereNull('duration')
+                                        ->first();
+                $product_id  = $product->id;
+                // dd($scanned);
+                $product->update([
+                    'scanned_qty' => $scanned
+                ]);
+            }elseif(count($all_product) > 1)
+            {
+
+                $full_pd =Product::whereIn('document_id',$doc_ids)
+                        ->where('bar_code',$item)
+                        ->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))
+                        ->get();
+
+                if(count($full_pd) > 0)
+                {
+                    foreach($all_product as $index=>$item)
+                    {
+                        if($item->qty > $item->scanned_qty)
+                        {
+                            // dd($index);
+                            $scanned = $item->scanned_qty + $qty;
+                            Product::where('id',$item->id)->update([
+                                'scanned_qty'   => $scanned
+                            ]);
+                            $driver_info = DriverInfo::where(['received_goods_id'=>$request->id , 'user_id'=>getAuth()->id])
+                                                        ->whereNull('duration')
+                                                        ->first();
+                            $product_id  = $item->id;
+                            break;
+                        }
+                    }
+                }else{
+                    $docs = [];
+                    $all_ids = [];
+                    foreach($all_product as $item)
+                    {
+                        $docs[]     = $item->doc->document_no;
+                        $all_ids[]  = $item->id;
+                    }
+                    return response()->json([
+                        'msg'  => 'decision',
+                        'doc'  => $docs,
+                        'ids'  => $all_ids,
+                        'qty'  => $qty
+                    ],200);
+                }
+            }
+            if(isset($driver_info))
+            {
+                $track_dub = Tracking::where(['driver_info_id'=>$driver_info->id,'product_id'=>$product_id])->first();
+                if($track_dub)
+                {
+                    $track_scan = $track_dub->scanned_qty;
+                    $track_dub->update([
+                        'scanned_qty'   => $track_scan+$qty
+                    ]);
+                }else{
+                    $track                      = new Tracking();
+                    $track->driver_info_id      = $driver_info->id;
+                    $track->product_id          = $product_id;
+                    $track->scanned_qty         = $qty;
+                    $track->user_id             = getAuth()->id;
+                    $track->save();
+                }
+            }
+            // $track->driver_info_id =
             return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty],200);
             } catch (\Exception $e) {
                 logger($e);
@@ -311,11 +393,32 @@ class userController extends Controller
         }
     }
 
+    public function add_product_qty(Request $request)
+    {
+        // dd($request->all());
+        $product = Product::where('id',$request->id)->first();
+        $driver_info = DriverInfo::where(['received_goods_id'=>$product->doc->received->id , 'user_id'=>getAuth()->id])
+                        ->whereNull('duration')
+                        ->first();
+        $track_dub = Tracking::where(['driver_info_id'=>$driver_info->id,'product_id'=>$product->id])->first();
+
+        $scanned_qty = $product->scanned_qty+$request->qty;
+        $product->update([
+            'scanned_qty'   => $scanned_qty
+        ]);
+        $track_scan = $track_dub->scanned_qty;
+        $track_dub->update([
+            'scanned_qty'   => $track_scan+$request->qty
+        ]);
+        return response()->json(200);
+    }
+
     public function confirm(Request $request)
     {
         $receive = GoodsReceive::where('id',$request->id)->first();
-        $doc = Document::where('received_goods_id',$request->id)->get();
+        $doc    = Document::where('received_goods_id',$request->id)->get();
         $driver =  DriverInfo::where('received_goods_id',$request->id)
+                            ->where('user_id',getAuth()->id)
                             ->whereNull('duration')->first();
 
         $finish_driver = DriverInfo::where('received_goods_id',$request->id)
@@ -333,7 +436,7 @@ class userController extends Controller
             $min    = (int)(($diff % 3600) / 60);
             $sec    = (int)(($diff % 3600) % 60);
             $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
-            $this_scanned = get_scanned_qty($request->id);
+            $this_scanned = get_scanned_qty($driver->id);
             $receive->update([
                 'total_duration'        => get_all_duration($request->id),
                 'remaining_qty'         => $data['remaining'],
@@ -549,9 +652,17 @@ class userController extends Controller
     public function del_exceed(Request $request)
     {
         $product = Product::where('id',$request->id)->first();
+        $remove_qty = $product->scanned_qty - $product->qty;
         $product->update([
             'scanned_qty' => $product->qty
         ]);
+
+        $del                = new RemoveTrack();
+        $del->user_id       = getAuth()->id;
+        $del->product_id    = $request->id;
+        $del->remove_qty    = $remove_qty;
+        $del->save();
+
         return response()->json(200);
     }
 }

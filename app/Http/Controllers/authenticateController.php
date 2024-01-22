@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DriverInfo;
+use App\Models\GoodsReceive;
+use App\Models\Product;
+use App\Models\RemoveTrack;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,6 +44,11 @@ class authenticateController extends Controller
 
     public function home()
     {
-        return view('user.home');
+        $products   = Product::sum('scanned_qty');
+        $docs       = GoodsReceive::count();
+        $com_doc       = GoodsReceive::where('status','complete')->count();
+        $cars       = DriverInfo::count();
+        $del        = RemoveTrack::sum('remove_qty');
+        return view('user.home',compact('products','docs','cars','del','com_doc'));
     }
 }

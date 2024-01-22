@@ -23,6 +23,7 @@ return new class extends Migration
             $table->date('start_date');
             $table->time('start_time');
             $table->time('duration')->nullable();
+            $table->integer('user_id');
             $table->timestamps();
         });
     }

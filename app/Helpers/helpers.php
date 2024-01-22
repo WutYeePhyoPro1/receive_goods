@@ -5,6 +5,7 @@ use App\Models\Product;
 use App\Models\Document;
 use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
+use App\Models\Tracking;
 use Illuminate\Support\Facades\DB;
 
     function getAuth()
@@ -130,26 +131,8 @@ use Illuminate\Support\Facades\DB;
 
     function get_scanned_qty($id)
     {
-        $scan_goods = DriverInfo::where('received_goods_id',$id)
-                                ->whereNotNull('scanned_goods')
-                                ->sum('scanned_goods');
-        $doc = Document::where('received_goods_id',$id)->pluck('id');
-        $scanned = (int)0;
-        foreach($doc as $item)
-        {
-            $pd = Product::where('document_id',$item)->sum('scanned_qty');
-            $scanned += $pd;
-        }
-
-        if($scanned > 0){
-            $this_goods = $scanned - $scan_goods;
-        }else{
-
-            $this_goods = $scanned;
-        }
-
-        return $this_goods;
-
+        $scan_goods =   Tracking::where('driver_info_id',$id)->sum('scanned_qty');
+        return $scan_goods;
     }
 
     function check_empty($id)
