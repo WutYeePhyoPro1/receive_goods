@@ -24,6 +24,7 @@ return new class extends Migration
             $table->time('start_time');
             $table->time('duration')->nullable();
             $table->integer('user_id');
+            $table->integer('gate');
             $table->timestamps();
         });
     }

@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RemoveTrack extends Model
+class CarGate extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['received_goods_id','user_id','product_id','remove_qty'];
+    public function branches()
+    {
+        return $this->belongsTo(Branch::class,'branch','branch_code');
+    }
 }

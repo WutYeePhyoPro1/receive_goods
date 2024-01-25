@@ -17,6 +17,8 @@ use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\CarGate;
+use App\Models\CarHistory;
 use App\Models\RemoveTrack;
 use App\Models\Source;
 use App\Models\Tracking;
@@ -96,13 +98,14 @@ class userController extends Controller
                             ->whereNull('total_duration')
                             ->first();
         $type = Truck::get();
+        $gate   = CarGate::get();
         if($data || $emp){
-            view()->share(['truck'=>$type]);
+            view()->share(['truck'=>$type,'gate'=>$gate]);
             return redirect()->route('receive_goods', ['id' => $data->received_goods_id ?? $emp->id]);
         }else{
 
             $source = Source::get();
-            view()->share(['truck'=>$type,'source'=>$source]);
+            view()->share(['truck'=>$type,'source'=>$source,'gate'=>$gate]);
             return view('user.receive_goods.driver_info');
         }
     }
@@ -114,9 +117,9 @@ class userController extends Controller
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
-
+        $gate   = CarGate::get();
         // $time_start = Carbon::parse($time_str)->format('H:i:s');
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate'));
     }
 
     public function user()
@@ -127,7 +130,6 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
-
         $driver = DriverInfo::where('received_goods_id',$request->main_id)->get();
         $data = $request->validate([
             'driver_name'       => 'required',
@@ -135,6 +137,7 @@ class userController extends Controller
             'driver_nrc'        => 'required',
             'truck_no'          => 'required',
             'truck_type'        => 'required',
+            'gate'              => 'required'
         ]);
         if(count($driver) > 0){
             $driver = new DriverInfo();
@@ -146,7 +149,8 @@ class userController extends Controller
             $driver->nrc_no             = $request->driver_nrc;
             $driver->start_date         = Carbon::now()->format('Y-m-d');
             $driver->start_time         = Carbon::now()->format('H:i:s');
-
+            $driver->user_id            = getAuth()->id;
+            $driver->gate               = $request->gate;
             $driver->save();
 
 
@@ -170,8 +174,18 @@ class userController extends Controller
                 $driver->start_date         = Carbon::now()->format('Y-m-d');
                 $driver->start_time         = Carbon::now()->format('H:i:s');
                 $driver->user_id            = getAuth()->id;
+                $driver->gate               = $request->gate;
 
                 $driver->save();
+        }
+        $history = CarHistory::where(['car_no'=>$request->truck_no,'car_type'=>$request->truck_type,'driver_name'=>$request->driver_name])->first();
+        if(!$history)
+        {
+            CarHistory::create([
+                'car_no'        => $request->truck_no,
+                'car_type'      => $request->truck_type,
+                'driver_name'   => $request->driver_name
+            ]);
         }
         return redirect()->route('receive_goods',$request->main_id);
 
@@ -184,7 +198,7 @@ class userController extends Controller
         ]);
 
         $same = GoodsReceive::where('start_date',Carbon::now()->format('Y-m-d'))->count();
-        $shr  = 'REG'.str_replace('-', '', Carbon::now()->format('Y-m-d'));
+        $shr  = 'RG'.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         $branch_id = getAuth()->branch->id;
         if($same > 0){
             $name = $shr.'-'.sprintf("%04d",$same+1);
@@ -349,19 +363,31 @@ class userController extends Controller
                         }
                     }
                 }else{
-                    $docs = [];
-                    $all_ids = [];
-                    foreach($all_product as $item)
-                    {
-                        $docs[]     = $item->doc->document_no;
-                        $all_ids[]  = $item->id;
+                    $exceed_pd =Product::whereIn('document_id',$doc_ids)
+                            ->where('bar_code',$item)
+                            ->where(DB::raw('qty'),'<',DB::raw('scanned_qty'))
+                            ->first();
+                    if($exceed_pd){
+                        $exceed_qty = $exceed_pd->scanned_qty + $qty;
+                        Product::where('id',$exceed_pd->id)->update([
+                            'scanned_qty'   => $exceed_qty
+                        ]);
+                    }else{
+                        $docs = [];
+                        $all_ids = [];
+                        foreach($all_product as $item)
+                        {
+                            $docs[]     = $item->doc->document_no;
+                            $all_ids[]  = $item->id;
+                        }
+                        return response()->json([
+                            'msg'  => 'decision',
+                            'doc'  => $docs,
+                            'ids'  => $all_ids,
+                            'qty'  => $qty
+                        ],200);
+
                     }
-                    return response()->json([
-                        'msg'  => 'decision',
-                        'doc'  => $docs,
-                        'ids'  => $all_ids,
-                        'qty'  => $qty
-                    ],200);
                 }
             }
             if(isset($driver_info))
@@ -473,8 +499,8 @@ class userController extends Controller
         $main   = GoodsReceive::where('id',$id)->first();
         $type = Truck::get();
         $source = Source::get();
-
-        view()->share(['truck'=>$type,'source'=>$source]);
+        $gate   = CarGate::get();
+        view()->share(['truck'=>$type,'source'=>$source,'gate'=>$gate]);
         return view('user.receive_goods.driver_info',compact('main'));
         // dd($driver);
     }
@@ -657,12 +683,33 @@ class userController extends Controller
             'scanned_qty' => $product->qty
         ]);
 
-        $del                = new RemoveTrack();
-        $del->user_id       = getAuth()->id;
-        $del->product_id    = $request->id;
-        $del->remove_qty    = $remove_qty;
+        $del                        = new RemoveTrack();
+        $del->receive_goods_id      = $product->doc->received_goods_id;
+        $del->user_id               = getAuth()->id;
+        $del->product_id            = $request->id;
+        $del->remove_qty            = $remove_qty;
         $del->save();
 
         return response()->json(200);
+    }
+
+    public function search_car(Request $request)
+    {
+
+        $search = $request->data;
+        $data = CarHistory::select('car_no')
+                            ->where('car_no','like',"%$search%")
+                            ->distinct()
+                            ->get();
+
+        return response()->json($data,200);
+    }
+
+    public function get_car(Request $request)
+    {
+        $data = CarHistory::where('car_no',$request->data)
+                            ->latest()
+                            ->first();
+        return response()->json($data,200);
     }
 }

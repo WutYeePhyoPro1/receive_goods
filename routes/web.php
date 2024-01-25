@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\authenticateController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\userController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,5 +58,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('del_doc','del_doc')->name('del_doc');
             route::post('del_exceed','del_exceed')->name('del_exceed');
             route::post('add_product_qty','add_product_qty')->name('add_product_qty');
+            route::post('search_car','search_car')->name('search_car');
+            route::post('get_car','get_car')->name('get_car');
+        });
+
+        route::group(['controller'=>ReportController::class],function(){
+            route::get('product_list','product_list')->name('product_list');
+            route::get('finished_documents','finished_documents')->name('finished_documents');
+            route::get('truck_list','truck_list')->name('truck_list');
+            route::get('remove_list','remove_list')->name('remove_list');
         });
 });

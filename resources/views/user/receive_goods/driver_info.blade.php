@@ -27,10 +27,15 @@
                 @if (isset($main))
                     <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
                     <div class="grid grid-cols-2 gap-5 my-5">
-                        <div class="flex flex-col px-10">
-                            <label for="driver_name">Driver Name<span class="text-rose-600">*</span> :</label>
-                            <input type="text" name="driver_name" id="driver_name" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" placeholder="name..." value="{{ old('driver_name') }}">
-                            @error('driver_name')
+
+
+                        <div class="flex flex-col px-10 relative truck_div">
+                            <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
+                            <input type="text" name="truck_no" id="truck_no" class="mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none truck_div" value="{{ old('truck_no') }}" placeholder="truck..." autocomplete="off">
+
+                                <ul class="2xl:w-[89.5%] w-[85%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto truck_div" style="top: 100%">
+                                </ul>
+                            @error('truck_no')
                                 <small class="text-rose-500 ms-1">{{ $message }}</small>
                             @enderror
                         </div>
@@ -54,11 +59,11 @@
                         </div>
 
                         <div class="flex flex-col px-10">
-                            <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
-                            <input type="text" name="truck_no" id="truck_no" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck...">
-                            @error('truck_no')
-                            <small class="text-rose-500 ms-1">{{ $message }}</small>
-                        @enderror
+                            <label for="driver_name">Driver Name<span class="text-rose-600">*</span> :</label>
+                            <input type="text" name="driver_name" id="driver_name" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" placeholder="name..." value="{{ old('driver_name') }}">
+                            @error('driver_name')
+                                <small class="text-rose-500 ms-1">{{ $message }}</small>
+                            @enderror
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-5 my-5">
@@ -75,6 +80,18 @@
                         @enderror
                         </div>
 
+                        <div class="flex flex-col px-10">
+                            <label for="gate">Gate<span class="text-rose-600">*</span> :</label>
+                            <Select name="gate" id="gate" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                <option value="">Choose Gate</option>
+                                @foreach ($gate as $item)
+                                    <option value="{{ $item->id }}" {{ old('gate') == $item->id ? 'selected' : '' }}>{{ $item->name.'('.$item->branches->branch_name.')' }}</option>
+                                @endforeach
+                            </Select>
+                            @error('gate')
+                            <small class="text-rose-500 ms-1">{{ $message }}</small>
+                        @enderror
+                        </div>
                     </div>
 
                 @else

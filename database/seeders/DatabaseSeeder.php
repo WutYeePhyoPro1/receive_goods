@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             branchSeeder::class,
             TruckSeeder::class,
             SourceSeeder::class,
+            CarGateSeeder::class,
             // Add more seeder classes as needed
         ]);
     }

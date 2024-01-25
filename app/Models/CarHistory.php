@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RemoveTrack extends Model
+class CarHistory extends Model
 {
     use HasFactory;
-
-    protected $fillable = ['received_goods_id','user_id','product_id','remove_qty'];
+    protected $fillable = ['car_no','car_type','driver_name'];
 }

@@ -12,15 +12,16 @@
     <div class="flex justify-between">
         <div class="flex">
             {{-- <div class="flex {{ $main->duration ? 'invisible pointer-events-none' : '' }}"> --}}
-
-            @if (($main->status == 'incomplete' && $main->status == null) || !isset($status))
-        <input type="text" id="docu_ipt" class="w-80 h-1/2 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none" placeholder="PO/POI/TO Document...">
+            @if (($main->status != 'complete') && !isset($status))
+            <input type="text" id="docu_ipt" class="w-80 h-1/2 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none" placeholder="PO/POI/TO Document...">
             <button  class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500" id="search_btn" hidden>Search</button>
             @endif
             @if (count($driver) > 0)
                 <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info"><i class='bx bx-id-card'></i></button>
             @else
-                <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="add_driver"><i class='bx bx-car'></i></button>
+                @if (!isset($status))
+                    <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="add_driver"><i class='bx bx-car'></i></button>
+                @endif
             @endif
         </div>
         <div class="flex">
@@ -312,6 +313,7 @@
                                 <span class="mb-4 text-xl">Driver's NRC No </span>
                                 <span class="mb-4 text-xl">Truck's No        </span>
                                 <span class="mb-4 text-xl">Truck's Type      </span>
+                                <span class="mb-4 text-xl">Gate      </span>
                                 <span class="mb-4 text-xl">Scanned Qty      </span>
                             </div>
                             <div class="flex flex-col">
@@ -321,6 +323,7 @@
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->nrc_no }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->truck_no }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->truck->truck_name }}</b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->gates->name }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->scanned_goods ?? 0 }}</b>
                             </div>
                     </div>
@@ -334,6 +337,7 @@
 {{-- End Modal --}}
 
 {{-- Add Car Modal --}}
+@if (!isset($status))
 <div class="hidden" id="add_car">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
         <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
@@ -365,10 +369,12 @@
                         @csrf
                             <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
                             <div class="grid grid-cols-2 gap-5 my-5">
-                                <div class="flex flex-col px-10">
-                                    <label for="driver_name">Driver Name<span class="text-rose-600">*</span> :</label>
-                                    <input type="text" name="driver_name" id="driver_name" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" placeholder="name..." value="{{ old('driver_name') }}">
-                                    @error('driver_name')
+                                <div class="flex flex-col px-10 relative ">
+                                    <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
+                                    <input type="text" name="truck_no" id="truck_no" class=" truck_div mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck..." autocomplete="off">
+                                        <ul class="truck_div w-[77%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto" style="top: 100%">
+                                        </ul>
+                                    @error('truck_no')
                                         <small class="text-rose-500 ms-1">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -392,11 +398,11 @@
                                 </div>
 
                                 <div class="flex flex-col px-10">
-                                    <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
-                                    <input type="text" name="truck_no" id="truck_no" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck...">
-                                    @error('truck_no')
-                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
-                                @enderror
+                                    <label for="driver_name">Driver Name<span class="text-rose-600">*</span> :</label>
+                                    <input type="text" name="driver_name" id="driver_name" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" placeholder="name..." value="{{ old('driver_name') }}">
+                                    @error('driver_name')
+                                        <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-5 my-5">
@@ -413,8 +419,20 @@
                                 @enderror
                                 </div>
 
+                                <div class="flex flex-col px-10">
+                                    <label for="gate">Gate<span class="text-rose-600">*</span> :</label>
+                                    <Select name="gate" id="gate" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                        <option value="">Choose Gate</option>
+                                        @foreach ($gate as $item)
+                                            <option value="{{ $item->id }}" {{ old('gate') == $item->id ? 'selected' : '' }}>{{ $item->name.'('.$item->branches->branch_name.')' }}</option>
+                                        @endforeach
+                                    </Select>
+                                    @error('gate')
+                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                @enderror
+                                </div>
 
-
+                            </div>
                         <div class="grid grid-cols-2 gap-5 my-5">
 
                             <div class="">
@@ -430,6 +448,7 @@
         </div>
 </div>
 </div>
+@endif
 {{-- End Modal --}}
     @push('js')
         <script >
@@ -451,7 +470,7 @@
                     $('#add_car').toggle();
                 })
 
-                if(!$finish && $role == 2)
+                if(!$finish && ($role == 2 || $role == 3))
                 {
                     $(document).on('keypress', '#docu_ipt', function(e) {
                     if (e.keyCode === 13) {
@@ -539,7 +558,6 @@
                             }
                         })
                 })
-
                 var key = '';
                     $(document).on('keypress input',function(e){
                         $doc_ipt = e.target.matches('#docu_ipt');
@@ -696,7 +714,7 @@
                     })
                 }
 
-                if(!$finish && $role == 2 && $all_begin != ''){
+                if(!$finish && ($role == 2 || $role == 3) && $all_begin != ''){
                     setInterval(() => {
                         time_count();
                     }, 1000);
@@ -714,9 +732,6 @@
 
                     $('#time_count').text(hour.toString().padStart(2, '0') + ':' + min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0'));
                 }
-
-
-
 
 
                 $(document).on('click','.del_doc',function(e){

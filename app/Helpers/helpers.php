@@ -147,4 +147,9 @@ use Illuminate\Support\Facades\DB;
         return $empty;
     }
 
+    function get_total_truck($id)
+    {
+        return DriverInfo::where('received_goods_id',$id)->count();
+    }
+
 

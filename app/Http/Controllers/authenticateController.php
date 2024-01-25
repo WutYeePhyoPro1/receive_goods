@@ -6,6 +6,7 @@ use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
 use App\Models\Product;
 use App\Models\RemoveTrack;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,11 +45,11 @@ class authenticateController extends Controller
 
     public function home()
     {
-        $products   = Product::sum('scanned_qty');
-        $docs       = GoodsReceive::count();
-        $com_doc       = GoodsReceive::where('status','complete')->count();
-        $cars       = DriverInfo::count();
-        $del        = RemoveTrack::sum('remove_qty');
+        $products   = Product::whereDate('created_at',Carbon::today())->sum('scanned_qty');
+        $docs       = GoodsReceive::where('start_date',Carbon::today())->count();
+        $com_doc       = GoodsReceive::where('status','complete')->where('start_date',Carbon::today())->count();
+        $cars       = DriverInfo::whereDate('created_at',Carbon::today())->count();
+        $del        = RemoveTrack::whereDate('created_at',Carbon::today())->sum('remove_qty');
         return view('user.home',compact('products','docs','cars','del','com_doc'));
     }
 }

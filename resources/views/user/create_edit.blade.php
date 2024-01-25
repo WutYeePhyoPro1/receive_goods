@@ -94,7 +94,7 @@
                             <option value="">Choose Role</option>
                                 <option value="2" {{ isset($data) ? ($data->role == 2 ? 'selected' : '') : (old('role') == 2 ? 'selected' : '') }} selected>User</option>
                                 <option value="3" {{ isset($data) ? ($data->role == 3 ? 'selected' : '') : (old('role') == 3 ? 'selected' : '') }}>Supervisor</option>
-                                <option value="3" {{ isset($data) ? ($data->role == 3 ? 'selected' : '') : (old('role') == 3 ? 'selected' : '') }}>Manager</option>
+                                <option value="4" {{ isset($data) ? ($data->role == 4 ? 'selected' : '') : (old('role') == 4 ? 'selected' : '') }}>Manager</option>
                         </Select>
                         @error('branch')
                         <small class="text-rose-500 ms-1">{{ $message }}</small>

@@ -16,7 +16,7 @@
         <div class="side_bar">
             <ul class="sidebar_body">
                 <li class="sidebar_items" onclick="javascript:window.location.href='/home'">
-                    @if (request()->is('home'))
+                    @if (request()->is('home') || request()->is('product_list*') || request()->is('finished_documents*'))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
                     @endif
@@ -27,7 +27,7 @@
                 </li>
 
 
-                @if (getAuth()->role == 2)
+                @if (getAuth()->role == 2 || getAuth()->role == 3)
                     <li class="sidebar_items" onclick="javascript:window.location.href='/car_info'">
                         @if (request()->is('receive_good*') || request()->is('car_info*') || request()->is('view_goods*'))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
@@ -41,7 +41,7 @@
                 @endif
 
                 <li class="sidebar_items" onclick="javascript:window.location.href='/list'">
-                    @if (request()->is('list') || (getAuth()->role != 2 && (request()->is('receive_good*') || request()->is('view_goods*'))))
+                    @if (request()->is('list') || ((getAuth()->role == 1 || getAuth()->role == 4) && (request()->is('receive_good*') || request()->is('view_goods*'))))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
                     @endif
@@ -54,7 +54,7 @@
 
                 @if (getAuth()->role == 1)
                     <li class="sidebar_items" onclick="javascript:window.location.href='/user'">
-                        @if (request()->is('user*'))
+                        @if (request()->is('user*') || request()->is('edit_user*'))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
                     @endif
@@ -104,10 +104,9 @@
         </div>
 </body>
 
-
-        @stack('js')
         <script>
             $(document).ready(function(e){
+                var token = $("meta[name='__token']").attr('content');
                 $(document).on('keypress','#driver_phone',function(e){
                     let filter = true;
 
@@ -125,7 +124,82 @@
                         e.preventDefault();
                     }
                 })
+
+                $(document).on('input','#truck_no',function(e){
+                    $val    = $(this).val();
+                    if($val.length == 2 && e.originalEvent.data != null)
+                    {
+                        $val    = $val + '-';
+                        $(this).val($val);
+                    }
+
+                    if($val != '')
+                    {
+                        $('.car_auto').html('');
+                        $.ajax({
+                            url     : "{{ route('search_car') }}",
+                            type    : 'POST',
+                            data    : {_token : token , data : $val},
+                            befroeSend: function(){
+                                $('.car_auto').html('');
+                            },
+                            success : function(res){
+                                $list = '';
+                                for($i = 0 ; $i < res.length ; $i++)
+                                {
+                                    $list += `
+                                        <li class="ps-4 py-1 cursor-pointer hover:bg-slate-100 car_lists truck_div">${res[$i].car_no}</li>
+                                    `;
+                                }
+                                $('.car_auto').append($list);
+                            }
+                        })
+                    }else{
+                        $('.car_auto').html('');
+                    }
+                })
+
+                $(document).on('keypress','#truck_no',function(e){
+                    $val    = $(this).val();
+                    if($val.length > 6)
+                    {
+                        e.preventDefault();
+                    }
+                })
+
+                $(document).on('click',document,function (e) {
+
+                    $link = e.target.matches('.truck_div');
+                    if($link )
+                    {
+                        $('.car_auto').attr('hidden',false);
+                    }else{
+                        $('.car_auto').attr('hidden',true);
+                    }
+                })
+
+                $(document).on('click','.car_lists',function(e){
+                    $val = $(this).text();
+
+                    $.ajax({
+                        url     : "{{ route('get_car') }}",
+                        type    : 'POST',
+                        data    : {_token : token , data : $val},
+                        success : function(res){
+                            $('#truck_no').val(res.car_no);
+                            $('#driver_name').val(res.driver_name);
+                            $('#truck_type option').each((i,v)=>{
+                                $(v).attr('selected',false);
+                                if($(v).val() == res.car_type)
+                                {
+                                    $(v).prop('selected',true);
+                                }
+                            });
+                            $('.car_auto').html('');
+                        }
+                    })
+                })
             })
         </script>
-
+        @stack('js')
 </html>

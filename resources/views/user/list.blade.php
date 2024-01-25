@@ -138,7 +138,7 @@
                             text  : 'Receive Goods မှာ မပြီးပြတ်သေးတဲ့ document ရှိနေပါသည်။ continue/complete အရင်နှိပ်ပါ'
                         })
                     }else{
-                        if($role == 2){
+                        if($role == 2 || $role == 3){
                             window.location.href = 'car_info/'+$id;
                         }else{
                             window.location.href = 'receive_goods/'+$id;
