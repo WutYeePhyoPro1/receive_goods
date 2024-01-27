@@ -47,7 +47,7 @@ class authenticateController extends Controller
     {
         $products   = Product::whereDate('created_at',Carbon::today())->sum('scanned_qty');
         $docs       = GoodsReceive::where('start_date',Carbon::today())->count();
-        $com_doc       = GoodsReceive::where('status','complete')->where('start_date',Carbon::today())->count();
+        $com_doc       = GoodsReceive::where('status','complete')->whereDate('updated_at',Carbon::today())->count();
         $cars       = DriverInfo::whereDate('created_at',Carbon::today())->count();
         $del        = RemoveTrack::whereDate('created_at',Carbon::today())->sum('remove_qty');
         return view('user.home',compact('products','docs','cars','del','com_doc'));

@@ -61,6 +61,38 @@
                                 <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Product Code</option>
                             </Select>
                         </div>
+                    @elseif($report == 'truck')
+
+                        <div class="flex flex-col">
+                            <label for="gate">Choose Gate :</label>
+                            <Select name="gate" id="gate" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                <option value="">Choose Gate</option>
+                                @foreach ($gate as $item)
+                                    <option value="{{ $item->id }}" {{ request('gate') == $item->id ? 'selected' : '' }}>{{ $item->name.'('.$item->branches->branch_name.')' }}</option>
+                                @endforeach
+                            </Select>
+                        </div>
+
+                        <div class="flex flex-col">
+                            <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
+                            <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                <option value="" selected>Choose Method</option>
+                                <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
+                                <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Scanned Bar Code</option>
+                                <option value="truck_no" {{ request('search')=='truck_no' ? 'selected' : '' }}>Truck No</option>
+                                <option value="driver_name" {{ request('search')=='driver_name' ? 'selected' : '' }}>Driver Name</option>
+                            </Select>
+                        </div>
+                    @elseif ($report == 'remove')
+                    <div class="flex flex-col">
+                        <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
+                        <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                            <option value="" selected>Choose Method</option>
+                            <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
+                            <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Bar Code</option>
+                            <option value="user" {{ request('search')=='user' ? 'selected' : '' }}>User Name</option>
+                        </Select>
+                    </div>
                     @endif
 
                     <div class="flex flex-col">
@@ -69,8 +101,8 @@
                     </div>
 
                 <div class="">
-                    <button class="bg-amber-400 h-10 w-[40%] rounded-lg ms-4 mt-9 hover:bg-amber-600 hover:text-white">Search</button>
-                    <button class="bg-sky-400 text-white text-xl h-10 w-[20%] rounded-lg ms-4 mt-9 hover:bg-sky-600 hover:text-white"><i class='bx bx-export'></i></button>
+                    <button type="submit" class="bg-amber-400 h-10 w-[40%] rounded-lg ms-4 mt-9 hover:bg-amber-600 hover:text-white">Search</button>
+                    <button type="button" class="bg-sky-400 text-white text-xl h-10 w-[20%] rounded-lg ms-4 mt-9 hover:bg-sky-600 hover:text-white" onclick="$('#excel_form').submit()"><i class='bx bx-export'></i></button>
                 </div>
             </div>
         </form>
@@ -101,6 +133,21 @@
                             <th class="py-2 bg-slate-400  border">Total Scanned Qty</th>
                             <th class="py-2 bg-slate-400  border">Duration</th>
                             <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
+                        @elseif($report == 'truck')
+                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                            <th class="py-2 bg-slate-400 border">Truck No</th>
+                            <th class="py-2 bg-slate-400 border">Driver Name</th>
+                            <th class="py-2 bg-slate-400 border">Truck Type</th>
+                            <th class="py-2 bg-slate-400  border">Loaded Goods</th>
+                            <th class="py-2 bg-slate-400  border">Gate</th>
+                            <th class="py-2 bg-slate-400  border">Duration</th>
+                            <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
+                        @elseif($report == 'remove')
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                <th class="py-2 bg-slate-400 border">Document No</th>
+                                <th class="py-2 bg-slate-400 border">Product Code</th>
+                                <th class="py-2 bg-slate-400 border">Removed Qty</th>
+                                <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
                         @endif
 
                     </tr>
@@ -119,7 +166,7 @@
                         @endforeach
                     @elseif ($report == 'finish')
                         @foreach ($data as $item)
-                            <tr>
+                            <tr class="hover:bg-slate-200 cursor-pointer" onclick="javascript:window.location.href = 'detail_doc/{{ $item->id }}'">
                                 <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->document_no }}</td>
                                 <td class="h-10 text-center border border-slate-400 ">{{ $item->source_good->name }}</td>
@@ -130,11 +177,44 @@
                                 <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
                             </tr>
                         @endforeach
+                    @elseif($report == 'truck')
+                            @foreach ($truck as $item)
+                                <tr >
+                                    <td class="h-10 text-center border border-slate-400">{{ $truck->firstItem()+$loop->index  }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->truck_no }}</td>
+                                    <td class="h-10 text-center border border-slate-400 ">{{ $item->driver_name }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->truck->truck_name }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ get_scanned_qty($item->id) }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->gates->name }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->duration }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
+                                </tr>
+                            @endforeach
+                    @elseif($report == 'remove')
+                        @foreach ($data as $item)
+                            <tr>
+                                <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->received->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ $item->product->bar_code }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->remove_qty }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->user->name }}</td>
+                            </tr>
+                        @endforeach
                     @endif
                 </tbody>
             </table>
         </div>
-        @if (request('search') || request('search_data') || request('branch') || request('status') || request('from_date') || request('to_date'))
+        <form action="{{ route('excel_export') }}" id="excel_form" method="POST">
+            @csrf
+            <input type="hidden" name="report" value="{{ $report }}">
+            <input type="hidden" name="{{ request('branch') ? 'branch' : '' }}" value="{{ request('branch') ? request('branch') : '' }}">
+            <input type="hidden" name="{{ request('status') ? 'status' : '' }}" value="{{ request('status') ? request('status') : '' }}">
+            <input type="hidden" name="{{ request('from_date') ? 'from_date' : '' }}" value="{{ request('from_date') ? request('from_date') : '' }}">
+            <input type="hidden" name="{{ request('to_date') ? 'to_date' : '' }}" value="{{ request('to_date') ? request('to_date') : '' }}">
+            <input type="hidden" name="{{ request('search') ? 'search' : '' }}" value="{{ request('search') ? request('search') : '' }}">
+            <input type="hidden" name="{{ request('search_data') ? 'search_data' : '' }}" value="{{ request('search_data') ? request('search_data') : '' }}">
+        </form>
+        @if (request('search') || request('search_data')  || request('branch') || request('gate') || request('status') || request('from_date') || request('to_date'))
         <div class="mt-2">
             <button class="bg-sky-600 text-white px-3 py-2 rounded-md" onclick="javascript:window.location.href = '{{$url}}';">Back to Default</button>
         </div>

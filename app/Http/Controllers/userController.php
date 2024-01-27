@@ -198,7 +198,7 @@ class userController extends Controller
         ]);
 
         $same = GoodsReceive::where('start_date',Carbon::now()->format('Y-m-d'))->count();
-        $shr  = 'RG'.str_replace('-', '', Carbon::now()->format('Y-m-d'));
+        $shr  = 'REG'.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         $branch_id = getAuth()->branch->id;
         if($same > 0){
             $name = $shr.'-'.sprintf("%04d",$same+1);
@@ -684,7 +684,7 @@ class userController extends Controller
         ]);
 
         $del                        = new RemoveTrack();
-        $del->receive_goods_id      = $product->doc->received_goods_id;
+        $del->received_goods_id      = $product->doc->received_goods_id;
         $del->user_id               = getAuth()->id;
         $del->product_id            = $request->id;
         $del->remove_qty            = $remove_qty;

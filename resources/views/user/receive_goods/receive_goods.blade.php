@@ -198,7 +198,7 @@
                                             ?>
                                             <tr class="h-10">
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
-                                                    @if ($main->status == 'incomplete' && getAuth()->role != 2)
+                                                    @if ($main->status == 'incomplete' && (getAuth()->role == 1 || getAuth()->role == 4))
                          <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
                                                     @endif
                                                 </td>
@@ -843,6 +843,7 @@
                         type: 'POST',
                         data: {_token : token , id : $id},
                         success: function(res){
+                            console.log('success');
                             $('.scan_parent').load(location.href + ' .scan_parent');
                             $('.excess_div').load(location.href + ' .excess_div');
                         }

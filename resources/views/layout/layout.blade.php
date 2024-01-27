@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="__token" content="{{ csrf_token() }}">
-    <title>Goods Receive</title>
+    <title>Receive Goods</title>
     <link rel="stylesheet" href="{{ asset('css/boxicons.min.css') }}">
+    <link rel="icon" href="{{ asset('image/background_img/package.png') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

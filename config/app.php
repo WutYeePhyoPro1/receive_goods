@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Good Recieved'),
+    'name' => env('APP_NAME', 'Recieve Goods'),
 
     /*
     |--------------------------------------------------------------------------
