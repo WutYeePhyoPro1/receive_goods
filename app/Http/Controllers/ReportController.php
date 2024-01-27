@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use App\Models\User;
 use App\Models\Branch;
 use App\Models\CarGate;
@@ -11,8 +13,11 @@ use App\Models\Document;
 use App\Models\Tracking;
 use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
+use App\Exports\ReportExcel;
 use App\Models\GoodsReceive;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Symfony\Component\CssSelector\Node\FunctionNode;
 
 class ReportController extends Controller
@@ -45,17 +50,16 @@ class ReportController extends Controller
         $report = 'product';
         $url    = 'product_list';
         $product = Product::when((request('search') != 'main_no' || request('search') != 'document_no' || request('search')) != 'product_code' && !request('search_data') , function($q){
-                            $q->whereYear('created_at',Carbon::now()->format('Y'))
-                            ->whereMonth('created_at',Carbon::now()->format('m'));
+                                $q->whereYear('created_at',Carbon::now()->format('Y'))
+                                ->whereMonth('created_at',Carbon::now()->format('m'));
         })
-                            ->when((request('search') == 'main_no' || request('search')) == 'document_no' && request('search_data'),function($q) use($product){
+                            ->when((request('search') == 'main_no' || request('search') == 'document_no') && request('search_data'),function($q) use($product){
                                 $q->whereIn('id',$product);
                             })
                             ->when(request('search') == 'product_code' && request('search_data'),function($q){
-                                $q->where('bar_code',request('product_code'));
+                                $q->where('bar_code',request('search_data'));
                             })
                             ->paginate(15);
-
         return view('user.report.report',compact('report','product','url'));
     }
 
@@ -186,7 +190,7 @@ class ReportController extends Controller
             $user   = User::where('name',request('search_data'))->first();
         }
 
-        $data = RemoveTrack::when(request('search'),function($q)
+        $data = RemoveTrack::when(!request('search') ,function($q)
                             {
                                 $q->whereYear('created_at',Carbon::now()->format('Y'))
                                 ->whereMonth('created_at',Carbon::now()->format('m'));
@@ -218,6 +222,19 @@ class ReportController extends Controller
         // dd($request->all());
         $date = Carbon::now()->format('Ymd');
         $search = $request->except('_token');
-        dd($search);
+
+        return Excel::download(new ReportExcel($search),"reg$date.xlsx");
+    }
+
+    public function product_pdf($id)
+    {
+        $docs = Document::where('received_goods_id',$id)->pluck('id');
+        $data = Product::whereIn('document_id',$docs)->get();
+        $doc_no = GoodsReceive::where('id',$id)->first();
+        $date = Carbon::now()->format('Ymd');
+        view()->share(['data'=>$data]);
+        $pdf = PDF::loadView('user.exports.product_pdf', compact('data'));
+        return $pdf->stream("$doc_no->document_no.$date.pdf");
+        // return view('user.exports.product_pdf',compact('data'));
     }
 }

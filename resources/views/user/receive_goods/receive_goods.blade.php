@@ -63,7 +63,9 @@
                             <th class="border border-slate-400 border-t-0 border-l-0"></th>
                             <th class="border border-slate-400 border-t-0 w-8"></th>
                             <th class="border border-slate-400 border-t-0">Document No</th>
-                            <th class="border border-slate-400 border-t-0">Box Barcode</th>
+                            <th class="border border-slate-400 border-t-0"><span>Box Barcode</span>
+                                <a href="../product_pdf/{{ $main->id }}" target="_blank"><i class='bx bx-download ms-1 hover:text-amber-500'></i></a>
+                            </th>
                             <th class="border border-slate-400 border-t-0">Product Name</th>
                             <th class="border border-slate-400 border-t-0">Quantity</th>
                             <th class="border border-slate-400 border-t-0">Scanned</th>

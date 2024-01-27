@@ -70,6 +70,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('detail_doc/{id}','detail_doc')->name('detail_doc');
             route::get('excel_view','excel_view')->name('excel_view');
 
+            route::get('product_pdf/{id}','product_pdf')->name('product_pdf');
+
             route::post('excel_export','excel_export')->name('excel_export');
         });
 });

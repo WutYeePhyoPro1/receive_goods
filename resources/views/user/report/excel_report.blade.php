@@ -48,9 +48,9 @@
             </thead>
             <tbody>
                 @if ($report == 'product')
-                    @foreach ($all as $item)
+                    @foreach ($all as $index=>$item)
                         <tr>
-                            <td class="h-10 text-center border border-slate-400">{{ $product->firstItem()+$loop->index  }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $index+1  }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
                             <td class="h-10 text-center border border-slate-400 ">{{ $item->bar_code }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
@@ -59,9 +59,9 @@
                         </tr>
                     @endforeach
                 @elseif ($report == 'finish')
-                    @foreach ($all as $item)
-                        <tr class="hover:bg-slate-200 cursor-pointer" onclick="javascript:window.location.href = 'detail_doc/{{ $item->id }}'">
-                            <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
+                    @foreach ($all as $index=>$item)
+                        <tr class="hover:bg-slate-200 cursor-pointer" >
+                            <td class="h-10 text-center border border-slate-400">{{ $index+1  }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->document_no }}</td>
                             <td class="h-10 text-center border border-slate-400 ">{{ $item->source_good->name }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ get_total_truck($item->id) }}</td>
@@ -72,9 +72,9 @@
                         </tr>
                     @endforeach
                 @elseif($report == 'truck')
-                        @foreach ($all as $item)
+                        @foreach ($all as $index=>$item)
                             <tr >
-                                <td class="h-10 text-center border border-slate-400">{{ $truck->firstItem()+$loop->index  }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $index+1  }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->truck_no }}</td>
                                 <td class="h-10 text-center border border-slate-400 ">{{ $item->driver_name }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->truck->truck_name }}</td>
@@ -85,9 +85,9 @@
                             </tr>
                         @endforeach
                 @elseif($report == 'remove')
-                    @foreach ($all as $item)
+                    @foreach ($all as $index=>$item)
                         <tr>
-                            <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $index+1  }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->received->document_no }}</td>
                             <td class="h-10 text-center border border-slate-400 ">{{ $item->product->bar_code }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->remove_qty }}</td>
