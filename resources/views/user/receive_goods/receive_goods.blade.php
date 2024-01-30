@@ -78,7 +78,7 @@
                                 $i = 0;
                             ?>
                             @foreach($document as $item)
-                                @if (count(search_pd($item->id)) > 0)
+                                @if (  count(search_pd($item->id)) > 0)
                                     <tbody class="main_body">
                                         @foreach (search_pd($item->id) as $key=>$tem)
 
@@ -172,7 +172,7 @@
             <div class="border border-slate-400 rounded-md overflow-x-hidden overflow-y-auto main_product_table" style="max-height: 42.5vh;width:100%">
                 <div class="border border-b-slate-400 h-10 bg-sky-50">
                     <span class="font-semibold leading-9 ml-3">
-                        List Of Scanned Products (excess)
+                        List Of Scanned Products (excess / shortage)
                     </span>
                 </div>
                 <div class="excess_div">
@@ -213,7 +213,7 @@
                                                 @endif
                                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->bar_code }}</td>
                                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-r-0">{{ $tem->scanned_qty - $tem->qty  }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
                                             </tr>
                                             @endforeach
                                         </tbody>
@@ -452,9 +452,45 @@
 </div>
 @endif
 {{-- End Modal --}}
+   {{-- Decision Modal --}}
+   <div class="hidden" id="alert_model">
+    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                <div
+                    class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Cursor ထွက်နေပါသဖြင့် scan ဖတ်လို့ရမည် မဟုတ်ပါ &nbsp;<span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold"
+                            onclick="$('#alert_model').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+{{-- End Modal --}}
     @push('js')
         <script >
             $(document).ready(function(e){
+
                 var token = $("meta[name='__token']").attr('content');
                 $finish = $('#finished').val();
                 $status = $('#view_').val();
@@ -471,6 +507,8 @@
                 $(document).on('click','#add_driver',function(e){
                     $('#add_car').toggle();
                 })
+
+
 
                 if(!$finish && ($role == 2 || $role == 3))
                 {
@@ -721,7 +759,14 @@
                         time_count();
                     }, 1000);
 
+                    window.addEventListener('focus', function() {
+                        $('#alert_model').hide();
+                    });
 
+                    window.addEventListener('blur', function() {
+                        $('#alert_model').show();
+
+                    });
 
                     function time_count(){
                     let time = new Date($('#started_time').val()).getTime();
@@ -853,7 +898,6 @@
                 })
             }
                 }
-                // console.log(Math.floor(2-1));
             })
         </script>
     @endpush

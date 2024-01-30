@@ -264,7 +264,8 @@ return array(
          *
          * @var bool
          */
-        "enable_remote" => true,
+        'enable_remote' => true,
+        'DOMPDF_ENABLE_REMOTE'=>true,
 
         /**
          * A ratio applied to the fonts height to be more like browsers' line height

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DetailExcel;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -209,13 +210,6 @@ class ReportController extends Controller
         return view('user.report.report',compact('data','report','url'));
     }
 
-    public function detail_doc($id)
-    {
-        $reg        = GoodsReceive::where('id',$id)->first();
-        $document   = Document::where('received_goods_id',$id)->get();
-        $driver     = DriverInfo::where('received_goods_id',$id)->get();
-        return view('user.report.detail_report',compact('reg','document','driver'));
-    }
 
     public function excel_export(Request $request)
     {
@@ -226,6 +220,27 @@ class ReportController extends Controller
         return Excel::download(new ReportExcel($search),"reg$date.xlsx");
     }
 
+    public function detail_excel_export($id)
+    {
+        $date = Carbon::now()->format('Ymd');
+        $truck = DriverInfo::where('id',$id)->first();
+        $truck_no = $truck->truck_no;
+        // $driver     = DriverInfo::where('id',$id)->first();
+        // $reg        = GoodsReceive::where('id',$driver->received_goods_id)->first();
+        // $document   = [];
+        // $track      = Tracking::where('driver_info_id', $id)->get();
+        // foreach($track as $item)
+        // {
+        //     if(!in_array($item->product->doc->id,$document))
+        //     {
+        //         $document[] = $item->product->doc->id;
+        //     }
+        // }
+
+        // return view('user.report.detail_excel_report',compact('driver','reg','document','track'));
+        return Excel::download(new DetailExcel($id),"$truck_no.$date.xlsx");
+    }
+
     public function product_pdf($id)
     {
         $docs = Document::where('received_goods_id',$id)->pluck('id');
@@ -233,8 +248,54 @@ class ReportController extends Controller
         $doc_no = GoodsReceive::where('id',$id)->first();
         $date = Carbon::now()->format('Ymd');
         view()->share(['data'=>$data]);
+
         $pdf = PDF::loadView('user.exports.product_pdf', compact('data'));
         return $pdf->stream("$doc_no->document_no.$date.pdf");
-        // return view('user.exports.product_pdf',compact('data'));
+    }
+
+    public function truck_detail_pdf($id)
+    {
+        $action = 'print';
+        $date = Carbon::now()->format('Ymd');
+        $driver     = DriverInfo::where('id',$id)->first();
+        $reg        = GoodsReceive::where('id',$driver->received_goods_id)->first();
+        $document   = [];
+        $track      = Tracking::where('driver_info_id', $id)->get();
+        foreach($track as $item)
+        {
+            if(!in_array($item->product->doc->id,$document))
+            {
+                $document[] = $item->product->doc->id;
+            }
+        }
+
+        $pdf = PDF::loadView('user.report.detail_excel_report', compact('driver','reg','document','track','action'));
+        return $pdf->stream("$driver->truck_no.$date.pdf");
+    }
+
+    public function detail_doc($id)
+    {
+        $detail     = 'doc';
+        $reg        = GoodsReceive::where('id',$id)->first();
+        $document   = Document::where('received_goods_id',$id)->get();
+        $driver     = DriverInfo::where('received_goods_id',$id)->get();
+        return view('user.report.detail_report',compact('reg','document','driver','detail'));
+    }
+
+    public function detail_truck($id)
+    {
+        $detail     = 'truck';
+        $driver     = DriverInfo::where('id',$id)->first();
+        $reg        = GoodsReceive::where('id',$driver->received_goods_id)->first();
+        $document   = [];
+        $track      = Tracking::where('driver_info_id', $id)->get();
+        foreach($track as $item)
+        {
+            if(!in_array($item->product->doc->id,$document))
+            {
+                $document[] = $item->product->doc->id;
+            }
+        }
+        return view('user.report.detail_report',compact('reg','driver','document','detail','track'));
     }
 }

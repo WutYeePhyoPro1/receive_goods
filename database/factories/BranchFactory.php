@@ -18,7 +18,8 @@ class BranchFactory extends Factory
     {
         return [
             'branch_name' => $this->faker->name(),
-            'branch_code' => $this->faker->name()
+            'branch_code' => $this->faker->name(),
+            'branch_short_name' => $this->faker->name()
         ];
     }
 }

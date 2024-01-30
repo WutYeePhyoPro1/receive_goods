@@ -15,10 +15,16 @@ use Illuminate\Support\Facades\DB;
 
     function search_pd($id)
     {
-        return Product::where('document_id',$id)
-                        ->where(DB::raw('scanned_qty'), '<', DB::raw('qty'))
-                        ->orderBy('id','asc')
-                        ->get();
+        $doc = Document::where('id',$id)->first();
+        $main = GoodsReceive::where('id',$doc->received_goods_id)->first();
+        if($main->status != 'complete')
+        {
+            return Product::where('document_id',$id)
+                            ->where(DB::raw('scanned_qty'), '<', DB::raw('qty'))
+                            ->orderBy('id','asc')
+                            ->get();
+        }
+        return [];
     }
 
     function search_scanned_pd($id)
@@ -31,9 +37,19 @@ use Illuminate\Support\Facades\DB;
 
     function search_excess_pd($id)
     {
-        return Product::where('document_id',$id)
-                        ->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
-                        ->get();
+        $doc = Document::where('id',$id)->first();
+        $main = GoodsReceive::where('id',$doc->received_goods_id)->first();
+        if($main->status == 'complete')
+        {
+            return Product::where('document_id',$id)
+                            ->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
+                            ->orwhere(DB::raw('scanned_qty') , '<', DB::raw('qty'))
+                            ->get();
+        }else{
+            return Product::where('document_id',$id)
+                            ->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
+                            ->get();
+        }
     }
 
     function check_color($id)
@@ -152,4 +168,24 @@ use Illuminate\Support\Facades\DB;
         return DriverInfo::where('received_goods_id',$id)->count();
     }
 
+    function get_truck_product($id,$driver)
+    {
+        $doc = Document::where('id',$id)->first();
+        $pds = Product::where('document_id',$doc->id)->get();
+        $track = Tracking::where('driver_info_id',$driver)->pluck('product_id')->toArray();
+        $data = [];
+        foreach($pds as $item)
+        {
+            if(in_array($item->id,$track))
+            {
+                $data[] = Tracking::where('product_id',$item->id)->first();
+            }
+        }
+        return $data;
+    }
+
+    function getDocument($id)
+    {
+        return Document::where('id',$id)->first();
+    }
 

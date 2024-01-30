@@ -93,13 +93,13 @@
             </div>
             <div class="flexv whitespace-nowrap" style="line-height: 60px">
                 <span class="mr-4"><i class='bx bxs-user-account mr-1' style="transform: translateY(2px)"></i> User : {{ getAuth()->name }}</span> |&nbsp;&nbsp;
-                <span class="mr-4"><i class='bx bx-signal-5 mr-1' style="transform: translateY(2px)"></i> Server Link :
+                {{-- <span class="mr-4"><i class='bx bx-signal-5 mr-1' style="transform: translateY(2px)"></i> Server Link :
                    @if(isset($_SERVER['SERVER_ADDR']))
                         {{ $_SERVER['SERVER_ADDR'] }}
                    @else
                        server is not set.
                    @endif
-               </span> |&nbsp;&nbsp;
+               </span> |&nbsp;&nbsp; --}}
                  <span class="mr-4"><i class='bx bx-server mr-1' style="transform: translateY(2px)"></i> IP Computer : {{ request()->ip()}}</span>
             </div>
         </div>

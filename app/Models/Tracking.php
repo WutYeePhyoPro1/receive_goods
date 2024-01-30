@@ -10,4 +10,9 @@ class Tracking extends Model
     use HasFactory;
 
     protected $fillable = ['driver_info_id','product_id','scanned_qty','user_id'];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id')->withDefault();
+    }
 }

@@ -64,7 +64,7 @@ class userController extends Controller
                             ->when(request('to_date'),function($q){
                                 $q->where('start_date','<=',request('to_date'));
                             })
-                            ->whereNotNull('total_duration')
+                            ->whereNotNull('status')
                             ->orderBy('created_at','desc')
                             ->paginate(15);
         $branch = Branch::get();
@@ -105,7 +105,8 @@ class userController extends Controller
         }else{
 
             $source = Source::get();
-            view()->share(['truck'=>$type,'source'=>$source,'gate'=>$gate]);
+            $branch = Branch::get();
+            view()->share(['truck'=>$type,'source'=>$source,'gate'=>$gate,'branch'=>$branch]);
             return view('user.receive_goods.driver_info');
         }
     }
@@ -195,11 +196,12 @@ class userController extends Controller
     {
         $data = $request->validate([
             'source'            => 'required',
+            'branch'            => 'required',
         ]);
 
         $same = GoodsReceive::where('start_date',Carbon::now()->format('Y-m-d'))->count();
-        $shr  = 'REG'.str_replace('-', '', Carbon::now()->format('Y-m-d'));
-        $branch_id = getAuth()->branch->id;
+        $branch = Branch::where('id',$request->branch)->first();
+        $shr  = 'REG'.$branch->branch_short_name.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         if($same > 0){
             $name = $shr.'-'.sprintf("%04d",$same+1);
         }else{
@@ -208,7 +210,7 @@ class userController extends Controller
 
         $main               = new GoodsReceive();
         $main->document_no  = $name;
-        $main->branch_id    =$branch_id;
+        $main->branch_id    =$request->branch;
         $main->source       = $request->source;
         $main->user_id      = getAuth()->id;
         $main->save();
@@ -500,7 +502,8 @@ class userController extends Controller
         $type = Truck::get();
         $source = Source::get();
         $gate   = CarGate::get();
-        view()->share(['truck'=>$type,'source'=>$source,'gate'=>$gate]);
+        $branch   = Branch::get();
+        view()->share(['truck'=>$type,'source'=>$source,'gate'=>$gate,'branch'=>$branch]);
         return view('user.receive_goods.driver_info',compact('main'));
         // dd($driver);
     }

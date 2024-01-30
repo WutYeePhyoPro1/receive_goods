@@ -5,7 +5,7 @@
     <div class="grid grid-cols-5 gap-5 px-5">
         <div class=" min-h-60 rounded-xl shadow-2xl border border-slate-200  mt-10 relative" style="background-color: rgba(131, 131, 131, 0.12)">
             <div class="">
-                <span class="text-xl font-serif float-right mr-3 mt-2">Total Scanned Products</span>
+                <span class="text-xl font-serif float-right mr-3 mt-2">Total Products</span>
             </div>
             <div class="absolute w-full h-full" style="z-index: -1">
                 <i class='bx bxs-package text-slate-100 text-9xl'></i>

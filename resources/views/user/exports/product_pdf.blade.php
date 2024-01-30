@@ -30,21 +30,21 @@
     #back_img{
         position: fixed;
         object-fit: cover;
-        width: 80%;
-        top: 10%;
+        width: 90%;
+        top: 30%;
         bottom: 0;
         left: 10%;
         right: 0;
-        opacity: 0.1;
+        opacity: 0.2;
     }
     </style>
 </head>
 <body>
     <div class="">
         <div class="">
-            <img src="{{ asset('image/background_img/finallogo.png') }}" style="width:200px" alt="">
+            {{-- <img src="{{ public_path('storage/background_img/finallogo.png') }}" style="width:200px" alt=""> --}}
         </div>
-        {{-- <img id="back_img" src="{{ asset('image/background_img/finallogo.png') }}" alt=""> --}}
+        <img id="back_img" src="{{ public_path('image/background_img/finallogo.png') }}" alt="">
         <table class="w-full mt-4">
             <thead>
                 <tr>

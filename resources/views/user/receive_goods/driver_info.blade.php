@@ -110,6 +110,18 @@
                         @enderror
                         </div>
 
+                        <div class="flex flex-col px-10">
+                            <label for="branch">branch<span class="text-rose-600">*</span> :</label>
+                            <Select name="branch" id="branch" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                <option value="">Choose branch</option>
+                                @foreach ($branch as $item)
+                                    <option value="{{ $item->id }}" {{ old('branch') == $item->id ? 'selected' : '' }}>{{ $item->branch_name }}</option>
+                                @endforeach
+                            </Select>
+                            @error('branch')
+                            <small class="text-rose-500 ms-1">{{ $message }}</small>
+                        @enderror
+                        </div>
                     </div>
                 @endif
 

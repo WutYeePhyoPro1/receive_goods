@@ -119,7 +119,8 @@
                     <tr class="">
                         @if ($report == 'product')
                             <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                            <th class="py-2 bg-slate-400 border">Document</th>
+                            <th class="py-2 bg-slate-400 border">REG Document</th>
+                            <th class="py-2 bg-slate-400 border">PO/TO Document</th>
                             <th class="py-2 bg-slate-400 border">Product</th>
                             <th class="py-2 bg-slate-400 border">Total Qty</th>
                             <th class="py-2 bg-slate-400  border">Scanned Qty</th>
@@ -141,7 +142,7 @@
                             <th class="py-2 bg-slate-400  border">Loaded Goods</th>
                             <th class="py-2 bg-slate-400  border">Gate</th>
                             <th class="py-2 bg-slate-400  border">Duration</th>
-                            <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
+                            <th class="py-2 bg-slate-400  rounded-tr-md">Arrived At</th>
                         @elseif($report == 'remove')
                                 <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
                                 <th class="py-2 bg-slate-400 border">Document No</th>
@@ -157,6 +158,7 @@
                         @foreach ($product as $item)
                             <tr>
                                 <td class="h-10 text-center border border-slate-400">{{ $product->firstItem()+$loop->index  }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->doc->received->document_no }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
                                 <td class="h-10 text-center border border-slate-400 ">{{ $item->bar_code }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
@@ -179,7 +181,7 @@
                         @endforeach
                     @elseif($report == 'truck')
                             @foreach ($truck as $item)
-                                <tr >
+                                <tr class="hover:bg-slate-200 cursor-pointer" onclick="javascript:window.location.href = 'detail_truck/{{ $item->id }}'">
                                     <td class="h-10 text-center border border-slate-400">{{ $truck->firstItem()+$loop->index  }}</td>
                                     <td class="h-10 text-center border border-slate-400">{{ $item->truck_no }}</td>
                                     <td class="h-10 text-center border border-slate-400 ">{{ $item->driver_name }}</td>
@@ -187,7 +189,7 @@
                                     <td class="h-10 text-center border border-slate-400">{{ get_scanned_qty($item->id) }}</td>
                                     <td class="h-10 text-center border border-slate-400">{{ $item->gates->name }}</td>
                                     <td class="h-10 text-center border border-slate-400">{{ $item->duration }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
+                                    <td class="h-10 text-center border border-slate-400">{!! $item->start_date . "&nbsp;&nbsp;&nbsp;" . $item->start_time !!}</td>
                                 </tr>
                             @endforeach
                     @elseif($report == 'remove')
