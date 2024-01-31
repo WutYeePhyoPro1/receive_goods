@@ -67,6 +67,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('finished_documents','finished_documents')->name('finished_documents');
             route::get('truck_list','truck_list')->name('truck_list');
             route::get('remove_list','remove_list')->name('remove_list');
+            route::get('po_to_list','po_to_list')->name('po_to_list');
             route::get('detail_doc/{id}','detail_doc')->name('detail_doc');
             route::get('detail_truck/{id}','detail_truck')->name('detail_truck');
             route::get('excel_view','excel_view')->name('excel_view');

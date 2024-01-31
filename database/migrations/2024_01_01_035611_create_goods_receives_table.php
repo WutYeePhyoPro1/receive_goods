@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('user_id');
             $table->string('branch_id');
             $table->string('source');
-            $table->time('total_duration')->nullable();
+            $table->string('total_duration',20)->nullable();
             $table->double('remaining_qty')->nullable();
             $table->double('exceed_qty')->nullable();
             $table->text('remark')->nullable();

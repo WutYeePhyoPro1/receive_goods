@@ -84,15 +84,16 @@
                             </Select>
                         </div>
                     @elseif ($report == 'remove')
-                    <div class="flex flex-col">
-                        <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
-                        <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
-                            <option value="" selected>Choose Method</option>
-                            <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
-                            <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Bar Code</option>
-                            <option value="user" {{ request('search')=='user' ? 'selected' : '' }}>User Name</option>
-                        </Select>
-                    </div>
+                        <div class="flex flex-col">
+                            <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
+                            <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                <option value="" selected>Choose Method</option>
+                                <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
+                                <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Bar Code</option>
+                                <option value="user" {{ request('search')=='user' ? 'selected' : '' }}>User Name</option>
+                            </Select>
+                        </div>
+                    @elseif ($report == 'po_to')
                     @endif
 
                     <div class="flex flex-col">
@@ -144,11 +145,16 @@
                             <th class="py-2 bg-slate-400  border">Duration</th>
                             <th class="py-2 bg-slate-400  rounded-tr-md">Arrived At</th>
                         @elseif($report == 'remove')
-                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                                <th class="py-2 bg-slate-400 border">Document No</th>
-                                <th class="py-2 bg-slate-400 border">Product Code</th>
-                                <th class="py-2 bg-slate-400 border">Removed Qty</th>
-                                <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
+                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                            <th class="py-2 bg-slate-400 border">Document No</th>
+                            <th class="py-2 bg-slate-400 border">Product Code</th>
+                            <th class="py-2 bg-slate-400 border">Removed Qty</th>
+                            <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
+                        @elseif($report == 'po_to')
+                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                            <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                            <th class="py-2 bg-slate-400 border">Document No</th>
+                            <th class="py-2 bg-slate-400 rounded-tr-md">Products Categories</th>
                         @endif
 
                     </tr>
@@ -200,6 +206,15 @@
                                 <td class="h-10 text-center border border-slate-400 ">{{ $item->product->bar_code }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->remove_qty }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->user->name }}</td>
+                            </tr>
+                        @endforeach
+                    @elseif ($report == 'po_to')
+                        @foreach ($data as $item)
+                            <tr>
+                                <td class="h-10 text-center border border-slate-400">{{ $docs->firstItem()+$loop->index  }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->received->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->user->name }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ $item->product->bar_code }}</td>
                             </tr>
                         @endforeach
                     @endif

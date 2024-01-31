@@ -210,6 +210,19 @@ class ReportController extends Controller
         return view('user.report.report',compact('data','report','url'));
     }
 
+    public function po_to_list()
+    {
+        $report = 'po_to';
+        $url = 'po_to_list';
+        $docs = Document::when(!request('search') ,function($q)
+                        {
+                            $q->whereYear('created_at',Carbon::now()->format('Y'))
+                            ->whereMonth('created_at',Carbon::now()->format('m'));
+                        })
+                        ->paginate(15);
+        return view('user.report.report',compact('docs','report','url'));
+    }
+
 
     public function excel_export(Request $request)
     {
