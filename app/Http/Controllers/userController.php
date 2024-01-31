@@ -465,6 +465,7 @@ class userController extends Controller
             $sec    = (int)(($diff % 3600) % 60);
             $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
             $this_scanned = get_scanned_qty($driver->id);
+            // dd(get_all_duration($request->id));
             $receive->update([
                 'total_duration'        => get_all_duration($request->id),
                 'remaining_qty'         => $data['remaining'],
