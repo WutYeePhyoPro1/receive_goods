@@ -118,9 +118,10 @@ class userController extends Controller
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
+        $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $gate   = CarGate::get();
         // $time_start = Carbon::parse($time_str)->format('H:i:s');
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document'));
     }
 
     public function user()
@@ -340,7 +341,6 @@ class userController extends Controller
                 ]);
             }elseif(count($all_product) > 1)
             {
-
                 $full_pd =Product::whereIn('document_id',$doc_ids)
                         ->where('bar_code',$item)
                         ->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))
@@ -411,11 +411,15 @@ class userController extends Controller
                 }
             }
             // $track->driver_info_id =
+            Document::where('id',$product->document_id)->update([
+                'updated_at'    => Carbon::now()
+            ]);
             return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty],200);
             } catch (\Exception $e) {
                 logger($e);
                 return response()->json(['message'=>'Not found'],500);
             }
+
         }else{
             return response()->json(['message'=>'Not found'],404);
         }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\DetailExcel;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -14,11 +13,13 @@ use App\Models\Document;
 use App\Models\Tracking;
 use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
+use App\Exports\DetailExcel;
 use App\Exports\ReportExcel;
 use App\Models\GoodsReceive;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\CssSelector\Node\FunctionNode;
 
 class ReportController extends Controller
@@ -50,7 +51,7 @@ class ReportController extends Controller
         }
         $report = 'product';
         $url    = 'product_list';
-        $product = Product::when(!request('search') && !request('search_data') , function($q){
+        $product = Product::when(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'), function($q){
                                 $q->whereYear('created_at',Carbon::now()->format('Y'))
                                 ->whereMonth('created_at',Carbon::now()->format('m'));
         })
@@ -59,6 +60,12 @@ class ReportController extends Controller
                             })
                             ->when(request('search') == 'product_code' && request('search_data'),function($q){
                                 $q->where('bar_code',request('search_data'));
+                            })
+                            ->when(request('from_date'),function($q){
+                                $q->whereDate('created_at','>=',request('from_date'));
+                            })
+                            ->when(request('to_date'),function($q){
+                                $q->whereDate('created_at','<=',request('to_date'));
                             })
                             ->paginate(15);
         return view('user.report.report',compact('report','product','url'));
@@ -97,7 +104,7 @@ class ReportController extends Controller
                             ->when(request('to_date'),function($q){
                                 $q->where('start_date','<=',request('to_date'));
                             })
-                            ->when(!request('search') || !request('search_data') || !request('branch') || !request('status') || !request('from_date') || !request('to_date') , function($q){
+                            ->when(!request('search') && !request('search_data') && !request('branch') && !request('status') && !request('from_date') && !request('to_date') , function($q){
                                 $q->whereYear('created_at',Carbon::now()->format('Y'))
                                 ->whereMonth('created_at',Carbon::now()->format('m'));
             })
@@ -114,7 +121,6 @@ class ReportController extends Controller
     {
         $report = 'truck';
         $url    = 'truck_list';
-
         if(request('search') && !request('search_data'))
         {
             return back()->with('error','Please add search data');
@@ -144,7 +150,7 @@ class ReportController extends Controller
         }
 
 
-        $truck  = Driverinfo::when(!request('search') || !request('search_data') || !request('gate') , function($q){
+        $truck  = Driverinfo::when(!request('search') && !request('search_data') && !request('gate') && !request('from_date') && !request('to_date') , function($q){
                                 $q->whereYear('created_at',Carbon::now()->format('Y'))
                                 ->whereMonth('created_at',Carbon::now()->format('m'));
                         })
@@ -154,7 +160,12 @@ class ReportController extends Controller
                             ->when(request('gate'),function($q){
                                 $q-> where('gate',request('gate'));
                             })
-
+                            ->when(request('from_date'),function($q){
+                                $q->whereDate('created_at', '>=', request('from_date'));
+                            })
+                            ->when(request('to_date'),function($q){
+                                $q->whereDate('created_at','<=',request('to_date'));
+                            })
                             ->paginate(15);
 
         $branch = Branch::get();
@@ -191,7 +202,7 @@ class ReportController extends Controller
             $user   = User::where('name',request('search_data'))->first();
         }
 
-        $data = RemoveTrack::when(!request('search') ,function($q)
+        $data = RemoveTrack::when(!request('search') && !request('from_date') && !request('to_date'),function($q)
                             {
                                 $q->whereYear('created_at',Carbon::now()->format('Y'))
                                 ->whereMonth('created_at',Carbon::now()->format('m'));
@@ -205,6 +216,117 @@ class ReportController extends Controller
                             ->when(request('search') == 'user' && request('search_data'),function($q) use($user){
                                 $q->where('user_id',$user);
                             })
+                            ->when(request('from_date'),function($q){
+                                $q->whereDate('created_at', '>=', request('from_date'));
+                            })
+                            ->when(request('to_date'),function($q){
+                                $q->whereDate('created_at','<=',request('to_date'));
+                            })
+                            ->paginate(15);
+
+        return view('user.report.report',compact('data','report','url'));
+    }
+
+    public function po_to_list()
+    {
+        $report = 'po_to';
+        $url = 'po_to_list';
+
+        if(request('search') && !request('search_data'))
+        {
+            return back()->with('error','Please add search data');
+        }else if(!request('search') && request('search_data')){
+            return back()->with('error','Please add search method');
+        }
+
+        $no = [];
+        $doc = [];
+
+        if(request('search') == 'main_no' && request('search_data'))
+        {
+            $document   = GoodsReceive::where('document_no',request('search_data'))->first();
+            if($document)
+            {
+                $no       = Document::where('received_goods_id',$document->id)->pluck('id');
+            }
+        }elseif(request('search') == 'product_code' && request('search_data'))
+        {
+            $id = Product::where('bar_code',request('search_data'))->first();
+            $doc = Document::where('id',$id->document_id)->first();
+        }
+
+        $docs = Document::when(!request('search') && !request('from_date') && !request('to_date'),function($q)
+                        {
+                            $q->whereYear('created_at',Carbon::now()->format('Y'))
+                            ->whereMonth('created_at',Carbon::now()->format('m'));
+                        })
+                        ->when(request('search') == 'main_no' && request('search_data'),function($q) use($no) {
+
+                            $q->whereIn('id',$no);
+                        })
+                        ->when(request('search') == 'product_code' && request('search_data'),function($q) use($doc) {
+
+                            $q->where('id' , $doc->id);
+                        })
+                        ->when(request('search') == 'document_no' && request('search_data'),function($q) {
+
+                            $q->where('document_no' , request('search_data'));
+                        })
+                        ->when(request('from_date'),function($q){
+                            $q->whereDate('created_at', '>=', request('from_date'));
+                        })
+                        ->when(request('to_date'),function($q){
+                            $q->whereDate('created_at','<=',request('to_date'));
+                        })
+                        ->paginate(15);
+        return view('user.report.report',compact('docs','report','url'));
+    }
+
+    public function shortage_list()
+    {
+        $report = 'shortage';
+        $url = 'shortage_list';
+
+        if(request('search') && !request('search_data'))
+        {
+            return back()->with('error','Please add search data');
+        }else if(!request('search') && request('search_data')){
+            return back()->with('error','Please add search method');
+        }
+
+        $pd_ids = [];
+        if(request('search') == 'main_no' && request('search_data'))
+        {
+            $document   = GoodsReceive::where('document_no',request('search_data'))->where('status','complete')->first();
+            if($document)
+            {
+                $no         = Document::where('received_goods_id',$document->id)->pluck('id');
+                $pd_ids     = Product::whereIn('document_id',$no)->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))->pluck('id');
+            }
+        }elseif(request('search') == 'document_no' && request('search_data'))
+        {
+            $doc = Document::where('document_no',request('search_data'))->first();
+            $pd_ids = Product::where('document_id',$doc->id)->pluck('id');
+        }
+
+
+        $reg_ids        = GoodsReceive::where('status','complete')->pluck('id');
+        $document_ids   = Document::whereIn('received_goods_id',$reg_ids)->pluck('id');
+        $data   = Product::when(!request('search') && !request('from_date') && !request('to_date'),function($q)
+                        {
+                            $q->whereYear('created_at',Carbon::now()->format('Y'))
+                            ->whereMonth('created_at',Carbon::now()->format('m'));
+                        })
+                        ->when(request('search') != 'product_code' && request('search_data'),function($q) use($pd_ids) {
+
+                            $q->whereIn('id',$pd_ids);
+                        })
+                        ->when(request('search') == 'product_code' && request('search_data'),function($q){
+
+                            $q->where('bar_code' , request('search_data'));
+                        })
+                            ->whereIn('document_id',$document_ids)
+                            ->where(DB::raw("qty"),'>',DB::raw('scanned_qty'))
                             ->paginate(15);
 
         return view('user.report.report',compact('data','report','url'));
@@ -213,18 +335,28 @@ class ReportController extends Controller
 
     public function excel_export(Request $request)
     {
-        // dd($request->all());
         $date = Carbon::now()->format('Ymd');
         $search = $request->except('_token');
+        switch ($request->report)
+        {
+            case  'product'     :$report = 'totalpd';break;
+            case  'finish'      :$report = 'finishdoc';break;
+            case  'truck'       :$report = 'totaltruck';break;
+            case  'remove'      :$report = 'removepd';break;
+            case  'po_to'       :$report = 'potolist';break;
+            case  'shortage'    :$report = 'shortage';break;
+            default             :$report = '';break;
+        }
 
-        return Excel::download(new ReportExcel($search),"reg$date.xlsx");
+        return Excel::download(new ReportExcel($search),"report$report$date.xlsx");
     }
 
-    public function detail_excel_export($id)
+    public function detail_excel_export($id,$action)
     {
+
         $date = Carbon::now()->format('Ymd');
-        $truck = DriverInfo::where('id',$id)->first();
-        $truck_no = $truck->truck_no;
+        // $action =
+
         // $driver     = DriverInfo::where('id',$id)->first();
         // $reg        = GoodsReceive::where('id',$driver->received_goods_id)->first();
         // $document   = [];
@@ -238,7 +370,17 @@ class ReportController extends Controller
         // }
 
         // return view('user.report.detail_excel_report',compact('driver','reg','document','track'));
-        return Excel::download(new DetailExcel($id),"$truck_no.$date.xlsx");
+        if($action == 'truck')
+        {
+            $truck = DriverInfo::where('id',$id)->first();
+            $truck_no = $truck->truck_no;
+            return Excel::download(new DetailExcel($id,$action),"$truck_no$date.xlsx");
+        }elseif($action == 'document')
+        {
+            $document   = Document::where('id',$id)->first();
+            $doc_no     = $document->document_no;
+            return Excel::download(new DetailExcel($id,$action),"$doc_no$date.xlsx");
+        }
     }
 
     public function product_pdf($id)
@@ -256,6 +398,7 @@ class ReportController extends Controller
     public function truck_detail_pdf($id)
     {
         $action = 'print';
+        $detail = 'truck';
         $date = Carbon::now()->format('Ymd');
         $driver     = DriverInfo::where('id',$id)->first();
         $reg        = GoodsReceive::where('id',$driver->received_goods_id)->first();
@@ -269,8 +412,26 @@ class ReportController extends Controller
             }
         }
 
-        $pdf = PDF::loadView('user.report.detail_excel_report', compact('driver','reg','document','track','action'));
+        $pdf = PDF::loadView('user.report.detail_excel_report', compact('driver','reg','document','track','action','detail'));
         return $pdf->stream("$driver->truck_no.$date.pdf");
+    }
+
+    public function document_detail_pdf($id)
+    {
+        $action = 'print';
+        $date = Carbon::now()->format('Ymd');
+        $detail     = 'document';
+        $document   = Document::where('id',$id)->first();
+        $reg        = GoodsReceive::where('id',$document->received_goods_id)->first();
+        $product    = Product::where('document_id',$id)->get();
+        $pd_id      = Product::where('document_id',$id)->pluck('id');
+        $track      = Tracking::whereIn('product_id',$pd_id);
+        $truck      = $track->distinct()->pluck('driver_info_id');
+        $truck      = DriverInfo::whereIn('id',$truck)->get();
+        $track      = $track->get();
+        $document_no= $document->document_no;
+        $pdf = PDF::loadView('user.report.detail_excel_report', compact('detail','truck','document','product','track','reg','action'));
+        return $pdf->stream("$document_no$date.pdf");
     }
 
     public function detail_doc($id)
@@ -297,5 +458,19 @@ class ReportController extends Controller
             }
         }
         return view('user.report.detail_report',compact('reg','driver','document','detail','track'));
+    }
+
+    public function detail_document($id)
+    {
+        $detail     = 'document';
+        $document   = Document::where('id',$id)->first();
+        $reg        = GoodsReceive::where('id',$document->received_goods_id)->first();
+        $product    = Product::where('document_id',$id)->get();
+        $pd_id      = Product::where('document_id',$id)->pluck('id');
+        $track      = Tracking::whereIn('product_id',$pd_id);
+        $truck      = $track->distinct()->pluck('driver_info_id');
+        $truck      = DriverInfo::whereIn('id',$truck)->get();
+        $track      = $track->get();
+        return view('user.report.detail_report',compact('detail','truck','document','product','track','reg'));
     }
 }

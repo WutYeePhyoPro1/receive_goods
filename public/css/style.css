@@ -135,4 +135,18 @@ body::-webkit-scrollbar-thumb{
     margin-top: 20px;
 }
 
+.latest{
+    animation: flash 0.5s infinite alternate;
+}
 
+@keyframes flash{
+    0% {
+        color: red;
+    }
+    50% {
+        color: blue;
+    }
+    100% {
+        color: green;
+    }
+}

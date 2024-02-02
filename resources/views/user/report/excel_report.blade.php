@@ -37,11 +37,24 @@
                         <th class="py-2 bg-slate-400  border">Duration</th>
                         <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
                     @elseif($report == 'remove')
-                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                            <th class="py-2 bg-slate-400 border">Document No</th>
-                            <th class="py-2 bg-slate-400 border">Product Code</th>
-                            <th class="py-2 bg-slate-400 border">Removed Qty</th>
-                            <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
+                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                        <th class="py-2 bg-slate-400 border">Document No</th>
+                        <th class="py-2 bg-slate-400 border">Product Code</th>
+                        <th class="py-2 bg-slate-400 border">Removed Qty</th>
+                        <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
+                    @elseif($report == 'po_to')
+                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                        <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                        <th class="py-2 bg-slate-400 border">Document No</th>
+                        <th class="py-2 bg-slate-400 border">Truck Count</th>
+                        <th class="py-2 bg-slate-400 rounded-tr-md">Products Categories</th>
+                    @elseif ($report == 'shortage')
+                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                        <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                        <th class="py-2 bg-slate-400 border">Document No</th>
+                        <th class="py-2 bg-slate-400 border">Product Code</th>
+                        <th class="py-2 bg-slate-400 border">Supplier Name</th>
+                        <th class="py-2 bg-slate-400 rounded-tr-md">Shortage Qty</th>
                     @endif
 
                 </tr>
@@ -92,6 +105,27 @@
                             <td class="h-10 text-center border border-slate-400 ">{{ $item->product->bar_code }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->remove_qty }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->user->name }}</td>
+                        </tr>
+                    @endforeach
+                @elseif ($report == 'po_to')
+                    @foreach ($all as $index=>$item)
+                        <tr class="hover:bg-slate-200 cursor-pointer" onclick="javascript:window.location.href = 'detail_document/{{ $item->id }}'">
+                            <td class="h-10 text-center border border-slate-400">{{ $index+1  }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->received->document_no }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->document_no }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ get_truck_count($item->id) }}</td>
+                            <td class="h-10 text-center border border-slate-400 ">{{ get_category($item->id) }}</td>
+                        </tr>
+                    @endforeach
+                @elseif ($report == 'shortage')
+                    @foreach ($all as $index=>$item)
+                        <tr class="">
+                            <td class="h-10 text-center border border-slate-400">{{ $index+1  }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->doc->received->document_no }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->bar_code }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->supplier_name }}</td>
+                            <td class="h-10 text-center border border-slate-400 ">{{ $item->qty - $item->scanned_qty }}</td>
                         </tr>
                     @endforeach
                 @endif

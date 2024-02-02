@@ -68,12 +68,39 @@
                      onclick="javascript:window.location.href = 'remove_list'" @endif>{{ $del }}</span>
             </div>
         </div>
+        <div class=" min-h-60 rounded-xl shadow-2xl border border-slate-200  mt-10 relative" style="background-color:rgba(131, 131, 131, 0.12))">
+            <div class="flex justify-end w-full">
+                <span class="text-xl font-serif mr-3 mt-2">PO/TO Documents</span>
+            </div>
+            <div class="absolute w-full h-full top-0" style="z-index: -1">
+                <i class='bx bx-file text-slate-100 text-9xl'></i>
+            </div>
+            <div class="text-center absolute underline" style="right: 0;left:0; top:30%">
+                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-slate-600' : 'cursor-default' }}" @if (getAuth()->role != 2)
+                     onclick="javascript:window.location.href = 'po_to_list'" @endif>{{ $po }}</span>
+            </div>
+        </div>
+        <div class=""></div>
+        <div class=""></div>
+        <div class=""></div>
+        <div class=" min-h-60 rounded-xl shadow-2xl border border-rose-200  mt-10 relative" style="background-color: rgba(190, 121, 121, 0.12)">
+            <div class="flex justify-end w-full">
+                <span class="text-xl font-serif mr-3 mt-2">Shortage Products</span>
+            </div>
+            <div class="absolute w-full h-full top-0" style="z-index: -1">
+                <i class='bx bxs-folder-minus text-rose-100 text-9xl'></i>
+            </div>
+            <div class="text-center absolute underline" style="right: 0;left:0; top:30%">
+                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-rose-600' : 'cursor-default' }}" title="{{ $shortage }}" @if (getAuth()->role != 2)
+                     onclick="javascript:window.location.href = '/shortage_list'" @endif>{{ strlen($shortage) < 6 ? $shortage : substr($shortage,0,4).'..' }}</span>
+            </div>
+        </div>
     </div>
 
     @push('js')
         <script >
             $(document).ready(function(){
-                // console.log('yes');
+
             })
         </script>
     @endpush

@@ -20,4 +20,14 @@ class DriverInfo extends Model
     {
         return $this->belongsTo(CarGate::class,'gate','id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class,'user_id')->withDefault();
+    }
+
+    public function track()
+    {
+        return $this->hasMany(Tracking::class,'driver_info_id','id');
+    }
 }

@@ -31,8 +31,15 @@ use Illuminate\Support\Facades\DB;
     {
         return Product::where('document_id',$id)
                         ->where('scanned_qty','>',0)
-                        ->orderBy('id','asc')
+                        ->orderBy('updated_at','desc')
                         ->get();
+    }
+
+    function get_latest_scan_pd($id)
+    {
+        $doc_ids    = Document::where('received_goods_id',$id)->pluck('id');
+        $pd_id      = Product::whereIn('document_id',$doc_ids)->orderBy('updated_at','desc')->first();
+        return $pd_id->id;
     }
 
     function search_excess_pd($id)
@@ -189,3 +196,34 @@ use Illuminate\Support\Facades\DB;
         return Document::where('id',$id)->first();
     }
 
+    function get_category($id)
+    {
+        return Product::where('document_id',$id)->count();
+    }
+
+    function get_truck_count($id)
+    {
+        $pd = Product::where('document_id',$id)->pluck('id');
+        $tr = Tracking::whereIn('product_id',$pd)->distinct()->count('driver_info_id');
+        return $tr;
+    }
+
+    function get_doc_total_qty($id,$action)
+    {
+        if($action == 'all')
+        {
+            return Product::where('document_id',$id)->sum('qty');
+        }elseif($action == 'unloaded')
+        {
+            return Product::where('document_id',$id)->sum('scanned_qty');
+        }
+    }
+
+    function get_product_per_truck($truck_id,$doc_id)
+    {
+        $pd_id  = Product::where('document_id',$doc_id)->pluck('id');
+        $per_pd = Tracking::whereIn('product_id',$pd_id)
+                            ->where('driver_info_id',$truck_id)
+                            ->get();
+        return $per_pd;
+    }

@@ -9,8 +9,17 @@
         @endif" method="Get">
         <div class="grid grid-cols-7 gap-4">
                 <input type="hidden" id="user_role" value="{{ getAuth()->role }}">
-                    @if ($report == 'finish')
 
+                    <div class="flex flex-col">
+                        <label for="from_date">From Date :</label>
+                        <input type="date" name="from_date" id="from_date" class="px-4  h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2" value="{{ request('from_date') ?? '' }}">
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="to_date">To Date :</label>
+                        <input type="date" name="to_date" id="to_date" class="px-4  h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2" value="{{ request('to_date') ?? '' }}">
+                    </div>
+                    @if ($report == 'finish')
                     <div class="flex flex-col">
                         <label for="branch">Choose Branch :</label>
                         <Select name="branch" id="branch" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
@@ -29,17 +38,6 @@
                             <option value="incomplete" {{ request('status')== 'incomplete' ? 'selected' : '' }}>Incomplete</option>
                         </Select>
                     </div>
-
-                    <div class="flex flex-col">
-                        <label for="from_date">From Date :</label>
-                        <input type="date" name="from_date" id="from_date" class="px-4  h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2" value="{{ request('from_date') ?? '' }}">
-                    </div>
-
-                    <div class="flex flex-col">
-                        <label for="to_date">To Date :</label>
-                        <input type="date" name="to_date" id="to_date" class="px-4  h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2" value="{{ request('to_date') ?? '' }}">
-                    </div>
-
 
                     <div class="flex flex-col">
                         <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
@@ -84,15 +82,35 @@
                             </Select>
                         </div>
                     @elseif ($report == 'remove')
-                    <div class="flex flex-col">
-                        <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
-                        <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
-                            <option value="" selected>Choose Method</option>
-                            <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
-                            <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Bar Code</option>
-                            <option value="user" {{ request('search')=='user' ? 'selected' : '' }}>User Name</option>
-                        </Select>
-                    </div>
+                        <div class="flex flex-col">
+                            <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
+                            <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                <option value="" selected>Choose Method</option>
+                                <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
+                                <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Bar Code</option>
+                                <option value="user" {{ request('search')=='user' ? 'selected' : '' }}>User Name</option>
+                            </Select>
+                        </div>
+                    @elseif ($report == 'po_to')
+                        <div class="flex flex-col">
+                            <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
+                            <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                <option value="" selected>Choose Method</option>
+                                <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
+                                <option value="document_no" {{ request('search')=='document_no' ? 'selected' : '' }}>Document No</option>
+                                <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Bar Code</option>
+                            </Select>
+                        </div>
+                    @elseif ($report == 'shortage')
+                        <div class="flex flex-col">
+                            <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
+                            <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                <option value="" selected>Choose Method</option>
+                                <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
+                                <option value="document_no" {{ request('search')=='document_no' ? 'selected' : '' }}>Document No</option>
+                                <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Bar Code</option>
+                            </Select>
+                        </div>
                     @endif
 
                     <div class="flex flex-col">
@@ -102,7 +120,9 @@
 
                 <div class="">
                     <button type="submit" class="bg-amber-400 h-10 w-[40%] rounded-lg ms-4 mt-9 hover:bg-amber-600 hover:text-white">Search</button>
-                    <button type="button" class="bg-sky-400 text-white text-xl h-10 w-[20%] rounded-lg ms-4 mt-9 hover:bg-sky-600 hover:text-white" onclick="$('#excel_form').submit()"><i class='bx bx-export'></i></button>
+                    @if (($report == 'product' && count($product) > 0) || ($report == 'shortage' && count($data) > 0) || ($report == 'finish' && count($data) > 0) || ($report == 'truck' && count($truck) > 0) || ($report == 'remove' && count($data) > 0) || ($report == 'po_to' && count($docs) > 0))
+                        <button type="button" class="bg-sky-400 text-white text-xl h-10 w-[20%] rounded-lg ms-4 mt-9 hover:bg-sky-600 hover:text-white" onclick="$('#excel_form').submit()"><i class='bx bx-export'></i></button>
+                    @endif
                 </div>
             </div>
         </form>
@@ -144,11 +164,24 @@
                             <th class="py-2 bg-slate-400  border">Duration</th>
                             <th class="py-2 bg-slate-400  rounded-tr-md">Arrived At</th>
                         @elseif($report == 'remove')
-                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                                <th class="py-2 bg-slate-400 border">Document No</th>
-                                <th class="py-2 bg-slate-400 border">Product Code</th>
-                                <th class="py-2 bg-slate-400 border">Removed Qty</th>
-                                <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
+                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                            <th class="py-2 bg-slate-400 border">Document No</th>
+                            <th class="py-2 bg-slate-400 border">Product Code</th>
+                            <th class="py-2 bg-slate-400 border">Removed Qty</th>
+                            <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
+                        @elseif($report == 'po_to')
+                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                            <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                            <th class="py-2 bg-slate-400 border">Document No</th>
+                            <th class="py-2 bg-slate-400 border">Truck Count</th>
+                            <th class="py-2 bg-slate-400 rounded-tr-md">Products Categories</th>
+                        @elseif ($report == 'shortage')
+                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                            <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                            <th class="py-2 bg-slate-400 border">Document No</th>
+                            <th class="py-2 bg-slate-400 border">Product Code</th>
+                            <th class="py-2 bg-slate-400 border">Supplier Name</th>
+                            <th class="py-2 bg-slate-400 rounded-tr-md">Shortage Qty</th>
                         @endif
 
                     </tr>
@@ -202,6 +235,27 @@
                                 <td class="h-10 text-center border border-slate-400">{{ $item->user->name }}</td>
                             </tr>
                         @endforeach
+                    @elseif ($report == 'po_to')
+                        @foreach ($docs as $item)
+                            <tr class="hover:bg-slate-200 cursor-pointer" onclick="javascript:window.location.href = 'detail_document/{{ $item->id }}'">
+                                <td class="h-10 text-center border border-slate-400">{{ $docs->firstItem()+$loop->index  }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->received->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ get_truck_count($item->id) }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ get_category($item->id) }}</td>
+                            </tr>
+                        @endforeach
+                    @elseif ($report == 'shortage')
+                        @foreach ($data as $item)
+                            <tr class="">
+                                <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->doc->received->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->bar_code }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->supplier_name }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ $item->qty - $item->scanned_qty }}</td>
+                            </tr>
+                        @endforeach
                     @endif
                 </tbody>
             </table>
@@ -224,8 +278,13 @@
         <div class="flex justify-center text-xs mt-2 bg-white mt-6">
             @if ($report == 'product')
                 {{ $product->appends(request()->query())->links() }}
-            @elseif($report == 'truck')
+            @elseif ($report == 'truck')
                 {{ $truck->appends(request()->query())->links() }}
+            @elseif ($report == 'finish' || $report == 'remove' || $report == 'shortage')
+                {{ $data->appends(request()->query())->links() }}
+            @elseif ($report == 'po_to')
+                {{ $docs->appends(request()->query())->links() }}
+
             @endif
     </div>
     </div>
