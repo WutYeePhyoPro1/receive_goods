@@ -68,13 +68,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('truck_list','truck_list')->name('truck_list');
             route::get('remove_list','remove_list')->name('remove_list');
             route::get('po_to_list','po_to_list')->name('po_to_list');
+            route::get('shortage_list','shortage_list')->name('shortage_list');
+
             route::get('detail_doc/{id}','detail_doc')->name('detail_doc');
             route::get('detail_truck/{id}','detail_truck')->name('detail_truck');
+            route::get('detail_document/{id}','detail_document')->name('detail_document');
+
             route::get('excel_view','excel_view')->name('excel_view');
-            route::get('detail_excel_export/{id}','detail_excel_export')->name('detail_excel_export');
+            route::get('detail_excel_export/{id}/{action}','detail_excel_export')->name('detail_excel_export');
 
             route::get('product_pdf/{id}','product_pdf')->name('product_pdf');
             route::get('truck_detail_pdf/{id}','truck_detail_pdf')->name('truck_detail_pdf');
+            route::get('document_detail_pdf/{id}','document_detail_pdf')->name('document_detail_pdf');
 
             route::post('excel_export','excel_export')->name('excel_export');
         });

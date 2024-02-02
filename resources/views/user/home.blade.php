@@ -92,7 +92,7 @@
             </div>
             <div class="text-center absolute underline" style="right: 0;left:0; top:30%">
                 <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-rose-600' : 'cursor-default' }}" title="{{ $shortage }}" @if (getAuth()->role != 2)
-                     onclick="javascript:window.location.href = ''" @endif>{{ strlen($shortage) < 6 ? $shortage : substr($shortage,0,4).'..' }}</span>
+                     onclick="javascript:window.location.href = '/shortage_list'" @endif>{{ strlen($shortage) < 6 ? $shortage : substr($shortage,0,4).'..' }}</span>
             </div>
         </div>
     </div>

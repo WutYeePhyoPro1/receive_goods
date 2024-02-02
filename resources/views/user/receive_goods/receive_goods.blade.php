@@ -135,7 +135,7 @@
                             </tr>
                         </thead>
                             <?php $i=0 ?>
-                            @foreach ($document as $item)
+                            @foreach ($scan_document as $item)
                             @if (count(search_scanned_pd($item->id))>0)
                             <?php
                                 $i++;
@@ -146,18 +146,34 @@
                                             $color = check_scanned_color($tem->id);
                                             $scanned[]  = $tem->bar_code;
                                             ?>
+                                            {{-- @if ($tem->id == get_latest_scan_pd($main->id))
                                             <tr class="h-10">
                                                 @if ($index == 0)
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest">{{ $i }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest">{{ $item->document_no }}</td>
                                                 @else
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest"></td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest"></td>
                                                 @endif
-                                                        <td class="ps-2 border border-slate-400 border-t-0  {{ $color }}">{{ $tem->bar_code }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0  {{ $color }} latest" >{{ $tem->bar_code }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} latest">{{ $tem->supplier_name }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} latest border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
                                             </tr>
+
+                                            @else --}}
+                                                <tr class="h-10 scanned_pd_div">
+                                                    @if ($index == 0)
+                                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+                                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
+                                                    @else
+                                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                    @endif
+                                                            <td class="ps-2 border border-slate-400 border-t-0  {{ $color }}">{{ $tem->bar_code }}</td>
+                                                            <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
+                                                            <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
+                                                </tr>
+                                            {{-- @endif --}}
                                             @endforeach
                                         </tbody>
 
@@ -570,12 +586,13 @@
                                 }
                                 $list += `</tbody>`;
                                 $length = $('.main_body').length;
-                                if($length > 0){
-                                    $('.main_body').eq($length-1).after($list);
-                                }else{
-                                    $('.main_table').load(location.href + ' .main_table');
+                                window.location.reload();
+                                // if($length > 0){
+                                //     $('.main_body').eq($length-1).after($list);
+                                // }else{
+                                //     $('.main_table').load(location.href + ' .main_table');
 
-                                }
+                                // }
                             },
                             error   : function(xhr,status,error){
                                 if(xhr.status == 400){
@@ -705,6 +722,11 @@
                                         // if(res.data.scanned_qty > res.data.qty){
                                             $('.excess_div').load(location.href + ' .excess_div');
                                         // }
+                                        setTimeout(() => {
+                                            $('.scanned_pd_div').eq(0).find('td').each((i,v)=>{
+                                            $(v).addClass('latest');
+                                        })
+                                        }, 500);
                                     }
                                 },
                                 error : function(xhr,status,error){

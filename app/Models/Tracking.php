@@ -15,4 +15,9 @@ class Tracking extends Model
     {
         return $this->belongsTo(Product::class, 'product_id')->withDefault();
     }
+
+    public function truck()
+    {
+        return $this->belongsTo(DriverInfo::class,'driver_info_id')->withDefault();
+    }
 }
