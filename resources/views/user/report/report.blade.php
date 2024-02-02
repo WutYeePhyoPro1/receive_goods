@@ -224,6 +224,8 @@
         <div class="flex justify-center text-xs mt-2 bg-white mt-6">
             @if ($report == 'product')
                 {{ $product->appends(request()->query())->links() }}
+            @elseif($report == 'truck')
+                {{ $truck->appends(request()->query())->links() }}
             @endif
     </div>
     </div>

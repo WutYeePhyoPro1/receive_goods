@@ -50,7 +50,7 @@ class ReportController extends Controller
         }
         $report = 'product';
         $url    = 'product_list';
-        $product = Product::when((request('search') != 'main_no' || request('search') != 'document_no' || request('search')) != 'product_code' && !request('search_data') , function($q){
+        $product = Product::when(!request('search') && !request('search_data') , function($q){
                                 $q->whereYear('created_at',Carbon::now()->format('Y'))
                                 ->whereMonth('created_at',Carbon::now()->format('m'));
         })

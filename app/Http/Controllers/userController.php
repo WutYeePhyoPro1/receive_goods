@@ -235,7 +235,7 @@ class userController extends Controller
                 from  purchaseorder.po_purchaseorderhd aa
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
-                where statusflag <> 'C'
+                where statusflag <> 'C' and statusflag in ('P','Y')
                 and purchaseno= '$val'
             ");
 
@@ -310,20 +310,20 @@ class userController extends Controller
             $conn = DB::connection('master_product');
             try {
                 $data = $conn->select("
-            select * from
-            (
-            select	 product_code, qty
-            from	dblink('dbname=pro1_awms host = 192.168.151.241 port=5432 user=superadmin password=super123',
-            '
-            SELECT product_code,qty FROM (
-            SELECT product_code,product_code as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
-            SELECT product_code,pack_barcode as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
-            SELECT product_code,barcode_box as barcode,unit_rate_box as qty FROM public.aw_master_product_rate UNION ALL
-            SELECT product_code,barcode_pallet as barcode,(unit_rate_pallet*unit_rate_box) as qty FROM public.aw_master_product_rate
-            )rt
-            WHERE barcode=''$all''')
-            as temp(product_code varchar(50),qty varchar(50))
-            )as erpdb
+                select * from
+                (
+                select	 product_code, qty
+                from	dblink('dbname=pro1_awms host = 192.168.151.241 port=5432 user=superadmin password=super123',
+                '
+                SELECT product_code,qty FROM (
+                SELECT product_code,product_code as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
+                SELECT product_code,pack_barcode as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
+                SELECT product_code,barcode_box as barcode,case when unit_rate_box=''0'' then product_unit_rate else unit_rate_box end as qty FROM public.aw_master_product_rate UNION ALL
+                SELECT product_code,barcode_pallet as barcode,case when unit_rate_box=''0'' then (product_unit_rate*unit_rate_pallet) else (unit_rate_pallet*unit_rate_box) end as qty FROM public.aw_master_product_rate
+                )rt
+                WHERE barcode=''$all''')
+                as temp(product_code varchar(50),qty varchar(50))
+                )as erpdb
             ");
             $qty = (int)($data[0]->qty);
 

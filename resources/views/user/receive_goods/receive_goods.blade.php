@@ -200,7 +200,7 @@
                                             ?>
                                             <tr class="h-10">
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
-                                                    @if ($main->status == 'incomplete' && (getAuth()->role == 1 || getAuth()->role == 4))
+                                                    @if ($main->status == 'incomplete' && (getAuth()->role == 1 || getAuth()->role == 4 || getAuth()->role == 3))
                          <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
                                                     @endif
                                                 </td>
@@ -882,8 +882,9 @@
                         })
                 }
 
-            if(!$finish && $role !=2){
-                $(document).on('click','.del_exceed',function(e){
+                }
+                if(!$finish && $role !=2){
+                    $(document).on('click','.del_exceed',function(e){
                     $id = $(this).data('id');
                     $.ajax({
                         url: "{{ route('del_exceed') }}",
@@ -897,7 +898,6 @@
                     })
                 })
             }
-                }
             })
         </script>
     @endpush
