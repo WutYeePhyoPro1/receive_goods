@@ -121,7 +121,7 @@
                                         @endif
                                         <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->product->bar_code }}</td>
                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->product->supplier_name }}</td>
-                                        <td class="ps-2 border border-slate-400 border-t-0 qty">{{ $tem->scanned_qty }}</td>
+                                        <td class="ps-2 border border-slate-400 border-t-0 qty">{{ $tem->product->scanned_qty }}</td>
                                     </tr>
                                 @endforeach
                             @endif
