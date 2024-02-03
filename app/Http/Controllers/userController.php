@@ -79,9 +79,10 @@ class userController extends Controller
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
+        $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $status = 'view';
 
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document'));
     }
 
     public function car_info()
@@ -90,7 +91,7 @@ class userController extends Controller
         $id = getAuth()->id;
         $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
                         ->leftJoin('goods_receives', 'driver_infos.received_goods_id', 'goods_receives.id')
-                        ->where('goods_receives.user_id', getAuth()->id)
+                        ->where('driver_infos.user_id', getAuth()->id)
                         ->whereNull('driver_infos.duration')
                         ->first();
 
@@ -116,12 +117,24 @@ class userController extends Controller
         $main = GoodsReceive::where('id',$id)->first();
         $truck = Truck::get();
         $driver = DriverInfo::where('received_goods_id',$id)->get();
-        $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
+        $cur_driver = DriverInfo::where(['received_goods_id'=>$id,'user_id'=>getAuth()->id])->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $gate   = CarGate::get();
         // $time_start = Carbon::parse($time_str)->format('H:i:s');
         return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document'));
+    }
+
+    public function join_receive($id,$car)
+    {
+        $main = GoodsReceive::where('id',$id)->first();
+        $truck = Truck::get();
+        $driver = DriverInfo::where('received_goods_id',$id)->get();
+        $cur_driver = DriverInfo::where('id',$car)->first();
+        $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
+        $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();;
+        $status = 'join';
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','scan_document','status'));
     }
 
     public function user()
@@ -163,6 +176,7 @@ class userController extends Controller
             $main               = GoodsReceive::find($request->main_id);
             $main->start_date   = Carbon::now()->format('Y-m-d');
             $main->start_time   = Carbon::now()->format('H:i:s');
+            $main->status       = 'incomplete';
             $main->save();
 
 
@@ -293,8 +307,9 @@ class userController extends Controller
 
     public function barcode_scan(Request $request)
     {
+        // dd($request->all());
         $all = $request->data;
-
+        $id    = $request->id;
         // dd($all);
         $item= preg_replace('/\D/','',$all);
         $doc_ids = Document::where('received_goods_id',$request->id)->pluck('id');
@@ -331,9 +346,15 @@ class userController extends Controller
             if(count($all_product) == 1)
             {
                 $scanned = $product->scanned_qty + $qty;
-                $driver_info = DriverInfo::where(['received_goods_id'=>$request->id , 'user_id'=>getAuth()->id])
-                                        ->whereNull('duration')
-                                        ->first();
+                if($request->car == '')
+                {
+                    $driver_info = DriverInfo::where(['received_goods_id'=>$id , 'user_id'=>getAuth()->id])
+                                            ->whereNull('duration')
+                                            ->first();
+                }else{
+                    $driver_info = DriverInfo::where('id',$request->car)
+                                            ->first();
+                }
                 $product_id  = $product->id;
                 // dd($scanned);
                 $product->update([
@@ -357,9 +378,16 @@ class userController extends Controller
                             Product::where('id',$item->id)->update([
                                 'scanned_qty'   => $scanned
                             ]);
-                            $driver_info = DriverInfo::where(['received_goods_id'=>$request->id , 'user_id'=>getAuth()->id])
-                                                        ->whereNull('duration')
+                            if($request->car == '')
+                            {
+                                $driver_info = DriverInfo::where(['received_goods_id'=>$request->id , 'user_id'=>getAuth()->id])
+                                                            ->whereNull('duration')
+                                                            ->first();
+                            }else{
+                                $driver_info = DriverInfo::where('id',$request->car)
                                                         ->first();
+                            }
+
                             $product_id  = $item->id;
                             break;
                         }

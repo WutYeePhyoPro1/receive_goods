@@ -29,7 +29,7 @@
                 <span class=" mt-2 -translate-x-6  mr-3" >Document No : <b class="text-xl" id="doc_no">{{ $main->document_no ?? '' }}</b></span>
                 <span class=" mt-2 -translate-x-6  ms-3" >Source : <b class="text-xl" id="source">{{ $main->source_good->name ?? '' }}</b></span>
             </div>
-            @if (!isset($status))
+            @if (!isset($status) && isset($cur_driver) && $cur_driver->user_id == getAuth()->id)
             <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
             <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
             @endif
@@ -38,12 +38,21 @@
                 $total_sec    = get_done_duration($main->id);
         ?>
 
-        <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count">{{ get_all_duration($main->id) ?? '00:00:00' }}</span>
+        <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count">
+            @if ($main->status == 'complete')
+            {{ $main->total_duration }}
+            @else
+            {{ (isset($status) && $status == 'view') ? ($main->total_duration) : (isset($cur_driver) ? cur_truck_dur($cur_driver->id) : '00:00:00') }}
+            @endif
+        </span>
 
     </div>
     <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
     <input type="hidden" id="bar_code" value="" >
     <input type="hidden" id="finished" value="{{ $main->status == 'complete' ? true : false }}">
+    @if (isset($status) && $status != 'view')
+        <input type="hidden" id="cur_truck" value="{{ $cur_driver->id }}">
+    @endif
     <div class="grid grid-cols-2 gap-2">
     <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
             <div class="border border-b-slate-400 h-10 bg-sky-50">
@@ -53,7 +62,7 @@
             </div>
             @if($main->status != 'complete')
             <input type="hidden" id="started_time" value="{{ isset($cur_driver->start_date) ? ($cur_driver->start_date.' '.$cur_driver->start_time) : ''}}">
-            <input type="hidden" id="duration" value="{{ $total_sec ?? 0 }}">
+            {{-- <input type="hidden" id="duration" value="{{ $total_sec ?? 0 }}"> --}}
             <input type="hidden" id="receive_id" value="{{ $main->id }}">
             @endif
             <div class="main_table">
@@ -216,7 +225,7 @@
                                             ?>
                                             <tr class="h-10">
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
-                                                    @if ($main->status == 'incomplete' && (getAuth()->role == 1 || getAuth()->role == 4))
+                                                    @if ($main->status == 'incomplete' && (getAuth()->role == 1 || getAuth()->role == 4 || getAuth()->role == 3))
                          <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
                                                     @endif
                                                 </td>
@@ -650,12 +659,13 @@
                         $val  = $(this).val();
                         $recieve_id = $('#receive_id').val();
                         $this       = $(this);
+                        $cur_id     = $('#cur_truck').val() ?? ''
                         $code       =  $val.replace(/\D/g, '');
                         if($val){
                             $.ajax({
                                 url : "{{ route('barcode_scan') }}",
                                 type: 'POST',
-                                data: {_token:token , data:$val,id:$recieve_id},
+                                data: {_token:token , data:$val,id:$recieve_id,car : $cur_id},
                                 success:function(res){
                                     if(res.msg == 'decision')
                                     {
@@ -718,15 +728,11 @@
                                                 // return false;
                                             // }
                                         // })
-                                        $('.scan_parent').load(location.href + ' .scan_parent');
-                                        // if(res.data.scanned_qty > res.data.qty){
-                                            $('.excess_div').load(location.href + ' .excess_div');
-                                        // }
-                                        setTimeout(() => {
-                                            $('.scanned_pd_div').eq(0).find('td').each((i,v)=>{
-                                            $(v).addClass('latest');
-                                        })
-                                        }, 500);
+                                        $('.scan_parent').load(location.href + ' .scan_parent', function() {
+                                            $('.excess_div').load(location.href + ' .excess_div', function() {
+                                                $('.scanned_pd_div').eq(0).find('td').addClass('latest');
+                                            });
+                                        });
                                     }
                                 },
                                 error : function(xhr,status,error){
@@ -776,6 +782,7 @@
                     })
                 }
 
+
                 if(!$finish && ($role == 2 || $role == 3) && $all_begin != ''){
                     setInterval(() => {
                         time_count();
@@ -792,7 +799,8 @@
 
                     function time_count(){
                     let time = new Date($('#started_time').val()).getTime();
-                    let duration = ($('#duration').val() * 1000);
+                    // let duration = ($('#duration').val() * 1000);
+                    let duration = 0;
                     let now  = new Date().getTime();
                     let diff = Math.floor(now - time + duration);
                     let hour = Math.floor(diff / (60*60*1000));
@@ -904,22 +912,22 @@
                         })
                 }
 
-            if(!$finish && $role !=2){
-                $(document).on('click','.del_exceed',function(e){
-                    $id = $(this).data('id');
-                    $.ajax({
-                        url: "{{ route('del_exceed') }}",
-                        type: 'POST',
-                        data: {_token : token , id : $id},
-                        success: function(res){
-                            console.log('success');
-                            $('.scan_parent').load(location.href + ' .scan_parent');
-                            $('.excess_div').load(location.href + ' .excess_div');
-                        }
-                    })
-                })
             }
-                }
+            if(!$finish && $role !=2){
+                        $(document).on('click','.del_exceed',function(e){
+                            $id = $(this).data('id');
+                            $.ajax({
+                                url: "{{ route('del_exceed') }}",
+                                type: 'POST',
+                                data: {_token : token , id : $id},
+                                success: function(res){
+                                    console.log('success');
+                                    $('.scan_parent').load(location.href + ' .scan_parent');
+                                    $('.excess_div').load(location.href + ' .excess_div');
+                                }
+                            })
+                        })
+                    }
             })
         </script>
     @endpush

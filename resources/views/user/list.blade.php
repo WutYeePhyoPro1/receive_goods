@@ -91,20 +91,25 @@
                             <td class="h-10 text-center border border-slate-400">
                                 <input type="hidden" class="check_empty" value="{{ check_empty($item->id) }}">
                                 {{ $item->document_no }} &nbsp;
-
                                 @if ($item->status == 'incomplete')
                                     <i class='bx bx-message-square-edit text-sky-600 cursor-pointer ms-3 text-lg edit_view' data-id="{{ $item->id }}" style="transform: translateY(2px)"></i>
                                 @else
                                 <i class='bx bxs-folder text-emerald-400 cursor-pointer ms-3 text-lg' onclick="javascript:window.location.href = '/receive_goods/'+{{$item->id}}"></i>
                                 @endif
                                 <i class='bx bxs-show text-amber-400 cursor-pointer ms-3 text-lg' onclick="javascript:window.location.href = '/view_goods/'+{{$item->id}}"></i>
+                                @if (count(truck_arrive($item->id)) > 0)
+                                    @foreach (truck_arrive($item->id) as $tem)
+                                        <i class='bx bxs-group text-rose-400 cursor-pointer ms-3 text-lg' title="{{ $tem->truck_no }}" onclick="javascript:window.location.href = '/join_receive/'+{{$item->id}}+'/'+{{ $tem->id }}"></i>
+                                    @endforeach
+                                @endif
+
                             </td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->source_good->name }}</td>
                             {{-- <td class="h-10 text-center border border-slate-400">{{ get_total_qty($item->id) }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->remaining_qty }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->exceed_qty }}</td> --}}
                             <td class="h-10 text-center border border-slate-400">{{ $item->start_date }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ get_all_duration($item->id) }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->total_duration }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -117,7 +122,6 @@
         @endif
         <div class="flex justify-center text-xs mt-2 bg-white mt-6">
             {{ $data->appends(request()->query())->links() }}
-
     </div>
     </div>
 
