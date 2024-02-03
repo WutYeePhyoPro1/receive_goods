@@ -137,6 +137,19 @@ use Illuminate\Support\Facades\DB;
         return $total_sec;
     }
 
+    function cur_truck_dur($id)
+    {
+        $cur    = DriverInfo::where('id',$id)->first();
+        $cur_sec = strtotime($cur->start_date.' '.$cur->start_time);
+        $now     = Carbon::now()->timestamp;
+        $diff = $now - $cur_sec;
+        $hour   = (int)($diff / 3600);
+        $min    = (int)(($diff % 3600) / 60);
+        $sec    = (int)(($diff % 3600) % 60);
+        $sec_pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+        return $sec_pass;
+    }
+
     function scan_zero($id)
     {
         $product = Product::where('document_id',$id)->pluck('scanned_qty');
@@ -160,8 +173,8 @@ use Illuminate\Support\Facades\DB;
 
     function check_empty($id)
     {
-        $data = GoodsReceive::where('user_id',getAuth()->id)
-                            ->whereNull('total_duration')
+        $data = DriverInfo::where('user_id',getAuth()->id)
+                            ->whereNull('duration')
                             ->first();
         $empty = false;
         if($data){
@@ -226,4 +239,21 @@ use Illuminate\Support\Facades\DB;
                             ->where('driver_info_id',$truck_id)
                             ->get();
         return $per_pd;
+    }
+
+    function truck_arrive($id)
+    {
+        $own    = DriverInfo::whereNull('duration')
+                            ->where('user_id',getAuth()->id)
+                            ->first();
+
+        $truck = [];
+
+        if(!$own){
+            $truck  = DriverInfo::where('received_goods_id',$id)
+                                ->whereNull('duration')
+                                ->whereNot('user_id',getAuth()->id)
+                                ->get();
+        }
+        return $truck;
     }

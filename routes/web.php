@@ -36,6 +36,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('car_info','car_info')->name('car_info');
             route::get('car_info/{id}','car')->name('car');
             route::get('receive_goods/{id}','receive_goods')->name('receive_goods');
+            route::get('join_receive/{id}/{car}','join_receive')->name('join_receive');
             route::get('view_goods/{id}','view_goods')->name('view_goods');
             route::get('user','user')->name('user');
             route::get('create_user','create_user')->name('create_user');

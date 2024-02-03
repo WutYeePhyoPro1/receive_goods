@@ -48,8 +48,8 @@
         <table class="w-full mt-4">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Product Code</th>
+                    <th style="padding: 0 5px">No</th>
+                    <th style="padding: 0 10px">Product Code</th>
                     <th>Product Name</th>
                 </tr>
             </thead>
