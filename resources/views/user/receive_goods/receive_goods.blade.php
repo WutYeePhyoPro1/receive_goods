@@ -135,7 +135,9 @@
                             </tr>
                         </thead>
                             <?php $i=0 ?>
-                            @foreach ($scan_document as $item)
+                            @if(count($scan_document) > 0)
+
+                                @foreach ($scan_document as $item)
                             @if (count(search_scanned_pd($item->id))>0)
                             <?php
                                 $i++;
@@ -179,6 +181,7 @@
 
                             @endif
                                 @endforeach
+                            @endif
 
 
                     </table>
