@@ -132,7 +132,7 @@
                                             @endif
                                             <td class="">{{ $tem->product->bar_code }}</td>
                                             <td class="">{{ $tem->product->supplier_name }}</td>
-                                        <td class="">{{ $tem->scanned_qty }}</td>
+                                            <td class="">{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}</td>
                                         </tr>
                                     @endforeach
                                 @endif

@@ -5,6 +5,7 @@ use App\Models\Product;
 use App\Models\Document;
 use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
+use App\Models\RemoveTrack;
 use App\Models\Tracking;
 use Illuminate\Support\Facades\DB;
 
@@ -198,11 +199,25 @@ use Illuminate\Support\Facades\DB;
         {
             if(in_array($item->id,$track))
             {
-                $data[] = Tracking::where('product_id',$item->id)->first();
+
+                $all = Tracking::where('product_id',$item->id)->get();
+                if(count($all) > 1)
+                {
+                    $data[] = Tracking::select('driver_info_id', 'product_id', DB::raw("SUM(scanned_qty) as scanned_qty"))
+                            ->where('product_id', $item->id)
+                            ->groupBy('product_id', 'driver_info_id')
+                            ->first();
+
+                    // dd($data);
+                }else{
+                    $data[] = Tracking::Select('driver_info_id','product_id','scanned_qty')
+                                        ->where('product_id',$item->id)->first();
+                }
             }
         }
         return $data;
     }
+
 
     function getDocument($id)
     {
@@ -256,4 +271,18 @@ use Illuminate\Support\Facades\DB;
                                 ->get();
         }
         return $truck;
+    }
+
+    function get_remove_pd($id)
+    {
+        $remove_pd = 0 ;
+        $exist = RemoveTrack::where('product_id',$id)->get();
+        if($exist)
+        {
+            foreach($exist as $item)
+            {
+                $remove_pd += $item->remove_qty;
+            }
+        }
+        return $remove_pd;
     }
