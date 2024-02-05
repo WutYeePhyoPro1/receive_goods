@@ -200,7 +200,7 @@ use Illuminate\Support\Facades\DB;
             if(in_array($item->id,$track))
             {
 
-                $all = Tracking::where('product_id',$item->id)->get();
+                $all = Tracking::where(['product_id'=>$item->id,'driver_info_id'=>$driver])->get();
                 if(count($all) > 1)
                 {
                     $data[] = Tracking::select('driver_info_id', 'product_id', DB::raw("SUM(scanned_qty) as scanned_qty"))
@@ -208,10 +208,11 @@ use Illuminate\Support\Facades\DB;
                             ->groupBy('product_id', 'driver_info_id')
                             ->first();
 
-                    // dd($data);
                 }else{
                     $data[] = Tracking::Select('driver_info_id','product_id','scanned_qty')
-                                        ->where('product_id',$item->id)->first();
+                                        ->where('product_id',$item->id)
+                                        ->where('driver_info_id',$driver)
+                                        ->first();
                 }
             }
         }
