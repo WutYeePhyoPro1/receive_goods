@@ -293,8 +293,15 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
 
                             $q->where('bar_code' , request('search_data'));
                         })
+                        ->when(isset($this->filter['action']) && $this->filter['action'] == 'excess',function($q){
+
+                            $q->where(DB::raw("qty"),'<',DB::raw('scanned_qty'));
+                        })
+                        ->when(isset($this->filter['action']) && $this->filter['action'] == 'shortage',function($q){
+                            $q->where(DB::raw("qty"),'>',DB::raw('scanned_qty'));
+                        })
                             ->whereIn('document_id',$document_ids)
-                            ->where(DB::raw("qty"),'>',DB::raw('scanned_qty'))
+                            ->where(DB::raw("qty"),'!=',DB::raw('scanned_qty'))
                             ->get();
 
         $all = $data;

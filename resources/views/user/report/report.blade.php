@@ -102,6 +102,16 @@
                             </Select>
                         </div>
                     @elseif ($report == 'shortage')
+                    <div class="flex flex-col">
+                        <label for="action" class="whitespace-nowrap">Choose excess/shortage :</label>
+                        <Select name="action" id="action" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                            <option value="" selected>Choose excess/shortage</option>
+                            <option value="excess" {{ request('action')=='excess' ? 'selected' : '' }}>Excess</option>
+                            <option value="shortage" {{ request('action')=='shortage' ? 'selected' : '' }}>Shortage</option>
+                        </Select>
+                    </div>
+
+
                         <div class="flex flex-col">
                             <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
                             <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
@@ -181,7 +191,8 @@
                             <th class="py-2 bg-slate-400 border">Document No</th>
                             <th class="py-2 bg-slate-400 border">Product Code</th>
                             <th class="py-2 bg-slate-400 border">Supplier Name</th>
-                            <th class="py-2 bg-slate-400 rounded-tr-md">Shortage Qty</th>
+                            <th class="py-2 bg-slate-400 border">Shortage Qty</th>
+                            <th class="py-2 bg-slate-400 rounded-tr-md">excess Qty</th>
                         @endif
 
                     </tr>
@@ -253,7 +264,8 @@
                                 <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->bar_code }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->supplier_name }}</td>
-                                <td class="h-10 text-center border border-slate-400 ">{{ $item->qty - $item->scanned_qty }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ ($item->qty > $item->scanned_qty) ? ($item->qty - $item->scanned_qty) : '' }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ ($item->qty < $item->scanned_qty) ? ($item->scanned_qty - $item->qty) : '' }}</td>
                             </tr>
                         @endforeach
                     @endif

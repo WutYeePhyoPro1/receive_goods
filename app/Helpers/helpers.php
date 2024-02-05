@@ -151,6 +151,15 @@ use Illuminate\Support\Facades\DB;
         return $sec_pass;
     }
 
+    function cur_truck_sec($id)
+    {
+        $cur    = DriverInfo::where('id',$id)->first();
+        $cur_sec = strtotime($cur->start_date.' '.$cur->start_time);
+        $now     = Carbon::now()->timestamp;
+        $diff = $now - $cur_sec;
+        return $diff;
+    }
+
     function scan_zero($id)
     {
         $product = Product::where('document_id',$id)->pluck('scanned_qty');

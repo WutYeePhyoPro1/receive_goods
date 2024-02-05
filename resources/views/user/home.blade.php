@@ -5,7 +5,7 @@
     <div class="grid grid-cols-5 gap-5 px-5">
         <div class=" min-h-60 rounded-xl shadow-2xl border border-slate-200  mt-10 relative" style="background-color: rgba(131, 131, 131, 0.12)">
             <div class="">
-                <span class="text-xl font-serif float-right mr-3 mt-2">Total Products</span>
+                <span class="text-xl font-serif float-right mr-3 mt-2">Total Scanned Products</span>
             </div>
             <div class="absolute w-full h-full" style="z-index: -1">
                 <i class='bx bxs-package text-slate-100 text-9xl'></i>
@@ -18,7 +18,7 @@
         </div>
         <div class=" min-h-60 rounded-xl shadow-2xl border border-amber-200  mt-10 relative" style="background-color: rgba(189, 190, 121, 0.12)">
             <div class="flex justify-end w-full">
-                <span class="text-xl font-serif mr-3 mt-2">Total Documents</span>
+                <span class="text-xl font-serif mr-3 mt-2">Add Documents</span>
             </div>
             <div class="flex justify-end w-full">
                 <span class="text-xl font-serif mr-3 mt-2">(REG)</span>
@@ -32,7 +32,7 @@
         </div>
         <div class=" min-h-60 rounded-xl shadow-2xl border border-emerald-200  mt-10 relative" style="background-color: rgba(121, 190, 173, 0.12)">
             <div class="flex justify-end w-full">
-                <span class="text-xl font-serif mr-3 mt-2">Finished Documents</span>
+                <span class="text-xl font-serif mr-3 mt-2">Completed Documents</span>
             </div>
             <div class="flex justify-end w-full">
                 <span class="text-xl font-serif mr-3 mt-2">(REG)</span>
@@ -46,7 +46,7 @@
         </div>
         <div class=" min-h-60 rounded-xl shadow-2xl border border-sky-200  mt-10 relative" style="background-color: rgba(121, 151, 190, 0.12)">
             <div class="flex justify-end w-full">
-                <span class="text-xl font-serif mr-3 mt-2">Total Trucks Arrive</span>
+                <span class="text-xl font-serif mr-3 mt-2">Unloading Trucks</span>
             </div>
             <div class="absolute w-full h-full top-0" style="z-index: -1">
                 <i class='bx bxs-truck text-sky-100 text-9xl'></i>
@@ -58,7 +58,7 @@
         </div>
         <div class=" min-h-60 rounded-xl shadow-2xl border border-rose-200  mt-10 relative" style="background-color: rgba(190, 121, 121, 0.12)">
             <div class="flex justify-end w-full">
-                <span class="text-xl font-serif mr-3 mt-2">Total Removed Products</span>
+                <span class="text-xl font-serif mr-3 mt-2">Adjust Products</span>
             </div>
             <div class="absolute w-full h-full top-0" style="z-index: -1">
                 <i class='bx bxs-trash-alt text-rose-100 text-9xl'></i>

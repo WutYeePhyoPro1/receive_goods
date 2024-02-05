@@ -307,6 +307,7 @@ class userController extends Controller
 
     public function barcode_scan(Request $request)
     {
+        // dd(Carbon::now(),Carbon::now()->addSecond());
         // dd($request->all());
         $all = $request->data;
         $id    = $request->id;
@@ -342,19 +343,20 @@ class userController extends Controller
                 )as erpdb
             ");
             $qty = (int)($data[0]->qty);
-
+            $total_scan = $qty;
+            if($request->car == '')
+            {
+                $driver_info = DriverInfo::where(['received_goods_id'=>$id , 'user_id'=>getAuth()->id])
+                                        ->whereNull('duration')
+                                        ->first();
+            }else{
+                $driver_info = DriverInfo::where('id',$request->car)
+                                        ->first();
+            }
             if(count($all_product) == 1)
             {
                 $scanned = $product->scanned_qty + $qty;
-                if($request->car == '')
-                {
-                    $driver_info = DriverInfo::where(['received_goods_id'=>$id , 'user_id'=>getAuth()->id])
-                                            ->whereNull('duration')
-                                            ->first();
-                }else{
-                    $driver_info = DriverInfo::where('id',$request->car)
-                                            ->first();
-                }
+
                 $product_id  = $product->id;
                 // dd($scanned);
                 $product->update([
@@ -366,82 +368,105 @@ class userController extends Controller
                         ->where('bar_code',$item)
                         ->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))
                         ->get();
-
+                $count      = 0;
                 if(count($full_pd) > 0)
                 {
+                    if($request->car == '')
+                    {
+                        $driver_info = DriverInfo::where(['received_goods_id'=>$request->id , 'user_id'=>getAuth()->id])
+                                                    ->whereNull('duration')
+                                                    ->first();
+                    }else{
+                        $driver_info = DriverInfo::where('id',$request->car)
+                                                ->first();
+                    }
+                    $count = 0;
                     foreach($all_product as $index=>$item)
                     {
-                        if($item->qty > $item->scanned_qty)
-                        {
-                            // dd($index);
-                            $scanned = $item->scanned_qty + $qty;
-                            Product::where('id',$item->id)->update([
-                                'scanned_qty'   => $scanned
-                            ]);
-                            if($request->car == '')
-                            {
-                                $driver_info = DriverInfo::where(['received_goods_id'=>$request->id , 'user_id'=>getAuth()->id])
-                                                            ->whereNull('duration')
-                                                            ->first();
-                            }else{
-                                $driver_info = DriverInfo::where('id',$request->car)
-                                                        ->first();
-                            }
 
-                            $product_id  = $item->id;
+                        if($total_scan < 1)
+                        {
                             break;
                         }
+                        $sub = $item->qty - $item->scanned_qty;
+                        
+                        if($item->qty > $item->scanned_qty && $sub >= $total_scan)
+                        {
+                            if($count > 0)
+                            {
+                                $update_time = Carbon::now()->addSecond();
+                            }else{
+                                $update_time = Carbon::now();
+                            }
+
+                            $scanned = $item->scanned_qty + $total_scan;
+                            Product::where('id',$item->id)->update([
+                                'scanned_qty'   => $scanned,
+                                'updated_at'    => $update_time
+                            ]);
+                            $this->repository->add_track($driver_info->id,$item->id,$total_scan,$item->document_id,$update_time);
+                            $count ++;
+                            break;
+                        }else if($item->qty > $item->scanned_qty && $sub < $total_scan && $index != count($all_product)-1){
+                            if($sub < $total_scan)
+                            {
+                                $scanned    = $item->qty;
+                                $total_scan = $total_scan - $sub;
+                                $added      = $sub;
+                            }else{
+                                $scanned    = $item->scanned_qty + $total_scan;
+                                $total_scan = 0;
+                                $added      = $total_scan;
+                            }
+
+                            if($count > 0)
+                            {
+                                $update_time = Carbon::now()->addSecond();
+                            }else{
+                                $update_time = Carbon::now();
+                            }
+
+                            Product::where('id',$item->id)->update([
+                                'scanned_qty'   => $scanned,
+                                'updated_at'    => $update_time
+                            ]);
+
+                            $this->repository->add_track($driver_info->id,$item->id,$added,$item->document_id,$update_time);
+                        }elseif($index == count($all_product)-1)
+                        {
+                                $scanned = $item->scanned_qty+$total_scan;
+                                if($count > 0)
+                                {
+                                    $update_time = Carbon::now()->addSecond();
+                                }else{
+                                    $update_time = Carbon::now();
+                                }
+                                Product::where('id',$item->id)->update([
+                                    'scanned_qty'   => $scanned,
+                                    'updated_at'    => $update_time
+                                ]);
+                                $this->repository->add_track($driver_info->id,$item->id,$total_scan,$item->document_id,$update_time);
+                        }
+                        $count ++;
                     }
                 }else{
                     $exceed_pd =Product::whereIn('document_id',$doc_ids)
-                            ->where('bar_code',$item)
-                            ->where(DB::raw('qty'),'<',DB::raw('scanned_qty'))
-                            ->first();
+                                        ->where('bar_code',$item)
+                                        ->orderBy('id','desc')
+                                        ->first();
+
                     if($exceed_pd){
-                        $exceed_qty = $exceed_pd->scanned_qty + $qty;
+                        $exceed_qty = $exceed_pd->scanned_qty + $total_scan;
                         Product::where('id',$exceed_pd->id)->update([
                             'scanned_qty'   => $exceed_qty
                         ]);
-                    }else{
-                        $docs = [];
-                        $all_ids = [];
-                        foreach($all_product as $item)
-                        {
-                            $docs[]     = $item->doc->document_no;
-                            $all_ids[]  = $item->id;
-                        }
-                        return response()->json([
-                            'msg'  => 'decision',
-                            'doc'  => $docs,
-                            'ids'  => $all_ids,
-                            'qty'  => $qty
-                        ],200);
-
                     }
                 }
             }
-            if(isset($driver_info))
+            if(isset($driver_info) && $count == 0)
             {
-                $track_dub = Tracking::where(['driver_info_id'=>$driver_info->id,'product_id'=>$product_id])->first();
-                if($track_dub)
-                {
-                    $track_scan = $track_dub->scanned_qty;
-                    $track_dub->update([
-                        'scanned_qty'   => $track_scan+$qty
-                    ]);
-                }else{
-                    $track                      = new Tracking();
-                    $track->driver_info_id      = $driver_info->id;
-                    $track->product_id          = $product_id;
-                    $track->scanned_qty         = $qty;
-                    $track->user_id             = getAuth()->id;
-                    $track->save();
-                }
+                $this->repository->add_track($driver_info->id,$product->id,$total_scan,$product->document_id);
             }
-            // $track->driver_info_id =
-            Document::where('id',$product->document_id)->update([
-                'updated_at'    => Carbon::now()
-            ]);
             return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty],200);
             } catch (\Exception $e) {
                 logger($e);
@@ -498,17 +523,22 @@ class userController extends Controller
             $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
             $this_scanned = get_scanned_qty($driver->id);
             // dd(get_all_duration($request->id));
-            $receive->update([
-                'total_duration'        => get_all_duration($request->id),
-                'remaining_qty'         => $data['remaining'],
-                'exceed_qty'            => $data['exceed'],
-                'status'                => 'incomplete'
-            ]);
+            if(cur_truck_sec($driver->id) < 86401)
+            {
+                $receive->update([
+                    'total_duration'        => get_all_duration($request->id),
+                    'remaining_qty'         => $data['remaining'],
+                    'exceed_qty'            => $data['exceed'],
+                    'status'                => 'incomplete'
+                ]);
 
-            $driver->update([
-                'scanned_goods' => $this_scanned,
-                'duration'      => $pass
-            ]);
+                $driver->update([
+                    'scanned_goods' => $this_scanned,
+                    'duration'      => $pass
+                ]);
+            }else{
+                return response()->json(500);
+            }
 
 
         }else{
@@ -561,21 +591,23 @@ class userController extends Controller
         $time   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
         $this_scanned = get_scanned_qty($id);
 
+        if(cur_truck_sec($driver->id) < 86401)
+        {
+            $receive->update([
+                'total_duration'        => get_all_duration($id),
+                'remaining_qty'         => $data['remaining'],
+                'exceed_qty'            => $data['exceed'],
+                'status'                => 'complete'
+            ]);
 
+            $driver->update([
+                'scanned_goods' => $this_scanned,
+                'duration'      => $time
+            ]);
 
-        $receive->update([
-            'total_duration'        => get_all_duration($id),
-            'remaining_qty'         => $data['remaining'],
-            'exceed_qty'            => $data['exceed'],
-            'status'                => 'complete'
-        ]);
-
-        $driver->update([
-            'scanned_goods' => $this_scanned,
-            'duration'      => $time
-        ]);
-
-        return response()->json(200);
+            return response()->json(200);
+        }
+        return response()->json(500);
     }
 
     public function create_user()
