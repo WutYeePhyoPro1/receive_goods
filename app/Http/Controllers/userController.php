@@ -94,7 +94,6 @@ class userController extends Controller
                         ->where('driver_infos.user_id', getAuth()->id)
                         ->whereNull('driver_infos.duration')
                         ->first();
-
         $emp = GoodsReceive::where('user_id',getAuth()->id)
                             ->whereNull('total_duration')
                             ->first();
@@ -389,7 +388,7 @@ class userController extends Controller
                             break;
                         }
                         $sub = $item->qty - $item->scanned_qty;
-                        
+
                         if($item->qty > $item->scanned_qty && $sub >= $total_scan)
                         {
                             if($count > 0)
@@ -508,7 +507,6 @@ class userController extends Controller
 
         $finish_driver = DriverInfo::where('received_goods_id',$request->id)
                             ->whereNotNull('duration')->get();
-
         if($driver)
         {
             $start = strtotime($driver->start_date.' '.$driver->start_time);
@@ -575,7 +573,9 @@ class userController extends Controller
     {
         $receive = GoodsReceive::where('id',$id)->first();
         $driver = DriverInfo::where('received_goods_id',$id)
-                            ->whereNull('duration')->first();
+                            ->where('user_id',getAuth()->id)
+                            ->whereNull('duration')
+                            ->first();
 
         $finish_driver = DriverInfo::where('received_goods_id',$id)
                                     ->whereNotNull('duration')->get();
@@ -590,6 +590,14 @@ class userController extends Controller
         $sec    = (int)(($diff % 3600) % 60);
         $time   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
         $this_scanned = get_scanned_qty($id);
+        if($driver)
+        {
+            $receive->update([
+                'total_duration'        => get_all_duration($id),
+                'remaining_qty'         => $data['remaining'],
+                'exceed_qty'            => $data['exceed'],
+                'status'                => 'complete'
+            ]);
 
         if(cur_truck_sec($driver->id) < 86401)
         {
@@ -609,6 +617,7 @@ class userController extends Controller
         }
         return response()->json(500);
     }
+}
 
     public function create_user()
     {
