@@ -21,6 +21,26 @@ body::-webkit-scrollbar-thumb{
     background-color: rgba(0, 0, 0, 0.4);
 }
 
+.car_all_info::-webkit-scrollbar,body::-webkit-scrollbar{
+    width: 5px;
+}
+
+.car_all_info::-webkit-scrollbar-track,body::-webkit-scrollbar-track{
+    background-color: rgb(255, 166, 0);
+    border-radius: 10px;
+}
+
+.car_all_info::-webkit-scrollbar-thumb{
+    background-color: rgb(160, 160, 160);
+    border-radius: 10px;
+}
+
+.scanned_qty::-webkit-inner-spin-button,
+.scanned_qty::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;  /* Remove extra space around the input */
+}
+
 .side_bar {
     position: fixed;
     top: 40px;

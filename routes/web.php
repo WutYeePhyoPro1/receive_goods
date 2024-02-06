@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActionController;
 use App\Http\Controllers\authenticateController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\userController;
@@ -81,7 +82,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('product_pdf/{id}','product_pdf')->name('product_pdf');
             route::get('truck_detail_pdf/{id}','truck_detail_pdf')->name('truck_detail_pdf');
             route::get('document_detail_pdf/{id}','document_detail_pdf')->name('document_detail_pdf');
+            route::get('doc_detail_pdf/{id}','doc_detail_pdf')->name('doc_detail_pdf');
 
             route::post('excel_export','excel_export')->name('excel_export');
+        });
+
+        route::group(['controller'=>ActionController::class],function(){
+            route::post('edit_scan','edit_scan')->name('edit_scan');
         });
 });

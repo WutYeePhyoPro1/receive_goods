@@ -355,7 +355,6 @@ class ReportController extends Controller
 
     public function detail_excel_export($id,$action)
     {
-
         $date = Carbon::now()->format('Ymd');
         // $action =
 
@@ -380,6 +379,11 @@ class ReportController extends Controller
         }elseif($action == 'document')
         {
             $document   = Document::where('id',$id)->first();
+            $doc_no     = $document->document_no;
+            return Excel::download(new DetailExcel($id,$action),"$doc_no$date.xlsx");
+        }elseif($action == 'doc')
+        {
+            $document   = GoodsReceive::find($id);
             $doc_no     = $document->document_no;
             return Excel::download(new DetailExcel($id,$action),"$doc_no$date.xlsx");
         }
@@ -434,6 +438,19 @@ class ReportController extends Controller
         $document_no= $document->document_no;
         $pdf = PDF::loadView('user.report.detail_excel_report', compact('detail','truck','document','product','track','reg','action'));
         return $pdf->stream("$document_no$date.pdf");
+    }
+
+    public function doc_detail_pdf($id)
+    {
+        $action     = 'print';
+        $date = Carbon::now()->format('Ymd');
+        $detail     = 'doc';
+        $reg        = GoodsReceive::where('id',$id)->first();
+        $document   = Document::where('received_goods_id',$id)->get();
+        $driver     = DriverInfo::where('received_goods_id',$id)->get();
+        $pdf        = PDF::loadView('user.report.detail_excel_report', compact('detail','driver','document','reg','action'))->setPaper('a4', 'landscape');
+        $doc_no    = $reg->document_no;
+        return $pdf->stream("$doc_no$date.pdf");
     }
 
     public function detail_doc($id)

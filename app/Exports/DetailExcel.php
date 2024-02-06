@@ -52,6 +52,13 @@ use Maatwebsite\Excel\Concerns\WithColumnWidths;
                 $truck      = DriverInfo::whereIn('id',$truck)->get();
                 $track      = $track->get();
                 return view('user.report.detail_excel_report',compact('detail','truck','document','product','track','reg','action'));
+            }elseif($type == 'doc')
+            {
+                $detail = $this->action;
+                $reg        = GoodsReceive::where('id',$this->id)->first();
+                $document   = Document::where('received_goods_id',$this->id)->get();
+                $driver     = DriverInfo::where('received_goods_id',$this->id)->get();
+                return view('user.report.detail_excel_report',compact('detail','reg','document','driver','action'));
             }
         }
 

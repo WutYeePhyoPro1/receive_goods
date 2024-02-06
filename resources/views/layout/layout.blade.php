@@ -17,7 +17,7 @@
         <div class="side_bar">
             <ul class="sidebar_body">
                 <li class="sidebar_items" onclick="javascript:window.location.href='/home'">
-                    @if (request()->is('home') || request()->is('product_list*') || request()->is('finished_documents*'))
+                    @if (request()->is('home') || request()->is('product_list*') || request()->is('finished_documents*') || request()->is('truck_list*') || request()->is('remove_list') || request()->is('shortage_list') || request()->is('detail_truck*') || request()->is('po_to_list*') || request()->is('detail_document*') || request()->is('detail_doc*'))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
                     @endif

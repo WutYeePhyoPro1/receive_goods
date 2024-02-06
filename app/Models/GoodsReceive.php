@@ -24,6 +24,11 @@ class GoodsReceive extends Model
         return $this->belongsTo(Source::class,'source','id');
     }
 
+    public function branches()
+    {
+        return $this->belongsTo(Branch::class,'branch_id')->withDefault();
+    }
+
     // public function documents()
     // {
     //     return $this->hasMany(Document::class, 'received_goods_id');

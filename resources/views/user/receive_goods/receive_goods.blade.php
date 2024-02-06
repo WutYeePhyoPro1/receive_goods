@@ -482,13 +482,11 @@
 {{-- End Modal --}}
    {{-- Decision Modal --}}
    <div class="hidden" id="alert_model">
-    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
-        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
             <!-- Modal content -->
             <div class="card rounded">
-                <div
-                    class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
-                    <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80 ">
                         <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Cursor ထွက်နေပါသဖြင့် scan ဖတ်လို့ရမည် မဟုတ်ပါ &nbsp;<span
                                 id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -497,19 +495,16 @@
                                     d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                             </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
 
-                        <button type="button" class="text-rose-600 font-extrabold"
+                        <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
                             onclick="$('#alert_model').hide()">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
-                </div>
-                <div class="card-body pt-4">
 
-                </div>
             </div>
         </div>
 </div>

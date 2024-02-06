@@ -9,6 +9,7 @@
                 @if ($detail == 'doc')
                     <span class=" -translate-x-6  ms-3" >Source : <b class="text-xl" id="source">{{ $reg->source_good->name ?? '' }}</b></span>
                     <span class="ml-5  tracking-wider select-none" id="time_count">Total Duration : <b class="text-xl" id="source">{{ get_all_duration($reg->id) }}</b></span>
+                    <span class="ml-5  tracking-wider select-none" id="time_count">Unloaded Truck : <b class="text-xl" id="source">{{ count($driver) }}</b></span>
                     <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info"><i class='bx bx-id-card'></i></button>
                 @elseif ($detail == 'truck')
                     <span class=" -translate-x-6  ms-3" >Truck No : <b class="text-xl" id="source">{{ $driver->truck_no ?? '' }}</b></span>
@@ -33,7 +34,7 @@
                 $excel_url = "/detail_excel_export/".$id.'/'.$detail;
                 switch ($detail)
                 {
-                    case 'doc'      :  $print_url = "/truck_detail_pdf/".$id;break;
+                    case 'doc'      :  $print_url = "/doc_detail_pdf/".$id;break;
                     case 'truck'    :  $print_url = "/truck_detail_pdf/".$id;break;
                     case 'document' :  $print_url = "/document_detail_pdf/".$id;break;
                     default         :  $print_url = request()->url();break;
@@ -56,6 +57,8 @@
                                 <th class="py-2 bg-slate-400  border">Product Name</th>
                                 <th class="py-2 bg-slate-400  border">Total Qty</th>
                                 <th class="py-2 bg-slate-400  border">Scanned Qty</th>
+                                <th class="py-2 bg-slate-400  border">Shortage</th>
+                                <th class="py-2 bg-slate-400  border">Surplus</th>
                                 <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
                             @elseif ($detail == 'truck')
                                 <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
@@ -70,39 +73,39 @@
                     <tbody>
 
                         @if ($detail == 'doc')
+
                             <?php
                             $i = 0;
                         ?>
-                            @foreach($document as $item)
-                            @if (count(search_pd($item->id)) > 0)
-                                <tbody class="main_body">
+                           @foreach ($document as $item)
+                           @if (  count(get_all_pd($item->id)) > 0)
+                               <tbody class="main_body">
+                                   @foreach (get_all_pd($item->id) as $key=>$tem)
 
-                                    @foreach (search_pd($item->id) as $key=>$tem)
-
-                                        <?php
-                                            $color = check_color($tem->id);
-                                        ?>
-                                        <tr class="h-10">
-                                        @if ($key == 0)
-
-                                                <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
-                                            @else
-                                                <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
-                                            @endif
-                                            <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->bar_code }}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 qty">{{ $tem->qty }}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 scanned_qty">{{ $tem->scanned_qty }}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 ">{{ $tem->created_at->format('Y-m-d') }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                                    <?php $i++ ?>
-                            @endif
-
-                        @endforeach
+                                       <?php
+                                           $color = check_color($tem->id);
+                                       ?>
+                                       <tr class="h-10">
+                                           @if ($key == 0)
+                                               <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
+                                               <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
+                                           @else
+                                               <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
+                                               <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
+                                           @endif
+                                           <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->bar_code }}</td>
+                                           <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}</td>
+                                           <td class="ps-2 border border-slate-400 border-t-0 qty">{{ $tem->qty }}</td>
+                                           <td class="ps-2 border border-slate-400 border-t-0 scanned_qty">{{ $tem->scanned_qty }}</td>
+                                           <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ">{{ $tem->qty > $tem->scanned_qty ? $tem->qty-$tem->scanned_qty : '' }}</td>
+                                           <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ">{{ $tem->qty < $tem->scanned_qty ? $tem->scanned_qty - $tem->qty : '' }}</td>
+                                           <td class="ps-2 border border-slate-400 border-t-0 ">{{ $tem->created_at->format('Y-m-d') }}</td>
+                                       </tr>
+                                   @endforeach
+                               </tbody>
+                                   <?php $i++ ?>
+                           @endif
+                       @endforeach
                         @elseif ( $detail == 'truck')
                                 <?php
                                 $i = 0;
@@ -121,7 +124,13 @@
                                         @endif
                                         <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->product->bar_code }}</td>
                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->product->supplier_name }}</td>
-                                        <td class="ps-2 border border-slate-400 border-t-0 qty">{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}</td>
+                                        <td class="ps-2 border border-slate-400 border-t-0 qty">
+                                            @if (getAuth()->role == 4 || getAuth()->role == 1)
+                                                <input type="number" data-old="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" data-pd="{{ $tem->product_id }}" data-driver="{{ $driver->id }}" value="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" class="border ps-4 appearance-none scanned_qty">
+                                            @else
+                                                {{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             @endif
@@ -164,10 +173,10 @@
    @if ($detail == 'doc')
      {{-- Car info Modal --}}
     <div class="hidden" id="car_info">
-        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
-            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 car_all_info" style="max-height: 600px;">
                 <!-- Modal content -->
-                <div class="card rounded">
+                <div class="card rounded ">
                     <div
                         class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
                         <div class="flex px-4 py-2 justify-between items-center min-w-80">
@@ -240,8 +249,36 @@
         <script>
 
             $(document).ready(function(){
+                var token = $("meta[name='__token']").attr('content');
+
                 $(document).on('click','#driver_info',function(e){
                     $('#car_info').toggle();
+                })
+
+                $(document).on('keydown','.scanned_qty',function(e){
+                    if(e.keyCode == 40 || e.keyCode == 38)
+                    {
+                        e.preventDefault();
+                    }
+                })
+
+                $(document).on('blur','.scanned_qty',function(e){
+                    $val = $(this).val();
+                    $driver = $(this).data('driver');
+                    $product = $(this).data('pd');
+                    $old_amt = $(this).data('old');
+
+                    if($val != $old_amt || $val < $old_amt)
+                    {
+                        $.ajax({
+                            url     : "{{ route('edit_scan') }}",
+                            type    : "POST",
+                            data    : {_token : token,driver : $driver , product : $product , val : $val,old : $old_amt },
+                            success : function(res){
+
+                            }
+                        })
+                    }
                 })
             })
         </script>

@@ -14,6 +14,17 @@ use Illuminate\Support\Facades\DB;
         return auth()->guard()->user();
     }
 
+    function get_all_pd($id)
+    {
+        $doc = Document::where('id',$id)->first();
+        $main = GoodsReceive::where('id',$doc->received_goods_id)->first();
+
+        return Product::where('document_id',$id)
+                        ->where(DB::raw('scanned_qty'), '<', DB::raw('qty'))
+                        ->orderBy('id','asc')
+                        ->get();
+    }
+
     function search_pd($id)
     {
         $doc = Document::where('id',$id)->first();
@@ -200,27 +211,29 @@ use Illuminate\Support\Facades\DB;
 
     function get_truck_product($id,$driver)
     {
-        $doc = Document::where('id',$id)->first();
-        $pds = Product::where('document_id',$doc->id)->get();
-        $track = Tracking::where('driver_info_id',$driver)->pluck('product_id')->toArray();
+        $doc = Document::where('id',$id)->orderBy('id')->first();
+        $pds = Product::where('document_id',$doc->id)->orderBy('id')->get();
+        $track = Tracking::where('driver_info_id',$driver)->orderBy('id')->pluck('product_id')->toArray();
         $data = [];
         foreach($pds as $item)
         {
             if(in_array($item->id,$track))
             {
 
-                $all = Tracking::where(['product_id'=>$item->id,'driver_info_id'=>$driver])->get();
+                $all = Tracking::where(['product_id'=>$item->id,'driver_info_id'=>$driver])->orderBy('id')->get();
                 if(count($all) > 1)
                 {
                     $data[] = Tracking::select('driver_info_id', 'product_id', DB::raw("SUM(scanned_qty) as scanned_qty"))
                             ->where('product_id', $item->id)
                             ->groupBy('product_id', 'driver_info_id')
+                            ->orderBy('id')
                             ->first();
 
                 }else{
                     $data[] = Tracking::Select('driver_info_id','product_id','scanned_qty')
                                         ->where('product_id',$item->id)
                                         ->where('driver_info_id',$driver)
+                                        ->orderBy('id')
                                         ->first();
                 }
             }

@@ -343,6 +343,7 @@ class userController extends Controller
             ");
             $qty = (int)($data[0]->qty);
             $total_scan = $qty;
+            $count = 0;
             if($request->car == '')
             {
                 $driver_info = DriverInfo::where(['received_goods_id'=>$id , 'user_id'=>getAuth()->id])
@@ -355,9 +356,6 @@ class userController extends Controller
             if(count($all_product) == 1)
             {
                 $scanned = $product->scanned_qty + $qty;
-
-                $product_id  = $product->id;
-                // dd($scanned);
                 $product->update([
                     'scanned_qty' => $scanned
                 ]);
@@ -379,7 +377,7 @@ class userController extends Controller
                         $driver_info = DriverInfo::where('id',$request->car)
                                                 ->first();
                     }
-                    $count = 0;
+
                     foreach($all_product as $index=>$item)
                     {
 
