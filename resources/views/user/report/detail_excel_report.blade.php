@@ -65,31 +65,33 @@
             </div> --}}
             @if ($action == 'print')
                 <img id="back_img" src="{{ public_path('storage/background_img/finallogo.png') }}" alt="">
-                
+
             @endif
             <table class="real_tb" style="width:  100%;padding:20px 0">
                 @if($detail == 'truck')
                     <tr class="">
-                        <th class="t_head">Document No :</th>
-                        <th class="t_head">Truck No :</th>
-                        <th class="t_head">Bar Truck Type :</th>
-                        <th class="t_head">Arrived At :</th>
-                        <th class="t_head">Unload Duration :</th>
+                        <th class="t_head">Document No </th>
+                        <th class="t_head">Truck No </th>
+                        <th class="t_head">Bar Truck Type </th>
+                        <th class="t_head">Arrived At </th>
+                        <th class="t_head">Scan Count </th>
+                        <th class="t_head">Unload Duration </th>
                     </tr>
                     <tr>
                         <th class="t_head"> <b class="" >{{ $reg->document_no ?? '' }}</b></th>
                         <th class="t_head"><b>{{ $driver->truck_no ?? '' }}</b></th>
                         <th class="t_head"><b>{{ $driver->truck->truck_name ?? '' }}</b></th>
                         <th class="t_head"><b>{{ $driver->start_date .' '. date('g:i A',strtotime($driver->start_time)) }}</b></th>
+                        <th class="t_head"><b>{{ $scan_track ?? '' }}</b></th>
                         <th class="t_head"><b>{{ $driver->duration ?? '' }}</b></th>
                     </tr>
                 @elseif($detail == 'document')
                     <tr class="">
-                        <th class="t_head">Document No :</th>
-                        <th class="t_head">PO/TO Document :</th>
-                        <th class="t_head">Total Cateogry :</th>
-                        <th class="t_head">Total Product Qty :</th>
-                        <th class="t_head">Total Unloaded Product Qty :</th>
+                        <th class="t_head">Document No </th>
+                        <th class="t_head">PO/TO Document </th>
+                        <th class="t_head">Total Cateogry </th>
+                        <th class="t_head">Total Product Qty </th>
+                        <th class="t_head">Total Unloaded Product Qty </th>
                     </tr>
                     <tr>
                         <th class="t_head"><b>{{ $reg->document_no ?? '' }}</b></th>
@@ -115,6 +117,16 @@
                         <th class="t_head"><b>{{ $reg->total_duration ?? '' }}</b></th>
                         <th class="t_head"><b>{{ count($driver) ?? '' }}</b></th>
                     </tr>
+                @elseif ($detail == 'scan')
+                <tr class="">
+                    <th class="t_head">Document No </th>
+                    <th class="t_head">Truck No</th>
+                </tr>
+                <tr>
+                    <th class="t_head"><b>{{ $scan_track[0]->driver->received->document_no ?? '' }}</b></th>
+                    <th class="t_head"> <b class="" >{{ $scan_track[0]->driver->truck_no ?? '' }}</b></th>
+
+                </tr>
                 @endif
             </table>
             @if ($detail == 'doc')
@@ -262,6 +274,29 @@
                                         </tr>
                                     @endforeach
                                 @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @elseif ( $detail == 'scan' )
+                    <table class="real_tb" style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th class="t_head"></th>
+                                <th class="t_head">Bar Code</th>
+                                <th class="t_head">Unit</th>
+                                <th class="t_head">Per</th>
+                                <th class="t_head">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($scan_track as $index=>$item)
+                                <tr class="h-10">
+                                    <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $index+1 }}</td>
+                                    <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->product->bar_code }}</td>
+                                    <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $item->unit }}</td>
+                                    <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ">{{ $item->per }}</td>
+                                    <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ">{{ $item->count }}</td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>

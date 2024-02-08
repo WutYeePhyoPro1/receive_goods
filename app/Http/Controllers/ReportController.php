@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use Dompdf\Dompdf;
+use App\Models\Log;
 use Dompdf\Options;
 use App\Models\User;
 use App\Models\Branch;
@@ -16,6 +17,7 @@ use App\Models\RemoveTrack;
 use App\Exports\DetailExcel;
 use App\Exports\ReportExcel;
 use App\Models\GoodsReceive;
+use App\Models\ScanTrack;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +28,12 @@ class ReportController extends Controller
 {
     public function product_list()
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('product_list');
+        $log->action    = "go to product report page";
+        $log->save();
+
         $product = [];
 
         if(request('search_data') && !request('search'))
@@ -72,6 +80,12 @@ class ReportController extends Controller
 
     public function finished_documents()
     {
+            $log            = new Log();
+            $log->user_id   = getAuth()->id;
+            $log->history   = route('finished_documents');
+            $log->action    = "go to finished documents report page";
+            $log->save();
+
         $report = 'finish';
         $url    = 'finished_documents';
 
@@ -117,6 +131,12 @@ class ReportController extends Controller
 
     public function truck_list()
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('truck_list');
+        $log->action    = "go to Truck report page";
+        $log->save();
+
         $report = 'truck';
         $url    = 'truck_list';
         if(request('search') && !request('search_data'))
@@ -172,6 +192,12 @@ class ReportController extends Controller
 
     public function remove_list()
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('remove_list');
+        $log->action    = "go to Remove Lists report page";
+        $log->save();
+
         $report = 'remove';
         $url = 'remove_list';
 
@@ -225,6 +251,12 @@ class ReportController extends Controller
 
     public function po_to_list()
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('po_to_list');
+        $log->action    = "go to PO/TO Document report page";
+        $log->save();
+
         $report = 'po_to';
         $url = 'po_to_list';
 
@@ -279,6 +311,11 @@ class ReportController extends Controller
 
     public function shortage_list()
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('shortage_list');
+        $log->action    = "go to Shortage Product report page";
+        $log->save();
         $report = 'shortage';
         $url = 'shortage_list';
 
@@ -337,6 +374,7 @@ class ReportController extends Controller
 
     public function excel_export(Request $request)
     {
+
         $date = Carbon::now()->format('Ymd');
         $search = $request->except('_token');
         switch ($request->report)
@@ -349,7 +387,11 @@ class ReportController extends Controller
             case  'shortage'    :$report = 'shortage';break;
             default             :$report = '';break;
         }
-
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('excel_export');
+        $log->action    = "$report report excel export";
+        $log->save();
         return Excel::download(new ReportExcel($search), $report . 'report' . $date . '.xlsx');
     }
 
@@ -371,6 +413,11 @@ class ReportController extends Controller
         // }
 
         // return view('user.report.detail_excel_report',compact('driver','reg','document','track'));
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('detail_excel_export',['id'=>$id,'action'=>$action]);
+        $log->action    = "$action detail excel export";
+        $log->save();
         if($action == 'truck')
         {
             $truck = DriverInfo::where('id',$id)->first();
@@ -386,11 +433,22 @@ class ReportController extends Controller
             $document   = GoodsReceive::find($id);
             $doc_no     = $document->document_no;
             return Excel::download(new DetailExcel($id,$action),"$doc_no$date.xlsx");
+        }elseif($action == 'scan')
+        {
+            $driver     = DriverInfo::where('id',$id)->first();
+            $truck_no   = $driver->truck_no;
+            return Excel::download(new DetailExcel($id,$action),$truck_no . 'scan' . $date . '.xlsx');
         }
     }
 
     public function product_pdf($id)
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('product_pdf',['id'=>$id]);
+        $log->action    = "PDF Generate for Product";
+        $log->save();
+
         $docs = Document::where('received_goods_id',$id)->pluck('id');
         $data = Product::whereIn('document_id',$docs)->get();
         $doc_no = GoodsReceive::where('id',$id)->first();
@@ -403,6 +461,12 @@ class ReportController extends Controller
 
     public function truck_detail_pdf($id)
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('truck_detail_pdf',['id'=>$id]);
+        $log->action    = "PDF Generate for Truck Detail";
+        $log->save();
+
         $action = 'print';
         $detail = 'truck';
         $date = Carbon::now()->format('Ymd');
@@ -410,6 +474,7 @@ class ReportController extends Controller
         $reg        = GoodsReceive::where('id',$driver->received_goods_id)->first();
         $document   = [];
         $track      = Tracking::where('driver_info_id', $id)->get();
+        $scan_track = ScanTrack::where('driver_info_id',$id)->sum('count');
         foreach($track as $item)
         {
             if(!in_array($item->product->doc->id,$document))
@@ -418,12 +483,18 @@ class ReportController extends Controller
             }
         }
 
-        $pdf = PDF::loadView('user.report.detail_excel_report', compact('driver','reg','document','track','action','detail'));
+        $pdf = PDF::loadView('user.report.detail_excel_report', compact('driver','reg','document','track','action','detail','scan_track'));
         return $pdf->stream("$driver->truck_no.$date.pdf");
     }
 
     public function document_detail_pdf($id)
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('document_detail_pdf',['id'=>$id]);
+        $log->action    = "PDF Generate for Document(REG) Detail";
+        $log->save();
+
         $action = 'print';
         $date = Carbon::now()->format('Ymd');
         $detail     = 'document';
@@ -442,6 +513,12 @@ class ReportController extends Controller
 
     public function doc_detail_pdf($id)
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('doc_detail_pdf',['id'=>$id]);
+        $log->action    = "PDF Generate for Document(PO/TO) Detail";
+        $log->save();
+
         $action     = 'print';
         $date = Carbon::now()->format('Ymd');
         $detail     = 'doc';
@@ -453,8 +530,31 @@ class ReportController extends Controller
         return $pdf->stream("$doc_no$date.pdf");
     }
 
+    public function scan_count_pdf($id)
+    {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('doc_detail_pdf',['id'=>$id]);
+        $log->action    = "PDF Generate for Document(PO/TO) Detail";
+        $log->save();
+
+        $action     = 'print';
+        $date = Carbon::now()->format('Ymd');
+        $detail = 'scan';
+        $scan_track = ScanTrack::where('driver_info_id',$id)->orderBy('id')->get();
+        $pdf        = PDF::loadView('user.report.detail_excel_report', compact('detail','scan_track','action'));
+        $truck_no    = $scan_track[0]->driver->truck_no;
+        return $pdf->stream("$truck_no$date.pdf");
+    }
+
     public function detail_doc($id)
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('detail_doc',['id'=>$id]);
+        $log->action    = "Go To Document(PO/TO) Detail Page";
+        $log->save();
+
         $detail     = 'doc';
         $reg        = GoodsReceive::where('id',$id)->first();
         $document   = Document::where('received_goods_id',$id)->get();
@@ -464,11 +564,18 @@ class ReportController extends Controller
 
     public function detail_truck($id)
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('detail_truck',['id'=>$id]);
+        $log->action    = "Go To Truck Detail Page";
+        $log->save();
+
         $detail     = 'truck';
         $driver     = DriverInfo::where('id',$id)->first();
         $reg        = GoodsReceive::where('id',$driver->received_goods_id)->first();
         $document   = [];
         $track      = Tracking::where('driver_info_id', $id)->get();
+        $scan_track = ScanTrack::where('driver_info_id',$id)->sum('count');
         foreach($track as $item)
         {
             if(!in_array($item->product->doc->id,$document))
@@ -476,11 +583,17 @@ class ReportController extends Controller
                 $document[] = $item->product->doc->id;
             }
         }
-        return view('user.report.detail_report',compact('reg','driver','document','detail','track'));
+        return view('user.report.detail_report',compact('reg','driver','document','detail','track','scan_track'));
     }
 
     public function detail_document($id)
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('detail_document',['id'=>$id]);
+        $log->action    = "Go To Document(REG) Detail Page";
+        $log->save();
+
         $detail     = 'document';
         $document   = Document::where('id',$id)->first();
         $reg        = GoodsReceive::where('id',$document->received_goods_id)->first();
@@ -491,5 +604,12 @@ class ReportController extends Controller
         $truck      = DriverInfo::whereIn('id',$truck)->get();
         $track      = $track->get();
         return view('user.report.detail_report',compact('detail','truck','document','product','track','reg'));
+    }
+
+    public function Scan_count($id)
+    {
+        $detail     = 'scan';
+        $scan_track = ScanTrack::where('driver_info_id',$id)->orderBy('id')->get();
+        return view('user.report.detail_report',compact('detail','scan_track'));
     }
 }

@@ -5,7 +5,7 @@
 
         <div class="">
             <div class="">
-                <span class=" -translate-x-6  mr-3" >Document No : <b class="text-xl" id="doc_no">{{ $reg->document_no ?? '' }}</b></span>
+                <span class=" -translate-x-6  mr-3" >Document No : <b class="text-xl" id="doc_no">{{ $reg->document_no ?? $scan_track[0]->driver->received->document_no ?? '' }}</b></span>
                 @if ($detail == 'doc')
                     <span class=" -translate-x-6  ms-3" >Source : <b class="text-xl" id="source">{{ $reg->source_good->name ?? '' }}</b></span>
                     <span class="ml-5  tracking-wider select-none" id="time_count">Total Duration : <b class="text-xl" id="source">{{ get_all_duration($reg->id) }}</b></span>
@@ -15,13 +15,18 @@
                     <span class=" -translate-x-6  ms-3" >Truck No : <b class="text-xl" id="source">{{ $driver->truck_no ?? '' }}</b></span>
                     <span class=" -translate-x-6  ms-3" >Truck Type : <b class="text-xl" id="source">{{ $driver->truck->truck_name ?? '' }}</b></span>
                     <span class=" -translate-x-6  ms-3" >Arrived At : <b class="text-xl" id="source">{{ $driver->start_date .' '. date('g:i A',strtotime($driver->start_time)) }}</b></span>
+                    <span class=" -translate-x-6  ms-3 cursor-pointer" @if ($scan_track > 0)
+                        onclick="javascript:window.location.href = '/Scan_count/'+{{ $driver->id }}"
+                    @endif>Scan Count : <b class="text-xl" id="source">{{ $scan_track ?? '' }}</b></span>
                     <span class=" -translate-x-6  ms-3" >Unload Duration : <b class="text-xl" id="source">{{ $driver->duration ?? '' }}</b></span>
 
             @elseif ($detail == 'document')
-                | <span class=" -translate-x-6  ms-3" >PO/TO Document : <b class="text-xl" id="source">{{ $document->document_no ?? '' }}</b></span>
-                | <span class=" -translate-x-6  ms-3" >Total Cateogry : <b class="text-xl" id="source">{{ get_category($document->id) ?? '' }}</b></span>
-                | <span class=" -translate-x-6  ms-3" >Total Product Qty : <b class="text-xl" id="source">{{ get_doc_total_qty($document->id,'all') ?? '' }}</b></span>
-                | <span class=" -translate-x-6  ms-3" >Total Unloaded Product Qty : <b class="text-xl" id="source">{{ get_doc_total_qty($document->id,'unloaded') ?? '' }}</b></span>
+                 <span class=" -translate-x-6  ms-3" >PO/TO Document : <b class="text-xl" id="source">{{ $document->document_no ?? '' }}</b></span>
+                 <span class=" -translate-x-6  ms-3" >Total Cateogry : <b class="text-xl" id="source">{{ get_category($document->id) ?? '' }}</b></span>
+                 <span class=" -translate-x-6  ms-3" >Total Product Qty : <b class="text-xl" id="source">{{ get_doc_total_qty($document->id,'all') ?? '' }}</b></span>
+                 <span class=" -translate-x-6  ms-3" >Total Unloaded Product Qty : <b class="text-xl" id="source">{{ get_doc_total_qty($document->id,'unloaded') ?? '' }}</b></span>
+            @elseif ($detail == 'scan')
+                <span class=" -translate-x-6  ms-3" >Truck No : <b class="text-xl" id="source">{{ $scan_track[0]->driver->truck_no ?? '' }}</b></span>
             @endif
             <?php
                 switch ($detail)
@@ -29,6 +34,7 @@
                     case 'doc'      : $id = $reg->id;break;
                     case 'truck'    : $id = $driver->id;break;
                     case 'document' : $id = $document->id;break;
+                    case 'scan'     : $id = $scan_track[0]->driver_info_id;break;
                     default         : $id = '';break;
                 }
                 $excel_url = "/detail_excel_export/".$id.'/'.$detail;
@@ -37,6 +43,7 @@
                     case 'doc'      :  $print_url = "/doc_detail_pdf/".$id;break;
                     case 'truck'    :  $print_url = "/truck_detail_pdf/".$id;break;
                     case 'document' :  $print_url = "/document_detail_pdf/".$id;break;
+                    case 'scan'     :  $print_url = "/scan_count_pdf/".$id;break;
                     default         :  $print_url = request()->url();break;
                 }
 
@@ -66,7 +73,12 @@
                                 <th class="py-2 bg-slate-400  border">Bar Code</th>
                                 <th class="py-2 bg-slate-400  border">Product Name</th>
                                 <th class="py-2 bg-slate-400  rounded-tr-md">Unloaded Qty</th>
-
+                            @elseif ($detail == 'scan')
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                <th class="py-2 bg-slate-400 border">Bar Code</th>
+                                <th class="py-2 bg-slate-400  border">Unit</th>
+                                <th class="py-2 bg-slate-400  border">Per</th>
+                                <th class="py-2 bg-slate-400  rounded-tr-md">Count</th>
                             @endif
                         </tr>
                     </thead>
@@ -125,7 +137,7 @@
                                         <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->product->bar_code }}</td>
                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->product->supplier_name }}</td>
                                         <td class="ps-2 border border-slate-400 border-t-0 qty">
-                                            @if (getAuth()->role == 4 || getAuth()->role == 1)
+                                            @if (getAuth()->role == 4 || getAuth()->role == 1  || getAuth()->role == 3)
                                                 <input type="number" data-old="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" data-pd="{{ $tem->product_id }}" data-driver="{{ $driver->id }}" value="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" class="border ps-4 appearance-none scanned_qty">
                                             @else
                                                 {{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}
@@ -137,6 +149,16 @@
                             <?php
                             $i++;
                         ?>
+                            @endforeach
+                        @elseif ($detail == 'scan')
+                            @foreach ($scan_track as $index=>$item)
+                                <tr class="h-10">
+                                    <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $index+1 }}</td>
+                                    <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->product->bar_code }}</td>
+                                    <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $item->unit }}</td>
+                                    <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ">{{ $item->per }}</td>
+                                    <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ">{{ $item->count }}</td>
+                                </tr>
                             @endforeach
                         @endif
                     </tbody>

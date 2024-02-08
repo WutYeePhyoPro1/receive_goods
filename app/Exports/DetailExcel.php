@@ -4,6 +4,7 @@ namespace App\Exports;
 use App\Models\Product;
 use App\Models\Document;
 use App\Models\Tracking;
+use App\Models\ScanTrack;
 use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
 use Illuminate\Contracts\View\View;
@@ -32,6 +33,7 @@ use Maatwebsite\Excel\Concerns\WithColumnWidths;
                 $reg        = GoodsReceive::where('id',$driver->received_goods_id)->first();
                 $document   = [];
                 $track      = Tracking::where('driver_info_id', $this->id)->get();
+                $scan_track = ScanTrack::where('driver_info_id',$this->id)->sum('count');
                 foreach($track as $item)
                 {
                     if(!in_array($item->product->doc->id,$document))
@@ -39,7 +41,7 @@ use Maatwebsite\Excel\Concerns\WithColumnWidths;
                         $document[] = $item->product->doc->id;
                     }
                 }
-                return view('user.report.detail_excel_report',compact('driver','reg','document','track','action','detail'));
+                return view('user.report.detail_excel_report',compact('driver','reg','document','track','action','detail','scan_track'));
             }elseif($type == 'document')
             {
                 $detail     = 'document';
@@ -59,6 +61,11 @@ use Maatwebsite\Excel\Concerns\WithColumnWidths;
                 $document   = Document::where('received_goods_id',$this->id)->get();
                 $driver     = DriverInfo::where('received_goods_id',$this->id)->get();
                 return view('user.report.detail_excel_report',compact('detail','reg','document','driver','action'));
+            }elseif($type == 'scan')
+            {
+                $detail = $this->action;
+                $scan_track = ScanTrack::where('driver_info_id',$this->id)->orderBy('id')->get();
+                return view('user.report.detail_excel_report',compact('detail','scan_track','action'));
             }
         }
 

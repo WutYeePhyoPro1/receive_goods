@@ -8,6 +8,7 @@ use App\Models\Document;
 use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
 use App\Models\GoodsReceive;
+use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,7 @@ class authenticateController extends Controller
 {
     public function login(Request $request)
     {
-        // dd($request->all());
+        // dd(route('home'));
         $request->validate([
             'employee_code' => 'required',
             'password' => 'required',
@@ -24,6 +25,11 @@ class authenticateController extends Controller
 
         if(Auth::attempt(['employee_code'=>$request->employee_code,'password'=>$request->password,'active'=>1])){
             // dd('yes');
+            $log            = new Log();
+            $log->user_id   = getAuth()->id;
+            $log->history   = route('home');
+            $log->action    = 'LogIn';
+            $log->save();
             $request->session()->regenerate();
 
             return redirect()->intended('home');
@@ -36,6 +42,12 @@ class authenticateController extends Controller
 
     public function logout(Request $request)
     {
+        $log            = new Log();
+        $log->user_id   = getAuth()->id;
+        $log->history   = route('logout');
+        $log->action    = 'LogOut';
+        $log->save();
+        
         Auth::logout();
         if ($request->hasSession()) {
             $request->session()->invalidate();
