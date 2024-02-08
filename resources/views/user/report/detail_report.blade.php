@@ -10,7 +10,7 @@
                     <span class=" -translate-x-6  ms-3" >Source : <b class="text-xl" id="source">{{ $reg->source_good->name ?? '' }}</b></span>
                     <span class="ml-5  tracking-wider select-none" id="time_count">Total Duration : <b class="text-xl" id="source">{{ get_all_duration($reg->id) }}</b></span>
                     <span class="ml-5  tracking-wider select-none" id="time_count">Unloaded Truck : <b class="text-xl" id="source">{{ count($driver) }}</b></span>
-                    <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info"><i class='bx bx-id-card'></i></button>
+                    <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" title="car info" id="driver_info"><i class='bx bx-id-card'></i></button>
                 @elseif ($detail == 'truck')
                     <span class=" -translate-x-6  ms-3" >Truck No : <b class="text-xl" id="source">{{ $driver->truck_no ?? '' }}</b></span>
                     <span class=" -translate-x-6  ms-3" >Truck Type : <b class="text-xl" id="source">{{ $driver->truck->truck_name ?? '' }}</b></span>
@@ -49,8 +49,8 @@
 
 
             ?>
-            <button type="button" class="bg-sky-400 text-white text-xl h-10 px-3 rounded-lg ms-4 mt-9 hover:bg-sky-600 hover:text-white" onclick="javascript:window.location.href='{{ $excel_url }}'"><i class='bx bx-export'></i></button>
-            <a href="{{ $print_url }}" target="_blank"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 mt-9 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a>
+            <button type="button" class="bg-sky-400 text-white text-xl h-10 px-3 rounded-lg ms-4 mt-9 hover:bg-sky-600 hover:text-white" title="export excel" onclick="javascript:window.location.href='{{ $excel_url }}'"><i class='bx bx-export'></i></button>
+            <a href="{{ $print_url }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 mt-9 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a>
             </div>
 
             @if ($detail != 'document')
@@ -163,7 +163,7 @@
                         @endif
                     </tbody>
                 </table>
-            @else
+            @elseif ($detail == 'document')
                 @foreach ($truck as $item)
                 <div class="mt-5">
                     <span class="p-2 px-16 shadow-xl border-2 border-slate-100">{{ $item->truck_no }}</span>
@@ -171,10 +171,17 @@
                 <table class="w-full mt-4">
                     <thead>
                         <tr>
-                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                            <th class="py-2 bg-slate-400 border" style="">Product Code</th>
-                            <th class="py-2 bg-slate-400  border">Supplier Name</th>
-                            <th class="py-2 bg-slate-400  rounded-tr-md">Unloaded Qty</th>
+                            <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
+                            <th class="py-2 bg-slate-400 border" style="" rowspan="2">Product Code</th>
+                            <th class="py-2 bg-slate-400  border" rowspan="2">Supplier Name</th>
+                            <th class="py-2 bg-slate-400  border" colspan="3">Scanned (Count) Qty</th>
+                            <th class="py-2 bg-slate-400  rounded-tr-md" rowspan="2">Unloaded Qty</th>
+                        </tr>
+                        <tr>
+
+                            <th class="py-2 bg-slate-400  border">L</th>
+                            <th class="py-2 bg-slate-400  border">M</th>
+                            <th class="py-2 bg-slate-400  border">S</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -183,6 +190,9 @@
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $index+1 }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->product->bar_code }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->product->supplier_name }}</td>
+                                <td class="ps-2 border border-slate-400 border-t-0 py-1 w-10 text-center ">{{ get_per($tem->product_id,'L') }}</td>
+                                <td class="ps-2 border border-slate-400 border-t-0 py-1 w-10 text-center ">{{ get_per($tem->product_id,'M') }}</td>
+                                <td class="ps-2 border border-slate-400 border-t-0 py-1 w-10 text-center ">{{ get_per($tem->product_id,'S') }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->scanned_qty }}</td>
                             </tr>
                         @endforeach
