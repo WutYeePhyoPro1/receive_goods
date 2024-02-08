@@ -16,6 +16,11 @@ class DriverInfo extends Model
         return $this->belongsTo(Truck::class,'type_truck','id');
     }
 
+    public function received()
+    {
+        return $this->belongsTo(GoodsReceive::class,'received_goods_id','id');
+    }
+
     public function gates()
     {
         return $this->belongsTo(CarGate::class,'gate','id');

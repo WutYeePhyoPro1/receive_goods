@@ -49,16 +49,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('update_user','update_user')->name('update_user');
 
             //ajax
-            route::post('search_doc','search_doc')->name('search_doc');
-            route::post('barcode_scan','barcode_scan')->name('barcode_scan');
-            route::post('confirm_btn','confirm')->name('confirm');
             // route::get('edit_goods/{id}','edit_goods')->name('edit_goods');
-            route::get('finish_goods/{id}','finish_goods')->name('finish_goods');
+
             route::get('get_driver_info/{id}','driver_info');
             route::post('active_user','active_user')->name('active_user');
             route::post('del_user','del_user')->name('del_user');
             route::post('del_doc','del_doc')->name('del_doc');
-            route::post('del_exceed','del_exceed')->name('del_exceed');
+
             route::post('add_product_qty','add_product_qty')->name('add_product_qty');
             route::post('search_car','search_car')->name('search_car');
             route::post('get_car','get_car')->name('get_car');
@@ -76,6 +73,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('detail_truck/{id}','detail_truck')->name('detail_truck');
             route::get('detail_document/{id}','detail_document')->name('detail_document');
 
+            route::get('Scan_count/{id}','Scan_count')->name('Scan_count');
+
             route::get('excel_view','excel_view')->name('excel_view');
             route::get('detail_excel_export/{id}/{action}','detail_excel_export')->name('detail_excel_export');
 
@@ -83,11 +82,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('truck_detail_pdf/{id}','truck_detail_pdf')->name('truck_detail_pdf');
             route::get('document_detail_pdf/{id}','document_detail_pdf')->name('document_detail_pdf');
             route::get('doc_detail_pdf/{id}','doc_detail_pdf')->name('doc_detail_pdf');
+            route::get('scan_count_pdf/{id}','scan_count_pdf')->name('scan_count_pdf');
 
             route::post('excel_export','excel_export')->name('excel_export');
         });
 
         route::group(['controller'=>ActionController::class],function(){
             route::post('edit_scan','edit_scan')->name('edit_scan');
+
+            //ajax
+            route::post('barcode_scan','barcode_scan')->name('barcode_scan');
+            route::post('search_doc','search_doc')->name('search_doc');
+            route::post('confirm_btn','confirm')->name('confirm');
+            route::get('finish_goods/{id}','finish_goods')->name('finish_goods');
+            route::post('del_exceed','del_exceed')->name('del_exceed');
         });
 });
