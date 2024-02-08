@@ -125,7 +125,7 @@
                                         <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->product->bar_code }}</td>
                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->product->supplier_name }}</td>
                                         <td class="ps-2 border border-slate-400 border-t-0 qty">
-                                            @if (getAuth()->role == 4 || getAuth()->role == 1)
+                                            @if (getAuth()->role == 4 || getAuth()->role == 1 || getAuth()->role == 3)
                                                 <input type="number" data-old="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" data-pd="{{ $tem->product_id }}" data-driver="{{ $driver->id }}" value="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" class="border ps-4 appearance-none scanned_qty">
                                             @else
                                                 {{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}
