@@ -23,7 +23,7 @@
         </div>
 
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            {{-- <div>
+            <div class="mr-4">
                 <p class="text-sm text-gray-700 leading-5">
                     {!! __('Showing') !!}
                     @if ($paginator->firstItem())
@@ -37,7 +37,7 @@
                     <span class="font-medium">{{ $paginator->total() }}</span>
                     {!! __('results') !!}
                 </p>
-            </div> --}}
+            </div>
 
             <div>
                 <span class="relative z-0 inline-flex shadow-sm rounded-md">
