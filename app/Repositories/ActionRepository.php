@@ -51,7 +51,7 @@ Class ActionRepository implements ActionRepositoryInterface
             $track->save();
         }
 
-        $scan_track = ScanTrack::where(['driver_info_id'=>$driver,'user_id'=>getAuth()->id,'unit'=>$unit])->first();
+        $scan_track = ScanTrack::where(['driver_info_id'=>$driver,'user_id'=>getAuth()->id,'unit'=>$unit,'product_id'=>$pd])->first();
         if($scan_track)
         {
             $count = $scan_track->count + 1;

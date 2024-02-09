@@ -101,7 +101,7 @@ class ActionController extends Controller
     //barcode scan
     public function barcode_scan(Request $request)
     {
-        // dd('yes');
+
         $all    = $request->data;
         $id     = $request->id;
         $item   = preg_replace('/\D/','',$all);
@@ -113,7 +113,9 @@ class ActionController extends Controller
         $product = Product::whereIn('document_id',$doc_ids)
                             ->where('bar_code',$item)
                             ->first();
+
         if($product){
+
             $all_product =Product::whereIn('document_id',$doc_ids)
                                 ->where('bar_code',$item)
                                 ->orderBy('id','asc')
@@ -141,6 +143,7 @@ class ActionController extends Controller
             $per        = $qty;
             $total_scan = $qty;
             $count = 0;
+
             if($request->car == '')
             {
                 $driver_info = DriverInfo::where(['received_goods_id'=>$id , 'user_id'=>getAuth()->id])
@@ -150,6 +153,7 @@ class ActionController extends Controller
                 $driver_info = DriverInfo::where('id',$request->car)
                                         ->first();
             }
+
             if(count($all_product) == 1)
             {
                 $scanned = $product->scanned_qty + $qty;

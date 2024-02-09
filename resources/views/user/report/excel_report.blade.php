@@ -10,67 +10,89 @@
     <div class="">
         <table class="w-full mt-4">
             <thead>
+                @if ($report == 'product')
                 <tr class="">
-                    @if ($report == 'product')
-                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                        <th class="py-2 bg-slate-400 border">Document</th>
-                        <th class="py-2 bg-slate-400 border">Product</th>
-                        <th class="py-2 bg-slate-400 border">Total Qty</th>
-                        <th class="py-2 bg-slate-400  border">Scanned Qty</th>
-                        <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
-                    @elseif ($report == 'finish')
-                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                        <th class="py-2 bg-slate-400 border">Document</th>
-                        <th class="py-2 bg-slate-400 border">Source</th>
-                        <th class="py-2 bg-slate-400 border">Total Truck</th>
-                        <th class="py-2 bg-slate-400  border">Total Qty</th>
-                        <th class="py-2 bg-slate-400  border">Total Scanned Qty</th>
-                        <th class="py-2 bg-slate-400  border">Duration</th>
-                        <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
-                    @elseif($report == 'truck')
-                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                        <th class="py-2 bg-slate-400 border">Truck No</th>
-                        <th class="py-2 bg-slate-400 border">Driver Name</th>
-                        <th class="py-2 bg-slate-400 border">Truck Type</th>
-                        <th class="py-2 bg-slate-400  border">Loaded Goods</th>
-                        <th class="py-2 bg-slate-400  border">Gate</th>
-                        <th class="py-2 bg-slate-400  border">Duration</th>
-                        <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
-                    @elseif($report == 'remove')
-                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                        <th class="py-2 bg-slate-400 border">Document No</th>
-                        <th class="py-2 bg-slate-400 border">Product Code</th>
-                        <th class="py-2 bg-slate-400 border">Removed Qty</th>
-                        <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
-                    @elseif($report == 'po_to')
-                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                        <th class="py-2 bg-slate-400 border">Document No(REG)</th>
-                        <th class="py-2 bg-slate-400 border">Document No</th>
-                        <th class="py-2 bg-slate-400 border">Truck Count</th>
-                        <th class="py-2 bg-slate-400 rounded-tr-md">Products Categories</th>
-                    @elseif ($report == 'shortage')
-                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                        <th class="py-2 bg-slate-400 border">Document No(REG)</th>
-                        <th class="py-2 bg-slate-400 border">Document No</th>
-                        <th class="py-2 bg-slate-400 border">Product Code</th>
-                        <th class="py-2 bg-slate-400 border">Supplier Name</th>
-                        <th class="py-2 bg-slate-400 border">Shortage Qty</th>
-                        <th class="py-2 bg-slate-400 rounded-tr-md">excess Qty</th>
-                    @endif
+                    <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
+                    <th class="py-2 bg-slate-400 border" rowspan="2">REG Document</th>
+                    <th class="py-2 bg-slate-400 border" rowspan="2">PO/TO Document</th>
+                    <th class="py-2 bg-slate-400 border" rowspan="2">Product</th>
+                    <th class="py-2 bg-slate-400 border" colspan="3">Scanned (Count) Qty</th>
+                    <th class="py-2 bg-slate-400  border" rowspan="2">Scanned Qty</th>
+                    <th class="py-2 bg-slate-400 border" rowspan="2">Product Qty</th>
+                    <th class="py-2 bg-slate-400  rounded-tr-md" rowspan="2">Created At</th>
+                </tr>
+                <tr class="">
+                    <th class="py-2 bg-slate-400 border" >L</th>
+                    <th class="py-2 bg-slate-400  border" >M</th>
+                    <th class="py-2 bg-slate-400 border" >S</th>
 
                 </tr>
+            @elseif ($report == 'finish')
+                <tr class="">
+                    <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                    <th class="py-2 bg-slate-400 border">Document</th>
+                    <th class="py-2 bg-slate-400 border">Source</th>
+                    <th class="py-2 bg-slate-400 border">Total Truck</th>
+                    <th class="py-2 bg-slate-400  border">Total Qty</th>
+                    <th class="py-2 bg-slate-400  border">Total Scanned Qty</th>
+                    <th class="py-2 bg-slate-400  border">Duration</th>
+                    <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
+                <tr class="">
+            @elseif($report == 'truck')
+                <tr>
+                    <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                    <th class="py-2 bg-slate-400 border">Truck No</th>
+                    <th class="py-2 bg-slate-400 border">Driver Name</th>
+                    <th class="py-2 bg-slate-400 border">Truck Type</th>
+                    <th class="py-2 bg-slate-400  border">Loaded Goods</th>
+                    <th class="py-2 bg-slate-400  border">Gate</th>
+                    <th class="py-2 bg-slate-400  border">Duration</th>
+                    <th class="py-2 bg-slate-400  rounded-tr-md">Arrived At</th>
+                </tr>
+            @elseif($report == 'remove')
+                <tr>
+                    <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                    <th class="py-2 bg-slate-400 border">Document No</th>
+                    <th class="py-2 bg-slate-400 border">Product Code</th>
+                    <th class="py-2 bg-slate-400 border">Removed Qty</th>
+                    <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
+                </tr>
+            @elseif($report == 'po_to')
+                <tr>
+                    <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                    <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                    <th class="py-2 bg-slate-400 border">Document No</th>
+                    <th class="py-2 bg-slate-400 border">Truck Count</th>
+                    <th class="py-2 bg-slate-400 rounded-tr-md">Products Categories</th>
+                </tr>
+            @elseif ($report == 'shortage')
+                <tr>
+                    <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                    <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                    <th class="py-2 bg-slate-400 border">Document No</th>
+                    <th class="py-2 bg-slate-400 border">Product Code</th>
+                    <th class="py-2 bg-slate-400 border">Supplier Name</th>
+                    <th class="py-2 bg-slate-400 border">Shortage Qty</th>
+                    <th class="py-2 bg-slate-400 rounded-tr-md">excess Qty</th>
+                </tr>
+            @endif
             </thead>
             <tbody>
                 @if ($report == 'product')
                     @foreach ($all as $index=>$item)
-                        <tr>
-                            <td class="h-10 text-center border border-slate-400">{{ $index+1  }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
-                            <td class="h-10 text-center border border-slate-400 ">{{ $item->bar_code }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
-                        </tr>
+
+                            <tr>
+                                <td class="h-10 text-center border border-slate-400">{{ $index+1  }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->doc->received->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ $item->bar_code }}</td>
+                                <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'L') }}</td>
+                                <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'M') }}</td>
+                                <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'S') }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
+                            </tr>
                     @endforeach
                 @elseif ($report == 'finish')
                     @foreach ($all as $index=>$item)

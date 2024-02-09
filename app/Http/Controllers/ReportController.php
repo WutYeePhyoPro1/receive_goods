@@ -34,7 +34,7 @@ class ReportController extends Controller
         $log->action    = "go to product report page";
         $log->save();
 
-        $product = [];
+        $product_id = [];
 
         if(request('search_data') && !request('search'))
         {
@@ -46,7 +46,7 @@ class ReportController extends Controller
             if($main)
             {
                 $doc    = Document::where('received_goods_id',$main->id)->pluck('id');
-                $product = Product::whereIn('document_id',$doc)->pluck('id');
+                $product_id = Product::whereIn('document_id',$doc)->pluck('id');
             }
             // dd($main);
         }
@@ -54,7 +54,7 @@ class ReportController extends Controller
         {
             $doc    = Document::where('document_no',request('search_data'))->first();
             if($doc){
-                $product= Product::where('document_id',$doc->id)->pluck('id');
+                $product_id= Product::where('document_id',$doc->id)->pluck('id');
             }
         }
         $report = 'product';
@@ -62,8 +62,8 @@ class ReportController extends Controller
         $product = Product::when(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'), function($q){
                                 $q->whereDate('created_at',Carbon::today());
         })
-                            ->when((request('search') == 'main_no' || request('search') == 'document_no') && request('search_data'),function($q) use($product){
-                                $q->whereIn('id',$product);
+                            ->when((request('search') == 'main_no' || request('search') == 'document_no') && request('search_data'),function($q) use($product_id){
+                                $q->whereIn('id',$product_id);
                             })
                             ->when(request('search') == 'product_code' && request('search_data'),function($q){
                                 $q->where('bar_code',request('search_data'));
@@ -74,8 +74,29 @@ class ReportController extends Controller
                             ->when(request('to_date'),function($q){
                                 $q->whereDate('created_at','<=',request('to_date'));
                             })
+                            ->orderBy('id','asc')
                             ->paginate(15);
-        return view('user.report.report',compact('report','product','url'));
+
+        $product_sum = Product::when(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'), function($q){
+                                $q->whereDate('created_at',Carbon::today());
+        })
+                            ->when((request('search') == 'main_no' || request('search') == 'document_no') && request('search_data'),function($q) use($product_id){
+                                $q->whereIn('id',$product_id);
+                            })
+                            ->when(request('search') == 'product_code' && request('search_data'),function($q){
+                                $q->where('bar_code',request('search_data'));
+                            })
+                            ->when(request('from_date'),function($q){
+                                $q->whereDate('created_at','>=',request('from_date'));
+                            })
+                            ->when(request('to_date'),function($q){
+                                $q->whereDate('created_at','<=',request('to_date'));
+                            })
+                            ->get();
+
+        $all_sum['qty_sum']        = $product_sum->Sum('qty');
+        $all_sum['scanned_sum']       = $product_sum->Sum('scanned_qty');
+        return view('user.report.report',compact('report','product','url','all_sum'));
     }
 
     public function finished_documents()
@@ -422,17 +443,17 @@ class ReportController extends Controller
         {
             $truck = DriverInfo::where('id',$id)->first();
             $truck_no = $truck->truck_no;
-            return Excel::download(new DetailExcel($id,$action),"$truck_no$date.xlsx");
+            return Excel::download(new DetailExcel($id,$action),$truck_no.'_'.$date.".xlsx");
         }elseif($action == 'document')
         {
             $document   = Document::where('id',$id)->first();
             $doc_no     = $document->document_no;
-            return Excel::download(new DetailExcel($id,$action),"$doc_no$date.xlsx");
+            return Excel::download(new DetailExcel($id,$action),$doc_no.'_'.$date.".xlsx");
         }elseif($action == 'doc')
         {
             $document   = GoodsReceive::find($id);
             $doc_no     = $document->document_no;
-            return Excel::download(new DetailExcel($id,$action),"$doc_no$date.xlsx");
+            return Excel::download(new DetailExcel($id,$action),$doc_no.'_'.$date.".xlsx");
         }elseif($action == 'scan')
         {
             $driver     = DriverInfo::where('id',$id)->first();
@@ -593,7 +614,6 @@ class ReportController extends Controller
         $log->history   = route('detail_document',['id'=>$id]);
         $log->action    = "Go To Document(REG) Detail Page";
         $log->save();
-
         $detail     = 'document';
         $document   = Document::where('id',$id)->first();
         $reg        = GoodsReceive::where('id',$document->received_goods_id)->first();

@@ -17,10 +17,10 @@
             <button  class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500" id="search_btn" hidden>Search</button>
             @endif
             @if (count($driver) > 0)
-                <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info"><i class='bx bx-id-card'></i></button>
+                <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info" title="View Car Info"><i class='bx bx-id-card'></i></button>
             @else
                 @if (!isset($status))
-                    <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="add_driver"><i class='bx bx-car'></i></button>
+                    <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="add_driver" title="Add Car Info"><i class='bx bx-car'></i></button>
                 @endif
             @endif
         </div>
@@ -29,7 +29,10 @@
                 <span class=" mt-2 -translate-x-6  mr-3" >Document No : <b class="text-xl" id="doc_no">{{ $main->document_no ?? '' }}</b></span>
                 <span class=" mt-2 -translate-x-6  ms-3" >Source : <b class="text-xl" id="source">{{ $main->source_good->name ?? '' }}</b></span>
             </div>
-            @if (!isset($status) && isset($cur_driver) && $cur_driver->user_id == getAuth()->id)
+            @if ($main->status == 'complete')
+                <span class="text-emerald-600 font-bold text-3xl ms-40 underline">Complete</span>
+            @endif
+            @if (!isset($status))
             <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
             <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
             @endif
@@ -140,7 +143,7 @@
                                 <th class="border border-slate-400 border-t-0">Document No</th>
                                 <th class="border border-slate-400 border-t-0">Box Barcode</th>
                                 <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
-                                <th class="border border-slate-400 border-t-0 border-r-0">Quantity(Box)</th>
+                                <th class="border border-slate-400 border-t-0 border-r-0">Quantity</th>
                             </tr>
                         </thead>
                             <?php $i=0 ?>
@@ -212,7 +215,7 @@
                                 <th class="border border-slate-400 border-t-0">Document No</th>
                                 <th class="border border-slate-400 border-t-0">Box Barcode</th>
                                 <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
-                                <th class="border border-slate-400 border-t-0 border-r-0">Quantity(Box)</th>
+                                <th class="border border-slate-400 border-t-0 border-r-0">Quantity</th>
                             </tr>
                         </thead>
 

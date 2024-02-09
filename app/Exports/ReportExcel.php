@@ -56,9 +56,8 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
             }
             }
 
-            $product = Product::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date'])  && !$this->filter['search_data'] , function($q){
-                                $q->whereYear('created_at',Carbon::now()->format('Y'))
-                                ->whereMonth('created_at',Carbon::now()->format('m'));
+            $product = Product::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date'])  && !isset($this->filter['search_data']) , function($q){
+                                $q->whereDate('created_at',Carbon::today());
             })
                                 ->when( isset($this->filter['search']) && ($this->filter['search'] == 'main_no' || $this->filter['search'] == 'document_no') && $this->filter['search_data'],function($q) use($product){
                                     $q->whereIn('id',$product);
@@ -105,8 +104,7 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
                                     $q->where('start_date','<=',$this->filter['to_date']);
                                 })
                                 ->when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date']) && !isset($this->filter['branch']) && !isset($this->filter['search_data']) , function($q){
-                                    $q->whereYear('created_at',Carbon::now()->format('Y'))
-                                    ->whereMonth('created_at',Carbon::now()->format('m'));
+                                    $q->whereDate('created_at',Carbon::today());
                 })
                                 ->whereNotNull('total_duration')
                                 ->where('status','complete')
@@ -141,8 +139,7 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
         }
 
         $truck  = Driverinfo::when(!isset($this->filter['search']) && !isset($this->filter['search_data'])  && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date'])  && !isset($this->filter['gate']) , function($q){
-                                $q->whereYear('created_at',Carbon::now()->format('Y'))
-                                ->whereMonth('created_at',Carbon::now()->format('m'));
+                            $q->whereDate('created_at',Carbon::today());
                         })
                             ->when(isset($this->filter['search']) && ($this->filter['search'] == 'main_no' || $this->filter['search'] == 'product_code' || $this->filter['search'] == 'truck_no' || $this->filter['search'] == 'driver_name') && $this->filter['search_data'],function($q) use($truck){
                                 $q-> whereIn('id', $truck);
@@ -185,8 +182,7 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
 
         $data = RemoveTrack::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date']) && !isset($this->filter['search_data']),function($q)
                             {
-                                $q->whereYear('created_at',Carbon::now()->format('Y'))
-                                ->whereMonth('created_at',Carbon::now()->format('m'));
+                                $q->whereDate('created_at',Carbon::today());
                             })
                             ->when( isset($this->filter['search']) && $this->filter['search'] == 'main_no' && $this->filter['search_data'] , function($q) use($no){
                                 $q->whereIn('id',$no);
@@ -232,8 +228,7 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
                 }
                     $docs = Document::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date']) && !isset($this->filter['search_data']),function($q)
                                     {
-                                        $q->whereYear('created_at',Carbon::now()->format('Y'))
-                                        ->whereMonth('created_at',Carbon::now()->format('m'));
+                                        $q->whereDate('created_at',Carbon::today());
                                     })
                                     ->when(isset($this->filter['search']) && $this->filter['search'] == 'main_no' && $this->filter['search_data'],function($q) use($no) {
 
@@ -282,8 +277,7 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
         $document_ids   = Document::whereIn('received_goods_id',$reg_ids)->pluck('id');
         $data   = Product::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date']) && !isset($this->filter['search_data']),function($q)
                         {
-                            $q->whereYear('created_at',Carbon::now()->format('Y'))
-                            ->whereMonth('created_at',Carbon::now()->format('m'));
+                            $q->whereDate('created_at',Carbon::today());
                         })
                         ->when(isset($this->filter['search']) && $this->filter['search'] != 'product_code' && $this->filter['search_data'],function($q) use($pd_ids) {
 

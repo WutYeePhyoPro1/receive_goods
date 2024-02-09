@@ -131,7 +131,7 @@
                 <div class="">
                     <button type="submit" class="bg-amber-400 h-10 w-[40%] rounded-lg ms-4 mt-9 hover:bg-amber-600 hover:text-white">Search</button>
                     @if (($report == 'product' && count($product) > 0) || ($report == 'shortage' && count($data) > 0) || ($report == 'finish' && count($data) > 0) || ($report == 'truck' && count($truck) > 0) || ($report == 'remove' && count($data) > 0) || ($report == 'po_to' && count($docs) > 0))
-                        <button type="button" class="bg-sky-400 text-white text-xl h-10 w-[20%] rounded-lg ms-4 mt-9 hover:bg-sky-600 hover:text-white" onclick="$('#excel_form').submit()"><i class='bx bx-export'></i></button>
+                        <button type="button" class="bg-sky-400 text-white text-xl h-10 w-[20%] rounded-lg ms-4 mt-9 hover:bg-sky-600 hover:text-white" title="export excel" onclick="$('#excel_form').submit()"><i class='bx bx-export'></i></button>
                     @endif
                 </div>
             </div>
@@ -146,56 +146,79 @@
         <div class="">
             <table class="w-full mt-4">
                 <thead>
-                    <tr class="">
-                        @if ($report == 'product')
-                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                            <th class="py-2 bg-slate-400 border">REG Document</th>
-                            <th class="py-2 bg-slate-400 border">PO/TO Document</th>
-                            <th class="py-2 bg-slate-400 border">Product</th>
-                            <th class="py-2 bg-slate-400 border">Total Qty</th>
-                            <th class="py-2 bg-slate-400  border">Scanned Qty</th>
-                            <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
-                        @elseif ($report == 'finish')
-                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                            <th class="py-2 bg-slate-400 border">Document</th>
-                            <th class="py-2 bg-slate-400 border">Source</th>
-                            <th class="py-2 bg-slate-400 border">Total Truck</th>
-                            <th class="py-2 bg-slate-400  border">Total Qty</th>
-                            <th class="py-2 bg-slate-400  border">Total Scanned Qty</th>
-                            <th class="py-2 bg-slate-400  border">Duration</th>
-                            <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
-                        @elseif($report == 'truck')
-                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                            <th class="py-2 bg-slate-400 border">Truck No</th>
-                            <th class="py-2 bg-slate-400 border">Driver Name</th>
-                            <th class="py-2 bg-slate-400 border">Truck Type</th>
-                            <th class="py-2 bg-slate-400  border">Loaded Goods</th>
-                            <th class="py-2 bg-slate-400  border">Gate</th>
-                            <th class="py-2 bg-slate-400  border">Duration</th>
-                            <th class="py-2 bg-slate-400  rounded-tr-md">Arrived At</th>
-                        @elseif($report == 'remove')
-                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                            <th class="py-2 bg-slate-400 border">Document No</th>
-                            <th class="py-2 bg-slate-400 border">Product Code</th>
-                            <th class="py-2 bg-slate-400 border">Removed Qty</th>
-                            <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
-                        @elseif($report == 'po_to')
-                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                            <th class="py-2 bg-slate-400 border">Document No(REG)</th>
-                            <th class="py-2 bg-slate-400 border">Document No</th>
-                            <th class="py-2 bg-slate-400 border">Truck Count</th>
-                            <th class="py-2 bg-slate-400 rounded-tr-md">Products Categories</th>
-                        @elseif ($report == 'shortage')
-                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                            <th class="py-2 bg-slate-400 border">Document No(REG)</th>
-                            <th class="py-2 bg-slate-400 border">Document No</th>
-                            <th class="py-2 bg-slate-400 border">Product Code</th>
-                            <th class="py-2 bg-slate-400 border">Supplier Name</th>
-                            <th class="py-2 bg-slate-400 border">Shortage Qty</th>
-                            <th class="py-2 bg-slate-400 rounded-tr-md">excess Qty</th>
-                        @endif
+                    @if ($report == 'product')
+                            <tr class="">
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
+                                <th class="py-2 bg-slate-400 border" rowspan="2">REG Document</th>
+                                <th class="py-2 bg-slate-400 border" rowspan="2">PO/TO Document</th>
+                                <th class="py-2 bg-slate-400 border" rowspan="2">Product</th>
+                                <th class="py-2 bg-slate-400 border" colspan="3">Scanned (Count) Qty</th>
+                                <th class="py-2 bg-slate-400  border" rowspan="2">Scanned Qty</th>
+                                <th class="py-2 bg-slate-400 border" rowspan="2">Product Qty</th>
+                                <th class="py-2 bg-slate-400  rounded-tr-md" rowspan="2">Created At</th>
+                            </tr>
+                            <tr class="">
+                                <th class="py-2 bg-slate-400 border" >L</th>
+                                <th class="py-2 bg-slate-400  border" >M</th>
+                                <th class="py-2 bg-slate-400 border" >S</th>
 
-                    </tr>
+                            </tr>
+                        @elseif ($report == 'finish')
+                            <tr class="">
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                <th class="py-2 bg-slate-400 border">Document</th>
+                                <th class="py-2 bg-slate-400 border">Source</th>
+                                <th class="py-2 bg-slate-400 border">Total Truck</th>
+                                <th class="py-2 bg-slate-400  border">Total Qty</th>
+                                <th class="py-2 bg-slate-400  border">Total Scanned Qty</th>
+                                <th class="py-2 bg-slate-400  border">Duration</th>
+                                <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
+                            <tr class="">
+                        @elseif($report == 'truck')
+                            <tr>
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
+                                <th class="py-2 bg-slate-400 border" rowspan="2">Truck No</th>
+                                <th class="py-2 bg-slate-400 border" rowspan="2">Driver Name</th>
+                                <th class="py-2 bg-slate-400 border" rowspan="2">Truck Type</th>
+                                <th class="py-2 bg-slate-400  border" colspan="3">Scan(Count) Qty</th>
+                                <th class="py-2 bg-slate-400  border" rowspan="2">Unloaded Goods</th>
+                                <th class="py-2 bg-slate-400  border" rowspan="2">Gate</th>
+                                <th class="py-2 bg-slate-400  border" rowspan="2">Duration</th>
+                                <th class="py-2 bg-slate-400  rounded-tr-md" rowspan="2">Arrived At</th>
+                            </tr>
+                            <tr>
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10">L</th>
+                                <th class="py-2 bg-slate-400 border w-10">M</th>
+                                <th class="py-2 bg-slate-400 border w-10">S</th>
+
+                            </tr>
+                        @elseif($report == 'remove')
+                            <tr>
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                <th class="py-2 bg-slate-400 border">Document No</th>
+                                <th class="py-2 bg-slate-400 border">Product Code</th>
+                                <th class="py-2 bg-slate-400 border">Removed Qty</th>
+                                <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
+                            </tr>
+                        @elseif($report == 'po_to')
+                            <tr>
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                                <th class="py-2 bg-slate-400 border">Document No</th>
+                                <th class="py-2 bg-slate-400 border">Truck Count</th>
+                                <th class="py-2 bg-slate-400 rounded-tr-md">Products Categories</th>
+                            </tr>
+                        @elseif ($report == 'shortage')
+                            <tr>
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                                <th class="py-2 bg-slate-400 border">Document No</th>
+                                <th class="py-2 bg-slate-400 border">Product Code</th>
+                                <th class="py-2 bg-slate-400 border">Supplier Name</th>
+                                <th class="py-2 bg-slate-400 border">Shortage Qty</th>
+                                <th class="py-2 bg-slate-400 rounded-tr-md">excess Qty</th>
+                            </tr>
+                        @endif
                 </thead>
                 <tbody>
                     @if ($report == 'product')
@@ -205,8 +228,11 @@
                                 <td class="h-10 text-center border border-slate-400">{{ $item->doc->received->document_no }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
                                 <td class="h-10 text-center border border-slate-400 ">{{ $item->bar_code }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
+                                <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'L') }}</td>
+                                <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'M') }}</td>
+                                <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'S') }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
                             </tr>
                         @endforeach
@@ -230,6 +256,9 @@
                                     <td class="h-10 text-center border border-slate-400">{{ $item->truck_no }}</td>
                                     <td class="h-10 text-center border border-slate-400 ">{{ $item->driver_name }}</td>
                                     <td class="h-10 text-center border border-slate-400">{{ $item->truck->truck_name }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ get_scan_count_truck($item->id,'L') }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ get_scan_count_truck($item->id,'M') }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ get_scan_count_truck($item->id,'S') }}</td>
                                     <td class="h-10 text-center border border-slate-400">{{ get_scanned_qty($item->id) }}</td>
                                     <td class="h-10 text-center border border-slate-400">{{ $item->gates->name }}</td>
                                     <td class="h-10 text-center border border-slate-400">{{ $item->duration }}</td>
@@ -269,8 +298,19 @@
                             </tr>
                         @endforeach
                     @endif
+                    @if($report == 'product')
+                        <tbody>
+                            <tr>
+                                <td colspan="7"></td>
+                                <td class="h-10 text-center border border-slate-400">Total Scanned Qty : <b>{{ $all_sum['scanned_sum'] }}</b></td>
+                                <td class="h-10 text-center border border-slate-400">Total Qty : <b>{{ $all_sum['qty_sum'] }}</b></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    @endif
                 </tbody>
             </table>
+
         </div>
         <form action="{{ route('excel_export') }}" id="excel_form" method="POST">
             @csrf

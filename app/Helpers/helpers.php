@@ -3,10 +3,11 @@
 use Carbon\Carbon;
 use App\Models\Product;
 use App\Models\Document;
-use App\Models\DriverInfo;
-use App\Models\GoodsReceive;
-use App\Models\RemoveTrack;
 use App\Models\Tracking;
+use App\Models\ScanTrack;
+use App\Models\DriverInfo;
+use App\Models\RemoveTrack;
+use App\Models\GoodsReceive;
 use Illuminate\Support\Facades\DB;
 
     function getAuth()
@@ -61,8 +62,10 @@ use Illuminate\Support\Facades\DB;
         if($main->status == 'complete')
         {
             return Product::where('document_id',$id)
-                            ->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
-                            ->orwhere(DB::raw('scanned_qty') , '<', DB::raw('qty'))
+                            ->where(function($q){
+                                $q->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
+                                ->orwhere(DB::raw('scanned_qty') , '<', DB::raw('qty'));
+                            })
                             ->get();
         }else{
             return Product::where('document_id',$id)
@@ -308,4 +311,15 @@ use Illuminate\Support\Facades\DB;
             }
         }
         return $remove_pd;
+    }
+
+    function get_per($pd,$unit)
+    {
+        $track = ScanTrack::where(['product_id'=>$pd,'unit'=>$unit])->sum('count');
+        return $track;
+    }
+
+    function get_scan_count_truck($driver,$unit)
+    {
+        return ScanTrack::where(['driver_info_id'=>$driver,'unit'=>$unit])->sum('count');
     }
