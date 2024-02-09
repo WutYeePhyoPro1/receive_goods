@@ -317,7 +317,7 @@ class userController extends Controller
         // $driver = DriverInfo::where('received_goods_id',$id)->get();
         $log            = new Log();
         $log->user_id   = getAuth()->id;
-        $log->history   = route('car');
+        $log->history   = route('car',['id'=>$id]);
         $log->action    = "Store Car Infomation";
         $log->save();
 
