@@ -139,7 +139,7 @@ class ActionController extends Controller
                 as temp(product_code varchar(50),qty varchar(50))
                 )as erpdb
             ");
-            $qty = (int)($data[0]->qty);
+            $qty = (int)($data[0]->qty) == 0 ? 1 : (int)($data[0]->qty) ;
             $per        = $qty;
             $total_scan = $qty;
             $count = 0;
