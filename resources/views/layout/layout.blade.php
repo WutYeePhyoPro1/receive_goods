@@ -66,8 +66,15 @@
                     </li>
                 @endif
 
-                <li style="margin:50px 0;border-bottom:1px solid rgb(110, 109, 109)">
+                <li class="sidebar_items" onclick="this.childNodes[1].click()">
+                    <a href="{{ asset('image/Received goods .pdf') }}" target="_blank" id="user_guide" hidden></a>
+                    <div class="sidebar_text">
+                        <i class='bx bxs-book-content' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
+                        <span>User's Guide</span>
+                    </div>
+                </li>
 
+                <li style="margin:50px 0;border-bottom:1px solid rgb(110, 109, 109)">
                 </li>
 
                 <li class="sidebar_items" style="margin-bottom:10px">
