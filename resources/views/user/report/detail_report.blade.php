@@ -15,9 +15,7 @@
                     <span class=" -translate-x-6  ms-3" >Truck No : <b class="text-xl" id="source">{{ $driver->truck_no ?? '' }}</b></span>
                     <span class=" -translate-x-6  ms-3" >Truck Type : <b class="text-xl" id="source">{{ $driver->truck->truck_name ?? '' }}</b></span>
                     <span class=" -translate-x-6  ms-3" >Arrived At : <b class="text-xl" id="source">{{ $driver->start_date .' '. date('g:i A',strtotime($driver->start_time)) }}</b></span>
-                    <span class=" -translate-x-6  ms-3 cursor-pointer" @if ($scan_track > 0)
-                        onclick="javascript:window.location.href = '/Scan_count/'+{{ $driver->id }}"
-                    @endif>Scan Count : <b class="text-xl" id="source">{{ $scan_track ?? '' }}</b></span>
+                    <span class=" -translate-x-6  ms-3 cursor-pointer" >Scan Count : <b class="text-xl" id="source">{{ $scan_track ?? '' }}</b></span>
                     <span class=" -translate-x-6  ms-3" >Unload Duration : <b class="text-xl" id="source">{{ $driver->duration ?? '' }}</b></span>
 
             @elseif ($detail == 'document')
@@ -56,31 +54,44 @@
             @if ($detail != 'document')
                 <table class="w-full mt-4">
                     <thead>
-                        <tr class="">
+
                             @if ($detail == 'doc')
-                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                                <th class="py-2 bg-slate-400 border">Document No</th>
-                                <th class="py-2 bg-slate-400  border">Bar Code</th>
-                                <th class="py-2 bg-slate-400  border">Product Name</th>
-                                <th class="py-2 bg-slate-400  border">Total Qty</th>
-                                <th class="py-2 bg-slate-400  border">Scanned Qty</th>
-                                <th class="py-2 bg-slate-400  border">Shortage</th>
-                                <th class="py-2 bg-slate-400  border">Surplus</th>
-                                <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
+                                <tr>
+                                    <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                    <th class="py-2 bg-slate-400 border">Document No</th>
+                                    <th class="py-2 bg-slate-400  border">Bar Code</th>
+                                    <th class="py-2 bg-slate-400  border">Product Name</th>
+                                    <th class="py-2 bg-slate-400  border">Total Qty</th>
+                                    <th class="py-2 bg-slate-400  border">Scanned Qty</th>
+                                    <th class="py-2 bg-slate-400  border">Shortage</th>
+                                    <th class="py-2 bg-slate-400  border">Surplus</th>
+                                    <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
+                                </tr>
                             @elseif ($detail == 'truck')
-                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                                <th class="py-2 bg-slate-400 border">Document No</th>
-                                <th class="py-2 bg-slate-400  border">Bar Code</th>
-                                <th class="py-2 bg-slate-400  border">Product Name</th>
-                                <th class="py-2 bg-slate-400  rounded-tr-md">Unloaded Qty</th>
+                                <tr>
+                                    <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
+                                    <th class="py-2 bg-slate-400 border" rowspan="2">Document No</th>
+                                    <th class="py-2 bg-slate-400  border" rowspan="2">Bar Code</th>
+                                    <th class="py-2 bg-slate-400  border" rowspan="2">Product Name</th>
+                                    <th class="py-2 bg-slate-400  border" colspan="3">Scan(Count) Qty</th>
+                                    <th class="py-2 bg-slate-400  rounded-tr-md" rowspan="2">Unloaded Qty</th>
+                                </tr>
+                                <tr>
+                                    <th class="py-2 bg-slate-400  rounded-tl-md w-10">L</th>
+                                    <th class="py-2 bg-slate-400 border w-10">M</th>
+                                    <th class="py-2 bg-slate-400 border w-10">S</th>
+
+                                </tr>
                             @elseif ($detail == 'scan')
-                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                                <th class="py-2 bg-slate-400 border">Bar Code</th>
-                                <th class="py-2 bg-slate-400  border">Unit</th>
-                                <th class="py-2 bg-slate-400  border">Per</th>
-                                <th class="py-2 bg-slate-400  rounded-tr-md">Count</th>
+                                <tr>
+                                    <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                    <th class="py-2 bg-slate-400 border">Bar Code</th>
+                                    <th class="py-2 bg-slate-400  border">Unit</th>
+                                    <th class="py-2 bg-slate-400  border">Per</th>
+                                    <th class="py-2 bg-slate-400  rounded-tr-md">Count</th>
+                                </tr>
                             @endif
-                        </tr>
+
                     </thead>
                     <tbody>
 
@@ -136,6 +147,9 @@
                                         @endif
                                         <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->product->bar_code }}</td>
                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->product->supplier_name }}</td>
+                                        <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'L') }}</td>
+                                        <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'M') }}</td>
+                                        <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'S') }}</td>
                                         <td class="ps-2 border border-slate-400 border-t-0 qty">
                                             @if (getAuth()->role == 4 || getAuth()->role == 1  || getAuth()->role == 3)
                                                 <input type="number" data-old="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" data-pd="{{ $tem->product_id }}" data-driver="{{ $driver->id }}" value="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" class="border ps-4 appearance-none scanned_qty">

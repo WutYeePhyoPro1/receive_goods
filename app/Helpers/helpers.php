@@ -323,3 +323,8 @@ use Illuminate\Support\Facades\DB;
     {
         return ScanTrack::where(['driver_info_id'=>$driver,'unit'=>$unit])->sum('count');
     }
+
+    function get_scan_truck_pd($driver,$pd,$unit)
+    {
+        return ScanTrack::where(['driver_info_id'=>$driver,'unit'=>$unit,'product_id'=>$pd])->sum('count');
+    }

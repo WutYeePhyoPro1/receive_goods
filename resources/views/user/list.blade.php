@@ -90,17 +90,20 @@
                             <td class="h-10 text-center border border-slate-400 {{ $item->status == 'complete' ? 'text-green-600' : 'text-amber-600' }}">{{ $item->status }}</td>
                             <td class="h-10 text-center border border-slate-400">
                                 <input type="hidden" class="check_empty" value="{{ check_empty($item->id) }}">
-                                <span class="cursor-pointer hover:underline" onclick="$(this).parent().find('.view_goods').click();">{{ $item->document_no }}</span> &nbsp;
-                                @if ($item->status == 'incomplete')
-                                    <i class='bx bx-message-square-edit text-sky-600 cursor-pointer ms-3 text-lg edit_view' data-id="{{ $item->id }}" style="transform: translateY(2px)"></i>
-                                @else
-                                <i class='bx bxs-folder text-emerald-400 cursor-pointer ms-3 text-lg' title="new truck" onclick="javascript:window.location.href = '/receive_goods/'+{{$item->id}}"></i>
-                                @endif
+                                <span class="cursor-pointer hover:underline hover:font-semibold" onclick="$(this).parent().find('.view_goods').click();">{{ $item->document_no }}</span> &nbsp;
                                 <i class='bx bxs-show text-amber-400 cursor-pointer ms-3 text-lg view_goods hidden' title="view Document" onclick="javascript:window.location.href = '/view_goods/'+{{$item->id}}"></i>
-                                @if (count(truck_arrive($item->id)) > 0)
-                                    @foreach (truck_arrive($item->id) as $tem)
-                                        <i class='bx bxs-group text-rose-400 cursor-pointer ms-3 text-lg' title="{{ $tem->truck_no }}" onclick="javascript:window.location.href = '/join_receive/'+{{$item->id}}+'/'+{{ $tem->id }}"></i>
-                                    @endforeach
+                                @if ( getAuth()->role != 4 )
+                                    @if ($item->status == 'incomplete')
+                                        <i class='bx bx-message-square-edit text-sky-600 cursor-pointer ms-3 text-lg edit_view' data-id="{{ $item->id }}" style="transform: translateY(2px)"></i>
+                                    @else
+                                        <i class='bx bxs-folder text-emerald-400 cursor-pointer ms-3 text-lg' title="new truck" onclick="javascript:window.location.href = '/receive_goods/'+{{$item->id}}"></i>
+                                    @endif
+
+                                    @if (count(truck_arrive($item->id)) > 0)
+                                        @foreach (truck_arrive($item->id) as $tem)
+                                            <i class='bx bxs-group text-rose-400 cursor-pointer ms-3 text-lg' title="{{ $tem->truck_no }}" onclick="javascript:window.location.href = '/join_receive/'+{{$item->id}}+'/'+{{ $tem->id }}"></i>
+                                        @endforeach
+                                    @endif
                                 @endif
 
                             </td>

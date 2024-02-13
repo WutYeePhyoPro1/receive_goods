@@ -161,11 +161,18 @@
                     <thead>
 
                         <tr class="">
-                                <th class="t_head" style="min-width:20px"></th>
-                                <th class="t_head">Document No</th>
-                                <th class="t_head">Bar Code</th>
-                                <th class="t_head">Product Name</th>
-                                <th class="t_head">Unloaded Qty</th>
+                                <th class="t_head" style="min-width:20px" rowspan="2"></th>
+                                <th class="t_head" rowspan="2">Document No</th>
+                                <th class="t_head" rowspan="2">Bar Code</th>
+                                <th class="t_head" rowspan="2">Product Name</th>
+                                <th class="t_head" colspan="3" >Scan(Count) Qty</th>
+                                <th class="t_head" rowspan="2">Unloaded Qty</th>
+                        </tr>
+                        <tr>
+                            <th class="t_head" style="width: 27px">L</th>
+                            <th class="t_head" style="width: 27px">M</th>
+                            <th class="t_head" style="width: 27px">S</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -188,6 +195,9 @@
                                             @endif
                                             <td class="">{{ $tem->product->bar_code }}</td>
                                             <td class="">{{ $tem->product->supplier_name }}</td>
+                                            <td class="">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'L') }}</td>
+                                            <td class="">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'M') }}</td>
+                                            <td class="">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'S') }}</td>
                                             <td class="">{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}</td>
                                         </tr>
                                     @endforeach
