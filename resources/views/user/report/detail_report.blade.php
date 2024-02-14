@@ -314,16 +314,30 @@
                     $product = $(this).data('pd');
                     $old_amt = $(this).data('old');
 
-                    if($val != $old_amt || $val < $old_amt)
+                    if($val != $old_amt && $val < $old_amt)
                     {
-                        $.ajax({
-                            url     : "{{ route('edit_scan') }}",
-                            type    : "POST",
-                            data    : {_token : token,driver : $driver , product : $product , val : $val,old : $old_amt },
-                            success : function(res){
+                        Swal.fire({
+                            icon  : 'question',
+                            title : 'Are You Sure?',
+                            showCancelButton:true,
+                            confirmButtonText:'Yes',
+                            cancelButtonText: "No",
+                        }).then((result)=>{
+                            if(result.isConfirm){
+                                $.ajax({
+                                url     : "{{ route('edit_scan') }}",
+                                type    : "POST",
+                                data    : {_token : token,driver : $driver , product : $product , val : $val,old : $old_amt },
+                                success : function(res){
 
+                                }
+                             })
+                            }else{
+                                $(this).val($old_amt);
                             }
                         })
+                    }else{
+                        $(this).val($old_amt);
                     }
                 })
             })
