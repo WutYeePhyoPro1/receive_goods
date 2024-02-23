@@ -328,3 +328,46 @@ use Illuminate\Support\Facades\DB;
     {
         return ScanTrack::where(['driver_info_id'=>$driver,'unit'=>$unit,'product_id'=>$pd])->sum('count');
     }
+
+    function get_branch_truck()
+    {
+        $user_branch    = getAuth()->branch_id;
+        $mgld_dc        = [17,19,20];
+        if(in_array($user_branch,$mgld_dc))
+        {
+            $loc    = 'dc';
+        }elseif($user_branch == 1){
+            $loc    = 'ho';
+        }else{
+            $loc    = 'other';
+        }
+        $reg = new GoodsReceive();
+        if($loc == 'dc')
+        {
+            $reg = $reg->whereIn('branch_id',$mgld_dc)->pluck('id');
+        }elseif($loc == 'ho')
+        {
+            $reg = $reg->pluck('id');
+        }else{
+            $reg = $reg->where('branch_id',$user_branch)->pluck('id');
+        }
+
+        $truck_id = DriverInfo::Select('driver_infos.*','goods_receives.branch_id')
+        ->leftJoin('goods_receives','driver_infos.received_goods_id','goods_receives.id');
+        if($loc == 'dc')
+        {
+            $truck_id =$truck_id->whereIn('goods_receives.branch_id',$mgld_dc)
+                                    ->pluck('id');
+
+        }elseif($loc == 'ho')
+        {
+            $truck_id =$truck_id->pluck('id');
+        }else{
+            $truck_id = $truck_id->where('goods_receives.branch_id',$user_branch)
+                                ->pluck('id');
+        }
+
+        $data = [$truck_id, $loc,$reg];
+
+        return $data;
+    }

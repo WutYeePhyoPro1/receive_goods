@@ -260,7 +260,7 @@
                                     <td class="h-10 text-center border border-slate-400">{{ get_scan_count_truck($item->id,'M') }}</td>
                                     <td class="h-10 text-center border border-slate-400">{{ get_scan_count_truck($item->id,'S') }}</td>
                                     <td class="h-10 text-center border border-slate-400">{{ get_scanned_qty($item->id) }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->gates->name }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->gate == 0 ? getAuth()->branch->branch_name.' Gate' : $item->gates->name }}</td>
                                     <td class="h-10 text-center border border-slate-400">{{ $item->duration }}</td>
                                     <td class="h-10 text-center border border-slate-400">{!! $item->start_date . "&nbsp;&nbsp;&nbsp;" . $item->start_time !!}</td>
                                 </tr>

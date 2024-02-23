@@ -11,7 +11,7 @@
                 <i class='bx bxs-package text-slate-100 text-9xl'></i>
             </div>
             <div class="text-center absolute underline " style="right: 0;left:0; top:30%">
-                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-slate-600' : 'cursor-default' }} " title="{{ $products }}" @if (getAuth()->role != 2)
+                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-slate-600' : 'cursor-default' }} " title="{{ $products }}" @can('view-detail-report')
                     onclick="javascript:window.location.href = '/product_list'"
                 @endif  >{{ strlen($products) < 6 ? $products : substr($products,0,4).'..' }}</span>
             </div>
@@ -24,8 +24,8 @@
                 <i class='bx bx-file text-amber-100 text-9xl'></i>
             </div>
             <div class="text-center absolute underline" style="right: 0;left:0; top:30%">
-                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-amber-200' : 'cursor-default' }}" @if (getAuth()->role != 2)
-                     onclick="javascript:window.location.href = 'po_to_list'" @endif>{{ $po }}</span>
+                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-amber-200' : 'cursor-default' }}" @can('view-detail-report')
+                     onclick="javascript:window.location.href = 'po_to_list'" @endif>{{ $po }}</span> 
             </div>
         </div>
         <div class=" min-h-60 rounded-xl shadow-2xl border border-emerald-200  mt-10 relative" style="background-color: rgba(121, 190, 173, 0.12)">
@@ -39,7 +39,7 @@
                 <i class='bx bxs-folder text-emerald-100 text-9xl'></i>
             </div>
             <div class="text-center absolute underline" style="right: 0;left:0; top:30%">
-                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-emerald-600' : 'cursor-default' }}"  @if (getAuth()->role != 2) onclick="jsvascript:window.location.href = '/finished_documents'" @endif>{{ $com_doc }}</span>
+                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-emerald-600' : 'cursor-default' }}"  @can('view-detail-report') onclick="jsvascript:window.location.href = '/finished_documents'" @endcan>{{ $com_doc }}</span>
             </div>
         </div>
         <div class=" min-h-60 rounded-xl shadow-2xl border border-sky-200  mt-10 relative" style="background-color: rgba(121, 151, 190, 0.12)">
@@ -50,8 +50,8 @@
                 <i class='bx bxs-truck text-sky-100 text-9xl'></i>
             </div>
             <div class="text-center absolute underline" style="right: 0;left:0; top:30%">
-                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-sky-600' : 'cursor-default' }}"  @if (getAuth()->role != 2)
-                     onclick="javascript:window.location.href = '/truck_list'" @endif>{{ $cars }}</span>
+                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-sky-600' : 'cursor-default' }}"  @can('view-detail-report')
+                     onclick="javascript:window.location.href = '/truck_list'" @endcan>{{ $cars }}</span>
             </div>
         </div>
         <div class=" min-h-60 rounded-xl shadow-2xl border border-rose-200  mt-10 relative" style="background-color: rgba(190, 121, 121, 0.12)">
@@ -62,8 +62,8 @@
                 <i class='bx bxs-trash-alt text-rose-100 text-9xl'></i>
             </div>
             <div class="text-center absolute underline" style="right: 0;left:0; top:30%">
-                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-rose-600' : 'cursor-default' }}" @if (getAuth()->role != 2)
-                     onclick="javascript:window.location.href = 'remove_list'" @endif>{{ $del }}</span>
+                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-rose-600' : 'cursor-default' }}" @can('view-detail-report')
+                     onclick="javascript:window.location.href = 'remove_list'" @endcan>{{ $del }}</span>
             </div>
         </div>
         <div class=""></div>
@@ -78,8 +78,8 @@
                 <i class='bx bxs-folder-minus text-rose-100 text-9xl'></i>
             </div>
             <div class="text-center absolute underline" style="right: 0;left:0; top:30%">
-                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-rose-600' : 'cursor-default' }}" title="{{ $shortage }}" @if (getAuth()->role != 2)
-                     onclick="javascript:window.location.href = '/shortage_list'" @endif>{{ strlen($shortage) < 6 ? $shortage : substr($shortage,0,4).'..' }}</span>
+                <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-rose-600' : 'cursor-default' }}" title="{{ $shortage }}" @can('view-detail-report')
+                     onclick="javascript:window.location.href = '/shortage_list'" @endcan>{{ strlen($shortage) < 6 ? $shortage : substr($shortage,0,4).'..' }}</span>
             </div>
         </div>
     </div>

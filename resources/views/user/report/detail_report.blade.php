@@ -151,11 +151,11 @@
                                         <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'M') }}</td>
                                         <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'S') }}</td>
                                         <td class="ps-2 border border-slate-400 border-t-0 qty">
-                                            @if (getAuth()->role == 4 || getAuth()->role == 1  || getAuth()->role == 3)
+                                            @can ('adjust-truck-goods')
                                                 <input type="number" data-old="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" data-pd="{{ $tem->product_id }}" data-driver="{{ $driver->id }}" value="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" class="border ps-4 appearance-none scanned_qty">
                                             @else
                                                 {{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}
-                                            @endif
+                                            @endcan
                                         </td>
                                     </tr>
                                 @endforeach
@@ -277,7 +277,7 @@
                                     <b class="mb-4 text-xl">:&nbsp;{{ $item->nrc_no }}</b>
                                     <b class="mb-4 text-xl">:&nbsp;{{ $item->truck_no }}</b>
                                     <b class="mb-4 text-xl">:&nbsp;{{ $item->truck->truck_name }}</b>
-                                    <b class="mb-4 text-xl">:&nbsp;{{ $item->gates->name }}</b>
+                                    <b class="mb-4 text-xl">:&nbsp;{{ $item->gate == 0 ? getAuth()->branch->branch_name.' Gate' : $item->gates->name }}</b>
                                     <b class="mb-4 text-xl">:&nbsp;{{ $item->scanned_goods ?? 0 }}</b>
                                 </div>
                         </div>
@@ -323,7 +323,8 @@
                             confirmButtonText:'Yes',
                             cancelButtonText: "No",
                         }).then((result)=>{
-                            if(result.isConfirm){
+                            if(result.isConfirmed){
+
                                 $.ajax({
                                 url     : "{{ route('edit_scan') }}",
                                 type    : "POST",

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\Log;
 use App\Models\Product;
 use App\Models\Document;
+use App\Models\Tracking;
+use App\Customize\Common;
 use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
 use App\Models\GoodsReceive;
-use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -24,12 +26,8 @@ class authenticateController extends Controller
         ]);
 
         if(Auth::attempt(['employee_code'=>$request->employee_code,'password'=>$request->password,'active'=>1])){
-            // dd('yes');
-            $log            = new Log();
-            $log->user_id   = getAuth()->id;
-            $log->history   = route('home');
-            $log->action    = 'LogIn';
-            $log->save();
+
+            Common::Log(route('home'),"LogIn");
             $request->session()->regenerate();
 
             return redirect()->intended('home');
@@ -42,12 +40,8 @@ class authenticateController extends Controller
 
     public function logout(Request $request)
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('logout');
-        $log->action    = 'LogOut';
-        $log->save();
-        
+        Common::Log(route('logout'),"LogOut");
+
         Auth::logout();
         if ($request->hasSession()) {
             $request->session()->invalidate();
@@ -59,14 +53,47 @@ class authenticateController extends Controller
 
     public function home()
     {
-        $products   = Product::whereDate('created_at',Carbon::today())->sum('scanned_qty');
+        $user_branch    = getAuth()->branch_id;
+        $mgld_dc        = [17,19,20];
+        $data = get_branch_truck();
+        $truck_id   = $data[0];
+        $loc        = $data[1];
+        $reg        = $data[2];
+        // dd($truck_id);
+        $products   = Tracking::when($loc != 'ho',function($q) use($truck_id){
+                            $q->whereIn('driver_info_id',$truck_id);
+                                })
+                            ->whereDate('created_at',Carbon::today())->sum('scanned_qty');
         $docs       = GoodsReceive::where('start_date',Carbon::today())->count();
-        $com_doc    = GoodsReceive::where('status','complete')->whereDate('updated_at',Carbon::today())->count();
-        $cars       = DriverInfo::whereDate('created_at',Carbon::today())->count();
-        $del        = RemoveTrack::whereDate('created_at',Carbon::today())->sum('remove_qty');
-        $po         = Document::whereDate('created_at',Carbon::today())->count();
+        $com_doc    = GoodsReceive::where('status','complete')
+                                    ->when($loc =='dc',function($q) use($mgld_dc){
+                                        $q->whereIn('branch_id',$mgld_dc);
+                                    })
+                                    ->when($loc == 'other',function($q) use($user_branch){
+                                        $q->where('branch_id',$user_branch);
+                                    })
+                                    ->whereDate('updated_at',Carbon::today())->count();
+        $cars       = DriverInfo::when($loc != 'ho',function($q) use($truck_id){
+                                $q->whereIn('id',$truck_id);
+                                    })
+                                ->whereDate('created_at',Carbon::today())
+                                ->count();
+        $del        = RemoveTrack::when($loc != 'ho',function($q) use($reg){
+                                $q->whereIn('received_goods_id',$reg);
+                                    })
+                                ->whereDate('created_at',Carbon::today())
+                                ->sum('remove_qty');
+        $po         = Document::whereDate('created_at',Carbon::today())
+                                ->whereIn('received_goods_id',$reg)
+                                ->count();
 
         $fin_reg    = GoodsReceive::where('status','complete')
+                                    ->when($loc =='dc',function($q) use($mgld_dc){
+                                        $q->whereIn('branch_id',$mgld_dc);
+                                    })
+                                    ->when($loc == 'other',function($q) use($user_branch){
+                                        $q->where('branch_id',$user_branch);
+                                    })
                                     ->whereDate('updated_at',Carbon::today())
                                     ->pluck('id');
         $fin_docs   = Document::whereIn('received_goods_id',$fin_reg)->pluck('id');

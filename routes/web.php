@@ -40,13 +40,26 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('join_receive/{id}/{car}','join_receive')->name('join_receive');
             route::get('view_goods/{id}','view_goods')->name('view_goods');
             route::get('user','user')->name('user');
+            route::get('role','role')->name('role');
+            route::get('permission','permission')->name('permission');
             route::get('create_user','create_user')->name('create_user');
             route::get('edit_user/{id}','edit_user')->name('edit_user');
+
+            route::get('create_role','create_role')->name('create_role');
+            route::get('create_permission','create_permission')->name('create_permission');
 
             route::post('car_info','store_car_info')->name('store_car_info');
             route::post('doc_info','store_doc_info')->name('store_doc_info');
             route::post('store_user','store_user')->name('store_user');
             route::post('update_user','update_user')->name('update_user');
+
+            route::post('store_role','store_role')->name('store_role');
+            route::get('edit_role/{id}','edit_role')->name('edit_role');
+            route::post('update_role','update_role')->name('update_role');
+            route::post('del_role','del_role')->name('del_role');
+
+            route::post('store_permission','store_permission')->name('store_permission');
+            route::get('view_permission/{id}','view_permission')->name('view_permission');
 
             //ajax
             // route::get('edit_goods/{id}','edit_goods')->name('edit_goods');

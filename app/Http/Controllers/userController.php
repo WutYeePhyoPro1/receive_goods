@@ -12,6 +12,7 @@ use App\Models\CarGate;
 use App\Models\Product;
 use App\Models\Document;
 use App\Models\Tracking;
+use App\Customize\Common;
 use App\Models\CarHistory;
 use App\Models\Department;
 use App\Models\DriverInfo;
@@ -19,11 +20,15 @@ use App\Models\RemoveTrack;
 use App\Models\GoodsReceive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 use App\Interfaces\UserRepositoryInterface;
 use Symfony\Component\CssSelector\Node\FunctionNode;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
 class userController extends Controller
 {
@@ -32,15 +37,27 @@ class userController extends Controller
     public function __construct(UserRepository $repository)
     {
         $this->repository = $repository;
+        $this->middleware('auth');
+        $this->middleware(PermissionMiddleware::class . ':user-management')->only(['user', 'store_user', 'edit_user', 'update_user', 'del_user']);
+        $this->middleware(PermissionMiddleware::class . ':role-management')->only(['role', 'store_role', 'edit_role', 'update_role', 'del_role']);
+        $this->middleware(PermissionMiddleware::class . ':permission-management')->only(['permission', 'store_permission', 'view_permission']);
+        $this->middleware(PermissionMiddleware::class . ':barcode-scan')->only(['car_info','join_receive','receive_goods','car']);
     }
 
     public function list()
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('list');
-        $log->action    = 'go to List Page';
-        $log->save();
+        Common::Log(route('list'),"go to List Page");
+
+        $user_branch    = getAuth()->branch_id;
+        $mgld_dc        = [17,19,20];
+        if(in_array($user_branch,$mgld_dc))
+        {
+            $loc    = 'dc';
+        }elseif($user_branch == 1){
+            $loc    = 'ho';
+        }else{
+            $loc    = 'other';
+        }
 
         if(request('search') && !request('search_data'))
         {
@@ -70,6 +87,12 @@ class userController extends Controller
                             ->when(request('to_date'),function($q){
                                 $q->where('start_date','<=',request('to_date'));
                             })
+                            ->when($loc == 'dc',function($q) use($mgld_dc){
+                                $q->whereIn('branch_id',$mgld_dc);
+                            })
+                            ->when($loc == 'other',function($q) use($user_branch){
+                                $q->where('branch_id',$user_branch);
+                            })
                             ->whereNotNull('status')
                             ->orderBy('created_at','desc')
                             ->paginate(15);
@@ -80,12 +103,7 @@ class userController extends Controller
 
     public function view_goods($id)
     {
-
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('view_goods',['id'=>$id]);
-        $log->action    = 'View REG Page';
-        $log->save();
+        Common::Log(route('view_goods',['id'=>$id]),"View REG Page");
 
         $main = GoodsReceive::where('id',$id)->first();
         $truck = Truck::get();
@@ -102,6 +120,15 @@ class userController extends Controller
     {
 
         $id = getAuth()->id;
+
+        $data = get_branch_truck();
+        $truck_id   = $data[0];
+        $loc        = $data[1];
+        $reg        = $data[2];
+        $user_branch    = getAuth()->branch_id;
+        $mgld_dc        = [17,19,20];
+
+
         $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
                         ->leftJoin('goods_receives', 'driver_infos.received_goods_id', 'goods_receives.id')
                         ->where('driver_infos.user_id', getAuth()->id)
@@ -129,8 +156,17 @@ class userController extends Controller
             $log->action    = 'Go To Add Car Info Page';
             $log->save();
 
-            $source = Source::get();
-            $branch = Branch::get();
+            $source = Source::when($loc == 'other',function($q){
+                            $q->where('name','Local Supplier');
+            })
+                            ->get();
+            $branch = Branch::when($loc == 'dc',function($q) use($mgld_dc){
+                            $q->whereIn('id',$mgld_dc);
+            })
+                            ->when($loc == 'other',function($q) use($user_branch){
+                                $q->where('id',$user_branch);
+                })
+                            ->get();
             view()->share(['truck'=>$type,'source'=>$source,'gate'=>$gate,'branch'=>$branch]);
             return view('user.receive_goods.driver_info');
         }
@@ -178,28 +214,68 @@ class userController extends Controller
 
     public function user()
     {
-        $data = User::paginate(15);
-        return view('user.user',compact('data'));
+        $search = '';
+        if(request('search_data'))
+        {
+            $search  =request('search_data');
+            $type = trim(substr(request('search_data'), 0, 3));
+            $isint = ctype_digit($type);
+        }
+        $data = User::when(request('branch'),function($q){
+                        $q->where('branch_id',request('branch'));
+                    })
+                    ->when(request('search_data') && $isint,function($q){
+                        $q->where('employee_code',request('search_data'));
+                    })
+                    ->when(request('search_data') && !$isint,function($q) use($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    })
+                    ->paginate(15);
+        $branch= Branch::get();
+        $type= 'user';
+        return view('user.user',compact('data','branch','type'));
+    }
+
+    public function role()
+    {
+        $data = Role::paginate(15);
+        $type= 'role';
+        return view('user.user',compact('data','type'));
+    }
+
+    public function permission()
+    {
+        $data = Permission::paginate(15);
+        $type= 'permission';
+        return view('user.user',compact('data','type'));
     }
 
     public function store_car_info(Request $request)
     {
-
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('store_car_info');
-        $log->action    = "Store Car Infomation";
-        $log->save();
+        Common::Log(route('store_car_info'),"Store Car Infomation");
 
         $driver = DriverInfo::where('received_goods_id',$request->main_id)->get();
-        $data = $request->validate([
-            'driver_name'       => 'required',
-            'driver_phone'      => 'required|numeric',
-            'driver_nrc'        => 'required',
-            'truck_no'          => 'required',
-            'truck_type'        => 'required',
-            'gate'              => 'required'
-        ]);
+        $user_branch    = getAuth()->branch_id;
+        $mgld_dc        = [17,19,20];
+        if(in_array($user_branch,$mgld_dc))
+        {
+            $request->validate([
+                'driver_name'       => 'required',
+                'driver_phone'      => 'required|numeric',
+                'driver_nrc'        => 'required',
+                'truck_no'          => 'required',
+                'truck_type'        => 'required',
+                'gate'              => 'required'
+            ]);
+        }else{
+            $request->validate([
+                'driver_name'       => 'required',
+                'driver_phone'      => 'required|numeric',
+                'driver_nrc'        => 'required',
+                'truck_no'          => 'required',
+                'truck_type'        => 'required',
+            ]);
+        }
         if(count($driver) > 0){
             $driver = new DriverInfo();
             $driver->ph_no              = $request->driver_phone;
@@ -211,7 +287,7 @@ class userController extends Controller
             $driver->start_date         = Carbon::now()->format('Y-m-d');
             $driver->start_time         = Carbon::now()->format('H:i:s');
             $driver->user_id            = getAuth()->id;
-            $driver->gate               = $request->gate;
+            $driver->gate               = 0;
             $driver->save();
 
 
@@ -236,7 +312,7 @@ class userController extends Controller
                 $driver->start_date         = Carbon::now()->format('Y-m-d');
                 $driver->start_time         = Carbon::now()->format('H:i:s');
                 $driver->user_id            = getAuth()->id;
-                $driver->gate               = $request->gate;
+                $driver->gate               = 0;
 
                 $driver->save();
         }
@@ -255,11 +331,7 @@ class userController extends Controller
 
     public function store_doc_info(Request $request)
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('store_doc_info');
-        $log->action    = "Store PO/TO Infomation";
-        $log->save();
+        Common::Log(route('store_doc_info'),"Store PO/TO Infomation");
 
         $data = $request->validate([
             'source'            => 'required',
@@ -314,12 +386,8 @@ class userController extends Controller
 
     public function car($id)
     {
-        // $driver = DriverInfo::where('received_goods_id',$id)->get();
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('car',['id'=>$id]);
-        $log->action    = "Store Car Infomation";
-        $log->save();
+
+        Common::Log(route('car',['id'=>$id]),"Store Car Infomation");
 
         $main   = GoodsReceive::where('id',$id)->first();
         $type = Truck::get();
@@ -335,16 +403,17 @@ class userController extends Controller
     {
         $branch = Branch::get();
         $department = Department::get();
-        view()->share(['branch'=>$branch,'department'=>$department]);
-        return view('user.create_edit');
+        $role       = Role::whereNot('name','admin')->get();
+        view()->share(['branch'=>$branch,'department'=>$department,'role'=>$role]);
+        $type       = 'user';
+        return view('user.create_edit',compact('type'));
     }
 
     public function store_user(Request $request)
     {
-        // dd($request->all());
         $request->validate([
             'name'          => 'required',
-            'employee_code' => 'required',
+            'employee_code' => 'required|unique:users,employee_code',
             'password'      => 'required|confirmed',
             'password_confirmation'       => 'required|same:password',
             'department'    => 'required',
@@ -364,6 +433,9 @@ class userController extends Controller
         $succ = $user->save();
 
         if($succ){
+            $role = Role::where('id',$request->role)->first();
+            $role = $role->name;
+            $user->assignRole($role);
             return redirect()->route('user')->with('success','User Create Success');
         }else{
             return redirect()->route('user')->with('fails','User Create Fails');
@@ -398,8 +470,10 @@ class userController extends Controller
         $data = User::where('id',$id)->first();
         $branch = Branch::get();
         $department = Department::get();
-        view()->share(['branch'=>$branch,'department'=>$department]);
-        return view('user.create_edit',compact('data'));
+        $role       = Role::whereNot('name','admin')->get();
+        view()->share(['branch'=>$branch,'department'=>$department,'role'=>$role]);
+        $type       = 'user';
+        return view('user.create_edit',compact('data','type'));
     }
 
     public function update_user(Request $request)
@@ -417,6 +491,7 @@ class userController extends Controller
 
         if(getAuth()->role == 1)
         {
+            $user = User::find($id);
             User::where('id',$id)->update([
                 'name'          => $request->name,
                 'employee_code' => $request->employee_code,
@@ -428,8 +503,108 @@ class userController extends Controller
                 'role'     => $request->role
             ]);
 
+            $role = Role::where('id',$request->role)->first();
+            $role = $role->name;
+            $user->syncRoles([$role]);
             return redirect()->route('user')->with('success','User Update Success');
         }
+    }
+
+    public function create_role()
+    {
+        $permission       = Permission::get();
+        view()->share(['permission'=>$permission]);
+        $type       = 'role';
+        return view('user.create_edit',compact('type'));
+    }
+
+    public function store_role(Request $request)
+    {
+        $request->validate([
+            'role'      => 'required|unique:roles,name',
+            'permission'=> 'required'
+        ]);
+        try{
+            $permission = $request->permission;
+            $permission = Permission::whereIn('id',$permission)->pluck('name')->all();
+            $role = Role::create(['name'=>$request->role,'guard_name'=>'web']);
+            $role->syncPermissions($permission);
+            return redirect()->route('role')->with('success','Role Create Success');
+        }catch(\Exception $e)
+        {
+            logger($e->getMessage());
+            return redirect()->route('role')->with('fails','Role Create Fails');
+        }
+    }
+
+    public function edit_role($id)
+    {
+        $permission     = Permission::get();
+        $data           = Role::find($id);
+        $type           = 'role';
+        view()->share(['permission'=>$permission]);
+        return view('user.create_edit',compact('type','data'));
+    }
+
+    public function update_role(Request $request)
+    {
+        $id     = $request->id;
+        $request->validate([
+            'role'      => "required|unique:roles,name,$id,id",
+            'permission'=> 'required'
+        ]);
+        try{
+            $role = Role::find($id);
+            $role->update(['name'=>$request->role]);
+            $permission = $request->permission;
+            $permission = Permission::whereIn('id',$permission)->pluck('name')->all();
+            $role->syncPermissions($permission);
+            return redirect()->route('role')->with('success','Role Edit Success');
+        }catch(\Exception $e)
+        {
+            logger($e->getMessage());
+            return redirect()->route('role')->with('fails','Role Edit Fails');
+        }
+    }
+
+    public function del_role(Request $request)
+    {
+        $id = $request->id;
+        $role = Role::find($id);
+        if($role)
+        {
+            $role->permissions()->detach();
+            $role->delete();
+            return response(200);
+        }
+        return response(404);
+    }
+
+    public function create_permission()
+    {
+        $type       = 'permission';
+        return view('user.create_edit',compact('type'));
+    }
+
+    public function store_permission(Request $request)
+    {
+        $max = Permission::max('permission_id');
+        $per = Permission::create([
+            'permission_id' => $max+1,
+            'name'          => $request->permission,
+            'guard_name'    => 'web'
+        ]);
+        if($per)
+        {
+            return redirect()->route('permission')->with('success','Permission Create Success');
+        }else{
+            return redirect()->route('permission')->with('fails','Permission Create Fails');
+        }
+    }
+
+    public function view_permission($id)
+    {
+        dd($id);
     }
 
     public function del_doc(Request $request)

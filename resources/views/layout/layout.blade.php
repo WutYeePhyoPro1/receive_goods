@@ -28,7 +28,7 @@
                 </li>
 
 
-                @if (getAuth()->role == 2 || getAuth()->role == 3)
+                @can ('barcode-scan')
                     <li class="sidebar_items" onclick="javascript:window.location.href='/car_info'">
                         @if (request()->is('receive_good*') || request()->is('car_info*') || request()->is('view_goods*'))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
@@ -39,7 +39,7 @@
                             <span>Receive Goods</span>
                         </div>
                     </li>
-                @endif
+                @endcan
 
                 <li class="sidebar_items" onclick="javascript:window.location.href='/list'">
                     @if (request()->is('list') || ((getAuth()->role == 1 || getAuth()->role == 4) && (request()->is('receive_good*') || request()->is('view_goods*'))))
@@ -53,9 +53,9 @@
                 </li>
 
 
-                @if (getAuth()->role == 1)
-                    <li class="sidebar_items" onclick="javascript:window.location.href='/user'">
-                        @if (request()->is('user*') || request()->is('edit_user*'))
+                @can('user-management')
+                    <li class="sidebar_items relative" id="user_lay" >
+                        @if (request()->is('user*') || request()->is('role*') || request()->is('permission*') || request()->is('edit_user*') || request()->is('create_user'))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
                     @endif
@@ -63,8 +63,19 @@
                             <i class='bx bxs-user-rectangle' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
                             <span>User</span>
                         </div>
+                        <ul class=" rounded-lg shadow-lg w-full p-2 absolute user_div"  style="">
+                            @can('user-management')
+                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('user') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/user'">User</li>
+                            @endcan
+                            @can('role-management')
+                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('role') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/role'">Role</li>
+                            @endcan
+                            @can('permission-management')
+                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('permission') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/permission'">Permission</li>
+                            @endcan
+                        </ul>
                     </li>
-                @endif
+                @endcan
 
                 <li class="sidebar_items" onclick="this.childNodes[1].click()">
                     <a href="{{ asset('image/receive_goods_userguide.pdf') }}" target="_blank" id="user_guide" hidden></a>
@@ -100,6 +111,7 @@
             </div>
             <div class="flexv whitespace-nowrap" style="line-height: 60px">
                 <span class="mr-4"><i class='bx bxs-user-account mr-1' style="transform: translateY(2px)"></i> User : {{ getAuth()->name }}</span> |&nbsp;&nbsp;
+                <span class="mr-4"><i class='bx bx-git-branch mr-1' style="transform: translateY(2px)"></i> Branch : {{ getAuth()->branch->branch_name }}</span> |&nbsp;&nbsp;
                 {{-- <span class="mr-4"><i class='bx bx-signal-5 mr-1' style="transform: translateY(2px)"></i> Server Link :
                    @if(isset($_SERVER['SERVER_ADDR']))
                         {{ $_SERVER['SERVER_ADDR'] }}

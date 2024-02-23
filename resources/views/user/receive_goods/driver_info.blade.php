@@ -80,18 +80,20 @@
                         @enderror
                         </div>
 
-                        <div class="flex flex-col px-10">
-                            <label for="gate">Gate<span class="text-rose-600">*</span> :</label>
-                            <Select name="gate" id="gate" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
-                                <option value="">Choose Gate</option>
-                                @foreach ($gate as $item)
-                                    <option value="{{ $item->id }}" {{ old('gate') == $item->id ? 'selected' : '' }}>{{ $item->name.'('.$item->branches->branch_name.')' }}</option>
-                                @endforeach
-                            </Select>
-                            @error('gate')
-                            <small class="text-rose-500 ms-1">{{ $message }}</small>
-                        @enderror
-                        </div>
+                        @if (in_array(getAuth()->branch_id,[17,19,20]))
+                            <div class="flex flex-col px-10">
+                                <label for="gate">Gate<span class="text-rose-600">*</span> :</label>
+                                <Select name="gate" id="gate" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                    <option value="">Choose Gate</option>
+                                    @foreach ($gate as $item)
+                                        <option value="{{ $item->id }}" {{ old('gate') == $item->id ? 'selected' : '' }}>{{ $item->name.'('.$item->branches->branch_name.')' }}</option>
+                                    @endforeach
+                                </Select>
+                                @error('gate')
+                                <small class="text-rose-500 ms-1">{{ $message }}</small>
+                            @enderror
+                            </div>
+                        @endif
                     </div>
 
                 @else
@@ -101,8 +103,8 @@
                             <label for="source">Source<span class="text-rose-600">*</span> :</label>
                             <Select name="source" id="source" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
                                 <option value="">Choose Source</option>
-                                @foreach ($source as $item)
-                                    <option value="{{ $item->id }}" {{ old('source') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
+                                @foreach ($source as $index=>$item)
+                                    <option value="{{ $item->id }}" {{ old('source') == $item->id || $index == 0 ? 'selected' : '' }}>{{ $item->name }}</option>
                                 @endforeach
                             </Select>
                             @error('source')
@@ -114,8 +116,8 @@
                             <label for="branch">branch<span class="text-rose-600">*</span> :</label>
                             <Select name="branch" id="branch" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
                                 <option value="">Choose branch</option>
-                                @foreach ($branch as $item)
-                                    <option value="{{ $item->id }}" {{ old('branch') == $item->id ? 'selected' : '' }}>{{ $item->branch_name }}</option>
+                                @foreach ($branch as $index=>$item)
+                                    <option value="{{ $item->id }}" {{ old('branch') == $item->id || $index == 0 ? 'selected' : '' }}>{{ $item->branch_name }}</option>
                                 @endforeach
                             </Select>
                             @error('branch')

@@ -231,9 +231,11 @@
                                             ?>
                                             <tr class="h-10">
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
-                                                    @if ($main->status == 'incomplete' && (getAuth()->role == 1 || getAuth()->role == 4 || getAuth()->role == 3))
-                         <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
-                                                    @endif
+                                                    @can('adjust-excess')
+                                                        @if ($main->status == 'complete'  && ($tem->qty < $tem->scanned_qty))
+                                                            <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
+                                                        @endif
+                                                    @endcan
                                                 </td>
                                                 @if ($index == 0)
                                                         <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
@@ -347,7 +349,7 @@
                                 <span class="mb-4 text-xl">Truck's No        </span>
                                 <span class="mb-4 text-xl">Truck's Type      </span>
                                 <span class="mb-4 text-xl">Gate      </span>
-                                <span class="mb-4 text-xl">Scanned Qty      </span>
+                                <span class="mb-4 text-xl">Scanned Qty     </span>
                             </div>
                             <div class="flex flex-col">
                                 <b class="mb-4 text-xl">:&nbsp;{{ $index+1 }}</b>
@@ -356,7 +358,7 @@
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->nrc_no }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->truck_no }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->truck->truck_name }}</b>
-                                <b class="mb-4 text-xl">:&nbsp;{{ $item->gates->name }}</b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->gate == 0 ? getAuth()->branch->branch_name.' Gate' : $item->gates->name }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->scanned_goods ?? 0 }}</b>
                             </div>
                     </div>
@@ -452,18 +454,23 @@
                                 @enderror
                                 </div>
 
-                                <div class="flex flex-col px-10">
-                                    <label for="gate">Gate<span class="text-rose-600">*</span> :</label>
-                                    <Select name="gate" id="gate" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
-                                        <option value="">Choose Gate</option>
-                                        @foreach ($gate as $item)
-                                            <option value="{{ $item->id }}" {{ old('gate') == $item->id ? 'selected' : '' }}>{{ $item->name.'('.$item->branches->branch_name.')' }}</option>
-                                        @endforeach
-                                    </Select>
-                                    @error('gate')
-                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
-                                @enderror
-                                </div>
+                                <?php
+                                    $dc = [17,19,20];
+                                ?>
+                                @if (in_array(getAuth()->branch_id,$dc))
+                                    <div class="flex flex-col px-10">
+                                        <label for="gate">Gate<span class="text-rose-600">*</span> :</label>
+                                        <Select name="gate" id="gate" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                            <option value="">Choose Gate</option>
+                                            @foreach ($gate as $item)
+                                                <option value="{{ $item->id }}" {{ old('gate') == $item->id ? 'selected' : '' }}>{{ $item->name.'('.$item->branches->branch_name.')' }}</option>
+                                            @endforeach
+                                        </Select>
+                                        @error('gate')
+                                        <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                    @enderror
+                                    </div>
+                                @endif
 
                             </div>
                         <div class="grid grid-cols-2 gap-5 my-5">

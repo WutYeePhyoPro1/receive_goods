@@ -12,12 +12,13 @@ use App\Models\CarGate;
 use App\Models\Product;
 use App\Models\Document;
 use App\Models\Tracking;
+use App\Customize\Common;
+use App\Models\ScanTrack;
 use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
 use App\Exports\DetailExcel;
 use App\Exports\ReportExcel;
 use App\Models\GoodsReceive;
-use App\Models\ScanTrack;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
@@ -26,15 +27,21 @@ use Symfony\Component\CssSelector\Node\FunctionNode;
 
 class ReportController extends Controller
 {
+
+
     public function product_list()
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('product_list');
-        $log->action    = "go to product report page";
-        $log->save();
+        Common::Log(route('product_list'),"go to product report page");
 
         $product_id = [];
+        $user_branch    = getAuth()->branch_id;
+        $mgld_dc        = [17,19,20];
+        $data = get_branch_truck();
+        $truck_id   = $data[0];
+        $loc        = $data[1];
+        $reg        = $data[2];
+
+        $doc = Document::whereIn('received_goods_id',$reg)->pluck('id');
 
         if(request('search_data') && !request('search'))
         {
@@ -42,7 +49,9 @@ class ReportController extends Controller
         }
         if(request('search') == 'main_no')
         {
-            $main   = GoodsReceive::where('document_no',request('search_data'))->first();
+            $main   = GoodsReceive::where('document_no',request('search_data'))
+                                    ->whereIn('id',$reg)
+                                    ->first();
             if($main)
             {
                 $doc    = Document::where('received_goods_id',$main->id)->pluck('id');
@@ -52,7 +61,9 @@ class ReportController extends Controller
         }
         else if(request('search') == 'document_no')
         {
-            $doc    = Document::where('document_no',request('search_data'))->first();
+            $doc    = Document::where('document_no',request('search_data'))
+                                ->whereIn('received_goods_id',$reg)
+                                ->first();
             if($doc){
                 $product_id= Product::where('document_id',$doc->id)->pluck('id');
             }
@@ -74,6 +85,8 @@ class ReportController extends Controller
                             ->when(request('to_date'),function($q){
                                 $q->whereDate('created_at','<=',request('to_date'));
                             })
+
+                            ->whereIn('document_id',$doc)
                             ->orderBy('id','asc')
                             ->paginate(15);
 
@@ -92,6 +105,7 @@ class ReportController extends Controller
                             ->when(request('to_date'),function($q){
                                 $q->whereDate('created_at','<=',request('to_date'));
                             })
+                            ->whereIn('document_id',$doc)
                             ->get();
 
         $all_sum['qty_sum']        = $product_sum->Sum('qty');
@@ -101,11 +115,13 @@ class ReportController extends Controller
 
     public function finished_documents()
     {
-            $log            = new Log();
-            $log->user_id   = getAuth()->id;
-            $log->history   = route('finished_documents');
-            $log->action    = "go to finished documents report page";
-            $log->save();
+        Common::Log(route('finished_documents'),"go to finished documents report page");
+
+        $user_branch    = getAuth()->branch_id;
+        $mgld_dc        = [17,19,20];
+        $data = get_branch_truck();
+        $truck_id   = $data[0];
+        $loc        = $data[1];
 
         $report = 'finish';
         $url    = 'finished_documents';
@@ -141,6 +157,12 @@ class ReportController extends Controller
                             ->when(!request('search') && !request('search_data') && !request('branch') && !request('status') && !request('from_date') && !request('to_date') , function($q){
                                 $q->whereDate('created_at',Carbon::today());
             })
+                            ->when($loc =='dc',function($q) use($mgld_dc){
+                                $q->whereIn('branch_id',$mgld_dc);
+                            })
+                            ->when($loc == 'other',function($q) use($user_branch){
+                                $q->where('branch_id',$user_branch);
+                            })
                             ->whereNotNull('total_duration')
                             ->where('status','complete')
                             ->orderBy('created_at','desc')
@@ -152,11 +174,11 @@ class ReportController extends Controller
 
     public function truck_list()
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('truck_list');
-        $log->action    = "go to Truck report page";
-        $log->save();
+        Common::Log(route('truck_list'),"go to Truck report page");
+
+        $data = get_branch_truck();
+        $truck_id   = $data[0];
+        $loc        = $data[1];
 
         $report = 'truck';
         $url    = 'truck_list';
@@ -204,6 +226,9 @@ class ReportController extends Controller
                             ->when(request('to_date'),function($q){
                                 $q->whereDate('created_at','<=',request('to_date'));
                             })
+                            ->when($loc != 'ho',function($q) use($truck_id){
+                                $q->whereIn('id',$truck_id);
+                                    })
                             ->paginate(15);
 
         $branch = Branch::get();
@@ -213,11 +238,12 @@ class ReportController extends Controller
 
     public function remove_list()
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('remove_list');
-        $log->action    = "go to Remove Lists report page";
-        $log->save();
+        Common::Log(route('remove_list'),"go to Remove Lists report page");
+
+        $data = get_branch_truck();
+        $truck_id   = $data[0];
+        $loc        = $data[1];
+        $reg        = $data[2];
 
         $report = 'remove';
         $url = 'remove_list';
@@ -265,6 +291,9 @@ class ReportController extends Controller
                             ->when(request('to_date'),function($q){
                                 $q->whereDate('created_at','<=',request('to_date'));
                             })
+                            ->when($loc != 'ho',function($q) use($reg){
+                                $q->whereIn('received_goods_id',$reg);
+                                    })
                             ->paginate(15);
 
         return view('user.report.report',compact('data','report','url'));
@@ -272,11 +301,12 @@ class ReportController extends Controller
 
     public function po_to_list()
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('po_to_list');
-        $log->action    = "go to PO/TO Document report page";
-        $log->save();
+        Common::Log(route('po_to_list'),"go to PO/TO Document report page");
+
+        $data = get_branch_truck();
+        $truck_id   = $data[0];
+        $loc        = $data[1];
+        $reg        = $data[2];
 
         $report = 'po_to';
         $url = 'po_to_list';
@@ -326,17 +356,21 @@ class ReportController extends Controller
                         ->when(request('to_date'),function($q){
                             $q->whereDate('created_at','<=',request('to_date'));
                         })
+                        ->whereIn('received_goods_id',$reg)
                         ->paginate(15);
         return view('user.report.report',compact('docs','report','url'));
     }
 
     public function shortage_list()
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('shortage_list');
-        $log->action    = "go to Shortage Product report page";
-        $log->save();
+        Common::Log(route('shortage_list'),"go to Shortage Product report page");
+        $data = get_branch_truck();
+        $truck_id   = $data[0];
+        $loc        = $data[1];
+        $reg        = $data[2];
+        $user_branch    = getAuth()->branch_id;
+        $mgld_dc        = [17,19,20];
+
         $report = 'shortage';
         $url = 'shortage_list';
 
@@ -363,7 +397,14 @@ class ReportController extends Controller
         }
 
 
-        $reg_ids        = GoodsReceive::where('status','complete')->pluck('id');
+        $reg_ids        = GoodsReceive::where('status','complete')
+                                        ->when($loc =='dc',function($q) use($mgld_dc){
+                                            $q->whereIn('branch_id',$mgld_dc);
+                                        })
+                                        ->when($loc == 'other',function($q) use($user_branch){
+                                            $q->where('branch_id',$user_branch);
+                                        })
+                                        ->pluck('id');
         $document_ids   = Document::whereIn('received_goods_id',$reg_ids)->pluck('id');
         $data   = Product::when(!request('search') && !request('from_date') && !request('action') && !request('to_date'),function($q)
                         {
@@ -464,11 +505,7 @@ class ReportController extends Controller
 
     public function product_pdf($id)
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('product_pdf',['id'=>$id]);
-        $log->action    = "PDF Generate for Product";
-        $log->save();
+        Common::Log(route('product_pdf',['id'=>$id]),"PDF Generate for Product");
 
         $docs = Document::where('received_goods_id',$id)->pluck('id');
         $data = Product::whereIn('document_id',$docs)->get();
@@ -510,11 +547,7 @@ class ReportController extends Controller
 
     public function document_detail_pdf($id)
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('document_detail_pdf',['id'=>$id]);
-        $log->action    = "PDF Generate for Document(REG) Detail";
-        $log->save();
+        Common::Log(route('document_detail_pdf',['id'=>$id]),"PDF Generate for Document(REG) Detail");
 
         $action = 'print';
         $date = Carbon::now()->format('Ymd');
@@ -534,11 +567,7 @@ class ReportController extends Controller
 
     public function doc_detail_pdf($id)
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('doc_detail_pdf',['id'=>$id]);
-        $log->action    = "PDF Generate for Document(PO/TO) Detail";
-        $log->save();
+        Common::Log(route('doc_detail_pdf',['id'=>$id]),"PDF Generate for Document(PO/TO) Detail");
 
         $action     = 'print';
         $date = Carbon::now()->format('Ymd');
@@ -553,11 +582,7 @@ class ReportController extends Controller
 
     public function scan_count_pdf($id)
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('doc_detail_pdf',['id'=>$id]);
-        $log->action    = "PDF Generate for Document(PO/TO) Detail";
-        $log->save();
+        Common::Log(route('doc_detail_pdf',['id'=>$id]),"PDF Generate for Document(PO/TO) Detail");
 
         $action     = 'print';
         $date = Carbon::now()->format('Ymd');
@@ -570,11 +595,7 @@ class ReportController extends Controller
 
     public function detail_doc($id)
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('detail_doc',['id'=>$id]);
-        $log->action    = "Go To Document(PO/TO) Detail Page";
-        $log->save();
+        Common::Log(route('detail_doc',['id'=>$id]),"Go To Document(PO/TO) Detail Page");
 
         $detail     = 'doc';
         $reg        = GoodsReceive::where('id',$id)->first();
@@ -585,11 +606,7 @@ class ReportController extends Controller
 
     public function detail_truck($id)
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('detail_truck',['id'=>$id]);
-        $log->action    = "Go To Truck Detail Page";
-        $log->save();
+        Common::Log(route('detail_truck',['id'=>$id]),"Go To Truck Detail Page");
 
         $detail     = 'truck';
         $driver     = DriverInfo::where('id',$id)->first();
@@ -609,11 +626,8 @@ class ReportController extends Controller
 
     public function detail_document($id)
     {
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('detail_document',['id'=>$id]);
-        $log->action    = "Go To Document(REG) Detail Page";
-        $log->save();
+        Common::Log(route('detail_document',['id'=>$id]),"Go To Document(REG) Detail Page");
+
         $detail     = 'document';
         $document   = Document::where('id',$id)->first();
         $reg        = GoodsReceive::where('id',$document->received_goods_id)->first();
