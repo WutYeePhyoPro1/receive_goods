@@ -6,8 +6,9 @@ use Carbon\Carbon;
 use App\Models\Product;
 use App\Models\Document;
 use App\Models\Tracking;
-use App\Interfaces\ActionRepositoryInterface;
 use App\Models\ScanTrack;
+use App\Models\GoodsReceive;
+use App\Interfaces\ActionRepositoryInterface;
 
 Class ActionRepository implements ActionRepositoryInterface
 {
@@ -74,5 +75,41 @@ Class ActionRepository implements ActionRepositoryInterface
         Document::where('id',$document)->update([
             'updated_at'    => $update
         ]);
+    }
+
+    public function add_doc($data,$id)
+    {
+
+        $receive = GoodsReceive::where('id', $id)->first();
+
+            if (!$receive->vendor_name) {
+                $receive->update([
+                    'vendor_name' => $data[0]->vendorname
+                ]);
+            }
+            $doc = Document::create([
+            'document_no'       => $data[0]->purchaseno,
+                'received_goods_id'  => $id
+            ]);
+            $dub_pd = [];
+            for($i = 0 ; $i < count($data) ; $i++){
+                if(!in_array($data[$i]->productcode,$dub_pd))
+                {
+                    $pd_code                = new Product();
+                    $pd_code->document_id   = $doc->id;
+                    $pd_code->bar_code       = $data[$i]->productcode;
+                    $pd_code->supplier_name = $data[$i]->productname;
+                    $pd_code->qty           = (int)($data[$i]->goodqty);
+                    $pd_code->scanned_qty   = 0;
+                    $pd_code->save();
+                    $dub_pd[]    = $data[$i]->productcode;
+                }else{
+                    $search_dub = Product::where(['document_id'=>$doc->id,'bar_code'=>$data[$i]->productcode])->first();
+                    $qty = $search_dub->qty;
+                    $search_dub->update([
+                        'qty'   => $qty+(int)($data[$i]->goodqty)
+                    ]);
+                }
+            }
     }
 }

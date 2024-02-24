@@ -744,18 +744,33 @@
                                     }
                                 },
                                 error : function(xhr,status,error){
-                                    if(xhr.status == 500)
+                                    $msg = xhr.responseJSON.message;
+                                    if($msg == 'Server Time Out Please Try Again')
                                     {
                                         Swal.fire({
                                             icon : 'error',
                                             title: 'Warning',
                                             text : 'Server Time Out Please Try Again'
                                         });
-                                    }else if(xhr.status == 404){
+                                    }else if($msg == 'Not found'){
                                         Swal.fire({
                                             icon : 'error',
                                             title: 'Warning',
                                             text : 'Bar Code Not found'
+                                        });
+                                    }else if($msg == 'dublicate')
+                                    {
+                                        Swal.fire({
+                                            icon : 'error',
+                                            title: 'Warning',
+                                            text : 'Doucment တခုကို နှစ်ကြိမ်ထည့်ခွင့်မရှိပါ'
+                                        });
+                                    }else if($msg == 'doc not found')
+                                    {
+                                        Swal.fire({
+                                            icon : 'error',
+                                            title: 'Warning',
+                                            text : 'Doucment မရှိပါ'
                                         });
                                     }
                                     setTimeout(() => {

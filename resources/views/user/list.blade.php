@@ -111,7 +111,7 @@
                             {{-- <td class="h-10 text-center border border-slate-400">{{ get_total_qty($item->id) }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->remaining_qty }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->exceed_qty }}</td> --}}
-                            <td class="h-10 text-center border border-slate-400">{{ $item->start_date }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->start_date.' '.$item->start_time }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->total_duration }}</td>
                         </tr>
                     @endforeach
