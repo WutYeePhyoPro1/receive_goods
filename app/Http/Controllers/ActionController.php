@@ -30,8 +30,11 @@ class ActionController extends Controller
 
         $val = $request->data;
         $type = substr($val,0,2);
-        $docs = Document::pluck('document_no')->toArray();
-        if(in_array($val,$docs)){
+        $reg = get_branch_truck()[2];
+
+        $docs = Document::where('document_no',$val)
+                        ->whereIn('received_goods_id',$reg)->first();
+        if($docs){
             return response()->json(['message'=>'dublicate'],400);
         }
         // dd($type);
@@ -62,37 +65,7 @@ class ActionController extends Controller
         }
         // dd($data);
         if($data){
-            $receive = GoodsReceive::where('id', $request->id)->first();
-
-            if (!$receive->vendor_name) {
-                $receive->update([
-                    'vendor_name' => $data[0]->vendorname
-                ]);
-            }
-            $doc = Document::create([
-            'document_no'       => $data[0]->purchaseno,
-                'received_goods_id'  => $request->id
-            ]);
-            $dub_pd = [];
-            for($i = 0 ; $i < count($data) ; $i++){
-                if(!in_array($data[$i]->productcode,$dub_pd))
-                {
-                    $pd_code                = new Product();
-                    $pd_code->document_id   = $doc->id;
-                    $pd_code->bar_code       = $data[$i]->productcode;
-                    $pd_code->supplier_name = $data[$i]->productname;
-                    $pd_code->qty           = (int)($data[$i]->goodqty);
-                    $pd_code->scanned_qty   = 0;
-                    $pd_code->save();
-                    $dub_pd[]    = $data[$i]->productcode;
-                }else{
-                    $search_dub = Product::where(['document_id'=>$doc->id,'bar_code'=>$data[$i]->productcode])->first();
-                    $qty = $search_dub->qty;
-                    $search_dub->update([
-                        'qty'   => $qty+(int)($data[$i]->goodqty)
-                    ]);
-                }
-            }
+            $this->repository->add_doc($data,$request->id);
             return response()->json($data,200);
         }else{
             return response()->json(['message','not found'],404);
@@ -102,13 +75,40 @@ class ActionController extends Controller
     //barcode scan
     public function barcode_scan(Request $request)
     {
-
         $all    = $request->data;
         $id     = $request->id;
         $item   = preg_replace('/\D/','',$all);
         $unit   = preg_replace("/[^A-Za-z].*/", '', $all);
         $unit   = $unit == '' ? 'S' : $unit;
+        $poi    = false;
+        if(substr($all,0,3) == 'POI')
+        {
+            $reg = get_branch_truck()[2];
 
+            $docs = Document::where('document_no',$all)
+                            ->whereIn('received_goods_id',$reg)->first();
+            if($docs)
+            {
+                return response()->json(['message'=>'dublicate'],409);
+        }
+            $conn = DB::connection('master_product');
+            $data = $conn->select("
+                select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
+                from  purchaseorder.po_purchaseorderhd aa
+                inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
+                left join master_data.master_branch br on aa.brchcode= br.branch_code
+                where statusflag <> 'C'
+                --and statusflag in ('P','Y')
+                and purchaseno= '$all'
+            ");
+            if($data)
+            {
+                $this->repository->add_doc($data,$id);
+                return response()->json(['message'=>'success'],200);
+            }else{
+                return response()->json(['message'=>'doc not found'],404);
+            }
+        }
         $doc_ids = Document::where('received_goods_id',$request->id)->pluck('id');
 
         $product = Product::whereIn('document_id',$doc_ids)
@@ -269,7 +269,7 @@ class ActionController extends Controller
             return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty],200);
             } catch (\Exception $e) {
                 logger($e);
-                return response()->json(['message'=>'Not found'],500);
+                return response()->json(['message'=>'Server Time Out Please Try Again'],500);
             }
 
         }else{

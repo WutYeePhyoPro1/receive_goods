@@ -28,9 +28,6 @@ class UserSeeder extends Seeder
         $user->active           = true;
         $user->save();
 
-        $role = Role::create(['name'=>'admin']);
-        $permission = Permission::whereIn('permission_id',[2,3,4,5,6,7])->pluck('id','permission_id')->all();
-        $role->syncPermissions($permission);
-        $user->assignRole([$role->name]);
+        $user->assignRole('admin');
     }
 }

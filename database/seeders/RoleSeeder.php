@@ -14,7 +14,7 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $role = ['user','supervisor','manager'];
+        $role = ['admin','user','supervisor','manager'];
 
         foreach($role as $item)
         {
@@ -28,6 +28,9 @@ class RoleSeeder extends Seeder
             }elseif($item == 'manager')
             {
                 $permission = Permission::whereIn('permission_id',[2,6,7])->pluck('id','id')->all();
+            }elseif($item == 'admin')
+            {
+                $permission = Permission::whereIn('permission_id',[2,3,4,5,6,7])->pluck('id','permission_id')->all();
             }
 
             $role->syncPermissions($permission);
