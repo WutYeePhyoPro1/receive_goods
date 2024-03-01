@@ -92,7 +92,6 @@ return [
             'schema' => 'public',
             'sslmode' => 'prefer',
         ],
-
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DATABASE_URL'),
@@ -106,21 +105,21 @@ return [
             'prefix_indexes' => true,
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
-        ],
-        'master_product' => [
-            'driver' => 'pgsql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('MasterProduct_DB_HOST', '127.0.0.1'),
-            'port' => env('MasterProduct_DB_PORT', '5432'),
-            'database' => env('MasterProduct_DB_DATABASE', 'forge'),
-            'username' => env('MasterProduct_DB_USERNAME', 'forge'),
-            'password' => env('MasterProduct_DB_PASSWORD', ''),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'schema' => 'public',
-            'sslmode' => 'prefer',
-        ],
+        ]
+        // 'master_product' => [
+        //     'driver' => 'pgsql',
+        //     'url' => env('DATABASE_URL'),
+        //     'host' => env('MasterProduct_DB_HOST', '127.0.0.1'),
+        //     'port' => env('MasterProduct_DB_PORT', '5432'),
+        //     'database' => env('MasterProduct_DB_DATABASE', 'forge'),
+        //     'username' => env('MasterProduct_DB_USERNAME', 'forge'),
+        //     'password' => env('MasterProduct_DB_PASSWORD', ''),
+        //     'charset' => 'utf8',
+        //     'prefix' => '',
+        //     'prefix_indexes' => true,
+        //     'schema' => 'public',
+        //     'sslmode' => 'prefer',
+        // ],
 
     ],
 

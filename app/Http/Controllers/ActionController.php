@@ -43,7 +43,8 @@ class ActionController extends Controller
                 from  purchaseorder.po_purchaseorderhd aa
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
-                where statusflag <> 'C' and statusflag in ('P','Y')
+                where statusflag <> 'C'
+                and statusflag in ('P','Y')
                 and purchaseno= '$val'
             ");
 
