@@ -98,6 +98,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('scan_count_pdf/{id}','scan_count_pdf')->name('scan_count_pdf');
 
             route::post('excel_export','excel_export')->name('excel_export');
+            route::get('complete_doc_print/{id}','complete_doc_print')->name('complete_doc_print');
         });
 
         route::group(['controller'=>ActionController::class],function(){
@@ -109,5 +110,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('confirm_btn','confirm')->name('confirm');
             route::get('finish_goods/{id}','finish_goods')->name('finish_goods');
             route::post('del_exceed','del_exceed')->name('del_exceed');
+
+            route::post('pass_vali','pass_vali')->name('pass_vali');
+            route::post('ajax/add_product','add_product')->name('add_product');
         });
 });

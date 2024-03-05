@@ -68,20 +68,31 @@
                                     <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
                                 </tr>
                             @elseif ($detail == 'truck')
-                                <tr>
-                                    <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
-                                    <th class="py-2 bg-slate-400 border" rowspan="2">Document No</th>
-                                    <th class="py-2 bg-slate-400  border" rowspan="2">Bar Code</th>
-                                    <th class="py-2 bg-slate-400  border" rowspan="2">Product Name</th>
-                                    <th class="py-2 bg-slate-400  border" colspan="3">Scan(Count) Qty</th>
-                                    <th class="py-2 bg-slate-400  rounded-tr-md" rowspan="2">Unloaded Qty</th>
-                                </tr>
-                                <tr>
-                                    <th class="py-2 bg-slate-400  rounded-tl-md w-10">L</th>
-                                    <th class="py-2 bg-slate-400 border w-10">M</th>
-                                    <th class="py-2 bg-slate-400 border w-10">S</th>
+                                @if (dc_staff())
+                                    <tr>
+                                        <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
+                                        <th class="py-2 bg-slate-400 border" rowspan="2">Document No</th>
+                                        <th class="py-2 bg-slate-400  border" rowspan="2">Bar Code</th>
+                                        <th class="py-2 bg-slate-400  border" rowspan="2">Product Name</th>
+                                        <th class="py-2 bg-slate-400  border" colspan="3">Scan(Count) Qty</th>
+                                        <th class="py-2 bg-slate-400  rounded-tr-md" rowspan="2">Unloaded Qty</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="py-2 bg-slate-400  rounded-tl-md w-10">L</th>
+                                        <th class="py-2 bg-slate-400 border w-10">M</th>
+                                        <th class="py-2 bg-slate-400 border w-10">S</th>
 
-                                </tr>
+                                    </tr>
+                                @else
+                                    <tr>
+                                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                        <th class="py-2 bg-slate-400 border">Document No</th>
+                                        <th class="py-2 bg-slate-400  border">Bar Code</th>
+                                        <th class="py-2 bg-slate-400  border">Product Name</th>
+                                        <th class="py-2 bg-slate-400  border">Scan(Count) Qty</th>
+                                        <th class="py-2 bg-slate-400  rounded-tr-md">Unloaded Qty</th>
+                                    </tr>
+                                @endif
                             @elseif ($detail == 'scan')
                                 <tr>
                                     <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
@@ -136,28 +147,53 @@
                             @foreach ($document as $item)
                             @if (count(get_truck_product($item,$driver->id)) > 0)
                                 @foreach (get_truck_product($item,$driver->id) as $key=>$tem)
-                                <tr class="h-10">
-                                    @if ($key == 0)
+                                    @if (dc_staff())
+                                        <tr class="h-10">
+                                            @if ($key == 0)
 
-                                            <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ getDocument($item)->document_no }}</td>
-                                        @else
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
-                                        @endif
-                                        <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->product->bar_code }}</td>
-                                        <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->product->supplier_name }}</td>
-                                        <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'L') }}</td>
-                                        <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'M') }}</td>
-                                        <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'S') }}</td>
-                                        <td class="ps-2 border border-slate-400 border-t-0 qty">
-                                            @can ('adjust-truck-goods')
-                                                <input type="number" data-old="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" data-pd="{{ $tem->product_id }}" data-driver="{{ $driver->id }}" value="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" class="border ps-4 appearance-none scanned_qty">
+                                                <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ getDocument($item)->document_no }}</td>
                                             @else
-                                                {{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}
-                                            @endcan
-                                        </td>
-                                    </tr>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
+                                            @endif
+                                            <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->product->bar_code }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->product->supplier_name }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'L') }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'M') }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'S') }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 qty">
+                                                @can ('adjust-truck-goods')
+                                                    <input type="number" data-old="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" data-pd="{{ $tem->product_id }}" data-driver="{{ $driver->id }}" value="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" class="border ps-4 appearance-none scanned_qty">
+                                                @else
+                                                    {{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}
+                                                @endcan
+                                            </td>
+                                        </tr>
+                                    @else
+                                        <tr class="h-10">
+                                            @if ($key == 0)
+
+                                                <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ getDocument($item)->document_no }}</td>
+                                            @else
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
+                                            @endif
+                                            <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->product->bar_code }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->product->supplier_name }}</td>
+
+                                            <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'S') }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 qty">
+                                                @can ('adjust-truck-goods')
+                                                    <input type="number" data-old="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" data-pd="{{ $tem->product_id }}" data-driver="{{ $driver->id }}" value="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" class="border ps-4 appearance-none scanned_qty">
+                                                @else
+                                                    {{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}
+                                                @endcan
+                                            </td>
+                                        </tr>
+                                    @endif
+
                                 @endforeach
                             @endif
                             <?php

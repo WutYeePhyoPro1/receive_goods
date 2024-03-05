@@ -646,4 +646,9 @@ class ReportController extends Controller
         $scan_track = ScanTrack::where('driver_info_id',$id)->orderBy('id')->get();
         return view('user.report.detail_report',compact('detail','scan_track'));
     }
+
+    public function complete_doc_print($id)
+    {
+        dd($id);
+    }
 }

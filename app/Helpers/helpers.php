@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Branch;
+use App\Models\CarGate;
 use Carbon\Carbon;
 use App\Models\Product;
 use App\Models\Document;
@@ -21,7 +23,6 @@ use Illuminate\Support\Facades\DB;
         $main = GoodsReceive::where('id',$doc->received_goods_id)->first();
 
         return Product::where('document_id',$id)
-                        ->where(DB::raw('scanned_qty'), '<', DB::raw('qty'))
                         ->orderBy('id','asc')
                         ->get();
     }
@@ -370,4 +371,26 @@ use Illuminate\Support\Facades\DB;
         $data = [$truck_id, $loc,$reg];
 
         return $data;
+    }
+
+    function dc_staff()
+    {
+        $is = false;
+        if(in_array($branch_id = getAuth()->branch_id,[17,19,20]))
+        {
+            $is = true;
+        }
+        return $is;
+    }
+
+    function gate_exist($branch_id)
+    {
+        $branch = Branch::find($branch_id);
+        $gate   = CarGate::where('branch',$branch->branch_code)->first();
+        if($gate)
+        {
+            return true;
+        }else{
+            return false;
+        }
     }

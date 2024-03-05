@@ -94,7 +94,7 @@
                                 <i class='bx bxs-show text-amber-400 cursor-pointer ms-3 text-lg view_goods hidden' title="view Document" onclick="javascript:window.location.href = '/view_goods/'+{{$item->id}}"></i>
                                 @can('add-new-truck')
                                     @if ($item->status == 'incomplete')
-                                        <i class='bx bx-message-square-edit text-sky-600 cursor-pointer ms-3 text-lg edit_view' data-id="{{ $item->id }}" style="transform: translateY(2px)"></i>
+                                        <i class='bx bx-message-square-edit text-sky-600 cursor-pointer ms-3 text-lg edit_view' title="add truck" data-id="{{ $item->id }}" style="transform: translateY(2px)"></i>
                                     {{-- @else --}}
                                         {{-- <i class='bx bxs-folder text-emerald-400 cursor-pointer ms-3 text-lg' title="new truck" onclick="javascript:window.location.href = '/receive_goods/'+{{$item->id}}"></i> --}}
                                     @endif

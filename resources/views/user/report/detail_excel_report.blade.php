@@ -159,21 +159,31 @@
             @if ($detail == 'truck')
             <table class="real_tb" style="width: 100%;">
                     <thead>
+                        @if (dc_staff())
+                            <tr class="">
+                                    <th class="t_head" style="min-width:20px" rowspan="2"></th>
+                                    <th class="t_head" rowspan="2">Document No</th>
+                                    <th class="t_head" rowspan="2">Bar Code</th>
+                                    <th class="t_head" rowspan="2">Product Name</th>
+                                    <th class="t_head" colspan="3" >Scan(Count) Qty</th>
+                                    <th class="t_head" rowspan="2">Unloaded Qty</th>
+                            </tr>
+                            <tr>
+                                <th class="t_head" style="width: 27px">L</th>
+                                <th class="t_head" style="width: 27px">M</th>
+                                <th class="t_head" style="width: 27px">S</th>
 
-                        <tr class="">
-                                <th class="t_head" style="min-width:20px" rowspan="2"></th>
-                                <th class="t_head" rowspan="2">Document No</th>
-                                <th class="t_head" rowspan="2">Bar Code</th>
-                                <th class="t_head" rowspan="2">Product Name</th>
-                                <th class="t_head" colspan="3" >Scan(Count) Qty</th>
-                                <th class="t_head" rowspan="2">Unloaded Qty</th>
-                        </tr>
-                        <tr>
-                            <th class="t_head" style="width: 27px">L</th>
-                            <th class="t_head" style="width: 27px">M</th>
-                            <th class="t_head" style="width: 27px">S</th>
-
-                        </tr>
+                            </tr>
+                        @else
+                            <tr class="">
+                                    <th class="t_head" style="min-width:20px"></th>
+                                    <th class="t_head">Document No</th>
+                                    <th class="t_head">Bar Code</th>
+                                    <th class="t_head">Product Name</th>
+                                    <th class="t_head">Scan(Count) Qty</th>
+                                    <th class="t_head">Unloaded Qty</th>
+                            </tr>
+                        @endif
                     </thead>
                     <tbody>
 
@@ -184,22 +194,39 @@
                             @foreach ($document as $item)
                                 @if (count(get_truck_product($item,$driver->id)) > 0)
                                     @foreach (get_truck_product($item,$driver->id) as $key=>$tem)
-                                    <tr class="h-10">
-                                        @if ($key == 0)
+                                        @if (dc_staff())
+                                            <tr class="h-10">
+                                                @if ($key == 0)
 
-                                                <td class="">{{ $i+1 }}</td>
-                                                <td class="">{{ getDocument($item)->document_no }}</td>
-                                            @else
-                                                <td class=""></td>
-                                                <td class=""></td>
-                                            @endif
-                                            <td class="">{{ $tem->product->bar_code }}</td>
-                                            <td class="">{{ $tem->product->supplier_name }}</td>
-                                            <td class="">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'L') }}</td>
-                                            <td class="">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'M') }}</td>
-                                            <td class="">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'S') }}</td>
-                                            <td class="">{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}</td>
-                                        </tr>
+                                                    <td class="">{{ $i+1 }}</td>
+                                                    <td class="">{{ getDocument($item)->document_no }}</td>
+                                                @else
+                                                    <td class=""></td>
+                                                    <td class=""></td>
+                                                @endif
+                                                <td class="">{{ $tem->product->bar_code }}</td>
+                                                <td class="">{{ $tem->product->supplier_name }}</td>
+                                                <td class="">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'L') }}</td>
+                                                <td class="">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'M') }}</td>
+                                                <td class="">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'S') }}</td>
+                                                <td class="">{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}</td>
+                                            </tr>
+                                        @else
+                                            <tr class="h-10">
+                                                @if ($key == 0)
+
+                                                    <td class="">{{ $i+1 }}</td>
+                                                    <td class="">{{ getDocument($item)->document_no }}</td>
+                                                @else
+                                                    <td class=""></td>
+                                                    <td class=""></td>
+                                                @endif
+                                                <td class="">{{ $tem->product->bar_code }}</td>
+                                                <td class="">{{ $tem->product->supplier_name }}</td>
+                                                <td class="">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'S') }}</td>
+                                                <td class="">{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}</td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                 @endif
                             <?php
@@ -257,9 +284,6 @@
                                 <th class="t_head">Product Name</th>
                                 <th class="t_head">Total Qty</th>
                                 <th class="t_head">Scanned Qty</th>
-                                <th class="t_head">Shortage</th>
-                                <th class="t_head">Surplus</th>
-                                <th class="t_head">Created At</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -278,9 +302,7 @@
                                             <td class="">{{ $tem->supplier_name }}</td>
                                             <td class="">{{ $tem->qty }}</td>
                                             <td class="">{{ $tem->scanned_qty }}</td>
-                                            <td class="">{{ $tem->qty > $tem->scanned_qty ? $tem->qty-$tem->scanned_qty : '' }}</td>
-                                            <td class="">{{ $tem->qty < $tem->scanned_qty ? $tem->scanned_qty - $tem->qty : '' }}</td>
-                                            <td class="">{{ $tem->created_at->format('Y-m-d') }}</td>
+
                                         </tr>
                                     @endforeach
                                 @endif

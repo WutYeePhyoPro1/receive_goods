@@ -3,16 +3,22 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Product;
 use App\Models\Document;
 use App\Models\Tracking;
+use App\Customize\Common;
+use App\Models\ScanTrack;
 use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
 use App\Models\GoodsReceive;
 use Illuminate\Http\Request;
+use App\Models\AddProductTrack;
 use App\Models\changeTruckProduct;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Repositories\ActionRepository;
+use Illuminate\Support\Facades\Session;
 use App\Interfaces\ActionRepositoryInterface;
 
 class ActionController extends Controller
@@ -39,8 +45,15 @@ class ActionController extends Controller
         }
         // dd($type);
         $conn = DB::connection('master_product');
+
         if($type == "PO")
         {
+            $brch_con = '';
+            if(!dc_staff())
+            {
+                $user_brch = getAuth()->branch->branch_code;
+                $brch_con = "and brchcode = '$user_brch'";
+            }
             $data = $conn->select("
                 select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
                 from  purchaseorder.po_purchaseorderhd aa
@@ -48,9 +61,9 @@ class ActionController extends Controller
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
                 where statusflag <> 'C'
                 and statusflag in ('P','Y')
+                $brch_con
                 and purchaseno= '$val'
             ");
-
         }else{
             $data = $conn->select("
                 select tohd.transferdocno as to_docno
@@ -63,7 +76,7 @@ class ActionController extends Controller
                 and tohd.statusid <> 'C'
             ");
         }
-        // dd($data);
+        $conn = null;
         if($data){
             $this->repository->add_doc($data,$request->id);
             return response()->json($data,200);
@@ -75,6 +88,7 @@ class ActionController extends Controller
     //barcode scan
     public function barcode_scan(Request $request)
     {
+        Session::forget('first_time_search_'.$request->id);
         $all    = $request->data;
         $id     = $request->id;
         $item   = preg_replace('/\D/','',$all);
@@ -92,13 +106,20 @@ class ActionController extends Controller
                 return response()->json(['message'=>'dublicate'],409);
         }
             $conn = DB::connection('master_product');
+            $brch_con = '';
+            if(!dc_staff())
+            {
+                $user_brch = getAuth()->branch->branch_code;
+                $brch_con = "and brchcode = '.$user_brch.'";
+            }
             $data = $conn->select("
                 select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
                 from  purchaseorder.po_purchaseorderhd aa
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
                 where statusflag <> 'C'
-                --and statusflag in ('P','Y')
+                and statusflag in ('P','Y')
+                $brch_con
                 and purchaseno= '$all'
             ");
             if($data)
@@ -124,23 +145,28 @@ class ActionController extends Controller
             $doc_no = $product->doc->document_no;
             $conn = DB::connection('master_product');
             try {
+            if(in_array(getAuth()->branch_id,[17,19,20]))
+            {
                 $data = $conn->select("
-                select * from
-                (
-                select	 product_code, qty
-                from	dblink('dbname=pro1_awms host = 192.168.151.241 port=5432 user=superadmin password=super123',
-                '
-                SELECT product_code,qty FROM (
-                SELECT product_code,product_code as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
-                SELECT product_code,pack_barcode as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
-                SELECT product_code,barcode_box as barcode,case when unit_rate_box=''0'' then product_unit_rate else unit_rate_box end as qty FROM public.aw_master_product_rate UNION ALL
-                SELECT product_code,barcode_pallet as barcode,case when unit_rate_box=''0'' then (product_unit_rate*unit_rate_pallet) else (unit_rate_pallet*unit_rate_box) end as qty FROM public.aw_master_product_rate
-                )rt
-                WHERE barcode=''$all''')
-                as temp(product_code varchar(50),qty varchar(50))
-                )as erpdb
-            ");
+                    select * from
+                    (
+                    select	 product_code, qty
+                    from	dblink('dbname=pro1_awms host = 192.168.151.241 port=5432 user=superadmin password=super123',
+                    '
+                    SELECT product_code,qty FROM (
+                    SELECT product_code,product_code as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
+                    SELECT product_code,pack_barcode as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
+                    SELECT product_code,barcode_box as barcode,case when unit_rate_box=''0'' then product_unit_rate else unit_rate_box end as qty FROM public.aw_master_product_rate UNION ALL
+                    SELECT product_code,barcode_pallet as barcode,case when unit_rate_box=''0'' then (product_unit_rate*unit_rate_pallet) else (unit_rate_pallet*unit_rate_box) end as qty FROM public.aw_master_product_rate
+                    )rt
+                    WHERE barcode=''$all''')
+                    as temp(product_code varchar(50),qty varchar(50))
+                    )as erpdb
+                ");
             $qty = (int)($data[0]->qty) == 0 ? 1 : (int)($data[0]->qty) ;
+            }else{
+                $qty = 1;
+            }
             $per        = $qty;
             $total_scan = $qty;
             $count = 0;
@@ -203,7 +229,7 @@ class ActionController extends Controller
                                 'scanned_qty'   => $scanned,
                                 'updated_at'    => $update_time
                             ]);
-                            $this->repository->add_track($driver_info->id,$item->id,$total_scan,$item->document_id,$update_time,$unit,$per);
+                            $pd_code = $this->repository->add_track($driver_info->id,$item->id,$total_scan,$item->document_id,$update_time,$unit,$per);
                             $count ++;
                             break;
                         }else if($item->qty > $item->scanned_qty && $sub < $total_scan && $index != count($all_product)-1){
@@ -230,7 +256,7 @@ class ActionController extends Controller
                                 'updated_at'    => $update_time
                             ]);
 
-                            $this->repository->add_track($driver_info->id,$item->id,$added,$item->document_id,$update_time,$unit,$per);
+                            $pd_code = $this->repository->add_track($driver_info->id,$item->id,$added,$item->document_id,$update_time,$unit,$per);
                         }elseif($index == count($all_product)-1)
                         {
                                 $scanned = $item->scanned_qty+$total_scan;
@@ -244,7 +270,7 @@ class ActionController extends Controller
                                     'scanned_qty'   => $scanned,
                                     'updated_at'    => $update_time
                                 ]);
-                                $this->repository->add_track($driver_info->id,$item->id,$total_scan,$item->document_id,$update_time,$unit,$per);
+                            $pd_code = $this->repository->add_track($driver_info->id,$item->id,$total_scan,$item->document_id,$update_time,$unit,$per);
                         }
                         $count ++;
                     }
@@ -264,9 +290,27 @@ class ActionController extends Controller
             }
             if(isset($driver_info) && $count == 0)
             {
-                $this->repository->add_track($driver_info->id,$product->id,$total_scan,$product->document_id,null,$unit,$per);
+                $pd_code = $this->repository->add_track($driver_info->id,$product->id,$total_scan,$product->document_id,null,$unit,$per);
             }
-            return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty],200);
+            $receive_good = GoodsReceive::find($request->id);
+            if($receive_good->start_date == '')
+            {
+                $receive_good->update([
+                    'start_date' => Carbon::now()->format('Y-m-d'),
+                    'start_time' => Carbon::now()->format('H:i:s')
+                ]);
+            }
+            $cur_car = DriverInfo::find($request->car);
+            if($cur_car->start_date == '')
+            {
+                $cur_car->update([
+                    'start_date' => Carbon::now()->format('Y-m-d'),
+                    'start_time' => Carbon::now()->format('H:i:s')
+                ]);
+                Session::put('first_time_search_'.$request->id,$pd_code);
+            }
+
+            return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty,'pd_code'=>$pd_code],200);
             } catch (\Exception $e) {
                 logger($e);
                 return response()->json(['message'=>'Server Time Out Please Try Again'],500);
@@ -436,6 +480,72 @@ class ActionController extends Controller
         $del->product_id            = $request->id;
         $del->remove_qty            = $remove_qty;
         $del->save();
+
+        return response()->json(200);
+    }
+
+    public function pass_vali(Request $request)
+    {
+        $emplyee    = explode('&',$request->data)[0];
+        $emplyee    = explode('=',$emplyee)[1];
+        $password    = explode('&',$request->data)[1];
+        $password    = explode('=',$password)[1];
+        $user = User::where('employee_code', $emplyee)->first();
+        if(isset($user) && Hash::check($password, $user->password))
+        {
+            return response()->json($user,200);
+        }else{
+            return response()->json(['message'=>'Not found'],404);
+        }
+    }
+
+    public  function add_product(Request $request)
+    {
+        Common::Log(route('add_product'),"manually add product qty");
+        $product = Product::find($request->product);
+        $track   = Tracking::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id])->first();
+        $scan_track = ScanTrack::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id,'unit'=>'S'])->first();
+
+        $product->update([
+            'scanned_qty'   => $product->scanned_qty + $request->data
+        ]);
+
+        if($track)
+        {
+            $track->update([
+                'scanned_qty'   => $track->scanned_qty + $request->data
+            ]);
+        }else{
+            $track                  = new Tracking();
+            $track->driver_info_id  = $request->car_id;
+            $track->product_id      = $request->product;
+            $track->scanned_qty     = $request->data;
+            $track->user_id         = getAuth()->id;
+            $track->save();
+        }
+
+        if($scan_track)
+        {
+            $scan_track->update([
+                'count' => $scan_track->count + $request->data
+            ]);
+        }else{
+            $scan_track             = new ScanTrack();
+            $scan_track->driver_info_id  = $request->car_id;
+            $scan_track->product_id      = $request->product;
+            $scan_track->user_id         = getAuth()->id;
+            $scan_track->unit            = 'S';
+            $scan_track->per            = 1;
+            $scan_track->count            = $request->data;
+            $scan_track->save();
+        }
+
+        $product_track = new AddProductTrack();
+        $product_track->authorize_user  =   $request->auth;
+        $product_track->by_user         =   getAuth()->id;
+        $product_track->truck_id        =   $request->car_id;
+        $product_track->added_qty       =   $request->data;
+        $product_track->save();
 
         return response()->json(200);
     }

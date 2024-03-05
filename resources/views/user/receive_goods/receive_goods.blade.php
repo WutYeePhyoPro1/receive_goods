@@ -11,8 +11,10 @@
     @endif
     <div class="flex justify-between">
         <div class="flex">
+
             {{-- <div class="flex {{ $main->duration ? 'invisible pointer-events-none' : '' }}"> --}}
-            @if (($main->status != 'complete') && !isset($status))
+
+            @if (($main->status != 'complete') && $status != 'view')
             <input type="text" id="docu_ipt" class="w-80 h-1/2 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none" placeholder="PO/POI/TO Document...">
             <button  class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500" id="search_btn" hidden>Search</button>
             @endif
@@ -27,12 +29,17 @@
         <div class="flex">
             <div class="">
                 <span class=" mt-2 -translate-x-6  mr-3" >Document No : <b class="text-xl" id="doc_no">{{ $main->document_no ?? '' }}</b></span>
-                <span class=" mt-2 -translate-x-6  ms-3" >Source : <b class="text-xl" id="source">{{ $main->source_good->name ?? '' }}</b></span>
+                @if (dc_staff())
+                    <span class=" mt-2 -translate-x-6  ms-3" >Source : <b class="text-xl" id="source">{{ $main->source_good->name ?? '' }}</b></span>
+                @elseif (!dc_staff() && $main->vendor_name)
+                    <span class=" mt-2 -translate-x-6  ms-3" >Vendor : <b class="text-xl" id="vendor">{{ $main->vendor_name ?? '' }}</b></span>
+                @endif
             </div>
             @if ($main->status == 'complete')
                 <span class="text-emerald-600 font-bold text-3xl ms-40 underline">Complete</span>
+                <a href="{{ route('complete_doc_print',['id'=>$main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a>
             @endif
-            @if (!isset($status))
+            @if ($status != 'view' && $cur_driver->start_date)
             <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
             <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
             @endif
@@ -51,11 +58,14 @@
 
     </div>
     <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
-    <input type="hidden" id="bar_code" value="" >
-    <input type="hidden" id="finished" value="{{ $main->status == 'complete' ? true : false }}">
-    @if (isset($status) && $status != 'view')
-        <input type="hidden" id="cur_truck" value="{{ $cur_driver->id }}">
+    @if($status != 'view')
+        <input type="text" id="bar_code" class="pointer-events-none border mt-1 rounded-lg shadow-lg" value="" >
+        <span class="ms-1">previous scanned barcode : <b id="prev_scan">{{ Session::get('first_time_search_'.$main->id) }}</b></span>
+        <input type="hidden" id="finished" value="{{ $main->status == 'complete' ? true : false }}">
     @endif
+    {{-- @if (isset($status) && $status != 'view') --}}
+        <input type="hidden" id="cur_truck" value="{{ $cur_driver->id ?? '' }}">
+    {{-- @endif --}}
     <div class="grid grid-cols-2 gap-2">
     <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
             <div class="border border-b-slate-400 h-10 bg-sky-50">
@@ -112,8 +122,15 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">{{ $tem->qty }}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">{{ $tem->scanned_qty }}</td>
-                                                <input type="hidden" class="real_scan" value="{{ $tem->scanned_qty }}">
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
+                                                    <div class="main_scan">
+                                                        {{ $tem->scanned_qty }}
+                                                        @if (!dc_staff() && $cur_driver->start_date)
+                                                            <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $key }}" title="add quantity"></i>
+                                                        @endif
+                                                    </div>
+                                                    <input type="hidden" class="w-[80%] real_scan" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
+                                                </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
                                             </tr>
                                         @endforeach
@@ -245,7 +262,9 @@
                                                         <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
                                                 @endif
                                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->bar_code }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
+                                                            <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1  bg-emerald-400 rounded-lg px-1 text-white hover:bg-emerald-600 remark_ic'></i>
+                                                        </td>
                                                         <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
                                             </tr>
                                             @endforeach
@@ -259,7 +278,7 @@
         </div>
     </div>
     {{-- Decision Modal --}}
- <div class="hidden" id="decision">
+ {{-- <div class="hidden" id="decision">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
         <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
             <!-- Modal content -->
@@ -296,7 +315,7 @@
             </div>
         </div>
 </div>
-</div>
+</div> --}}
 {{-- End Modal --}}
  {{-- Car info Modal --}}
  <div class="hidden" id="car_info">
@@ -520,6 +539,74 @@
 </div>
 </div>
 {{-- End Modal --}}
+
+@if (!dc_staff())
+    {{-- Auth Modal --}}
+    <div class="hidden" id="pass_con">
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+                    <div
+                        class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                        <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Authorize Confirmation &nbsp;<span
+                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-6 h-6 hidden svgclass">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                            <button type="button" class="text-rose-600 font-extrabold"
+                                onclick="$('#pass_con').hide()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4">
+                        <form id="auth_con_form">
+                                <div class=" my-1">
+                                    <div class="text-center">
+                                        <small class="text-rose-500 w-full ms-1 error_msg underline"></small>
+                                    </div>
+                                    <div class="flex flex-col px-10 relative ">
+                                        <label for="employee_code">Employee Id<span class="text-rose-600">*</span> :</label>
+                                        <input type="text" name="employee_code" id="employee_code" class=" mt-2 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('employee_code') }}" placeholder="employee code" autocomplete="off">
+                                            <small class="text-rose-500 ms-1 error_msg"></small>
+
+                                    </div>
+
+                                    <div class="flex flex-col px-10 mt-4">
+                                        <label for="pass">Password<span class="text-rose-600">*</span> :</label>
+                                        <input type="password" name="pass" id="pass" class="mt-2 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('pass') }}" placeholder="">
+                                        <small class="text-rose-500 ms-1 error_msg"></small>
+
+                                    </div>
+                                </div>
+                                <input type="hidden" id="index">
+                            <div class="grid grid-cols-2 gap-5 my-5">
+
+                                <div class="">
+
+                                </div>
+                                <div class="">
+                                    <button type="button" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10" id="auth_con">Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </div>
+    {{-- End Modal --}}
+
+@endif
     @push('js')
         <script >
             $(document).ready(function(e){
@@ -530,10 +617,24 @@
                 $role = $('#user_role').val();
                 $all_begin = $('#started_time').val();
                 $count = parseInt($('#count').val()) || 0;
+                $cur_id = $('#cur_truck').val() ?? '';
+                $dc_staff = "{{ getAuth()->branch_id}}";
+                $dc_staff = $dc_staff.includes([17,19,20]) ? true: false;
+
+                function reload_page(){
+                    $('.main_table').load(location.href + ' .main_table');
+                    $('.scan_parent').load(location.href + ' .scan_parent', function() {
+                        $('.excess_div').load(location.href + ' .excess_div', function() {
+                            $('.scanned_pd_div').eq(0).find('td').addClass('latest');
+                        });
+                    });
+                }
+                // $('.real_scan').eq(0).attr('type','text');
 
                 $(document).on('click','#driver_info',function(e){
                     $('#car_info').toggle();
                 })
+
                 if($status != 'view')
                 {
 
@@ -541,7 +642,95 @@
                     $('#add_car').toggle();
                 })
 
+                if(!$finish)
+                {
+                    $(document).on('click','.change_scan',function(e){
+                        $id     = $(this).data('index');
+                        $('#index').val($id);
+                        $('#employee_code').val('');
+                        $('#pass').val('');
+                        $('.error_msg').text('');
+                        $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
+                        $('#pass_con').show();
+                    })
 
+                    $(document).on('click','#auth_con',function(e){
+                        $index  = $('#index').val();
+                        $data = $('#auth_con_form').serialize();
+
+                        $notempty = false;
+                        if($('#employee_code').val() == '')
+                        {
+                            $notempty = true;
+                            $('.error_msg').eq(1).text('Please Fill Employee Code');
+                        }
+                        if($('#pass').val() == '')
+                        {
+                            $notempty = true;
+                            $('.error_msg').eq(2).text('Please Fill Password');
+                        }
+                        if(!$notempty)
+                        {
+                            $.ajax({
+                                url : "{{route('pass_vali')}}",
+                                type: 'POST',
+                                data:{_token:token,data:$data},
+                                beforeSend:function(res){
+                                    $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
+                                    $('.error_msg').text('');
+                                },
+                                success:function(res){
+
+                                    $('#pass_con').hide();
+                                    $('.main_scan').eq($index).attr('hidden',true);
+                                    $('.real_scan').eq($index).attr('type','text');
+                                    $('.real_scan').eq($index).attr('data-auth',res.id);
+                                },
+                                error:function(){
+                                    $('.error_msg').eq(0).text('Credential Does Not Match!!');
+                                    $('.error_msg').eq(0).parent().addClass('bg-rose-200 pb-1');
+                                    $('#employee_code').val('');
+                                    $('#pass').val('');
+                                }
+                            })
+                        }
+                    })
+
+                    $(document).on('blur','.real_scan',function(e){
+                        $val    = $(this).val();
+                        $old    = $(this).data('old');
+                        $pd_id  = $(this).data('id');
+                        $auth   = $(this).data('auth');
+                        if($old >= $val)
+                        {
+                            $(this).val($old);
+                            $('.main_scan').eq($index).attr('hidden',false);
+                            $('.real_scan').eq($index).attr('type','hidden');
+                        }else{
+                            $add_val = $val - $old ;
+                            Swal.fire({
+                                icon : 'question',
+                                text : `${$add_val}ခု ပေါင်းထည့်မှာ သေချာပါသလား`,
+                            showCancelButton:true,
+                                confirmButtonText: 'Yes',
+                                cancelButtonText : 'No',
+                            }).then((result)=>{
+                                if(result.isConfirmed)
+                                {
+                                    $.ajax({
+                                        url : "{{ route('add_product') }}",
+                                        type: 'POST',
+                                        data: {_token:token,data:$add_val,car_id:$cur_id,product:$pd_id,auth:$auth},
+                                        success:function(res)
+                                        {
+                                            reload_page();
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
 
                 if(!$finish && ($role == 2 || $role == 3))
                 {
@@ -633,41 +822,47 @@
                         })
                 })
                 var key = '';
-                    $(document).on('keypress input',function(e){
-                        $doc_ipt = e.target.matches('#docu_ipt');
+                    $(document).on('keypress',function(e){
+
+                        $doc_ipt = e.target.matches('input');
                         $bar_ipt = $('#bar_code').val();
-                        if (e.key === 'Enter' && !$doc_ipt && $bar_ipt != '') {
-                            if($all_begin != '')
-                            {
-                                $('#bar_code').val(key);
-                                $('#bar_code').trigger('barcode_enter');
-                            }else{
-                                Swal.fire({
-                                    icon : 'error',
-                                    title: 'Warning',
-                                    text : 'ကားအချက်အလက် ဖြည့်ပြီးမှ scan ဖတ်နိုင်ပါမည်',
-                                    // showConfirmButton:false
-                                })
-                                setTimeout(() => {
-                                    Swal.close();
-                                }, 2000);
-                            }
-                            $('#bar_code').val('');
-                            key = '';
-                        } else {
-                            if(e.key != 'Enter')
-                            {
-                                key += e.key;
-                                $('#bar_code').val(key);
+                        if(!$doc_ipt)
+                        {
+                            if (e.key === 'Enter' && $bar_ipt != '') {
+                                if($all_begin != ''  || !$dc_staff )
+                                {
+                                    $('#bar_code').val(key);
+                                    $('#bar_code').trigger('barcode_enter');
+                                }else{
+                                    Swal.fire({
+                                        icon : 'error',
+                                        title: 'Warning',
+                                        text : 'ကားအချက်အလက် ဖြည့်ပြီးမှ scan ဖတ်နိုင်ပါမည်',
+                                        // showConfirmButton:false
+                                    })
+                                    setTimeout(() => {
+                                        Swal.close();
+                                    }, 2000);
+                                }
+                                $('#bar_code').val('');
+                                key = '';
+                            } else {
+                                if(e.key != 'Enter')
+                                {
+                                    console.log(e.key);
+                                    key += e.key;
+                                    $('#bar_code').val(key);
+                                }
                             }
                         }
                     });
 
                     $(document).on('barcode_enter','#bar_code',function(e){
                         $val  = $(this).val();
+
                         $recieve_id = $('#receive_id').val();
                         $this       = $(this);
-                        $cur_id     = $('#cur_truck').val() ?? ''
+                        // $cur_id     = $('#cur_truck').val() ?? '';
                         $code       =  $val.replace(/\D/g, '');
                         if($val){
                             $.ajax({
@@ -675,22 +870,23 @@
                                 type: 'POST',
                                 data: {_token:token , data:$val,id:$recieve_id,car : $cur_id},
                                 success:function(res){
-                                    if(res.msg == 'decision')
-                                    {
-                                        $('.decision_model').html('');
-                                        $list = `<input type="hidden" id="scan_qty" value="${res.qty}">`;
-                                        for($i = 0 ; $i < res.doc.length ; $i++)
-                                        {
-                                            $list +=`
-                                            <div data-id="${res.ids[$i]}" class="text-center mb-4 shadow-lg rounded-md border border-slate-200 py-3 cursor-pointer hover:bg-slate-200 decision_doc">
-                                                <span>${res.doc[$i]}</span>
-                                            </div>
-                                            `;
-                                        }
-                                        $('.decision_model').append($list);
-                                        $('#decision').show();
-                                    }else{
-                                        $('.main_table').load(location.href + ' .main_table');
+
+                                    // if(res.msg == 'decision')
+                                    // {
+                                    //     $('.decision_model').html('');
+                                    //     $list = `<input type="hidden" id="scan_qty" value="${res.qty}">`;
+                                    //     for($i = 0 ; $i < res.doc.length ; $i++)
+                                    //     {
+                                    //         $list +=`
+                                    //         <div data-id="${res.ids[$i]}" class="text-center mb-4 shadow-lg rounded-md border border-slate-200 py-3 cursor-pointer hover:bg-slate-200 decision_doc">
+                                    //             <span>${res.doc[$i]}</span>
+                                    //         </div>
+                                    //         `;
+                                    //     }
+                                    //     $('.decision_model').append($list);
+                                    //     $('#decision').show();
+                                    // }else{
+
                                         // $('.bar_code').each((i,v)=>{
                                             // if($(v).text() == $code){
                                                 // $scan   = parseInt($(v).parent().find('.scanned_qty').text());
@@ -736,12 +932,14 @@
                                                 // return false;
                                             // }
                                         // })
-                                        $('.scan_parent').load(location.href + ' .scan_parent', function() {
-                                            $('.excess_div').load(location.href + ' .excess_div', function() {
-                                                $('.scanned_pd_div').eq(0).find('td').addClass('latest');
-                                            });
-                                        });
-                                    }
+
+                                        if($all_begin == '')
+                                        {
+                                            window.location.reload();
+                                        }
+                                        $('#prev_scan').text(res.pd_code);
+                                        reload_page();
+                                    // }
                                 },
                                 error : function(xhr,status,error){
                                     $msg = xhr.responseJSON.message;
@@ -773,6 +971,7 @@
                                             text : 'Doucment မရှိပါ'
                                         });
                                     }
+
                                     setTimeout(() => {
                                         Swal.close();
                                         }, 3000);
@@ -805,12 +1004,7 @@
                     })
                 }
 
-
-                if(!$finish && ($role == 2 || $role == 3) && $all_begin != ''){
-                    setInterval(() => {
-                        time_count();
-                    }, 1000);
-
+                if(!$finish && ($role == 2 || $role == 3) && ($all_begin != '' || !$dc_staff)){
                     window.addEventListener('focus', function() {
                         $('#alert_model').hide();
                     });
@@ -820,18 +1014,28 @@
 
                     });
 
-                    function time_count(){
-                    let time = new Date($('#started_time').val()).getTime();
-                    // let duration = ($('#duration').val() * 1000);
-                    let duration = 0;
-                    let now  = new Date().getTime();
-                    let diff = Math.floor(now - time + duration);
-                    let hour = Math.floor(diff / (60*60*1000));
-                    let min = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
-                    let sec = Math.floor((diff % (60 * 60 * 1000)) % (60 * 1000) / (1000));
-
-                    $('#time_count').text(hour.toString().padStart(2, '0') + ':' + min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0'));
                 }
+
+
+                if(!$finish && ($role == 2 || $role == 3) && ($all_begin != '')){
+                    setInterval(() => {
+                        time_count();
+                    }, 1000);
+
+
+
+                    function time_count(){
+                        let time = new Date($('#started_time').val()).getTime();
+                        // let duration = ($('#duration').val() * 1000);
+                        let duration = 0;
+                        let now  = new Date().getTime();
+                        let diff = Math.floor(now - time + duration);
+                        let hour = Math.floor(diff / (60*60*1000));
+                        let min = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+                        let sec = Math.floor((diff % (60 * 60 * 1000)) % (60 * 1000) / (1000));
+
+                        $('#time_count').text(hour.toString().padStart(2, '0') + ':' + min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0'));
+                    }
 
 
                 $(document).on('click','.del_doc',function(e){

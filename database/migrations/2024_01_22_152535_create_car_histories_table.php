@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('car_histories', function (Blueprint $table) {
             $table->id();
             $table->string('car_no');
-            $table->integer('car_type');
+            $table->integer('car_type')->nullable();
             $table->string('driver_name');
             $table->timestamps();
         });

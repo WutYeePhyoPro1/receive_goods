@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('driver_infos', function (Blueprint $table) {
             $table->id();
-            $table->string('ph_no');
-            $table->string('type_truck',56);
+            $table->string('ph_no')->nullable();
+            $table->string('type_truck',56)->nullable();
             $table->integer('received_goods_id');
             $table->string('driver_name');
             $table->string('truck_no');
-            $table->string('nrc_no');
+            $table->string('nrc_no')->nullable();
             $table->double('scanned_goods')->nullable();
-            $table->date('start_date');
-            $table->time('start_time');
+            $table->date('start_date')->nullable();
+            $table->time('start_time')->nullable();
             $table->time('duration')->nullable();
             $table->integer('user_id');
             $table->integer('gate')->nullable();

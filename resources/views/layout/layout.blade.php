@@ -52,7 +52,6 @@
                     </div>
                 </li>
 
-
                 @can('user-management')
                     <li class="sidebar_items relative" id="user_lay" >
                         @if (request()->is('user*') || request()->is('role*') || request()->is('permission*') || request()->is('edit_user*') || request()->is('create_user'))
