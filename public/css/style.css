@@ -175,6 +175,10 @@ body::-webkit-scrollbar-track {
     animation: flash 0.5s infinite alternate;
 }
 
+.shaking{
+    animation: shake 0.5s infinite alternate;
+}
+
 @keyframes flash {
     0% {
         color: red;
@@ -184,5 +188,20 @@ body::-webkit-scrollbar-track {
     }
     100% {
         color: green;
+    }
+}
+
+@keyframes shake {
+    0% {
+        outline: rgb(0,255,0,0.5) solid 4px;
+        outline-offset:4px;
+    }
+    50% {
+        outline: rgb(255,0,0,0.5) solid 4px;
+        outline-offset:2px;
+    }
+    100% {
+        outline: rgb(0,0,255,0.5) solid 4px;
+        outline-offset:0px;
     }
 }

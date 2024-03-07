@@ -31,7 +31,7 @@
 
                         <div class="flex flex-col px-10 relative truck_div">
                             <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
-                            <input type="text" name="truck_no" id="truck_no" class="mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none truck_div" value="{{ old('truck_no') }}" placeholder="truck..." autocomplete="off">
+                            <input type="text" name="truck_no" id="truck_no" class="mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none truck_div" value="{{ old('truck_no') }}" placeholder="xx-xxxx" autocomplete="off">
 
                                 <ul class="2xl:w-[89.5%] w-[85%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto truck_div" style="top: 100%">
                                 </ul>

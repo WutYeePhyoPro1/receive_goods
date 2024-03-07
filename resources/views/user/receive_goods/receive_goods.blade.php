@@ -16,10 +16,10 @@
 
             @if (($main->status != 'complete') && $status != 'view')
             <input type="text" id="docu_ipt" class="w-80 h-1/2 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none" placeholder="PO/POI/TO Document...">
-            <button  class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500" id="search_btn" hidden>Search</button>
+            <button  class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500 pointer-events-none" tabindex="-1" id="search_btn" hidden>Search</button>
             @endif
             @if (count($driver) > 0)
-                <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info" title="View Car Info"><i class='bx bx-id-card'></i></button>
+                <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600 " id="driver_info" title="View Car Info"><i class='bx bx-id-card'></i></button>
             @else
                 @if (!isset($status))
                     <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="add_driver" title="Add Car Info"><i class='bx bx-car'></i></button>
@@ -99,16 +99,19 @@
 
                             <?php
                                 $i = 0;
+                                $j = 0;
                             ?>
                             @foreach($document as $item)
                                 @if (  count(search_pd($item->id)) > 0)
                                     <tbody class="main_body">
                                         @foreach (search_pd($item->id) as $key=>$tem)
-
+                                   
                                             <?php
+                                    
                                                 $color = check_color($tem->id);
                                             ?>
                                             <tr class="h-10">
+                                            
                                                 @if ($key == 0)
                                                     <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
                                                         {{-- <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button> --}}
@@ -127,13 +130,14 @@
                                                     <div class="main_scan">
                                                         {{ $tem->scanned_qty }}
                                                         @if (!dc_staff() && isset($cur_driver->start_date))
-                                                            <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $key }}" title="add quantity"></i>
+                                                            <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                         @endif
                                                     </div>
-                                                    <input type="hidden" class="w-[80%] real_scan" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
+                                                    <input type="hidden" class="w-[80%] real_scan border border-slate-700 rounded-lg appearance-none" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
                                             </tr>
+                                            <?php  $j++ ?>
                                         @endforeach
                                     </tbody>
                                         <?php $i++ ?>
@@ -388,7 +392,7 @@
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->ph_no }} </b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->nrc_no }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->truck_no }}</b>
-                                <b class="mb-4 text-xl">:&nbsp;{{ $item->truck->truck_name }}</b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->truck->truck_name ?? '' }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->gate == 0 ? getAuth()->branch->branch_name.' Gate' : $item->gates->name }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->scanned_goods ?? 0 }}</b>
                             </div>
@@ -679,6 +683,8 @@
                 // $('.real_scan').eq(0).attr('type','text');
 
                 $(document).on('click','#driver_info',function(e){
+                    $(this).addClass(' border-2 border-slate-600');
+                    $(this).removeClass(' border-2 border-emerald-400');
                     $('#car_info').toggle();
                 })
 
@@ -1137,7 +1143,9 @@
                     data: {_token : token , data : $val , id : $id , type : $type},
                     success: function(res){
                         $this.addClass(' border-2 border-emerald-400');
+                        $this.removeClass(' border-2 border-slate-600');
                         $('#wh_remark').val($val);
+                        $('#driver_info').removeClass('shaking');
                     }
                 })
             })
@@ -1174,6 +1182,8 @@
                             if(res.isConfirmed)
                             {
                                 not_finish($id)
+                            }else{
+                                $('#driver_info').addClass('shaking');
                             }
                         })
                     }else{
@@ -1237,6 +1247,8 @@
                             if(res.isConfirmed)
                             {
                                 all_finish($finish,$id);
+                            }else{
+                                $('#driver_info').addClass('shaking');
                             }
                         })
                     }else{

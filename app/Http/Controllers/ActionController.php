@@ -492,8 +492,9 @@ class ActionController extends Controller
         $password    = explode('&',$request->data)[1];
         $password    = explode('=',$password)[1];
         $user = User::where('employee_code', $emplyee)->first();
-        if(isset($user) && Hash::check($password, $user->password))
+        if(isset($user) && Hash::check($password, $user->password) && $user->role == 4)
         {
+
             return response()->json($user,200);
         }else{
             return response()->json(['message'=>'Not found'],404);
@@ -506,9 +507,13 @@ class ActionController extends Controller
         $product = Product::find($request->product);
         $track   = Tracking::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id])->first();
         $scan_track = ScanTrack::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id,'unit'=>'S'])->first();
-
         $product->update([
-            'scanned_qty'   => $product->scanned_qty + $request->data
+            'scanned_qty'   => $product->scanned_qty + $request->data,
+            'updated_at'    => Carbon::now()
+        ]);
+
+        Document::where('id',$product->document_id)->update([
+            'updated_at'    => Carbon::now()
         ]);
 
         if($track)

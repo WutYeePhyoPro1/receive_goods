@@ -40,7 +40,6 @@ Class ActionRepository implements ActionRepositoryInterface
     {
         $track_dub = Tracking::where(['driver_info_id'=>$driver,'product_id'=>$pd])->first();
         $product = Product::find($pd);
-        logger($product);
         if($track_dub)
         {
             $track_scan = $track_dub->scanned_qty;
