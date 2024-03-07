@@ -509,7 +509,7 @@ class userController extends Controller
         $user->password_str     = $request->password;
         $user->department_id    = $request->department;
         $user->branch_id        = $request->branch;
-        $user->active           = $request->status == 'active' ? true : false;
+        $user->status           = $request->status == 'active' ? 1 : 0;
         $user->role             = $request->role;
         $succ = $user->save();
 
@@ -525,9 +525,9 @@ class userController extends Controller
 
     public function active_user(Request $request)
     {
-        $active = $request->data == 1 ? true : false;
+        $active = $request->data == 1 ? 1 : 0;
         $user = User::where('id',$request->id)->update([
-            'active'    => $active
+            'status'    => $active
         ]);
         if($user)
         {
@@ -580,7 +580,7 @@ class userController extends Controller
                 'password_str'  => $request->password,
                 'department_id' => $request->department,
                 'branch_id'     => $request->branch,
-                'active'     => $request->status == 'active' ? true : false,
+                'status'     => $request->status == 'active' ? 1 : 0,
                 'role'     => $request->role
             ]);
 

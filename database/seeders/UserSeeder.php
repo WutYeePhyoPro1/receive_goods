@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
         $user->role             = 1;
         $user->department_id    = 1;
         $user->branch_id        = 1;
-        $user->active           = true;
+        $user->status           = 1;
         $user->save();
 
         $user->assignRole('admin');
