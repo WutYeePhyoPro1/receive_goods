@@ -369,7 +369,8 @@ class userController extends Controller
             $shr  = 'REG'.getAuth()->branch->branch_short_name.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         }
 
-        $same = GoodsReceive::where('start_date',Carbon::now()->format('Y-m-d'))->count();
+        $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',$request->branch)->get();
+        $same = count($same);
         if($same > 0){
             $name = $shr.'-'.sprintf("%04d",$same+1);
         }else{
