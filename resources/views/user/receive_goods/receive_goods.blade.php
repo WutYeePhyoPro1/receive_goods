@@ -59,7 +59,7 @@
     </div>
     <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
     @if($status != 'view')
-        <input type="text" id="bar_code" class="pointer-events-none border mt-1 rounded-lg shadow-lg" value="" >
+        <input type="text" id="bar_code" class=" border mt-1 rounded-lg shadow-lg" value="" >
         <span class="ms-1">previous scanned barcode : <b id="prev_scan">{{ Session::get('first_time_search_'.$main->id) }}</b></span>
         <input type="hidden" id="finished" value="{{ $main->status == 'complete' ? true : false }}">
     @endif
