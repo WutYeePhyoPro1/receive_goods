@@ -417,6 +417,7 @@ class ActionController extends Controller
     //click complete btn
     public function finish_goods($id)
     {
+
         $receive = GoodsReceive::where('id',$id)->first();
         $driver = DriverInfo::where('received_goods_id',$id)
                             ->where('user_id',getAuth()->id)
@@ -548,5 +549,39 @@ class ActionController extends Controller
         $product_track->save();
 
         return response()->json(200);
+    }
+
+    public function  show_remark($id)
+    {
+        $pd = Product::find($id);
+        $remark = $pd->remark == null ? '' : $pd->remark;
+        return response()->json($remark,200);
+    }
+
+    public function store_remark(Request $request)
+    {
+        // $request->validate([
+        // ]);
+        if($request->type == 'all')
+        {
+            $receive = GoodsReceive::find($request->id);
+            if($receive)
+            {
+                $receive->update([
+                    'remark' => $request->data
+                ]);
+                return response(200);
+            }
+
+        }else{
+            $product = Product::find($request->id);
+            if(!isset($product->remark))
+            {
+                $product->update([
+                    'remark' => $request->data
+                ]);
+                return response(200);
+            }
+        }
     }
 }

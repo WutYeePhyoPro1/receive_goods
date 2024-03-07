@@ -43,7 +43,7 @@
         bottom: 0;
         left: 10%;
         right: 0;
-        opacity: 0.2;
+        opacity: 0.15;
     }
 
     .footer{
@@ -54,8 +54,7 @@
 
 </style>
 <body >
-
-        <div class="wrapper">
+        <div class="wrapper" style="background-image: url('{{ public_path('storage/background_img/finallogo.png') }}') ;background-attachment: fixed;background-position: center;background-size: 950px 550px;background-repeat: no-repeat;opacity:0.1">
             {{-- <div class="" style="width: 95%;padding:20px;display:flex;justify-content:space-between">
                     <span class="" >Document No : <b class="" >{{ $reg->document_no ?? '' }}</b></span>
                     <span class="" >Truck No : <b>{{ $driver->truck_no ?? '' }}</b></span>
@@ -64,13 +63,13 @@
                     <span class=" " >Unload Duration : <b>{{ $driver->duration ?? '' }}</b></span>
             </div> --}}
             @if ($action == 'print')
-                <img id="back_img" src="{{ public_path('storage/background_img/finallogo.png') }}" alt="">
 
+                {{-- <img id="back_img" src="{{ public_path('storage/background_img/finallogo.png') }}" alt=""> --}}
             @endif
             <table class="real_tb" style="width:  100%;padding:20px 0">
                 @if($detail == 'truck')
                     <tr class="">
-                        <th class="t_head">Document No </th>
+                        <th class="t_head"  style="width: 250px">Document No </th>
                         <th class="t_head">Truck No </th>
                         <th class="t_head">Bar Truck Type </th>
                         <th class="t_head">Arrived At </th>
@@ -87,7 +86,7 @@
                     </tr>
                 @elseif($detail == 'document')
                     <tr class="">
-                        <th class="t_head">Document No </th>
+                        <th class="t_head" style="width: 250px">Document No </th>
                         <th class="t_head">PO/TO Document </th>
                         <th class="t_head">Total Cateogry </th>
                         <th class="t_head">Total Product Qty </th>
@@ -102,7 +101,7 @@
                     </tr>
                 @elseif ($detail == 'doc')
                     <tr class="">
-                        <th class="t_head">Document No </th>
+                        <th class="t_head" style="width: 250px">Document No </th>
                         <th class="t_head">Source </th>
                         <th class="t_head">Vendor Name </th>
                         <th class="t_head">Branch </th>
@@ -135,9 +134,11 @@
                 <thead>
 
                         <tr class="">
-                            <th class="t_head">Driver Name </th>
-                            <th class="t_head">Driver's Phone No </th>
-                            <th class="t_head">Driver's NRC No</th>
+                            <th class="t_head" style="width: 250px">Driver Name </th>
+                            @if (dc_staff())
+                                <th class="t_head">Driver's Phone No </th>
+                                <th class="t_head">Driver's NRC No</th>
+                            @endif
                             <th class="t_head">Truck No </th>
                             <th class="t_head">Truck Type </th>
                             <th class="t_head">Gate </th>
@@ -145,8 +146,10 @@
                         </tr>
                         <tr>
                             <th class="t_head"><b>{{ $item->driver_name ?? '' }}</b></th>
-                            <th class="t_head"><b>{{ $item->ph_no ?? '' }}</b></th>
-                            <th class="t_head"><b>{{ $item->nrc_no ?? '' }}</b></th>
+                            @if (dc_staff())
+                                <th class="t_head"><b>{{ $item->ph_no ?? '' }}</b></th>
+                                <th class="t_head"><b>{{ $item->nrc_no ?? '' }}</b></th>
+                            @endif
                             <th class="t_head"><b>{{ $item->truck_no ?? '' }}</b></th>
                             <th class="t_head"><b>{{ $item->truck->truck_name ?? '' }}</b></th>
                             <th class="t_head"><b>{{ $item->gates->name ?? '' }}</b></th>

@@ -283,12 +283,18 @@
                     <div class="card-body pt-4">
                         <div class="grid grid-cols-2 gap-5 border-b-2 border-slate-600">
                             <div class="flex flex-col">
-                                <span class="mb-4 text-xl">Vendor Name      </span>
-                                <span class="mb-4 text-xl ">Branch      </span>
+                                    <span class="mb-4 text-xl">Vendor Name      </span>
+                                    <span class="mb-4 text-xl ">Branch      </span>
+                                @if ($reg->remark)
+                                    <span class="mb-4 text-xl ">Remark      </span>
+                                @endif
                             </div>
                             <div class="flex flex-col">
                                 <b class="mb-4 text-xl">:&nbsp;{{ $reg->vendor_name ?? '' }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $reg->user->branch->branch_name }}</b>
+                                @if ($reg->remark)
+                                    <b class="mb-4 text-xl">:&nbsp;{{ $reg->remark }}</b>
+                                @endif
                             </div>
                         </div>
 
@@ -299,8 +305,10 @@
                                 <div class="flex flex-col ps-4">
                                     <span class="mb-4 text-xl">Driver's No     </span>
                                     <span class="mb-4 text-xl">Driver's Name     </span>
-                                    <span class="mb-4 text-xl">Driver's Phone No </span>
-                                    <span class="mb-4 text-xl">Driver's NRC No </span>
+                                    @if (dc_staff())
+                                        <span class="mb-4 text-xl">Driver's Phone No </span>
+                                        <span class="mb-4 text-xl">Driver's NRC No </span>
+                                    @endif
                                     <span class="mb-4 text-xl">Truck's No        </span>
                                     <span class="mb-4 text-xl">Truck's Type      </span>
                                     <span class="mb-4 text-xl">Gate      </span>
@@ -309,8 +317,10 @@
                                 <div class="flex flex-col">
                                     <b class="mb-4 text-xl">:&nbsp;{{ $index+1 }}</b>
                                     <b class="mb-4 text-xl">:&nbsp;{{ $item->driver_name }}</b>
-                                    <b class="mb-4 text-xl">:&nbsp;{{ $item->ph_no }} </b>
-                                    <b class="mb-4 text-xl">:&nbsp;{{ $item->nrc_no }}</b>
+                                    @if (dc_staff())
+                                        <b class="mb-4 text-xl">:&nbsp;{{ $item->ph_no }} </b>
+                                        <b class="mb-4 text-xl">:&nbsp;{{ $item->nrc_no }}</b>
+                                    @endif
                                     <b class="mb-4 text-xl">:&nbsp;{{ $item->truck_no }}</b>
                                     <b class="mb-4 text-xl">:&nbsp;{{ $item->truck->truck_name }}</b>
                                     <b class="mb-4 text-xl">:&nbsp;{{ $item->gate == 0 ? getAuth()->branch->branch_name.' Gate' : $item->gates->name }}</b>

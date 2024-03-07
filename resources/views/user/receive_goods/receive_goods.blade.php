@@ -58,6 +58,7 @@
 
     </div>
     <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
+    <input type="hidden" id="wh_remark" value="{{ $main->remark }}">
     @if($status != 'view')
         <input type="text" id="bar_code" class=" border mt-1 rounded-lg shadow-lg" value="" >
         <span class="ms-1">previous scanned barcode : <b id="prev_scan">{{ Session::get('first_time_search_'.$main->id) }}</b></span>
@@ -125,7 +126,7 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
                                                     <div class="main_scan">
                                                         {{ $tem->scanned_qty }}
-                                                        @if (!dc_staff() && $cur_driver->start_date)
+                                                        @if (!dc_staff() && isset($cur_driver->start_date))
                                                             <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $key }}" title="add quantity"></i>
                                                         @endif
                                                     </div>
@@ -263,7 +264,9 @@
                                                 @endif
                                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->bar_code }}</td>
                                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
-                                                            <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1  bg-emerald-400 rounded-lg px-1 text-white hover:bg-emerald-600 remark_ic'></i>
+
+                                                            <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic' data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}" data-eq="{{ $index }}"></i>
+                                                                
                                                         </td>
                                                         <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
                                             </tr>
@@ -349,10 +352,19 @@
                         <div class="flex flex-col">
                             <span class="mb-4 text-xl">Vendor Name      </span>
                             <span class="mb-4 text-xl ">Branch      </span>
+                            @if ($main->status == 'incomplete' || ($main->status == 'complete' && isset($main->remark)))
+                                <span class="mb-4 text-xl ">Remark      </span>
+                            @endif
+                            
                         </div>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col mb-3">
                             <b class="mb-4 text-xl">:&nbsp;{{ $main->vendor_name ?? '' }}</b>
                             <b class="mb-4 text-xl">:&nbsp;{{ $main->user->branch->branch_name }}</b>
+                            @if ($main->remark && $main->status == 'complete')
+                                <b class="mb-4 text-xl">:&nbsp;{{ $main->remark }}</b>
+                            @elseif($main->status == 'incomplete')
+                                <textarea class="ps-1 rounded-lg border border-slate-600" id="all_remark" cols="30" rows="3" placeholder="remark...">{{ $main->remark }}</textarea> 
+                            @endif
                         </div>
                     </div>
 
@@ -605,8 +617,43 @@
     </div>
     </div>
     {{-- End Modal --}}
-
 @endif
+
+
+    <div class="hidden" id="remark_model">
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+                    <div
+                        class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                        <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Remark for &nbsp;<b id="remark_item"></b>&nbsp;<span
+                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-6 h-6 hidden svgclass">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                            <button type="button" class="text-rose-600 font-extrabold"
+                                onclick="$('#remark_model').hide()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4 flex flex-col" id="remark_card_body">
+                        {{-- <textarea cols="50" class="ps-1" id="ipt_remark" rows="5"></textarea>
+                        <small class="ml-2" id="op_count">0/500</small> --}}
+                    </div>
+                </div>
+            </div>
+    </div>
+    </div>
     @push('js')
         <script >
             $(document).ready(function(e){
@@ -683,7 +730,7 @@
 
                                     $('#pass_con').hide();
                                     $('.main_scan').eq($index).attr('hidden',true);
-                                    $('.real_scan').eq($index).attr('type','text');
+                                    $('.real_scan').eq($index).attr('type','number');
                                     $('.real_scan').eq($index).attr('data-auth',res.id);
                                 },
                                 error:function(){
@@ -728,6 +775,13 @@
                                     })
                                 }
                             })
+                        }
+                    })
+
+                    $(document).on('keyup','.real_scan',function(e){
+                        if(e.keyCode === 13 || e.keyCode === 27)
+                        {
+                            this.blur();
                         }
                     })
                 }
@@ -824,7 +878,8 @@
                 var key = '';
                     $(document).on('keypress',function(e){
 
-                        $doc_ipt = e.target.matches('input');
+                        $doc_ipt = e.target.matches('input') || e.target.matches('textarea');
+
                         $bar_ipt = $('#bar_code').val();
                         if(!$doc_ipt)
                         {
@@ -1071,10 +1126,24 @@
 
             }
 
+            $(document).on('blur','#all_remark',function(e){
+                $val = $(this).val();
+                $id  = $('#receive_id').val();
+                $type= 'all';
+                $this = $(this);
+                $.ajax({
+                    url : "{{ route('store_remark') }}",
+                    type: "POST",
+                    data: {_token : token , data : $val , id : $id , type : $type},
+                    success: function(res){
+                        $this.addClass(' border-2 border-emerald-400');
+                        $('#wh_remark').val($val);
+                    }
+                })
+            })
 
-            $(document).on('click','#confirm_btn',function(e){
-                    $id = $('#receive_id').val();
-                    $.ajax({
+            function not_finish($id) { 
+                $.ajax({
                         url : "{{ route('confirm') }}",
                         type: 'POST',
                         data:{_token : token , id :$id},
@@ -1088,8 +1157,58 @@
                                 })
                         }
                     })
+             }
+
+            $(document).on('click','#confirm_btn',function(e){
+                    $id = $('#receive_id').val();
+                    $remark = $('#wh_remark').val();
+                    if($remark == '')
+                    {
+                        Swal.fire({
+                            icon : 'question',
+                            title: 'Remark မထည့်ရသေးပါ continue လုပ်ဖို့သေချာပါသလား',
+                            showCancelButton: true,
+                            cancelButtonText: 'No',
+                            confirmButtonText: 'Yes'
+                        }).then((res)=>{
+                            if(res.isConfirmed)
+                            {
+                                not_finish($id)
+                            }
+                        })
+                    }else{
+                        not_finish($id);
+                    }
 
                 })
+
+                function all_finish($finish,$id){
+
+                    if(!$finish)
+                    {
+
+                            Swal.fire({
+                                'icon'      : 'info',
+                                'title'     : 'Are You Sure?',
+                                'text'      : 'Remaining QTY ကျန်နေပါသေးသည်?Complete လုပ်ဖို့သေချာပါသလား?',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes',
+                                cancelButtonText:  'No'
+                            }).then((result)=>{
+                                if(result.isConfirmed){
+                                    finish($id);
+                                }
+                            })
+                    }else if($doc_count < 1){
+                        Swal.fire({
+                                'icon'      : 'error',
+                                'title'     : 'Warning',
+                                'text'      : 'Document မရှိလျှင် Complete လုပ်ခွင့်မပေးပါ',
+                            })
+                    }else{
+                        finish($id);
+                    }
+                }
 
                 $(document).on('click','#finish_btn',function(e){
                     // console.log('yes');
@@ -1097,6 +1216,7 @@
                     $finish = true;
                     $id = $('#receive_id').val();
                     $doc_count = $('#doc_total').val();
+                    $remark = $('#wh_remark').val();
                    $('.remain_qty').each((i,v)=>{
 
                     if(parseInt($(v).text()) > 0){
@@ -1105,30 +1225,24 @@
                     }
                    })
 
-                   if(!$finish)
-                   {
-
+                   if($remark == '')
+                    {
                         Swal.fire({
-                            'icon'      : 'info',
-                            'title'     : 'Are You Sure?',
-                            'text'      : 'Remaining QTY ကျန်နေပါသေးသည်?Complete လုပ်ဖို့သေချာပါသလား?',
+                            icon : 'question',
+                            title: 'Remark မထည့်ရသေးပါ finish လုပ်ဖို့သေချာပါသလား',
                             showCancelButton: true,
-                            confirmButtonText: 'Yes',
-                            cancelButtonText:  'No'
-                        }).then((result)=>{
-                            if(result.isConfirmed){
-                                finish($id);
+                            cancelButtonText: 'No',
+                            confirmButtonText: 'Yes'
+                        }).then((res)=>{
+                            if(res.isConfirmed)
+                            {
+                                all_finish($finish,$id);
                             }
                         })
-                   }else if($doc_count < 1){
-                    Swal.fire({
-                            'icon'      : 'error',
-                            'title'     : 'Warning',
-                            'text'      : 'Document မရှိလျှင် Complete လုပ်ခွင့်မပေးပါ',
-                        })
-                   }else{
-                    finish($id);
-                   }
+                    }else{
+                        all_finish($finish,$id);
+                    }
+
                 })
 
                 function finish($id)
@@ -1164,6 +1278,130 @@
                             })
                         })
                     }
+
+            $(document).on('click','.remark_ic',function(e)
+            {
+                $pd_code = $(this).data('pd');
+                $id      = $(this).data('id');
+                $eq     = $(this).data('eq');
+                $('#remark_item').text(' "'+$pd_code+' "');
+
+                $.ajax({
+                    url : "/ajax/show_remark/"+$id,
+                    beforeSend:function(){
+                        $('#remark_card_body').html('');
+                    },
+                    success:function(res){
+                        $list = '';
+                        if(res == '')
+                        {
+                            $list = `
+                            <textarea cols="50" class="ps-1" id="ipt_remark" rows="5" data-id="${ $id }" data-eq="${ $eq }"></textarea>
+                            <small class="ml-2" id="op_count">0/500</small>
+                            `;
+                        }else{
+                            $list = `
+                            <div class="" style="width: 500px;hyphens:auto;word-break:normal">
+                            <span>${res}</span>
+                        </div>
+                            `;
+                        }
+
+                        $('#remark_card_body').append($list);
+                    }
+                })
+                $('#remark_model').show();
+            })
+
+            $max = 500;
+            $(document).on('input', '#ipt_remark', function(e) {
+                e.preventDefault();
+
+                $len = $(this).val().length;
+
+                if ($len <= $max) {
+                    if (e.ctrlKey && e.shiftKey && e.keyCode === 8) {
+                        $('#op_count').html('0/500');
+                    } else {
+                        $list = `${$len}/500`;
+                        $('#op_count').html($list);
+                    }
+                    $('#op_count').css('color','black');
+                } else {
+                    if (e.keyCode !== 8 && !(e.ctrlKey && e.shiftKey && e.keyCode === 8)) {
+                        $(this).val($(this).val().substring(0,$max));
+                        $('#op_count').html($list);
+                        $('#op_count').css('color','red');
+                    } else {
+                        var $list = `${$len}/500`;
+                        $('#op_count').css('color','black');
+                    }
+                }
+            });
+
+                $(document).on('paste','#ipt_remark',function(e){
+                    $copyData = e.originalEvent.clipboardData || window.clipboardData;
+                    $pastedData = $copyData.getData('text/plain');
+                    $ava_len    = $max - $('#ipt_remark').val().length;
+
+                    if($ava_len < $pastedData.length)
+                    {
+                        $ins_txt    = $pastedData.substring(0,$ava_len);
+                        $val        = $('#ipt_remark').val() + $ins_txt;
+                        Swal.fire({
+                            icon : 'question',
+                            title: 'Copiedထားသော စာလုံး အရေအတွက် များနေပါတယ်',
+                            // text: `Your Copied Text Length is ${$pastedData.length} and avaliable Length is ${$ava_len} your can only paste '${$ins_txt}'`,
+                            text : `သင် copy ယူထားသော စာလုံးအရေအတွက်မှာ လိုအပ်သော စာလုံး အရေအတွက် ထက်မျာနေပါသဖြင့် "${$ins_txt}" အနေနဲ့ ဖြတ်တောက်မည်ကိုလက်ခံပါသလား? `,
+                            showCancelButton:true,
+                            cancelButtonText: 'No',
+                            confirmButtonText: 'Yes',
+                        }).then((result)=>{
+                            if(result.isConfirmed){
+                                $('#ipt_remark').val($val);
+                                $('#op_count').html('500/500');
+                                $('#op_count').css('color','red');
+                            }
+                        })
+                    }
+                    // console.log($pastedData.length);
+                })
+
+                $(document).on('blur','#ipt_remark',function(e){
+                    $val = $(this).val();
+                    $id  = $(this).data('id');
+                    $eq  = $(this).data('eq');
+                    $type= 'pd';
+                    if($val.length > 0)
+                    {
+                        Swal.fire({
+                            icon : 'question',
+                            title: 'Save မှာသေချာပါသလား?',
+                            showCancelButton:true,
+                            cancelButtonText: 'No',
+                            confirmButtonText:'Yes',
+                        }).then((v)=>{
+                            if(v.isConfirmed)
+                            {
+                                $.ajax({
+                                    url : "{{ route('store_remark') }}",
+                                    type: "POST",
+                                    data: {_token : token , data : $val , id : $id , type : $type},
+                                    success: function(res){
+                                        $('#remark_card_body').html('');
+                                        $('#remark_card_body').append(`
+                                        <div class="" style="width: 500px;hyphens:auto;word-break:normal">
+                                            <span>${$val}</span>
+                                        </div>
+                                        `);
+                                        $('.remark_ic').eq($eq).removeClass('bg-emerald-400 hover:bg-emerald-600');
+                                        $('.remark_ic').eq($eq).addClass('bg-sky-400 hover:bg-sky-600');
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
             })
         </script>
     @endpush

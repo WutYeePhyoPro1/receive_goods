@@ -243,7 +243,8 @@
                                 <th class="py-2 bg-slate-400 border">Product Code</th>
                                 <th class="py-2 bg-slate-400 border">Supplier Name</th>
                                 <th class="py-2 bg-slate-400 border">Shortage Qty</th>
-                                <th class="py-2 bg-slate-400 rounded-tr-md">excess Qty</th>
+                                <th class="py-2 bg-slate-400 border">excess Qty</th>
+                                <th class="py-2 bg-slate-400 rounded-tr-md">Remark</th>
                             </tr>
                         @endif
                 </thead>
@@ -349,6 +350,12 @@
                                 <td class="h-10 text-center border border-slate-400">{{ $item->supplier_name }}</td>
                                 <td class="h-10 text-center border border-slate-400 ">{{ ($item->qty > $item->scanned_qty) ? ($item->qty - $item->scanned_qty) : '' }}</td>
                                 <td class="h-10 text-center border border-slate-400 ">{{ ($item->qty < $item->scanned_qty) ? ($item->scanned_qty - $item->qty) : '' }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">
+                                    @if ($item->remark)
+                                        <i class='bx bx-message-rounded-dots cursor-pointer text-xl mr-1 rounded-lg px-1 text-white bg-sky-400 hover:bg-sky-600 remark_ic' data-pd="{{ $item->bar_code }}" data-id="{{ $item->id }}"></i>
+                                    @endif
+
+                                </td>
                             </tr>
                         @endforeach
                     @endif
@@ -394,12 +401,72 @@
             @endif
     </div>
     </div>
+    {{-- Start Model --}}
+        <div class="hidden" id="remark_model">
+            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+                    <!-- Modal content -->
+                    <div class="card rounded">
+                        <div
+                            class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                            <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Remark for &nbsp;<b id="remark_item"></b>&nbsp;<span
+                                        id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="w-6 h-6 hidden svgclass">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
 
+                                <button type="button" class="text-rose-600 font-extrabold"
+                                    onclick="$('#remark_model').hide()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body pt-4 flex flex-col" id="remark_card_body">
+                            {{-- <textarea cols="50" class="ps-1" id="ipt_remark" rows="5"></textarea>
+                            <small class="ml-2" id="op_count">0/500</small> --}}
+                        </div>
+                    </div>
+                </div>
+        </div>
+        </div>
+    {{-- End Model --}}
     @push('js')
         <script>
 
             $(document).ready(function(){
+                $(document).on('click','.remark_ic',function(e)
+                {
+                    $pd_code = $(this).data('pd');
+                    $id      = $(this).data('id');
+                    $('#remark_item').text(' "'+$pd_code+'"');
 
+                    $.ajax({
+                        url : "/ajax/show_remark/"+$id,
+                        beforeSend:function(){
+                            $('#remark_card_body').html('');
+                        },
+                        success:function(res){
+                            $list = '';
+                            if(res != '')
+                            {
+                                $list = `
+                                <div class="" style="width: 500px;hyphens:auto;word-break:normal">
+                                <span>${res}</span>
+                            </div>
+                                `;
+                            }
+                            $('#remark_card_body').append($list);
+                        }
+                    })
+                    $('#remark_model').show();
+                })
             })
         </script>
     @endpush
