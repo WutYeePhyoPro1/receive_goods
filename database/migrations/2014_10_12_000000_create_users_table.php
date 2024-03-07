@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('role');
             $table->integer('department_id');
             $table->integer('branch_id');
-            $table->boolean('active')->default(true);
+            $table->integer('status',2)->default(1);
             $table->rememberToken();
             $table->timestamps();
         });

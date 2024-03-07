@@ -25,7 +25,7 @@ class authenticateController extends Controller
             'password' => 'required',
         ]);
 
-        if(Auth::attempt(['employee_code'=>$request->employee_code,'password'=>$request->password,'active'=>1])){
+        if(Auth::attempt(['employee_code'=>$request->employee_code,'password'=>$request->password,'status'=>1])){
 
             Common::Log(route('home'),"LogIn");
             $request->session()->regenerate();

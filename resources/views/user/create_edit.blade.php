@@ -86,8 +86,8 @@
                                 <label for="status">Status<span class="text-rose-600">*</span> :</label>
                                 <Select name="status" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
                                     <option value="">Choose Status</option>
-                                    <option value="active" {{ isset($data) ? ($data->active == 1 ? 'selected' : '') : (old('status') == 'active' ? 'selected' : '') }}>Active</option>
-                                    <option value="inactive" {{ isset($data) ? ($data->active == 0 ? 'selected' : '') : (old('status') == 'inactive' ? 'selected' : '') }}>Inactive</option>
+                                    <option value="active" {{ isset($data) ? ($data->status == 1 ? 'selected' : '') : (old('status') == 'active' ? 'selected' : '') }}>Active</option>
+                                    <option value="inactive" {{ isset($data) ? ($data->status == 0 ? 'selected' : '') : (old('status') == 'inactive' ? 'selected' : '') }}>Inactive</option>
                                 </Select>
                                 @error('status')
                                 <small class="text-rose-500 ms-1">{{ $message }}</small>

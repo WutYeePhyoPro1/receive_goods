@@ -103,14 +103,14 @@
                                 <td class="h-10 text-center border border-slate-400">{{ $item->name }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->employee_code }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->branch->branch_name }}</td>
-                                <td class="h-10 text-center border border-slate-400 {{ $item->active ? 'text-emerald-600' : 'text-rose-600' }} ">
+                                <td class="h-10 text-center border border-slate-400 {{ $item->status == 1 ? 'text-emerald-600' : 'text-rose-600' }} ">
                                     @if($item->role != 1)
                                     <span class="user_status">
-                                        {{ $item->active ? 'Active' : 'Inactive' }}
+                                        {{ $item->status == 1 ? 'Active' : 'Inactive' }}
                                     </span>
 
                                         <label class="relative inline-flex items-center cursor-pointer translate-y-1 ms-5">
-                                            <input type="checkbox" value="{{ $item->id }}" class="sr-only peer user_active" {{ $item->active == 1 ? 'checked' : '' }}>
+                                            <input type="checkbox" value="{{ $item->id }}" class="sr-only peer user_active" {{ $item->status == 1 ? 'checked' : '' }}>
                                             <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                                         </label>
                                         @endif
