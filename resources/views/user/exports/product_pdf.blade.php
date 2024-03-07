@@ -35,16 +35,14 @@
         bottom: 0;
         left: 10%;
         right: 0;
-        opacity: 0.2;
+        opacity: 0.15;
     }
     </style>
 </head>
 <body>
-    <div class="">
-        <div class="">
-            {{-- <img src="{{ public_path('storage/background_img/finallogo.png') }}" style="width:200px" alt=""> --}}
-        </div>
-        <img id="back_img" src="{{ public_path('image/background_img/finallogo.png') }}" alt="">
+    <div class="" style="background-image: url('{{ public_path('storage/background_img/finallogo.png') }}') ;background-attachment: fixed;background-position: center;background-size: 600px 300px;background-repeat: no-repeat;opacity:0.1">
+
+        {{-- <img id="back_img" src="{{ public_path('image/background_img/finallogo.png') }}" alt=""> --}}
         <table class="w-full mt-4">
             <thead>
                 <tr>

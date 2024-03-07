@@ -86,7 +86,8 @@
                     <th class="py-2 bg-slate-400 border">Product Code</th>
                     <th class="py-2 bg-slate-400 border">Supplier Name</th>
                     <th class="py-2 bg-slate-400 border">Shortage Qty</th>
-                    <th class="py-2 bg-slate-400 rounded-tr-md">excess Qty</th>
+                    <th class="py-2 bg-slate-400 border">Excess Qty</th>
+                    <th class="py-2 bg-slate-400 rounded-tr-md">Remark</th>
                 </tr>
             @endif
             </thead>
@@ -175,6 +176,7 @@
                             <td class="h-10 text-center border border-slate-400">{{ $item->supplier_name }}</td>
                             <td class="h-10 text-center border border-slate-400 ">{{ ($item->qty > $item->scanned_qty) ? ($item->qty - $item->scanned_qty) : '' }}</td>
                             <td class="h-10 text-center border border-slate-400 ">{{ ($item->qty < $item->scanned_qty) ? ($item->scanned_qty - $item->qty) : '' }}</td>
+                            <td class="h-10 text-center border border-slate-400 ">{{ $item->remark }}</td>
                         </tr>
                     @endforeach
                 @endif

@@ -113,5 +113,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             route::post('pass_vali','pass_vali')->name('pass_vali');
             route::post('ajax/add_product','add_product')->name('add_product');
+
+            route::get('ajax/show_remark/{id}','show_remark');
+            route::post('ajax/store_remark','store_remark')->name('store_remark');
         });
 });
