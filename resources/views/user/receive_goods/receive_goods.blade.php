@@ -27,8 +27,8 @@
             @endif
         </div>
         <div class="flex">
-            <div class="">
-                <span class=" mt-2 -translate-x-6  mr-3" >Document No : <b class="text-xl" id="doc_no">{{ $main->document_no ?? '' }}</b></span>
+            <div class="flex flex-col">
+                <span class=" mt-2 -translate-x-6  mx-3" >Document No : <b class="text-xl" id="doc_no">{{ $main->document_no ?? '' }}</b></span>
                 @if (dc_staff())
                     <span class=" mt-2 -translate-x-6  ms-3" >Source : <b class="text-xl" id="source">{{ $main->source_good->name ?? '' }}</b></span>
                 @elseif (!dc_staff() && $main->vendor_name)
@@ -104,7 +104,6 @@
                                 @if (  count(search_pd($item->id)) > 0)
                                     <tbody class="main_body">
                                         @foreach (search_pd($item->id) as $key=>$tem)
-
                                             <?php
                                                 $color = check_color($tem->id);
                                             ?>
@@ -114,6 +113,7 @@
                                                         {{-- <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button> --}}
                                                     </td>
                                                     <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
+                                        {}
                                                     <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
                                                 @else
                                                     <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
@@ -266,7 +266,7 @@
                                                         <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
 
                                                             <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic' data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}" data-eq="{{ $index }}"></i>
-                                                                
+
                                                         </td>
                                                         <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
                                             </tr>
@@ -355,7 +355,7 @@
                             @if ($main->status == 'incomplete' || ($main->status == 'complete' && isset($main->remark)))
                                 <span class="mb-4 text-xl ">Remark      </span>
                             @endif
-                            
+
                         </div>
                         <div class="flex flex-col mb-3">
                             <b class="mb-4 text-xl">:&nbsp;{{ $main->vendor_name ?? '' }}</b>
@@ -363,7 +363,7 @@
                             @if ($main->remark && $main->status == 'complete')
                                 <b class="mb-4 text-xl">:&nbsp;{{ $main->remark }}</b>
                             @elseif($main->status == 'incomplete')
-                                <textarea class="ps-1 rounded-lg border border-slate-600" id="all_remark" cols="30" rows="3" placeholder="remark...">{{ $main->remark }}</textarea> 
+                                <textarea class="ps-1 rounded-lg border border-slate-600" id="all_remark" cols="30" rows="3" placeholder="remark...">{{ $main->remark }}</textarea>
                             @endif
                         </div>
                     </div>
@@ -1142,7 +1142,7 @@
                 })
             })
 
-            function not_finish($id) { 
+            function not_finish($id) {
                 $.ajax({
                         url : "{{ route('confirm') }}",
                         type: 'POST',
