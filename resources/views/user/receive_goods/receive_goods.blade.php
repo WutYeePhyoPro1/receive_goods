@@ -929,6 +929,7 @@
                         })
                 })
                 var key = '';
+        
                     $(document).on('keypress',function(e){
 
                         $doc_ipt = e.target.matches('input') || e.target.matches('textarea');
@@ -957,7 +958,6 @@
                             } else {
                                 if(e.key != 'Enter')
                                 {
-                                    console.log(e.key);
                                     key += e.key;
                                     $('#bar_code').val(key);
                                 }
@@ -966,8 +966,8 @@
                     });
 
                     $(document).on('barcode_enter','#bar_code',function(e){
+            
                         $val  = $(this).val();
-
                         $recieve_id = $('#receive_id').val();
                         $this       = $(this);
                         // $cur_id     = $('#cur_truck').val() ?? '';

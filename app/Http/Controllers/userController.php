@@ -180,7 +180,6 @@ class userController extends Controller
 
     public function receive_goods($id)
     {
-
         $data = get_branch_truck();
         $truck_id   = $data[0];
         $loc        = $data[1];
@@ -369,7 +368,8 @@ class userController extends Controller
             $shr  = 'REG'.getAuth()->branch->branch_short_name.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         }
 
-        $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',$request->branch)->get();
+        
+        $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',getAuth()->branch_id)->get();
         $same = count($same);
         if($same > 0){
             $name = $shr.'-'.sprintf("%04d",$same+1);
