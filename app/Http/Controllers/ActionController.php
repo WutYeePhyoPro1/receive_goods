@@ -135,7 +135,6 @@ class ActionController extends Controller
         $product = Product::whereIn('document_id',$doc_ids)
                             ->where('bar_code',$item)
                             ->first();
-
         if($product){
 
             $all_product =Product::whereIn('document_id',$doc_ids)
@@ -301,7 +300,7 @@ class ActionController extends Controller
                 ]);
             }
             $cur_car = DriverInfo::find($request->car);
-            if($cur_car->start_date == '')
+            if(isset($cur_car->start_date))
             {
                 $cur_car->update([
                     'start_date' => Carbon::now()->format('Y-m-d'),
