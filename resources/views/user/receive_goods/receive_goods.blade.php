@@ -39,7 +39,7 @@
                 <span class="text-emerald-600 font-bold text-3xl ms-40 underline">Complete</span>
                 <a href="{{ route('complete_doc_print',['id'=>$main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a>
             @endif
-            @if ($status != 'view' && $cur_driver->start_date)
+            @if ($status != 'view' && isset($cur_driver->start_date))
             <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
             <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
             @endif
@@ -113,7 +113,6 @@
                                                         {{-- <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button> --}}
                                                     </td>
                                                     <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
-                                        {}
                                                     <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
                                                 @else
                                                     <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
@@ -122,7 +121,10 @@
                                                 @endif
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">{{ $tem->qty }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-pd="{{ $tem->bar_code }}">{{ $tem->qty }}</span>
+
+                                                </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
                                                     <div class="main_scan">
                                                         {{ $tem->scanned_qty }}
@@ -701,6 +703,58 @@
                         $('#pass_con').show();
                     })
 
+                    $(document).on('click','.sticker',function(e){
+                        $('.bar_stick').remove();
+                        $qty    = $(this).text();
+                        $pd_code= $(this).data('pd');
+                        $(this).parent().append(`
+                        <div class="px-5 bar_stick hidden">{!! DNS1D::getBarcodeHTML('4445645656', 'C128') !!}</div>
+                        `)
+                        $(this).trigger('show_stick');
+                    })
+
+                    $(document).on('show_stick','.sticker',function(e){
+                        $bar = $(this).parent().find('.bar_stick').html();
+                        $pd_code= $(this).data('pd');
+                        $qty    = $(this).text();
+                        // $list = '';
+                        // for($i = 0;$i < 5 ; $i++)
+                        // {
+                        //     $list += `
+                        //     <div class="p-5 text-center">
+                        //         ${$bar}
+                        //         <small class="tracking-widest">${$pd_code}</small>
+                        //     </div>
+                        //     `;
+                        // }
+                        // $(this).parent().append($list);
+                        const new_pr = window.open("","","width=900,height=600");
+                        new_pr.document.write(
+                            "<html><head><style>#per_div{display: grid;grid-template-columns: auto auto auto;gap: 30px;margin: 10px}"
+                        );
+
+                        new_pr.document.write(
+                           "</style></head><body><div id='per_div'>"
+                        )
+
+                        for($i = 0 ; $i < $qty ; $i++)
+                        {
+                            new_pr.document.write(`
+                                <div class="p-5 text-center">
+                                    ${$bar}
+                                    <small class="tracking-widest">${$pd_code}</small>
+                                </div>
+                            `);
+                        }
+                        new_pr.document.write("</div></body></html>");
+                        new_pr.document.close();
+                        new_pr.focus();
+                        new_pr.onload = function () {
+                        new_pr.print();
+                        new_pr.close();
+                        };
+                    })
+
                     $(document).on('click','#auth_con',function(e){
                         $index  = $('#index').val();
                         $data = $('#auth_con_form').serialize();
@@ -727,7 +781,6 @@
                                     $('.error_msg').text('');
                                 },
                                 success:function(res){
-
                                     $('#pass_con').hide();
                                     $('.main_scan').eq($index).attr('hidden',true);
                                     $('.real_scan').eq($index).attr('type','number');
@@ -1060,14 +1113,14 @@
                 }
 
                 if(!$finish && ($role == 2 || $role == 3) && ($all_begin != '' || !$dc_staff)){
-                    window.addEventListener('focus', function() {
-                        $('#alert_model').hide();
-                    });
+                    // window.addEventListener('focus', function() {
+                    //     $('#alert_model').hide();
+                    // });
 
-                    window.addEventListener('blur', function() {
-                        $('#alert_model').show();
+                    // window.addEventListener('blur', function() {
+                    //     $('#alert_model').show();
 
-                    });
+                    // });
 
                 }
 
