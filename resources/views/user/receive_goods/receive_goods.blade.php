@@ -125,6 +125,9 @@
                                                     <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-pd="{{ $tem->bar_code }}">{{ $tem->qty }}</span>
 
                                                 </td>
+                                                <?php
+                                                    $code = $tem->bar_code;
+                                                ?>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
                                                     <div class="main_scan">
                                                         {{ $tem->scanned_qty }}
@@ -706,11 +709,13 @@
                     $(document).on('click','.sticker',function(e){
                         $('.bar_stick').remove();
                         $qty    = $(this).text();
-                        $pd_code= $(this).data('pd');
+                        $pd_code= $(this).data('pd').toString();
                         $(this).parent().append(`
-                        <div class="px-5 bar_stick hidden">{!! DNS1D::getBarcodeHTML('4445645656', 'C128') !!}</div>
-                        `)
-                        $(this).trigger('show_stick');
+                        <div class='px-5 bar_stick hidden'>{!! DNS1D::getBarcodeHTML( $code , 'C128') !!}</div>`);
+                        $('.sticker').trigger('show_stick');
+
+
+
                     })
 
                     $(document).on('show_stick','.sticker',function(e){
@@ -730,19 +735,19 @@
                         // $(this).parent().append($list);
                         const new_pr = window.open("","","width=900,height=600");
                         new_pr.document.write(
-                            "<html><head><style>#per_div{display: grid;grid-template-columns: auto auto auto;gap: 30px;margin: 10px}"
+                            "<html><head><style>#per_div{display: grid;margin: 50px 0 0 50px;transform:translateX(-5px);grid-template-columns:auto auto auto;gap:10px}"
                         );
 
                         new_pr.document.write(
                            "</style></head><body><div id='per_div'>"
                         )
 
-                        for($i = 0 ; $i < $qty ; $i++)
+                        for($i = 0 ; $i < 6 ; $i++)
                         {
                             new_pr.document.write(`
-                                <div class="p-5 text-center">
+                                <div class="py-1 text-center">
                                     ${$bar}
-                                    <small class="tracking-widest">${$pd_code}</small>
+                                    <small class="" style="letter-spacing:3px;margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$pd_code}</small>
                                 </div>
                             `);
                         }
@@ -957,7 +962,6 @@
                             } else {
                                 if(e.key != 'Enter')
                                 {
-                                    console.log(e.key);
                                     key += e.key;
                                     $('#bar_code').val(key);
                                 }
@@ -967,7 +971,6 @@
 
                     $(document).on('barcode_enter','#bar_code',function(e){
                         $val  = $(this).val();
-
                         $recieve_id = $('#receive_id').val();
                         $this       = $(this);
                         // $cur_id     = $('#cur_truck').val() ?? '';
@@ -978,7 +981,6 @@
                                 type: 'POST',
                                 data: {_token:token , data:$val,id:$recieve_id,car : $cur_id},
                                 success:function(res){
-
                                     // if(res.msg == 'decision')
                                     // {
                                     //     $('.decision_model').html('');

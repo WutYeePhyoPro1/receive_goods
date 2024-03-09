@@ -19,6 +19,7 @@ return new class extends Migration
             $table->double('qty');
             $table->double('scanned_qty')->nullable();
             $table->string('remark')->nullable();
+            $table->string('unit')->nullable();
             $table->timestamps();
         });
     }

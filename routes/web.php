@@ -116,5 +116,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             route::get('ajax/show_remark/{id}','show_remark');
             route::post('ajax/store_remark','store_remark')->name('store_remark');
+            route::get('ajax/get_variable/{code}','get_variable');
         });
 });
