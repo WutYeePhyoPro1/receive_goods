@@ -93,7 +93,7 @@ body::-webkit-scrollbar-track {
 
 .sidebar_text {
     display: flex;
-    /* pointer-events: none; */
+
 }
 
 .sidebar_text > i {
@@ -107,11 +107,12 @@ body::-webkit-scrollbar-track {
     margin: 13px 0 0 10px;
     white-space: nowrap;
     transition: 0.3s ease-in;
+    pointer-events: none;
 }
 
 .side_bar:hover .sidebar_text > span {
     opacity: 1;
-    /* pointer-events: auto; */
+    pointer-events: auto;
 }
 
 .user_div {
