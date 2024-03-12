@@ -50,7 +50,6 @@ body::-webkit-scrollbar-track {
     width: 70px;
     background-color: rgba(252, 183, 56);
     border-radius: 15px;
-    /* overflow: hidden; */
     transition: 0.5s ease-out;
     z-index: 2;
     margin: 0;
@@ -63,7 +62,6 @@ body::-webkit-scrollbar-track {
 
 .sidebar_body {
     width: 100%;
-    overflow: hidden;
     padding: 0 10px;
 }
 
@@ -95,6 +93,7 @@ body::-webkit-scrollbar-track {
 
 .sidebar_text {
     display: flex;
+    /* pointer-events: none; */
 }
 
 .sidebar_text > i {
@@ -112,6 +111,7 @@ body::-webkit-scrollbar-track {
 
 .side_bar:hover .sidebar_text > span {
     opacity: 1;
+    /* pointer-events: auto; */
 }
 
 .user_div {
