@@ -99,35 +99,36 @@
 
                             <?php
                                 $i = 0;
+                                $j = 0;
                             ?>
                             @foreach($document as $item)
                                 @if (  count(search_pd($item->id)) > 0)
                                     <tbody class="main_body">
                                         @foreach (search_pd($item->id) as $key=>$tem)
                                             <?php
+
                                                 $color = check_color($tem->id);
-                                            ?>
+                                                ?>
                                             <tr class="h-10">
                                                 @if ($key == 0)
-                                                    <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                        {{-- <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button> --}}
-                                                    </td>
-                                                    <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
-                                                    <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
+                                                <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
+                                                    {{-- <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button> --}}
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
                                                 @else
-                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
-                                                    <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
-                                                    <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
                                                 @endif
+
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
-                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-pd="{{ $tem->bar_code }}">{{ $tem->qty }}</span>
-
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-pd="{{ $tem->bar_code }}" data-unit="{{ $tem->unit }}" data-index="{{ $j }}" data-name="{{ $tem->supplier_name }}">{{ $tem->qty }}</span>
+                                                    <div class='px-5 bar_stick hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,1.5,100 ) !!}</div>
                                                 </td>
-                                                <?php
-                                                    $code = $tem->bar_code;
-                                                ?>
+
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
                                                     <div class="main_scan">
                                                         {{ $tem->scanned_qty }}
@@ -139,6 +140,9 @@
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
                                             </tr>
+                                            <?php
+                                            $j++
+                                            ?>
                                         @endforeach
                                     </tbody>
                                         <?php $i++ ?>
@@ -706,22 +710,28 @@
                         $('#pass_con').show();
                     })
 
-                    $(document).on('click','.sticker',function(e){
-                        $('.bar_stick').remove();
-                        $qty    = $(this).text();
-                        $pd_code= $(this).data('pd').toString();
-                        $(this).parent().append(`
-                        <div class='px-5 bar_stick hidden'>{!! DNS1D::getBarcodeHTML( $code , 'C128') !!}</div>`);
-                        $('.sticker').trigger('show_stick');
+                    // $(document).on('click','.sticker',function(e){
+                    //     $('.bar_stick').remove();
+                    //     $qty    = $(this).text();
+                    //     $index  = $(this).data('index');
+                    //     $pd_code= $(this).data('pd').toString();
+                    //     $(this).parent().append(`
+                    //     `);
+                    //     $('.sticker').eq($index).trigger('show_stick');
 
 
 
-                    })
+                    // })
 
-                    $(document).on('show_stick','.sticker',function(e){
+                   $(document).on('click','.sticker',function(e){
                         $bar = $(this).parent().find('.bar_stick').html();
+                        // console.log($bar);
                         $pd_code= $(this).data('pd');
+                        $index= $(this).data('index');
                         $qty    = $(this).text();
+                        $unit   = $(this).data('unit');
+                        $name   = $(this).data('name');
+                        console.log($index);
                         // $list = '';
                         // for($i = 0;$i < 5 ; $i++)
                         // {
@@ -735,19 +745,25 @@
                         // $(this).parent().append($list);
                         const new_pr = window.open("","","width=900,height=600");
                         new_pr.document.write(
-                            "<html><head><style>#per_div{display: grid;margin: 50px 0 0 50px;transform:translateX(-5px);grid-template-columns:auto auto auto;gap:10px}"
+                            "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:30px;gap:10px}"
                         );
 
                         new_pr.document.write(
                            "</style></head><body><div id='per_div'>"
                         )
 
-                        for($i = 0 ; $i < 6 ; $i++)
+                        for($i = 0 ; $i < $qty ; $i++)
                         {
                             new_pr.document.write(`
-                                <div class="py-1 text-center">
-                                    ${$bar}
-                                    <small class="" style="letter-spacing:3px;margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$pd_code}</small>
+                                <div class="" style="padding:0 20px;">
+                                    <div style="padding: 10px 0;">
+                                        <small class="" style="font-size:1rem;font-weight:700;">${$name}</small>
+                                    <small class="" style="font-size:1rem;font-weight:700;margin:0 auto;">(${$unit})</small>
+                                    </div>
+                                    <div style="padding-left:30px">${$bar}</div>
+                                    <div style="padding:5px 0">
+                                        <small class="" style="letter-spacing:3px;margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$pd_code}</small>
+                                    </div>
                                 </div>
                             `);
                         }
@@ -934,6 +950,7 @@
                         })
                 })
                 var key = '';
+
                     $(document).on('keypress',function(e){
 
                         $doc_ipt = e.target.matches('input') || e.target.matches('textarea');
@@ -970,6 +987,8 @@
                     });
 
                     $(document).on('barcode_enter','#bar_code',function(e){
+                        console.log('yes');
+                        return;
                         $val  = $(this).val();
                         $recieve_id = $('#receive_id').val();
                         $this       = $(this);
@@ -981,7 +1000,8 @@
                                 type: 'POST',
                                 data: {_token:token , data:$val,id:$recieve_id,car : $cur_id},
                                 success:function(res){
-                                    // if(res.msg == 'decision')
+                                    // if(res.msg == 'decision')2000000373065
+
                                     // {
                                     //     $('.decision_model').html('');
                                     //     $list = `<input type="hidden" id="scan_qty" value="${res.qty}">`;
@@ -1115,14 +1135,14 @@
                 }
 
                 if(!$finish && ($role == 2 || $role == 3) && ($all_begin != '' || !$dc_staff)){
-                    // window.addEventListener('focus', function() {
-                    //     $('#alert_model').hide();
-                    // });
+                    window.addEventListener('focus', function() {
+                        $('#alert_model').hide();
+                    });
 
-                    // window.addEventListener('blur', function() {
-                    //     $('#alert_model').show();
+                    window.addEventListener('blur', function() {
+                        $('#alert_model').show();
 
-                    // });
+                    });
 
                 }
 

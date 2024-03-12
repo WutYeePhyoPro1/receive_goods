@@ -135,7 +135,6 @@ class ActionController extends Controller
         $product = Product::whereIn('document_id',$doc_ids)
                             ->where('bar_code',$item)
                             ->first();
-
         if($product){
 
             $all_product =Product::whereIn('document_id',$doc_ids)
@@ -167,10 +166,10 @@ class ActionController extends Controller
             }else{
                 $qty = 1;
             }
+
             $per        = $qty;
             $total_scan = $qty;
             $count = 0;
-
             if($request->car == '')
             {
                 $driver_info = DriverInfo::where(['received_goods_id'=>$id , 'user_id'=>getAuth()->id])
@@ -183,6 +182,7 @@ class ActionController extends Controller
 
             if(count($all_product) == 1)
             {
+
                 $scanned = $product->scanned_qty + $qty;
                 $product->update([
                     'scanned_qty' => $scanned
@@ -301,7 +301,7 @@ class ActionController extends Controller
                 ]);
             }
             $cur_car = DriverInfo::find($request->car);
-            if($cur_car->start_date == '')
+            if(!isset($cur_car->start_date))
             {
                 $cur_car->update([
                     'start_date' => Carbon::now()->format('Y-m-d'),

@@ -117,7 +117,7 @@ Class ActionRepository implements ActionRepositoryInterface
                 }
             }
             $doc = Document::create([
-            'document_no'       => $data[0]->purchaseno,
+                'document_no'       => $data[0]->purchaseno,
                 'received_goods_id'  => $id
             ]);
             $dub_pd = [];
@@ -130,6 +130,7 @@ Class ActionRepository implements ActionRepositoryInterface
                     $pd_code->supplier_name = $data[$i]->productname;
                     $pd_code->qty           = (int)($data[$i]->goodqty);
                     $pd_code->scanned_qty   = 0;
+                    $pd_code->unit          = $data[$i]->unit;
                     $pd_code->save();
                     $dub_pd[]    = $data[$i]->productcode;
                 }else{
