@@ -779,7 +779,7 @@
                         if($val > 500)
                         {
                             $(this).val(500);
-                        }else if($val > $qty)
+                        }else if($val > parseInt($qty))
                         {
                             $(this).val($qty);
                         }
