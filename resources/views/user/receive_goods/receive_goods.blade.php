@@ -987,8 +987,6 @@
                     });
 
                     $(document).on('barcode_enter','#bar_code',function(e){
-                        console.log('yes');
-                        return;
                         $val  = $(this).val();
                         $recieve_id = $('#receive_id').val();
                         $this       = $(this);
