@@ -674,7 +674,7 @@
                 <div class="card rounded">
 
                     <div class="flex px-4 py-2 justify-between items-center max-w-50 ">
-                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">print အရေအတွက် ဘယ်လောက်ထုတ်ချင်ပါသလဲ<span
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">print ထုတ်ချင်သော အရေအတွက် ကို ရိုက်ထည့်ပါ (<b class="text-rose-600"> 500 ထက်ပို၍ မရပါ</b>)<span
                                 id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                 class="w-6 h-6 hidden svgclass">
@@ -774,9 +774,14 @@
 
                     $(document).on("input",'#print_count',function(e){
                         $val = $(this).val();
+                        $eq = $('#print_eq').val();
+                        $qty = $('.sticker').eq($eq).text();
                         if($val > 500)
                         {
                             $(this).val(500);
+                        }else if($val > $qty)
+                        {
+                            $(this).val($qty);
                         }
                     })
 
