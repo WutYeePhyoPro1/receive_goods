@@ -86,7 +86,7 @@
                     @foreach ($data as $item)
                         <tr>
                             <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ getAuth()->branch->branch_name }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->branches->branch_name }}</td>
                             <td class="h-10 text-center border border-slate-400 {{ $item->status == 'complete' ? 'text-green-600' : 'text-amber-600' }}">{{ $item->status }}</td>
                             <td class="h-10 text-center border border-slate-400">
                                 <input type="hidden" class="check_empty" value="{{ check_empty($item->id) }}">
