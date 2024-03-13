@@ -230,9 +230,14 @@ class ReportController extends Controller
                                 $q->whereIn('id',$truck_id);
                                     })
                             ->paginate(15);
-
+        $user_branch_code    = getAuth()->branch->branch_code;
         $branch = Branch::get();
-        $gate   = CarGate::get();
+        $gate   = CarGate::when($loc == 'dc',function($q) {
+                    $q->whereIn('branch',['MM-505','MM-510','MM-515']);
+                    })
+                    ->when($loc == 'other',function($q) use($user_branch_code){
+                        $q->where('branch',$user_branch_code);
+                    })->get();
         return view('user.report.report',compact('report','truck','branch','gate','url'));
     }
 

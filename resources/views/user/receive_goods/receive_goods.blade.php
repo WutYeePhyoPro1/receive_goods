@@ -138,7 +138,7 @@
                                                             <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $key }}" title="add quantity"></i>
                                                         @endif
                                                     </div>
-                                                    <input type="hidden" class="w-[80%] real_scan" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
+                                                    <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
                                             </tr>
