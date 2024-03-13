@@ -89,7 +89,7 @@
                                         <th class="py-2 bg-slate-400 border">Document No</th>
                                         <th class="py-2 bg-slate-400  border">Bar Code</th>
                                         <th class="py-2 bg-slate-400  border">Product Name</th>
-                                        <th class="py-2 bg-slate-400  border">Scan(Count) Qty</th>
+
                                         <th class="py-2 bg-slate-400  rounded-tr-md">Unloaded Qty</th>
                                     </tr>
                                 @endif
@@ -183,7 +183,7 @@
                                             <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->product->bar_code }}</td>
                                             <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->product->supplier_name }}</td>
 
-                                            <td class="ps-2 border border-slate-400 border-t-0">{{ get_scan_truck_pd($tem->driver_info_id,$tem->product_id,'S') }}</td>
+                                            
                                             <td class="ps-2 border border-slate-400 border-t-0 qty">
                                                 @can ('adjust-truck-goods')
                                                     <input type="number" data-old="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" data-pd="{{ $tem->product_id }}" data-driver="{{ $driver->id }}" value="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" class="border ps-4 appearance-none scanned_qty">
