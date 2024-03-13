@@ -125,7 +125,9 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
-                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-pd="{{ $tem->bar_code }}" data-unit="{{ $tem->unit }}" data-index="{{ $j }}" data-name="{{ $tem->supplier_name }}">{{ $tem->qty }}</span>
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{ $tem->qty }}</span>
+                                                    <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
+                                                    <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
                                                     <div class='px-5 bar_stick hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,1.5,100 ) !!}</div>
                                                 </td>
 
@@ -628,7 +630,7 @@
     {{-- End Modal --}}
 @endif
 
-
+    {{--- Modal Start ---}}
     <div class="hidden" id="remark_model">
         <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
             <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
@@ -663,6 +665,46 @@
             </div>
     </div>
     </div>
+    {{--- Modal Start ---}}
+
+    <div class="hidden" id="print_no">
+        <div class="flex items-center  fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+
+                    <div class="flex px-4 py-2 justify-between items-center max-w-50 ">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">print အရေအတွက် ဘယ်လောက်ထုတ်ချင်ပါသလဲ<span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                            onclick="$('#print_no').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="">
+                        <input type="hidden" id="print_eq">
+                        <input type="number" id="print_count" class="appearance-none w-full border-2 border-slate-300 rounded-lg min-h-12 mt-4 ps-2 focus:outline-none focus:border-sky-200 focus:border-3" placeholder="500 ထက်မပိုပါနဲ့">
+                        <button type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
+                    </div>
+
+
+
+                </div>
+            </div>
+    </div>
+    </div>
+    {{--- Modal End ---}}
+
     @push('js')
         <script >
             $(document).ready(function(e){
@@ -723,26 +765,29 @@
 
                     // })
 
-                   $(document).on('click','.sticker',function(e){
-                        $bar = $(this).parent().find('.bar_stick').html();
-                        // console.log($bar);
-                        $pd_code= $(this).data('pd');
-                        $index= $(this).data('index');
-                        $qty    = $(this).text();
-                        $unit   = $(this).data('unit');
-                        $name   = $(this).data('name');
-                        console.log($index);
-                        // $list = '';
-                        // for($i = 0;$i < 5 ; $i++)
-                        // {
-                        //     $list += `
-                        //     <div class="p-5 text-center">
-                        //         ${$bar}
-                        //         <small class="tracking-widest">${$pd_code}</small>
-                        //     </div>
-                        //     `;
-                        // }
-                        // $(this).parent().append($list);
+                    $(document).on('click','.sticker',function(e){
+                        $('#print_eq').val('');
+                        $('#print_count').val('');
+                       $('#print_no').show();
+                       $('#print_eq').val($(this).data('index'));
+                    })
+
+                    $(document).on("input",'#print_count',function(e){
+                        $val = $(this).val();
+                        if($val > 500)
+                        {
+                            $(this).val(500);
+                        }
+                    })
+
+                   $(document).on('click','#final_print',function(e){
+
+                        $index = $('#print_eq').val();
+                        $bar = $('.bar_stick').eq($index).html();
+                        $pd_code= $('.bar_code').eq($index).text();
+                        $qty    = $('#print_count').val();
+                        $unit   = $('.pd_unit').eq($index).val();
+                        $name   = $('.pd_name').eq($index).val();
                         const new_pr = window.open("","","width=900,height=600");
                         new_pr.document.write(
                             "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:30px;gap:10px}"

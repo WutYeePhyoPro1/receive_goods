@@ -37,8 +37,8 @@ body::-webkit-scrollbar-track {
     border-radius: 10px;
 }
 
-.scanned_qty::-webkit-inner-spin-button,
-.scanned_qty::-webkit-outer-spin-button {
+input[type="number"]::-webkit-inner-spin-button
+{
     -webkit-appearance: none;
     margin: 0; /* Remove extra space around the input */
 }
