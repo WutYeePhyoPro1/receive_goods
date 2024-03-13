@@ -87,8 +87,8 @@
                 <li style="margin:50px 0;border-bottom:1px solid rgb(110, 109, 109)">
                 </li>
 
-                <li class="sidebar_items" style="margin-bottom:10px">
-                    <div class="sidebar_text" onclick="$('#log_out').submit()">
+                <li class="sidebar_items" style="margin-bottom:10px" onclick="$('#log_out').submit()">
+                    <div class="sidebar_text" >
                         <i class='bx bx-log-out-circle' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
                         <span>Log Out</span>
                     </div>

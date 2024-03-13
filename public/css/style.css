@@ -93,7 +93,7 @@ input[type="number"]::-webkit-inner-spin-button
 
 .sidebar_text {
     display: flex;
-
+    pointer-events: none;
 }
 
 .sidebar_text > i {
@@ -107,7 +107,7 @@ input[type="number"]::-webkit-inner-spin-button
     margin: 13px 0 0 10px;
     white-space: nowrap;
     transition: 0.3s ease-in;
-    pointer-events: none;
+
 }
 
 .side_bar:hover .sidebar_text > span {
