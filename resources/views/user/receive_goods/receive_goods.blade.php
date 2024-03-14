@@ -1048,6 +1048,7 @@
                                 type: 'POST',
                                 data: {_token:token , data:$val,id:$recieve_id,car : $cur_id},
                                 success:function(res){
+                                    console.log('yes');
                                     // if(res.msg == 'decision')2000000373065
 
                                     // {
