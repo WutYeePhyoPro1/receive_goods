@@ -550,6 +550,7 @@ class ActionController extends Controller
         $product_track->authorize_user  =   $request->auth;
         $product_track->by_user         =   getAuth()->id;
         $product_track->truck_id        =   $request->car_id;
+        $product_track->product_id      =   $request->product;
         $product_track->added_qty       =   $request->data;
         $product_track->save();
 

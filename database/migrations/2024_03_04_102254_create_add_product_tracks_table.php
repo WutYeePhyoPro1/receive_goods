@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('authorize_user');
             $table->integer('by_user');
             $table->integer('truck_id');
+            $table->integer('product_id')->nullable();
             $table->integer('added_qty');
             $table->timestamps();
         });

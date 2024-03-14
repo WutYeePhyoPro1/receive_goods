@@ -795,7 +795,7 @@
                         $name   = $('.pd_name').eq($index).val();
                         const new_pr = window.open("","","width=900,height=600");
                         new_pr.document.write(
-                            "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:30px;gap:10px}"
+                            "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:20px;gap:10px}"
                         );
 
                         new_pr.document.write(
@@ -805,7 +805,7 @@
                         for($i = 0 ; $i < $qty ; $i++)
                         {
                             new_pr.document.write(`
-                                <div class="" style="padding:0 20px;">
+                                <div class="" style="padding:0 15px;">
                                     <div style="padding: 10px 0;">
                                         <small class="" style="font-size:1rem;font-weight:700;">${$name}</small>
                                     <small class="" style="font-size:1rem;font-weight:700;margin:0 auto;">(${$unit})</small>
