@@ -9,5 +9,5 @@ class AddProductTrack extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['authorize_user','by_user','truck_id','added_qty'];
+    protected $fillable = ['authorize_user','by_user','truck_id','product_id','added_qty'];
 }
