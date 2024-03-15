@@ -108,6 +108,7 @@
                                             <?php
 
                                                 $color = check_color($tem->id);
+                                                ${'id' . $key} = $key;
                                                 ?>
                                             <tr class="h-10">
                                                 @if ($key == 0)
@@ -125,10 +126,12 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
-                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{ $tem->qty }}</span>
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{$tem->qty }}</span>
                                                     <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
                                                     <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
-                                                    <div class='px-5 bar_stick hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,1.5,100 ) !!}</div>
+                                                    <div class='px-5 bar_stick1 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
+                                                    <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,1,25 ) !!}</div>
+                                                    <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,1,50 ) !!}</div>
                                                 </td>
 
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
@@ -682,6 +685,8 @@
                                     d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                             </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
 
+
+
                         <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
                             onclick="$('#print_no').hide()">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -693,6 +698,11 @@
                     </div>
                     <div class="">
                         <input type="hidden" id="print_eq">
+                        <Select class="w-full border border-slate-300 py-3 ps-2 bg-white rounded-lg appearance-none" id="bar_type">
+                            <option value="1">Bar 1</option>
+                            <option value="2">Bar 2</option>
+                            <option value="3">Bar 3</option>
+                        </Select>
                         <input type="number" id="print_count" class="appearance-none w-full border-2 border-slate-300 rounded-lg min-h-12 mt-4 ps-2 focus:outline-none focus:border-sky-200 focus:border-3" placeholder="500 ထက်မပိုပါနဲ့">
                         <button type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
                     </div>
@@ -788,14 +798,25 @@
                    $(document).on('click','#final_print',function(e){
 
                         $index = $('#print_eq').val();
-                        $bar = $('.bar_stick').eq($index).html();
+
                         $pd_code= $('.bar_code').eq($index).text();
                         $qty    = $('#print_count').val();
                         $unit   = $('.pd_unit').eq($index).val();
                         $name   = $('.pd_name').eq($index).val();
+                        $type   = $('#bar_type').val();
+
+                        $td  = new Date();
+                        $date = [ String($td.getDate()).padStart(2, '0'),String($td.getMonth() + 1).padStart(2, '0'),$td.getFullYear()].join('/');
+                        $period = $td.getHours() > 12 ? 'PM' : 'AM';
+                        $time = [(String($td.getHours()).padStart(2, '0')%12 || 12), String($td.getMinutes()).padStart(2, '0'), String($td.getSeconds()).padStart(2, '0')].join(':');
+                        $full_date = $date+' '+$time+' '+$period;
                         const new_pr = window.open("","","width=900,height=600");
-                        new_pr.document.write(
-                            "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:20px;gap:10px}"
+                        if($type == 1)
+                        {
+
+                            $bar = $('.bar_stick1').eq($index).html();
+                            new_pr.document.write(
+                            "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:50px;gap:3px}"
                         );
 
                         new_pr.document.write(
@@ -805,25 +826,96 @@
                         for($i = 0 ; $i < $qty ; $i++)
                         {
                             new_pr.document.write(`
-                                <div class="" style="padding:0 15px;">
-                                    <div style="padding: 10px 0;">
-                                        <small class="" style="font-size:1rem;font-weight:700;">${$name}</small>
-                                    <small class="" style="font-size:1rem;font-weight:700;margin:0 auto;">(${$unit})</small>
-                                    </div>
-                                    <div style="padding-left:30px">${$bar}</div>
-                                    <div style="padding:5px 0">
-                                        <small class="" style="letter-spacing:3px;margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$pd_code}</small>
+                                <div class="" style="style="padding: 7px 0;margin-top:10px">
+
+                                        <small class="" style="font-size:1.2rem;font-weight:700;">${$name}</small>
+
+                                    <div style="">${$bar}</div>
+                                    <div style="padding:5px 0;display:flex;flex-direction:column">
+                                         <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1200">${$pd_code}</b>
+                                         <small class="" style="margin-left:200px;transform:translateY(-10px);font-size:1rem;font-weight:700; font-family: "Times New Roman", Times, serif">${$unit}</small>
+                                        <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
                                     </div>
                                 </div>
                             `);
                         }
-                        new_pr.document.write("</div></body></html>");
+                            new_pr.document.write("</div></body></html>");
+                        }else if($type == 2)
+                        {
+                            $bar = $('.bar_stick2').eq($index).html();
+
+                            new_pr.document.write(
+                                "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:50px;gap:10px}"
+                            );
+
+                            new_pr.document.write(
+                               "</style></head><body style='margin:0;padding:8px 0'><div id='per_div'>"
+                            )
+
+                            for($i = 0 ; $i < $qty ; $i++)
+                            {
+
+
+                                new_pr.document.write(`
+                                    <div class="" style="padding: 0 10px 5px 10px;position:relative;">
+
+                                        <small class="" style="font-size:0.8rem;font-weight:900;">${$name}</small>
+                                       <div style="position:absolute;right:50px;top:30px">
+                                            <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
+                                        </div>
+                                        <div style="padding-left:50px">${$bar}</div>
+                                        <div style="padding:5px 0;display:flex;flex-direction:column">
+                                            <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.8rem;font-weight:900">${$pd_code}</b>
+
+                                            <small class="" style="margin: 0 0 0 20px;font-size:0.8rem;font-weight:700">${$full_date}</small>
+                                        </div>
+                                    </div>
+                                `);
+                            }
+                            new_pr.document.write("</div></body></html>");
+                        }else if($type == 3)
+                        {
+                            $bar = $('.bar_stick3').eq($index).html();
+
+                            new_pr.document.write(
+                                "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:50px;gap:10px}"
+                            );
+
+                            new_pr.document.write(
+                            "</style></head><body style='margin:0;padding:8px 0'><div id='per_div'>"
+                            )
+
+                            for($i = 0 ; $i < $qty ; $i++)
+                            {
+                                new_pr.document.write(`
+                                <div class="" style="padding: 0 10px 5px 10px;position:relative;">
+
+                                <small class="" style="font-size:1.2rem;font-weight:900;">${$name}</small>
+                                <div style="position:absolute;right:50px;top:30px">
+                                    <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
+                                </div>
+                                <div style="padding-left:50px">${$bar}</div>
+                                <div style="padding:5px 0;display:flex;flex-direction:column">
+                                    <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
+                                    <div style="display:flex">
+                                        <div style="width:100px;height:30px;border:solid 3px black"></div>
+                                        <div style="width:20px;height:20px;border:solid 3px black;margin:10px 0 0 4px"></div>
+                                        <div style="margin:15px 0 0 4px;font-weight:800">.............</div>
+                                    </div>
+                                    <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
+                                </div>
+                                </div>
+                                `);
+                            }
+                            new_pr.document.write("</div></body></html>");
+                        }
                         new_pr.document.close();
                         new_pr.focus();
                         new_pr.onload = function () {
                         new_pr.print();
                         new_pr.close();
                         };
+                        $('#print_no').hide();
                     })
 
                     $(document).on('click','#auth_con',function(e){
