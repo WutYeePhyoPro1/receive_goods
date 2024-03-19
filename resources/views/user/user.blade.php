@@ -77,6 +77,7 @@
                             <th class="py-2 bg-slate-400 border">User's Name</th>
                             <th class="py-2 bg-slate-400 border">User's Employee Code</th>
                             <th class="py-2 bg-slate-400 border">User's Branch</th>
+                            <th class="py-2 bg-slate-400 border">User's Role</th>
                             <th class="py-2 bg-slate-400 border">User's Status</th>
                             <th class="py-2 bg-slate-400  rounded-tr-md">Action</th>
                         </tr>
@@ -103,6 +104,7 @@
                                 <td class="h-10 text-center border border-slate-400">{{ $item->name }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->employee_code }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->branch->branch_name }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->roleName() }}</td>
                                 <td class="h-10 text-center border border-slate-400 {{ $item->status == 1 ? 'text-emerald-600' : 'text-rose-600' }} ">
                                     @if($item->role != 1)
                                     <span class="user_status">

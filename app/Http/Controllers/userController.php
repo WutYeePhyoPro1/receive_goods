@@ -139,7 +139,7 @@ class userController extends Controller
                             ->first();
         $type = Truck::get();
         $gate   = CarGate::when($loc == 'dc',function($q) {
-                        $q->whereIn('branch',['MM-505','MM-510','MM-515']);
+                        $q->whereIn('branch',['MM-505','MM-510','MM-511']);
                         })
                         ->when($loc == 'other',function($q) use($user_branch_code){
                             $q->where('branch',$user_branch_code);
@@ -194,7 +194,7 @@ class userController extends Controller
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         // dd($scan_document);
         $gate   = CarGate::when($loc == 'dc',function($q) {
-                        $q->whereIn('branch',['MM-505','MM-510','MM-515']);
+                        $q->whereIn('branch',['MM-505','MM-510','MM-511']);
                         })
                         ->when($loc == 'other',function($q) use($user_branch_code){
                             $q->where('branch',$user_branch_code);
@@ -471,7 +471,7 @@ class userController extends Controller
         $type = Truck::get();
         $source = Source::get();
         $gate   = CarGate::when($loc == 'dc',function($q) {
-            $q->whereIn('branch',['MM-505','MM-510','MM-515']);
+            $q->whereIn('branch',['MM-505','MM-510','MM-511']);
             })
             ->when($loc == 'other',function($q) use($user_branch_code){
                 $q->where('branch',$user_branch_code);

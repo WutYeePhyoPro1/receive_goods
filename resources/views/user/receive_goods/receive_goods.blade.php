@@ -21,7 +21,7 @@
             @if (count($driver) > 0)
                 <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info" title="View Car Info"><i class='bx bx-id-card'></i></button>
             @else
-                @if (!isset($status))
+                @if (dc_staff())
                     <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="add_driver" title="Add Car Info"><i class='bx bx-car'></i></button>
                 @endif
             @endif
@@ -137,7 +137,7 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
                                                     <div class="main_scan">
                                                         {{ $tem->scanned_qty }}
-                                                        @if (!dc_staff() && isset($cur_driver->start_date))
+                                                        @if (isset($cur_driver->start_date))
                                                             <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $key }}" title="add quantity"></i>
                                                         @endif
                                                     </div>
@@ -417,7 +417,7 @@
 {{-- End Modal --}}
 
 {{-- Add Car Modal --}}
-@if (!isset($status))
+@if (dc_staff())
 <div class="hidden" id="add_car">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
         <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
@@ -502,7 +502,7 @@
                                 <?php
                                     $dc = [17,19,20];
                                 ?>
-                                @if (in_array(getAuth()->branch_id,$dc))
+                                @if (dc_staff())
                                     <div class="flex flex-col px-10">
                                         <label for="gate">Gate<span class="text-rose-600">*</span> :</label>
                                         <Select name="gate" id="gate" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
@@ -566,7 +566,6 @@
 </div>
 {{-- End Modal --}}
 
-@if (!dc_staff())
     {{-- Auth Modal --}}
     <div class="hidden" id="pass_con">
         <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
@@ -631,7 +630,7 @@
     </div>
     </div>
     {{-- End Modal --}}
-@endif
+
 
     {{--- Modal Start ---}}
     <div class="hidden" id="remark_model">

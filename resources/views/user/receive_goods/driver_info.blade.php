@@ -22,7 +22,7 @@
                 </div>
             @endif --}}
 
-            <form action="{{ isset($main) || dc_staff() ? route('store_car_info') : route('store_doc_info') }}" id="driver_form" method="POST">
+            <form action="{{ isset($main) && dc_staff() ? route('store_car_info') : route('store_doc_info') }}" id="driver_form" method="POST">
                 @csrf
                 @if (isset($main) || !dc_staff())
                         <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
