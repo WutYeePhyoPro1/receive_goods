@@ -110,6 +110,7 @@
             </div>
             <div class="flexv whitespace-nowrap" style="line-height: 60px">
                 <span class="mr-4"><i class='bx bxs-user-account mr-1' style="transform: translateY(2px)"></i> User : {{ getAuth()->name }}</span> |&nbsp;&nbsp;
+                <span class="mr-4"><i class='bx bx-user-voice mr-1' style="transform: translateY(2px)"></i> Role : {{ getAuth()->roleName() }}</span> |&nbsp;&nbsp;
                 <span class="mr-4"><i class='bx bx-git-branch mr-1' style="transform: translateY(2px)"></i> Branch : {{ getAuth()->branch->branch_name }}</span> |&nbsp;&nbsp;
                 {{-- <span class="mr-4"><i class='bx bx-signal-5 mr-1' style="transform: translateY(2px)"></i> Server Link :
                    @if(isset($_SERVER['SERVER_ADDR']))
