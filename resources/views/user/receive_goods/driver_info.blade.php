@@ -22,9 +22,6 @@
                     </select>
                 </div>
             @endif --}}
-            {{-- <form method="post" action="{{ route('store_car_info') }}" enctype="multipart/form-data" class="dropzone" id="imageUpload">
-                @csrf
-            </form> --}}
 
             <form action="{{ isset($main) ? route('store_car_info') : route('store_doc_info') }}" id="driver_form" method="POST" enctype="multipart/form-data">
                 @csrf
