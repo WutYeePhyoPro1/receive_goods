@@ -1,6 +1,7 @@
 @extends('layout.layout')
 
 @section('content')
+
 <div class="px-20 mt-20">
     @if (session('fails'))
     <div class="my-4 bg-rose-200 h-10 font-medium text-lg ps-5 pt-1 rounded-lg text-red-600" style="width:99%">
@@ -21,8 +22,11 @@
                     </select>
                 </div>
             @endif --}}
+            {{-- <form method="post" action="{{ route('store_car_info') }}" enctype="multipart/form-data" class="dropzone" id="imageUpload">
+                @csrf
+            </form> --}}
 
-            <form action="{{ isset($main) && dc_staff() ? route('store_car_info') : route('store_doc_info') }}" id="driver_form" method="POST">
+            <form action="{{ isset($main) ? route('store_car_info') : route('store_doc_info') }}" id="driver_form" method="POST" enctype="multipart/form-data">
                 @csrf
                 @if (isset($main) || !dc_staff())
                         <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
@@ -100,6 +104,34 @@
                         @endif
                     </div>
 
+                    <div class="grid grid-cols-2 gap-5 my-5">
+
+
+                        <div class="grid grid-cols-3 gap-10  mx-10">
+                            <div class="flex flex-col">
+                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img1').click()" title="image 1"><small class="ms-7 -translate-y-1">foto</small><span class="translate-y-2">1</span></div>
+
+                            </div>
+                            <div class="flex flex-col">
+                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img2').click()" title="image 2"><small class="ms-7 -translate-y-1">foto</small><span class="translate-y-2">2</span></div>
+
+                            </div>
+                            <div class="flex flex-col">
+                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img3').click()" title="image 3"><small class="ms-7 -translate-y-1">foto</small><span class="translate-y-2">3</span></div>
+                            </div>
+                            @error('atLeastOne')
+                                <small class="text-rose-400 -translate-y-7 ms-12">{{ $message }}</small>
+                            @enderror
+                        </div>
+                            <input type="file" class="car_img" accept="image/*" name="image_1" hidden value="null" id="img1">
+                            <input type="file" class="car_img" accept="image/*" name="image_2" hidden value="null" id="img2">
+                            <input type="file" class="car_img" accept="image/*" name="image_3" hidden value="null" id="img3">
+
+                        <div class="">
+                            <button type="{{ isset($main) || dc_staff() ? 'submit' : 'button' }}" id="{{ isset($main) || dc_staff() ? '' : 'deci_btn' }}" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
+                        </div>
+                    </div>
+
                 @else
 
                         <div class="grid grid-cols-2 gap-5 my-5">
@@ -131,23 +163,26 @@
                             </div>
                         </div>
 
+
+                    <div class="grid grid-cols-2 gap-5 my-5">
+                        <div class="">
+
+                        </div>
+                        <div class="">
+                            <button type="{{ isset($main) ? 'submit' : 'button' }}" id="{{ isset($main)? '' : 'deci_btn' }}" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
+                        </div>
+                    </div>
+
                 @endif
 
-                <div class="grid grid-cols-2 gap-5 my-5">
-
-                    <div class="">
-
-                    </div>
-                    <div class="">
-                        <button type="{{ isset($main) || dc_staff() ? 'submit' : 'button' }}" id="{{ isset($main) || dc_staff() ? '' : 'deci_btn' }}" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
-                    </div>
-                </div>
             </form>
+
+
         </fieldset>
     </div>
 
-    <div class="hidden" id="deci_model">
-        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
+    <div class="hidden" id="deci_model" >
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
             <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
                 <!-- Modal content -->
                 <div class="card rounded">
@@ -180,11 +215,41 @@
         </div>
     </div>
 
+    <div class="hidden" id="prew_img" >
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+                        <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-6 h-6 hidden svgclass">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                            <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                onclick="$('#prew_img').hide()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                </div>
+                <div class="card-body">
+                    <img src="" id="pr_im" alt="" style="width: 800px">
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('js')
+
         <script>
-            $(document).ready(function(){
-
-
+            $(document).ready(function(e){
                 $(document).on('change','#old_driver',function(e){
                     $val = $(this).val();
                     // $('#truck_type option').each((i,v)=>{
@@ -218,11 +283,34 @@
                     $('#deci_model').show();
                 })
 
+
                 $(document).on('click','.save_btn',function(e){
                     var action = $(this).val();
 
                     $('#driver_form').append('<input type="hidden" name="action" value="'+action+'">')
                     $('#driver_form').submit();
+                })
+
+                $(document).on('change','.car_img',function(e){
+                    $index = $('.car_img').index($(this));
+                    $('#pree_'+$index).remove();
+                    $('.img_btn').eq($index).addClass('bg-emerald-200').after(`
+                        <span class="hover:underline cursor-pointer mt-3 img_preview" id="pree_${$index}" data-index="${$index}" style="margin-left:35%">preivew</span>
+                    `);
+                })
+
+                $(document).on('click','.img_preview',function(e){
+                    $index = $(this).data('index');
+                    $file  =  $('.car_img').eq($index).get(0);
+                    if ($file && $file.files && $file.files[0]) {
+                        var file = $file.files[0];
+                        var imageUrl = URL.createObjectURL(file);
+                        $('#pr_im').attr('src', imageUrl);
+                    }
+                    $('#prew_img').show();
+                    return;
+                    $("#pr_im").src(URL.createObjectURL($('.car_img').eq($index).target.files[0]))
+
                 })
             })
         </script>

@@ -10,6 +10,7 @@ use App\Models\ScanTrack;
 use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
 use App\Models\GoodsReceive;
+use App\Models\UploadImage;
 use Illuminate\Support\Facades\DB;
 
     function getAuth()
@@ -393,4 +394,10 @@ use Illuminate\Support\Facades\DB;
         }else{
             return false;
         }
+    }
+
+    function image_exist($id)
+    {
+        $image = UploadImage::where('received_goods_id',$id)->get();
+        return count($image)>0 ? true : false;
     }

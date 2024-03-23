@@ -15,7 +15,8 @@
     },
     "dependencies": {
         "boxicons": "^2.1.4",
+        "dropzone": "^6.0.0-beta.2",
         "jquery": "^3.7.1",
-        "sweetalert2": "^11.10.2"
+        "sweetalert2": "^11.6.13"
     }
 }

@@ -11,6 +11,7 @@ use App\Customize\Common;
 use App\Models\ScanTrack;
 use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
+use App\Models\UploadImage;
 use App\Models\GoodsReceive;
 use Illuminate\Http\Request;
 use App\Models\AddProductTrack;
@@ -19,7 +20,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Repositories\ActionRepository;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use App\Interfaces\ActionRepositoryInterface;
+use App\Models\printTrack;
 
 class ActionController extends Controller
 {
@@ -591,8 +594,61 @@ class ActionController extends Controller
         }
     }
 
-    public function get_variable($code)
+    public function show_image(Request $request)
     {
-        return response()->json($code);
+        $image = UploadImage::where('received_goods_id',$request->id)->get();
+        $truck = DriverInfo::where('received_goods_id',$request->id)->get();
+
+        if($image)
+        {
+            foreach($image as $item){
+                if(!Storage::exists('public/'.$item->file))
+                {
+                    $ftp_file = Storage::disk('ftp')->get($item->file);
+
+                    Storage::disk('public')->put($item->file,$ftp_file);
+                    $item->update([
+                        'public' => 1
+                    ]);
+                }
+            }
+            return response()->json(['image'=>$image,'truck'=>$truck],200);
+        }
+
+    }
+
+    public function start_count($id)
+    {
+        $main = GoodsReceive::find($id);
+        $driver = DriverInfo::where('received_goods_id',$id)
+                            ->whereNull('start_time')->first();
+
+        if($driver)
+        {
+            if($main->start_data == null)
+            {
+                $main->update([
+                    'start_date'=>Carbon::now()->format('Y-m-d'),
+                    'start_time'=>Carbon::now()->format('H:i:s')
+                ]);
+                $driver->update([
+                    'start_date'=>Carbon::now()->format('Y-m-d'),
+                    'start_time'=>Carbon::now()->format('H:i:s')
+                ]);
+            }
+        }
+        return response(200);
+    }
+
+    public function print_track(Request $request)
+    {
+        $track_pr       = new printTrack();
+        $track_pr->product_id   = $request->id;
+        $track_pr->by_user      = getAuth()->id;
+        $track_pr->quantity     = $request->qty;
+        $track_pr->bar_type     = $request->type;
+        $track_pr->save();
+
+        return response(200);
     }
 }

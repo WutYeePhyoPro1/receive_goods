@@ -55,6 +55,29 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
         ],
+        // 'ftp' => [
+        //     'driver' => 'ftp',
+        //     'host' => env('FTP_HOST'),
+        //     'port' => env('FTP_PORT'),
+        //     'username' => env('FTP_USERNAME'),
+        //     'password' => env('FTP_PASSWORD'),
+        //     'passive' => true,
+        //     'root' => env('FTP_FILE_LINK'),
+        // ],
+        'ftp' => [
+            'driver' => 'ftp',
+            'host' => env('FTP_HOST'),
+            'port' => env('FTP_PORT'),
+            'username' => env('FTP_USERNAME'),
+            'password' => env('FTP_PASSWORD'),
+            'root' => env('FTP_FILE_LINK'),
+
+            // Optional FTP Settings...
+            // 'port' => env('FTP_PORT', 2=1),
+            // 'passive' => true,
+            // 'ssl' => true,
+            // 'timeout' => 30,
+        ],
 
     ],
 

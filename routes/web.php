@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActionController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\authenticateController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\userController;
@@ -117,5 +118,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('ajax/show_remark/{id}','show_remark');
             route::post('ajax/store_remark','store_remark')->name('store_remark');
             route::get('ajax/get_variable/{code}','get_variable');
+
+            route::post('ajax/show_image','show_image')->name('show_image');
+            route::get('start_count/{id}','start_count');
+            route::post('print_track','print_track')->name('print_track');
+        });
+
+        route::group(['controller'=>AdminController::class],function(){
+
+            route::post('ajax/del_reg','del_reg')->name('del_reg');
         });
 });

@@ -19,11 +19,15 @@
             <button  class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500" id="search_btn" hidden>Search</button>
             @endif
             @if (count($driver) > 0)
-                <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info" title="View Car Info"><i class='bx bx-id-card'></i></button>
+                <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info" title="View Car Info"><i class='bx bx-id-card mt-2'></i></button>
             @else
                 @if (dc_staff())
-                    <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="add_driver" title="Add Car Info"><i class='bx bx-car'></i></button>
+                    <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="add_driver" title="Add Car Info"><i class='bx bx-car mt-2'></i></button>
                 @endif
+            @endif
+
+            @if(image_exist($main->id))
+            <button class="h-12 bg-sky-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-sky-600" id="show_image" title="Show Image"><i class='bx bxs-image mt-2'></i></button>
             @endif
         </div>
         <div class="flex">
@@ -42,6 +46,8 @@
             @if ($status != 'view' && isset($cur_driver->start_date))
             <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
             <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
+            @elseif(!isset($cur_driver->start_date) && !dc_staff())
+            <button class="h-12 bg-rose-300 hover:bg-rose-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg" id="start_count_btn">Start Count</button>
             @endif
         </div>
         <?php
@@ -113,7 +119,7 @@
                                             <tr class="h-10">
                                                 @if ($key == 0)
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                    {{-- <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button> --}}
+                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
@@ -129,6 +135,7 @@
                                                     <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{$tem->qty }}</span>
                                                     <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
                                                     <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
+                                                    <input type="hidden" class="pd_id" value="{{ $tem->id }}">
                                                     <div class='px-5 bar_stick1 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
                                                     <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,1,25 ) !!}</div>
                                                     <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,1,50 ) !!}</div>
@@ -417,7 +424,7 @@
 {{-- End Modal --}}
 
 {{-- Add Car Modal --}}
-@if (dc_staff())
+@if (dc_staff() && $status != 'view')
 <div class="hidden" id="add_car">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
         <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
@@ -445,7 +452,7 @@
                     </div>
                 </div>
                 <div class="card-body pt-4">
-                    <form action="{{ route('store_car_info') }}" method="POST">
+                    <form action="{{ route('store_car_info') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                             <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
                             <div class="grid grid-cols-2 gap-5 my-5">
@@ -520,9 +527,26 @@
                             </div>
                         <div class="grid grid-cols-2 gap-5 my-5">
 
-                            <div class="">
+                            <div class="grid grid-cols-3 gap-10  mx-10">
+                                <div class="flex flex-col">
+                                    <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn" onclick="$('#img1').click()" title="image 1">1</div>
 
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn" onclick="$('#img2').click()" title="image 2">2</div>
+
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn" onclick="$('#img3').click()" title="image 3">3</div>
+                                </div>
+
+                                @error('atLeastOne')
+                                    <small class="text-rose-400 -translate-y-7 ms-12 col-span-3">{{ $message }}</small>
+                                @enderror
                             </div>
+                                <input type="file" class="car_img" accept="image/*" name="image_1" hidden id="img1">
+                                <input type="file" class="car_img" accept="image/*" name="image_2" hidden id="img2">
+                                <input type="file" class="car_img" accept="image/*" name="image_3" hidden id="img3">
                             <div class="">
                                 <button type="submit" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
                             </div>
@@ -534,7 +558,7 @@
 </div>
 </div>
 @endif
-{{-- End Modal --}}
+
    {{-- Decision Modal --}}
    <div class="hidden" id="alert_model">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
@@ -714,6 +738,78 @@
     </div>
     {{--- Modal End ---}}
 
+       {{-- Image Modal --}}
+   <div class="hidden" id="image_model">
+    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80 ">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                            onclick="$('#image_model').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+            </div>
+            <div class="" id="image_container">
+                {{-- <div class="">
+                    <span class="underline mb-4 text-xl font-serif tracking-wider">R4-0989</span>
+                    <img src="{{ asset('image/background_img/finallogo.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                    <img src="{{ asset('image/background_img/forklift.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                    <img src="{{ asset('image/background_img/handshake.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                </div> --}}
+            </div>
+        </div>
+</div>
+</div>
+{{-- End Modal --}}
+
+{{-- start modal --}}
+
+    <div class="hidden" id="prew_img" >
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+                        <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-6 h-6 hidden svgclass">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                            <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                onclick="$('#prew_img').hide()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                </div>
+                <div class="card-body">
+                    <img src="" id="pr_im" alt="" style="width: 800px">
+                </div>
+            </div>
+        </div>
+    </div>
+{{-- end modal --}}
+
     @push('js')
         <script >
             $(document).ready(function(e){
@@ -742,11 +838,99 @@
                     $('#car_info').toggle();
                 })
 
+                $(document).on('click','#show_image',function(e){
+                    $doc_id = '{{ $main->id }}';
+                    $.ajax({
+                        url : "{{ route('show_image') }}",
+                        type: 'POST',
+                        data: {_token:token,id:$doc_id},
+                        success:function(res){
+                            $list = '';
+                            for($i = 0 ; $i < res.truck.length ; $i++)
+                            {
+                                $list += `
+                                <div class="">
+                                    <span class="underline mb-4 text-xl font-serif tracking-wider">${res.truck[$i].truck_no}</span>
+                                `;
+                                for($j = 0; $j < res.image.length ; $j++)
+                                {
+                                    if(res.truck[$i].id == res.image[$j].driver_info_id)
+                                    {
+                                        $list += `
+                                            <img src="{{ asset('storage/${res.image[$j].file}') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                                        `;
+                                    }
+                                }
+                                $list += '</div>';
+                            }
+                            $('#image_container').html('');
+                            $('#image_container').append($list);
+                            $('#image_model').show();
+                        }
+                    })
+
+                })
+
+                if(!$finish)
+                {
+                    $(document).on('click','.del_doc',function(e){
+                    $val = $(this).data('doc');
+                    $id = $('#receive_id').val();
+                    $this = $(this);
+                    Swal.fire({
+                        icon : 'info',
+                        title: 'Are You Sure?',
+                        showCancelButton:true,
+                        confirmButtonText:'Yes',
+                        cancelButtonText: "No",
+                    }).then((result)=>{
+                        if(result.isConfirmed)
+                        {
+                            $.ajax({
+                                url : "{{ route('del_doc') }}",
+                                type: 'POST',
+                                data: {_token:token , data:$val , id : $id},
+                                success: function(res){
+                                    $this.parent().parent().parent().remove();
+                                    if(res.count == 1)
+                                    {
+                                        $('#vendor').parent().remove();
+                                    }
+                                },
+                                error: function(xhr,status,error)
+                                {
+                                    $msg = xhr.responseJSON.message;
+                                    if($msg == 'You Cannot Remove')
+                                    {
+                                        Swal.fire({
+                                            icon : 'info',
+                                            title: 'Scan ဖတ်ထားတာရှိတဲ့ အတွက်ကြောင့် Remove လုပ်ခွင့်မပေးပါ',
+                                        })
+                                    }
+                                }
+                            })
+                        }
+                    })
+
+
+                })
+                }
+
                 if($status != 'view')
                 {
 
                 $(document).on('click','#add_driver',function(e){
                     $('#add_car').toggle();
+                })
+
+                $(document).on('click','#start_count_btn',function(e){
+                    $id = '{{ $main->id }}';
+                    $.ajax({
+                        url : '/start_count/'+$id,
+                        success: function(res){
+                            window.location.reload();
+                        }
+                    })
                 })
 
                 if(!$finish)
@@ -760,6 +944,28 @@
                         $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
                         $('#pass_con').show();
                     })
+
+                    $(document).on('change','.car_img',function(e){
+                        $index = $('.car_img').index($(this));
+                        $('#pree_'+$index).remove();
+                        $('.img_btn').eq($index).addClass('bg-emerald-200').after(`
+                            <span class="hover:underline cursor-pointer mt-3 -translate-x-4 img_preview" id="pree_${$index}" data-index="${$index}" style="margin-left:35%">preivew</span>
+                        `);
+                    })
+
+                $(document).on('click','.img_preview',function(e){
+                    $index = $(this).data('index');
+                    $file  =  $('.car_img').eq($index).get(0);
+                    if ($file && $file.files && $file.files[0]) {
+                        var file = $file.files[0];
+                        var imageUrl = URL.createObjectURL(file);
+                        $('#pr_im').attr('src', imageUrl);
+                    }
+                    $('#prew_img').show();
+                    return;
+                    $("#pr_im").src(URL.createObjectURL($('.car_img').eq($index).target.files[0]))
+
+                })
 
                     // $(document).on('click','.sticker',function(e){
                     //     $('.bar_stick').remove();
@@ -802,119 +1008,135 @@
                         $qty    = $('#print_count').val();
                         $unit   = $('.pd_unit').eq($index).val();
                         $name   = $('.pd_name').eq($index).val();
+                        $id     = $('.pd_id').eq($index).val();
                         $type   = $('#bar_type').val();
+                        if($qty > 0 && $qty != ''){
+                            $td  = new Date();
+                            $date = [ String($td.getDate()).padStart(2, '0'),String($td.getMonth() + 1).padStart(2, '0'),$td.getFullYear()].join('/');
+                            $period = $td.getHours() > 12 ? 'PM' : 'AM';
+                            $time = [(String($td.getHours()).padStart(2, '0')%12 || 12), String($td.getMinutes()).padStart(2, '0'), String($td.getSeconds()).padStart(2, '0')].join(':');
+                            $full_date = $date+' '+$time+' '+$period;
 
-                        $td  = new Date();
-                        $date = [ String($td.getDate()).padStart(2, '0'),String($td.getMonth() + 1).padStart(2, '0'),$td.getFullYear()].join('/');
-                        $period = $td.getHours() > 12 ? 'PM' : 'AM';
-                        $time = [(String($td.getHours()).padStart(2, '0')%12 || 12), String($td.getMinutes()).padStart(2, '0'), String($td.getSeconds()).padStart(2, '0')].join(':');
-                        $full_date = $date+' '+$time+' '+$period;
-                        const new_pr = window.open("","","width=900,height=600");
-                        if($type == 1)
-                        {
 
-                            $bar = $('.bar_stick1').eq($index).html();
-                            new_pr.document.write(
-                            "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:50px;gap:3px}"
-                        );
+                            $.ajax({
+                                url : "{{ route('print_track') }}",
+                                type: 'POST',
+                                data: {_token:token,id:$id,qty:$qty,type:$type},
+                                success: function(res){
 
-                        new_pr.document.write(
-                           "</style></head><body><div id='per_div'>"
-                        )
+                                }
+                            })
 
-                        for($i = 0 ; $i < $qty ; $i++)
-                        {
-                            new_pr.document.write(`
-                                <div class="" style="style="padding: 7px 0;margin-top:10px">
 
-                                        <small class="" style="font-size:1.2rem;font-weight:700;">${$name}</small>
+                            const new_pr = window.open("","","width=900,height=600");
+                            if($type == 1)
+                            {
 
-                                    <div style="">${$bar}</div>
-                                    <div style="padding:5px 0;display:flex;flex-direction:column">
-                                         <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1200">${$pd_code}</b>
-                                         <small class="" style="margin-left:200px;transform:translateY(-10px);font-size:1rem;font-weight:700; font-family: "Times New Roman", Times, serif">${$unit}</small>
-                                        <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
-                                    </div>
-                                </div>
-                            `);
-                        }
-                            new_pr.document.write("</div></body></html>");
-                        }else if($type == 2)
-                        {
-                            $bar = $('.bar_stick2').eq($index).html();
-
-                            new_pr.document.write(
-                                "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:50px;gap:10px}"
+                                $bar = $('.bar_stick1').eq($index).html();
+                                new_pr.document.write(
+                                "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:50px;gap:3px}"
                             );
 
                             new_pr.document.write(
-                               "</style></head><body style='margin:0;padding:8px 0'><div id='per_div'>"
+                               "</style></head><body><div id='per_div'>"
                             )
 
                             for($i = 0 ; $i < $qty ; $i++)
                             {
-
-
                                 new_pr.document.write(`
+                                    <div class="" style="style="padding: 7px 0;margin-top:10px">
+
+                                            <small class="" style="font-size:1.2rem;font-weight:700;">${$name}</small>
+
+                                        <div style="">${$bar}</div>
+                                        <div style="padding:5px 0;display:flex;flex-direction:column">
+                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1200">${$pd_code}</b>
+                                             <small class="" style="margin-left:200px;transform:translateY(-10px);font-size:1rem;font-weight:700; font-family: "Times New Roman", Times, serif">${$unit}</small>
+                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
+                                        </div>
+                                    </div>
+                                `);
+                            }
+                                new_pr.document.write("</div></body></html>");
+                            }else if($type == 2)
+                            {
+                                $bar = $('.bar_stick2').eq($index).html();
+
+                                new_pr.document.write(
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:50px;gap:10px}"
+                                );
+
+                                new_pr.document.write(
+                                   "</style></head><body style='margin:0;padding:8px 0'><div id='per_div'>"
+                                )
+
+                                for($i = 0 ; $i < $qty ; $i++)
+                                {
+
+
+                                    new_pr.document.write(`
+                                        <div class="" style="padding: 0 10px 5px 10px;position:relative;">
+
+                                            <small class="" style="font-size:0.8rem;font-weight:900;">${$name}</small>
+                                           <div style="position:absolute;right:50px;top:30px">
+                                                <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
+                                            </div>
+                                            <div style="padding-left:50px">${$bar}</div>
+                                            <div style="padding:5px 0;display:flex;flex-direction:column">
+                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.8rem;font-weight:900">${$pd_code}</b>
+
+                                                <small class="" style="margin: 0 0 0 20px;font-size:0.8rem;font-weight:700">${$full_date}</small>
+                                            </div>
+                                        </div>
+                                    `);
+                                }
+                                new_pr.document.write("</div></body></html>");
+                            }else if($type == 3)
+                            {
+                                $bar = $('.bar_stick3').eq($index).html();
+
+                                new_pr.document.write(
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:50px;gap:10px}"
+                                );
+
+                                new_pr.document.write(
+                                "</style></head><body style='margin:0;padding:8px 0'><div id='per_div'>"
+                                )
+
+                                for($i = 0 ; $i < $qty ; $i++)
+                                {
+                                    new_pr.document.write(`
                                     <div class="" style="padding: 0 10px 5px 10px;position:relative;">
 
-                                        <small class="" style="font-size:0.8rem;font-weight:900;">${$name}</small>
-                                       <div style="position:absolute;right:50px;top:30px">
-                                            <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
-                                        </div>
-                                        <div style="padding-left:50px">${$bar}</div>
-                                        <div style="padding:5px 0;display:flex;flex-direction:column">
-                                            <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.8rem;font-weight:900">${$pd_code}</b>
-
-                                            <small class="" style="margin: 0 0 0 20px;font-size:0.8rem;font-weight:700">${$full_date}</small>
-                                        </div>
+                                    <small class="" style="font-size:1.2rem;font-weight:900;">${$name}</small>
+                                    <div style="position:absolute;right:50px;top:30px">
+                                        <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
                                     </div>
-                                `);
-                            }
-                            new_pr.document.write("</div></body></html>");
-                        }else if($type == 3)
-                        {
-                            $bar = $('.bar_stick3').eq($index).html();
-
-                            new_pr.document.write(
-                                "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:50px;gap:10px}"
-                            );
-
-                            new_pr.document.write(
-                            "</style></head><body style='margin:0;padding:8px 0'><div id='per_div'>"
-                            )
-
-                            for($i = 0 ; $i < $qty ; $i++)
-                            {
-                                new_pr.document.write(`
-                                <div class="" style="padding: 0 10px 5px 10px;position:relative;">
-
-                                <small class="" style="font-size:1.2rem;font-weight:900;">${$name}</small>
-                                <div style="position:absolute;right:50px;top:30px">
-                                    <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
-                                </div>
-                                <div style="padding-left:50px">${$bar}</div>
-                                <div style="padding:5px 0;display:flex;flex-direction:column">
-                                    <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
-                                    <div style="display:flex">
-                                        <div style="width:100px;height:30px;border:solid 3px black"></div>
-                                        <div style="width:20px;height:20px;border:solid 3px black;margin:10px 0 0 4px"></div>
-                                        <div style="margin:15px 0 0 4px;font-weight:800">.............</div>
+                                    <div style="padding-left:50px">${$bar}</div>
+                                    <div style="padding:5px 0;display:flex;flex-direction:column">
+                                        <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
+                                        <div style="display:flex">
+                                            <div style="width:100px;height:30px;border:solid 3px black"></div>
+                                            <div style="width:20px;height:20px;border:solid 3px black;margin:10px 0 0 4px"></div>
+                                            <div style="margin:15px 0 0 4px;font-weight:800">.............</div>
+                                        </div>
+                                        <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
                                     </div>
-                                    <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
-                                </div>
-                                </div>
-                                `);
+                                    </div>
+                                    `);
+                                }
+                                new_pr.document.write("</div></body></html>");
                             }
-                            new_pr.document.write("</div></body></html>");
+                            new_pr.document.close();
+                            new_pr.focus();
+                            new_pr.onload = function () {
+                            new_pr.print();
+                            new_pr.close();
+                            };
+                            $('#print_no').hide();
+
                         }
-                        new_pr.document.close();
-                        new_pr.focus();
-                        new_pr.onload = function () {
-                        new_pr.print();
-                        new_pr.close();
-                        };
-                        $('#print_no').hide();
+
                     })
 
                     $(document).on('click','#auth_con',function(e){
@@ -1031,7 +1253,7 @@
                                         $list += `
                                         <tr class="h-10">
                                             <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                        <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc hidden"  data-doc="${res[$i].purchaseno}"><i class='bx bx-minus'></i></button>
+                                                        <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc"  data-doc="${res[$i].purchaseno}"><i class='bx bx-minus'></i></button>
                                             </td>
                                             <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${Math.floor($count+1)}</td>
                                             <td class="ps-2 border border-slate-400 border-t-0">${res[$i].purchaseno}</td>
@@ -1308,36 +1530,7 @@
                     }
 
 
-                $(document).on('click','.del_doc',function(e){
-                    $val = $(this).data('doc');
-                    $id = $('#receive_id').val();
-                    $this = $(this);
-                    Swal.fire({
-                        icon : 'info',
-                        title: 'Are You Sure?',
-                        showCancelButton:true,
-                        confirmButtonText:'Yes',
-                        cancelButtonText: "No",
-                    }).then((result)=>{
-                        if(result.isConfirmed)
-                        {
-                            $.ajax({
-                                url : "{{ route('del_doc') }}",
-                                type: 'POST',
-                                data: {_token:token , data:$val , id : $id},
-                                success: function(res){
-                                    $this.parent().parent().parent().remove();
-                                },
-                                error: function(xhr,status,error)
-                                {
 
-                                }
-                            })
-                        }
-                    })
-
-
-                })
 
             }
 

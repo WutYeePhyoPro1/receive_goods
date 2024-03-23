@@ -21,11 +21,7 @@ return new class extends Migration
             $table->string('role');
             $table->integer('department_id');
             $table->integer('branch_id');
-<<<<<<< HEAD
             $table->integer('status',1);
-=======
-            $table->integer('status')->default(1);
->>>>>>> 465180b5299f7c58b6aed8d44ceffa957724b1e9
             $table->rememberToken();
             $table->timestamps();
         });

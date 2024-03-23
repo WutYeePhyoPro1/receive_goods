@@ -79,6 +79,9 @@
                         <th class="py-2 bg-slate-400 border">Remain QTY</th>
                         <th class="py-2 bg-slate-400 border">Exceed QTY</th> --}}
                         <th class="py-2 bg-slate-400 border">Start Date</th>
+                        @can('management-document')
+                        <th class="py-2 bg-slate-400 border">Action</th>
+                        @endcan
                         <th class="py-2 bg-slate-400  rounded-tr-md">Total Unload Time</th>
                     </tr>
                 </thead>
@@ -112,6 +115,13 @@
                             <td class="h-10 text-center border border-slate-400">{{ $item->remaining_qty }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->exceed_qty }}</td> --}}
                             <td class="h-10 text-center border border-slate-400">{{ $item->start_date.' '.$item->start_time }}</td>
+                            @can('management-document')
+                                <td class="h-10 text-center border border-slate-400">
+                                    @if ($item->status != 'complete')
+                                        <button class="bg-rose-500 hover:bg-rose-700 px-1 rounded-md mr-1 del_doc_btn" data-id="{{ $item->id }}"><i class='bx bxs-trash-alt text-white mt-1'></i></button>
+                                    @endif
+                                </td>
+                            @endcan
                             <td class="h-10 text-center border border-slate-400">{{ $item->total_duration }}</td>
                         </tr>
                     @endforeach
@@ -133,6 +143,7 @@
 
             $(document).ready(function(){
 
+                $token = $('meta[name=__token]').attr('content');
                 $(document).on('click','.edit_view',function(e){
                     $role = $('#user_role').val();
                     $id = $(this).data('id');
@@ -151,6 +162,31 @@
                             window.location.href = 'receive_goods/'+$id;
                         }
                     }
+                })
+
+                $(document).on('click','.del_doc_btn',function(e){
+                    $id = $(this).data('id');
+
+                    Swal.fire({
+                        icon : 'question',
+                        text: 'Are You Sure',
+                        showCancelButton:true,
+                        confirmButtonText: 'Yes',
+                        cancelButtonText : 'No',
+                    }).then((result)=>{
+                        if(result.isConfirmed)
+                        {
+
+                            $.ajax({
+                                url : "{{ route('del_reg') }}",
+                                type: 'POST',
+                                data: {_token:$token,id:$id},
+                                success: function(res){
+                                    window.location.reload();
+                                }
+                            })
+                        }
+                    })
                 })
             })
         </script>

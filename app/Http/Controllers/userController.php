@@ -19,14 +19,18 @@ use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
 use App\Models\GoodsReceive;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Validator;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\UploadImage;
 use Symfony\Component\CssSelector\Node\FunctionNode;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
@@ -270,13 +274,13 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
-
+        // dd('no');
         Common::Log(route('store_car_info'),"Store Car Infomation");
         $status = 'scan';
         $driver = DriverInfo::where('received_goods_id',$request->main_id)->get();
         if(dc_staff())
         {
-            $request->validate([
+            $validator = Validator::make($request->all(),[
                 'driver_name'       => 'required',
                 'driver_phone'      => 'required|numeric',
                 'driver_nrc'        => 'required',
@@ -284,6 +288,19 @@ class userController extends Controller
                 'truck_type'        => 'required',
                 'gate'              => 'required'
             ]);
+
+            $validator->after(function ($validator) use($request) {
+                if ($request->image_1 == null && $request->image_2 == null && $request->image_3 == null) {
+                    $validator->errors()->add(
+                        'atLeastOne', 'Please Fill Atleast One Image'
+                    );
+                }
+            });
+
+            if ($validator->fails()) {
+                return back()->withErrors($validator)
+                            ->withInput();
+            }
         }else{
             $request->validate([
                 'driver_name'       => 'required',
@@ -332,6 +349,25 @@ class userController extends Controller
 
                 $driver->save();
         }
+
+            if($request->only('image_1','image_2','image_3') != [])
+            {
+                $main_doc = GoodsReceive::where('id',$request->main_id)->first();
+                foreach($request->only('image_1','image_2','image_3') as $item)
+
+                $document_no    = $main_doc->document_no;
+                $name           = $item->getClientOriginalName();
+                $file_name      = $document_no.'_'.$name;
+                Storage::disk('ftp')->put($file_name, fopen($item, 'r+'));
+                UploadImage::create([
+                    'name'      => $name,
+                    'file'      => $file_name,
+                    'received_goods_id' => $main_doc->id,
+                    'driver_info_id'    => $driver->id,
+                    'public'            => 0
+                ]);
+            }
+
         view()->share(['status'=>$status]);
         $history = CarHistory::where(['car_no'=>$request->truck_no,'car_type'=>$request->truck_type,'driver_name'=>$request->driver_name])->first();
         if(!$history)
@@ -348,7 +384,7 @@ class userController extends Controller
 
     public function store_doc_info(Request $request)
     {
-        // dd($request->all());
+        dd('yes');
         Common::Log(route('store_doc_info'),"Store Infomation and Generate REG");
 
         if(dc_staff())
@@ -360,15 +396,27 @@ class userController extends Controller
             $branch = Branch::where('id',$request->branch)->first();
             $shr  = 'REG'.$branch->branch_short_name.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         }else{
-            $request->validate([
+            $validator = Validator::make($request->all(),[
                 'truck_no'      => 'required',
                 'driver_name'   => 'required',
-                'gate'          => 'required'
+                'gate'          => 'required',
             ]);
+
+            $validator->after(function ($validator) use($request) {
+                if ($request->image_1 == null && $request->image_2 == null && $request->image_3 == null) {
+                    $validator->errors()->add(
+                        'atLeastOne', 'Please Fill Atleast One Image'
+                    );
+                }
+            });
+
+            if ($validator->fails()) {
+                return back()->withErrors($validator)
+                            ->withInput();
+            }
             $shr  = 'REG'.getAuth()->branch->branch_short_name.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         }
 
-        
         $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',getAuth()->branch_id)->get();
         $same = count($same);
         if($same > 0){
@@ -387,6 +435,7 @@ class userController extends Controller
 
             $main->save();
         }else{
+
             $main->status       = 'incomplete';
             $main->source       = 1;
 
@@ -422,6 +471,24 @@ class userController extends Controller
                 $driver->gate               = $request->gate;
                 $driver->save();
 
+            }
+
+            if($request->only('image_1','image_2','image_3') != [])
+            {
+                foreach($request->only('image_1','image_2','image_3') as $item)
+                {
+                    $document_no    = $main->document_no;
+                    $name           = $item->getClientOriginalName();
+                    $file_name      = $document_no.'_'.$name;
+                    Storage::disk('ftp')->put($file_name, fopen($item, 'r+'));
+                    UploadImage::create([
+                        'name'      => $name,
+                        'file'      => $file_name,
+                        'received_goods_id' => $main->id,
+                        'driver_info_id'    => $driver->id,
+                        'public'            => 0
+                    ]);
+                }
             }
         }
 
@@ -693,6 +760,8 @@ class userController extends Controller
     public function del_doc(Request $request)
     {
         $doc = Document::where(['document_no'=>$request->data , 'received_goods_id' => $request->id])->first();
+        $count_doc = Document::where('received_goods_id',$request->id)->get();
+        $count_doc = count($count_doc);
         $product = Product::where('document_id',$doc->id)->pluck('scanned_qty')->toArray();
         $zero = true;
         foreach($product as $item)
@@ -706,8 +775,13 @@ class userController extends Controller
         if($zero)
         {
             Product::where('document_id',$doc->id)->delete();
+            if($count_doc == 1)
+            {
+                $reg = GoodsReceive::find($request->id);
+                $reg->update(['vendor_name' => null]);
+            }
             $doc->delete();
-            return response()->json(200);
+            return response()->json(['count'=>$count_doc],200);
         }else{
             return response()->json(['message'=>"You Cannot Remove"],404);
         }
