@@ -148,7 +148,7 @@ class userController extends Controller
                         ->when($loc == 'other',function($q) use($user_branch_code){
                             $q->where('branch',$user_branch_code);
                         })->get();
-        // dd($gate);
+
         if($data || $emp){
             $log            = new Log();
             $log->user_id   = getAuth()->id;
