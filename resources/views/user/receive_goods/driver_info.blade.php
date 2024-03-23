@@ -166,7 +166,7 @@
 
                         </div>
                         <div class="">
-                            <button type="{{ isset($main) ? 'submit' : 'button' }}" id="{{ isset($main)? '' : 'deci_btn' }}" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
+                            <button type="{{ isset($main) || dc_staff() ? 'submit' : 'button' }}" id="{{ isset($main) || dc_staff() ? '' : 'deci_btn' }}" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
                         </div>
                     </div>
 
