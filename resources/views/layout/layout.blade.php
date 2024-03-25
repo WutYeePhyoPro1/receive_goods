@@ -78,7 +78,11 @@
                 @endcan
 
                 <li class="sidebar_items" onclick="this.childNodes[1].click()">
-                    <a href="{{ asset('image/receive_goods_userguide.pdf') }}" target="_blank" id="user_guide" hidden></a>
+                    @if (dc_staff())
+                        <a href="{{ asset('image/received_goods_user_guide_dc.pdf') }}" target="_blank" id="user_guide" hidden></a>
+                    @else
+                    <a href="{{ asset('image/received_good_user_guide.pdf') }}" target="_blank" id="user_guide" hidden></a>
+                    @endif
                     <div class="sidebar_text">
                         <i class='bx bxs-book-content' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
                         <span>User's Guide</span>
