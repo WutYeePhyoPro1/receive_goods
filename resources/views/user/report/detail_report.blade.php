@@ -183,7 +183,7 @@
                                             <td class="ps-2 border border-slate-400 border-t-0 px-2 bar_code">{{ $tem->product->bar_code }}</td>
                                             <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->product->supplier_name }}</td>
 
-                                            
+
                                             <td class="ps-2 border border-slate-400 border-t-0 qty">
                                                 @can ('adjust-truck-goods')
                                                     <input type="number" data-old="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" data-pd="{{ $tem->product_id }}" data-driver="{{ $driver->id }}" value="{{ $tem->scanned_qty - get_remove_pd($tem->product_id)}}" class="border ps-4 appearance-none scanned_qty">
@@ -220,6 +220,7 @@
                 </div>
                 <table class="w-full mt-4">
                     <thead>
+                    @if(dc_staff())
                         <tr>
                             <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
                             <th class="py-2 bg-slate-400 border" style="" rowspan="2">Product Code</th>
@@ -233,9 +234,20 @@
                             <th class="py-2 bg-slate-400  border">M</th>
                             <th class="py-2 bg-slate-400  border">S</th>
                         </tr>
+                    @else
+                        <tr>
+                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                            <th class="py-2 bg-slate-400 border" style="">Product Code</th>
+                            <th class="py-2 bg-slate-400  border">Supplier Name</th>
+                            <th class="py-2 bg-slate-400  border">Scanned (Count) Qty</th>
+                            <th class="py-2 bg-slate-400  rounded-tr-md">Unloaded Qty</th>
+                        </tr>
+                    @endif
+
                     </thead>
                     <tbody>
                         @foreach (get_product_per_truck($item->id,$document->id) as $index=>$tem)
+                        @if(dc_staff())
                             <tr>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $index+1 }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->product->bar_code }}</td>
@@ -245,6 +257,15 @@
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 w-10 text-center ">{{ get_per($tem->product_id,'S') }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->scanned_qty }}</td>
                             </tr>
+                        @else
+                            <tr>
+                                <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $index+1 }}</td>
+                                <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->product->bar_code }}</td>
+                                <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->product->supplier_name }}</td>
+                                <td class="ps-2 border border-slate-400 border-t-0 py-1 w-10 text-center ">{{ get_per($tem->product_id,'S') }}</td>
+                                <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->scanned_qty }}</td>
+                            </tr>
+                        @endif
                         @endforeach
                     </tbody>
                 </table>

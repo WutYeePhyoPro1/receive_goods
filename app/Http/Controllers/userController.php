@@ -384,7 +384,6 @@ class userController extends Controller
 
     public function store_doc_info(Request $request)
     {
-        dd('yes');
         Common::Log(route('store_doc_info'),"Store Infomation and Generate REG");
 
         if(dc_staff())

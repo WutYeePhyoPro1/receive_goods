@@ -106,15 +106,15 @@
 
                         <div class="grid grid-cols-3 gap-10  mx-10">
                             <div class="flex flex-col">
-                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img1').click()" title="image 1"><small class="ms-7 -translate-y-1">foto</small><span class="translate-y-2">1</span></div>
+                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img1').click()" title="image 1"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">1</span></div>
 
                             </div>
                             <div class="flex flex-col">
-                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img2').click()" title="image 2"><small class="ms-7 -translate-y-1">foto</small><span class="translate-y-2">2</span></div>
+                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img2').click()" title="image 2"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">2</span></div>
 
                             </div>
                             <div class="flex flex-col">
-                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img3').click()" title="image 3"><small class="ms-7 -translate-y-1">foto</small><span class="translate-y-2">3</span></div>
+                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img3').click()" title="image 3"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">3</span></div>
                             </div>
                             @error('atLeastOne')
                                 <small class="text-rose-400 -translate-y-7 ms-12">{{ $message }}</small>
@@ -166,7 +166,7 @@
 
                         </div>
                         <div class="">
-                            <button type="{{ isset($main) ? 'submit' : 'button' }}" id="{{ isset($main)? '' : 'deci_btn' }}" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
+                            <button type="{{ isset($main) || dc_staff() ? 'submit' : 'button' }}" id="{{ isset($main) || dc_staff() ? '' : 'deci_btn' }}" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
                         </div>
                     </div>
 
