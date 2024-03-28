@@ -431,7 +431,7 @@
                 {{ $product->appends(request()->query())->links() }}
             @elseif ($report == 'truck')
                 {{ $truck->appends(request()->query())->links() }}
-            @elseif ($report == 'finish' || $report == 'remove' || $report == 'shortage')
+            @elseif ($report == 'finish' || $report == 'remove' || $report == 'shortage' || $report == 'print' || $report == 'man_add')
                 {{ $data->appends(request()->query())->links() }}
             @elseif ($report == 'po_to')
                 {{ $docs->appends(request()->query())->links() }}
