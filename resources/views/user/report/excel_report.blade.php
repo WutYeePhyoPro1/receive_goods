@@ -98,6 +98,15 @@
                     <th class="py-2 bg-slate-400 border">Quantity</th>
                     <th class="py-2 bg-slate-400 rounded-tr-md">Type</th>
                 </tr>
+            @elseif ($report == 'man_add')
+                <tr>
+                    <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                    <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                    <th class="py-2 bg-slate-400 border">Document No</th>
+                    <th class="py-2 bg-slate-400 border">Product Code</th>
+                    <th class="py-2 bg-slate-400 border">Added Qty</th>
+                    <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
+                </tr>
             @endif
             </thead>
             <tbody>
@@ -188,7 +197,7 @@
                             <td class="h-10 text-center border border-slate-400 ">{{ $item->remark }}</td>
                         </tr>
                     @endforeach
-                    @elseif($report == 'print')
+                @elseif($report == 'print')
                     @foreach ($all as $index=>$item)
                         <tr class="">
                                 <td class="h-10 text-center border border-slate-400">{{ $index+1 }}</td>
@@ -197,6 +206,17 @@
                                 <td class="h-10 text-center border border-slate-400">{{ $item->product->bar_code }}</td>
                                 <td class="h-10 text-center border border-slate-400 ">{{ $item->quantity }}</td>
                                 <td class="h-10 text-center border border-slate-400 ">{{ 'Bar '.$item->bar_type }}</td>
+                        </tr>
+                    @endforeach
+                @elseif($report == 'man_add')
+                    @foreach ($all as $index=>$item)
+                        <tr class="">
+                                <td class="h-10 text-center border border-slate-400">{{ $index+1 }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->received->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->product->bar_code }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ $item->added_qty }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ $item->user->name }}</td>
                         </tr>
                     @endforeach
                 @endif

@@ -555,6 +555,7 @@ class ReportController extends Controller
 
     public function excel_export(Request $request)
     {
+
         $date = Carbon::now()->format('Ymd');
         $search = $request->except('_token');
         switch ($request->report)
@@ -566,6 +567,7 @@ class ReportController extends Controller
             case  'po_to'       :$report = 'potolist';break;
             case  'shortage'    :$report = 'shortage';break;
             case  'print'       :$report = 'print';break;
+            case  'man_add'     :$report = 'man_add';break;
             default             :$report = '';break;
         }
         $log            = new Log();

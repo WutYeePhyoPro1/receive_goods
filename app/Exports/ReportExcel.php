@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\AddProductTrack;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Booking;
@@ -346,6 +347,50 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
                             $q->whereDate('created_at','<=',request('to_date'));
                         })
                         ->get();
+
+
+        $all = $data;
+    }
+    elseif($report == 'man_add')
+    {
+        $pd_ids = [];
+
+        if(isset($this->filter['search']))
+        {
+            if($this->filter['search'] == 'main_no' && $this->filter['search_data'])
+            {
+                $document   = GoodsReceive::where('document_no',$this->filter['search_data'])->where('status','complete')->first();
+                if($document)
+                {
+                    $no         = Document::where('received_goods_id',$document->id)->pluck('id');
+                    $pd_ids     = Product::whereIn('document_id',$no)->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))->pluck('id');
+                }
+            }elseif($this->filter['search'] == 'document_no' && $this->filter['search_data'])
+            {
+                $doc = Document::where('document_no',$this->filter['search_data'])->first();
+                $pd_ids = Product::where('document_id',$doc->id)->pluck('id');
+            }elseif($this->filter['search'] == 'product_code' && $this->filter['search_data'])
+            {
+               $pd_ids = Product::where('bar_code',$this->filter['search_data'])->pluck('id');
+            }
+        }
+
+        $data   = AddProductTrack::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date']) && !isset($this->filter['search_data']),function($q)
+                            {
+                                $q->whereDate('created_at',Carbon::today());
+                            })
+                            ->when(isset($this->filter['search']) && $this->filter['search'] && $this->filter['search_data'],function($q) use($pd_ids) {
+
+                                $q->whereIn('product_id',$pd_ids);
+                            })
+                            ->when(request('from_date'),function($q){
+                                $q->whereDate('created_at', '>=', request('from_date'));
+                            })
+                            ->when(request('to_date'),function($q){
+                                $q->whereDate('created_at','<=',request('to_date'));
+                            })
+                            ->whereNotNull('product_id')
+                            ->get();
 
 
         $all = $data;
