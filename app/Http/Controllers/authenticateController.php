@@ -8,9 +8,11 @@ use App\Models\Product;
 use App\Models\Document;
 use App\Models\Tracking;
 use App\Customize\Common;
+use App\Models\AddProductTrack;
 use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
 use App\Models\GoodsReceive;
+use App\Models\printTrack;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -102,6 +104,8 @@ class authenticateController extends Controller
                             ->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))
                             ->get();
         $shortage   = $shortage->sum('sub');
-        return view('user.home',compact('products','docs','cars','del','com_doc','po','shortage'));
+        $print      = printTrack::whereDate('created_at',Carbon::today())->sum('quantity');
+        $non_scan   = AddProductTrack::whereDate('created_at',Carbon::today())->sum('added_qty');
+        return view('user.home',compact('products','docs','cars','del','com_doc','po','shortage','print','non_scan'));
     }
 }

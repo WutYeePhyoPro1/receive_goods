@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\Document;
+use App\Models\Tracking;
+use App\Models\ScanTrack;
+use App\Models\DriverInfo;
+use App\Models\printTrack;
+use App\Models\UploadImage;
+use App\Models\GoodsReceive;
+use Illuminate\Http\Request;
 use App\Models\AddProductTrack;
 use App\Models\changeTruckProduct;
-use App\Models\Document;
-use App\Models\DriverInfo;
-use App\Models\GoodsReceive;
-use App\Models\printTrack;
-use App\Models\Product;
-use App\Models\ScanTrack;
-use App\Models\Tracking;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -25,10 +27,11 @@ class AdminController extends Controller
         $product        = Product::whereIn('document_id',$document_ids)->get();
         $product_ids    = $product->pluck('id');
         $track          = Tracking::whereIn('product_id',$product_ids)->get();
-        $scan           = ScanTrack::whereIn('product_id',$product_ids)->get();
+    $scan           = ScanTrack::whereIn('product_id',$product_ids)->get();
         $print          = printTrack::whereIn('product_id',$product_ids)->get();
         $add            = AddProductTrack::whereIn('product_id',$product_ids)->get();
         $change         = changeTruckProduct::whereIn('product_id',$product_ids)->get();
+        $files          = UploadImage::where('received_goods_id',$request->id)->get();
 
         if(count($driver) > 0)
         {
@@ -61,6 +64,18 @@ class AdminController extends Controller
         if(count($change) > 0)
         {
             changeTruckProduct::whereIn('product_id',$product_ids)->delete();
+        }
+        if(count($files) > 0 )
+        {
+            foreach($files as $item)
+            {
+                if(Storage::exists('public/'.$item->file))
+                {
+                    Storage::delete('public/'.$item->file);
+                }
+                Storage::disk('ftp')->delete($item->file);
+            }
+            UploadImage::where('received_goods_id',$request->id)->delete();
         }
         $reg->delete();
         return response(200);

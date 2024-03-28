@@ -10,4 +10,9 @@ class printTrack extends Model
     use HasFactory;
 
     protected $fillable = ['product_id','by_user','quantity','bar_type'];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class,'product_id')->withDefault();
+    }
 }

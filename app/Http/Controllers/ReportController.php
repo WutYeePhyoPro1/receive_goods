@@ -18,9 +18,12 @@ use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
 use App\Exports\DetailExcel;
 use App\Exports\ReportExcel;
+use App\Models\AddProductTrack;
 use App\Models\GoodsReceive;
+use App\Models\printTrack;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Dflydev\DotAccessData\Data;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\CssSelector\Node\FunctionNode;
@@ -393,7 +396,7 @@ class ReportController extends Controller
             if($document)
             {
                 $no         = Document::where('received_goods_id',$document->id)->pluck('id');
-                $pd_ids     = Product::whereIn('document_id',$no)->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))->pluck('id');
+                $pd_ids     = Product::whereIn('document_id',$no)->where(DB::raw('qty'),'!=',DB::raw('scanned_qty'))->pluck('id');
             }
         }elseif(request('search') == 'document_no' && request('search_data'))
         {
@@ -431,6 +434,12 @@ class ReportController extends Controller
 
                             $q->where(DB::raw("qty"),'>',DB::raw('scanned_qty'));
                         })
+                        ->when(request('from_date'),function($q){
+                            $q->whereDate('created_at', '>=', request('from_date'));
+                        })
+                        ->when(request('to_date'),function($q){
+                            $q->whereDate('created_at','<=',request('to_date'));
+                        })
                             ->whereIn('document_id',$document_ids)
                             ->where(DB::raw("qty"),'!=',DB::raw('scanned_qty'))
                             ->paginate(15);
@@ -438,10 +447,114 @@ class ReportController extends Controller
         return view('user.report.report',compact('data','report','url'));
     }
 
+    public function print_list()
+    {
+        Common::Log(route('print_list'),"go to barcode Print report page");
+        $report = 'print';
+        $url    = 'print_list';
+
+        if(request('search') && !request('search_data'))
+        {
+            return back()->with('error','Please add search data');
+        }else if(!request('search') && request('search_data')){
+            return back()->with('error','Please add search method');
+        }
+
+        $pd_ids = [];
+        if(request('search') == 'main_no' && request('search_data'))
+        {
+            $document   = GoodsReceive::where('document_no',request('search_data'))->first();
+            if($document)
+            {
+
+                $no         = Document::where('received_goods_id',$document->id)->pluck('id');
+                $pd_ids     = Product::whereIn('document_id',$no)->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))->pluck('id');
+            }
+        }elseif(request('search') == 'document_no' && request('search_data'))
+        {
+            $doc = Document::where('document_no',request('search_data'))->first();
+            $pd_ids = Product::where('document_id',$doc->id)->pluck('id');
+        }elseif(request('search') == 'product_code' && request('search_data'))
+        {
+           $pd_ids = Product::where('bar_code',request('search_data'))->pluck('id');
+
+        }
+
+        $data   = printTrack::when(!request('search') && !request('from_date') && !request('action') && !request('to_date'),function($q)
+                                {
+                                    $q->whereDate('created_at',Carbon::today());
+                                })
+                                ->when(request('from_date'),function($q){
+                                    $q->whereDate('created_at', '>=', request('from_date'));
+                                })
+                                ->when(request('to_date'),function($q){
+                                    $q->whereDate('created_at','<=',request('to_date'));
+                                })
+                                ->when(request('search') && request('search_data'),function($q) use($pd_ids) {
+
+                                    $q->whereIn('product_id',$pd_ids);
+                                })
+                                // ->when()
+                                ->paginate(15);
+        // dd($data);
+        return view('user.report.report',compact('report','url','data'));
+        // $data   = printTrack::
+    }
+
+    public function man_add()
+    {
+        Common::Log(route('man_add'),"go to manually added page");
+        $report = 'man_add';
+        $url    = 'man_add';
+
+        if(request('search') && !request('search_data'))
+        {
+            return back()->with('error','Please add search data');
+        }else if(!request('search') && request('search_data')){
+            return back()->with('error','Please add search method');
+        }
+
+        $pd_ids = [];
+        if(request('search') == 'main_no' && request('search_data'))
+        {
+            $document   = GoodsReceive::where('document_no',request('search_data'))->first();
+            if($document)
+            {
+
+                $no         = Document::where('received_goods_id',$document->id)->pluck('id');
+                $pd_ids     = Product::whereIn('document_id',$no)->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))->pluck('id');
+            }
+        }elseif(request('search') == 'document_no' && request('search_data'))
+        {
+            $doc = Document::where('document_no',request('search_data'))->first();
+            $pd_ids = Product::where('document_id',$doc->id)->pluck('id');
+        }elseif(request('search') == 'product_code' && request('search_data'))
+        {
+           $pd_ids = Product::where('bar_code',request('search_data'))->pluck('id');
+        }
+
+        $data    = AddProductTrack::when(!request('search') && !request('from_date') && !request('action') && !request('to_date'),function($q)
+                                    {
+                                        $q->whereDate('created_at',Carbon::today());
+                                    })
+                                    ->when(request('from_date'),function($q){
+                                        $q->whereDate('created_at', '>=', request('from_date'));
+                                    })
+                                    ->when(request('to_date'),function($q){
+                                        $q->whereDate('created_at','<=',request('to_date'));
+                                    })
+                                    ->when(request('search') && request('search_data'),function($q) use($pd_ids) {
+
+                                        $q->whereIn('product_id',$pd_ids);
+                                    })
+                                    ->whereNotNull('product_id')
+                                    ->paginate(15);
+
+        return view('user.report.report',compact('report','url','data'));
+    }
 
     public function excel_export(Request $request)
     {
-
         $date = Carbon::now()->format('Ymd');
         $search = $request->except('_token');
         switch ($request->report)
@@ -452,13 +565,14 @@ class ReportController extends Controller
             case  'remove'      :$report = 'removepd';break;
             case  'po_to'       :$report = 'potolist';break;
             case  'shortage'    :$report = 'shortage';break;
+            case  'print'       :$report = 'print';break;
             default             :$report = '';break;
         }
         $log            = new Log();
         $log->user_id   = getAuth()->id;
         $log->history   = route('excel_export');
         $log->action    = "$report report excel export";
-        $log->save();
+        // $log->save();
         return Excel::download(new ReportExcel($search), $report . 'report' . $date . '.xlsx');
     }
 

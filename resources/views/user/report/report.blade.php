@@ -2,11 +2,7 @@
 
 @section('content')
     <div class="m-5">
-        <form action="@if ($report == 'product')
-        {{ route('product_list') }}
-        @elseif ($report == 'finish')
-        {{ route('finished_documents') }}
-        @endif" method="Get">
+        <form action="" method="Get">
         <div class="grid grid-cols-7 gap-4">
                 <input type="hidden" id="user_role" value="{{ getAuth()->role }}">
 
@@ -101,15 +97,17 @@
                                 <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Bar Code</option>
                             </Select>
                         </div>
-                    @elseif ($report == 'shortage')
-                    <div class="flex flex-col">
-                        <label for="action" class="whitespace-nowrap">Choose excess/shortage :</label>
-                        <Select name="action" id="action" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
-                            <option value="" selected>Choose excess/shortage</option>
-                            <option value="excess" {{ request('action')=='excess' ? 'selected' : '' }}>Excess</option>
-                            <option value="shortage" {{ request('action')=='shortage' ? 'selected' : '' }}>Shortage</option>
-                        </Select>
-                    </div>
+                    @elseif ($report == 'shortage' || $report == 'print' || $report == 'man_add')
+                    @if ($report == 'shortage')
+                        <div class="flex flex-col">
+                            <label for="action" class="whitespace-nowrap">Choose excess/shortage :</label>
+                            <Select name="action" id="action" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                <option value="" selected>Choose excess/shortage</option>
+                                <option value="excess" {{ request('action')=='excess' ? 'selected' : '' }}>Excess</option>
+                                <option value="shortage" {{ request('action')=='shortage' ? 'selected' : '' }}>Shortage</option>
+                            </Select>
+                        </div>
+                    @endif
 
 
                         <div class="flex flex-col">
@@ -130,7 +128,7 @@
 
                 <div class="">
                     <button type="submit" class="bg-amber-400 h-10 w-[40%] rounded-lg ms-4 mt-9 hover:bg-amber-600 hover:text-white">Search</button>
-                    @if (($report == 'product' && count($product) > 0) || ($report == 'shortage' && count($data) > 0) || ($report == 'finish' && count($data) > 0) || ($report == 'truck' && count($truck) > 0) || ($report == 'remove' && count($data) > 0) || ($report == 'po_to' && count($docs) > 0))
+                    @if (($report == 'product' && count($product) > 0) || ($report == 'shortage' && count($data) > 0) || ($report == 'finish' && count($data) > 0) || ($report == 'truck' && count($truck) > 0) || ($report == 'remove' && count($data) > 0) || ($report == 'po_to' && count($docs) > 0) || ($report == 'print' && count($data) > 0) || ($report == 'man_add' && count($data) > 0))
                         <button type="button" class="bg-sky-400 text-white text-xl h-10 w-[20%] rounded-lg ms-4 mt-9 hover:bg-sky-600 hover:text-white" title="export excel" onclick="$('#excel_form').submit()"><i class='bx bx-export'></i></button>
                     @endif
                 </div>
@@ -246,6 +244,24 @@
                                 <th class="py-2 bg-slate-400 border">excess Qty</th>
                                 <th class="py-2 bg-slate-400 rounded-tr-md">Remark</th>
                             </tr>
+                        @elseif ($report == 'print')
+                            <tr>
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                                <th class="py-2 bg-slate-400 border">Document No</th>
+                                <th class="py-2 bg-slate-400 border">Product Code</th>
+                                <th class="py-2 bg-slate-400 border">Quantity</th>
+                                <th class="py-2 bg-slate-400 rounded-tr-md">Type</th>
+                            </tr>
+                        @elseif ($report == 'man_add')
+                            <tr>
+                                <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                                <th class="py-2 bg-slate-400 border">Document No(REG)</th>
+                                <th class="py-2 bg-slate-400 border">Document No</th>
+                                <th class="py-2 bg-slate-400 border">Product Code</th>
+                                <th class="py-2 bg-slate-400 border">Added Qty</th>
+                                <th class="py-2 bg-slate-400 rounded-tr-md">By User</th>
+                            </tr>
                         @endif
                 </thead>
                 <tbody>
@@ -356,6 +372,28 @@
                                     @endif
 
                                 </td>
+                            </tr>
+                        @endforeach
+                    @elseif($report == 'print')
+                    @foreach ($data as $item)
+                        <tr class="">
+                                <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->received->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->product->bar_code }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ $item->quantity }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ 'Bar '.$item->bar_type }}</td>
+                        </tr>
+                    @endforeach
+                    @elseif($report == 'man_add')
+                        @foreach ($data as $item)
+                            <tr class="">
+                                    <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->received->document_no }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->document_no }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->product->bar_code }}</td>
+                                    <td class="h-10 text-center border border-slate-400 ">{{ $item->added_qty }}</td>
+                                    <td class="h-10 text-center border border-slate-400 ">{{ $item->user->name }}</td>
                             </tr>
                         @endforeach
                     @endif

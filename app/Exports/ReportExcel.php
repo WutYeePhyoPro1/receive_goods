@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Document;
 use App\Models\Tracking;
 use App\Models\DriverInfo;
+use App\Models\printTrack;
 use App\Models\RemoveTrack;
 use App\Models\GoodsReceive;
 use Illuminate\Support\Facades\DB;
@@ -294,12 +295,61 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
                         ->when(isset($this->filter['action']) && $this->filter['action'] == 'shortage',function($q){
                             $q->where(DB::raw("qty"),'>',DB::raw('scanned_qty'));
                         })
+                        ->when(request('from_date'),function($q){
+                            $q->whereDate('created_at', '>=', request('from_date'));
+                        })
+                        ->when(request('to_date'),function($q){
+                            $q->whereDate('created_at','<=',request('to_date'));
+                        })
                             ->whereIn('document_id',$document_ids)
                             ->where(DB::raw("qty"),'!=',DB::raw('scanned_qty'))
                             ->get();
 
         $all = $data;
-}
+    }elseif($report == 'print')
+    {
+        $pd_ids = [];
+
+        if(isset($this->filter['search']))
+        {
+            if($this->filter['search'] == 'main_no' && $this->filter['search_data'])
+            {
+                $document   = GoodsReceive::where('document_no',$this->filter['search_data'])->where('status','complete')->first();
+                if($document)
+                {
+                    $no         = Document::where('received_goods_id',$document->id)->pluck('id');
+                    $pd_ids     = Product::whereIn('document_id',$no)->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))->pluck('id');
+                }
+            }elseif($this->filter['search'] == 'document_no' && $this->filter['search_data'])
+            {
+                $doc = Document::where('document_no',$this->filter['search_data'])->first();
+                $pd_ids = Product::where('document_id',$doc->id)->pluck('id');
+            }elseif($this->filter['search'] == 'product_code' && $this->filter['search_data'])
+            {
+               $pd_ids = Product::where('bar_code',$this->filter['search_data'])->pluck('id');
+            }
+        }
+
+
+        $data   = printTrack::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date']) && !isset($this->filter['search_data']),function($q)
+                        {
+                            $q->whereDate('created_at',Carbon::today());
+                        })
+                        ->when(isset($this->filter['search']) && $this->filter['search'] && $this->filter['search_data'],function($q) use($pd_ids) {
+
+                            $q->whereIn('id',$pd_ids);
+                        })
+                        ->when(request('from_date'),function($q){
+                            $q->whereDate('created_at', '>=', request('from_date'));
+                        })
+                        ->when(request('to_date'),function($q){
+                            $q->whereDate('created_at','<=',request('to_date'));
+                        })
+                        ->get();
+
+
+        $all = $data;
+    }
         // dd($all);
         return view('user.report.excel_report',compact('all','report'));
     }

@@ -12,6 +12,6 @@ Class Common
         $log->user_id   = getAuth()->id;
         $log->history   = $url;
         $log->action    = $text;
-        $log->save();
+        // $log->save();
     }
 }
