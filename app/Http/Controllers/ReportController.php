@@ -365,6 +365,7 @@ class ReportController extends Controller
                             $q->whereDate('created_at','<=',request('to_date'));
                         })
                         ->whereIn('received_goods_id',$reg)
+                        ->orderBy('id')
                         ->paginate(15);
         return view('user.report.report',compact('docs','report','url'));
     }

@@ -408,13 +408,13 @@ class userController extends Controller
                     );
                 }
             });
-
             if ($validator->fails()) {
                 return back()->withErrors($validator)
                             ->withInput();
             }
             $shr  = 'REG'.getAuth()->branch->branch_short_name.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         }
+
 
         $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',getAuth()->branch_id)->get();
         $same = count($same);

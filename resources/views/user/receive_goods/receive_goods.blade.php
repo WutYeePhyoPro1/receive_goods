@@ -41,13 +41,13 @@
             </div>
             @if ($main->status == 'complete')
                 <span class="text-emerald-600 font-bold text-3xl ms-40 underline">Complete</span>
-                <a href="{{ route('complete_doc_print',['id'=>$main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a>
+                <!-- <a href="{{ route('complete_doc_print',['id'=>$main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a> -->
             @endif
             @if ($status != 'view' && isset($cur_driver->start_date))
             <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
             <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
-            @elseif(!isset($cur_driver->start_date) && !dc_staff() && $status != 'view')
-            <button class="h-12 bg-rose-300 hover:bg-rose-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg" id="start_count_btn">Start Count</button>
+            @elseif(!isset($cur_driver->start_date) && !dc_staff() && $status != 'view' && $main->status != 'complete')
+                <button class="h-12 bg-rose-300 hover:bg-rose-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg" id="start_count_btn">Start Count</button>
             @endif
         </div>
         <?php

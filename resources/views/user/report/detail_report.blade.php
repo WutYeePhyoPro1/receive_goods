@@ -224,7 +224,7 @@
                         <tr>
                             <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
                             <th class="py-2 bg-slate-400 border" style="" rowspan="2">Product Code</th>
-                            <th class="py-2 bg-slate-400  border" rowspan="2">Supplier Name</th>
+                            <th class="py-2 bg-slate-400  border" rowspan="2">Product Name</th>
                             <th class="py-2 bg-slate-400  border" colspan="3">Scanned (Count) Qty</th>
                             <th class="py-2 bg-slate-400  rounded-tr-md" rowspan="2">Unloaded Qty</th>
                         </tr>
@@ -238,7 +238,7 @@
                         <tr>
                             <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
                             <th class="py-2 bg-slate-400 border" style="">Product Code</th>
-                            <th class="py-2 bg-slate-400  border">Supplier Name</th>
+                            <th class="py-2 bg-slate-400  border">Product Name</th>
                             <th class="py-2 bg-slate-400  border">Scanned (Count) Qty</th>
                             <th class="py-2 bg-slate-400  rounded-tr-md">Unloaded Qty</th>
                         </tr>
@@ -251,7 +251,7 @@
                             <tr>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $index+1 }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->product->bar_code }}</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->product->supplier_name }}</td>
+                                <td class="ps-2 border border-slate-400 border-t-0 py-1 text-left ps-4">{{ $tem->product->supplier_name }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 w-10 text-center ">{{ get_per($tem->product_id,'L') }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 w-10 text-center ">{{ get_per($tem->product_id,'M') }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 w-10 text-center ">{{ get_per($tem->product_id,'S') }}</td>
@@ -261,7 +261,7 @@
                             <tr>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $index+1 }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->product->bar_code }}</td>
-                                <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->product->supplier_name }}</td>
+                                <td class="ps-2 border border-slate-400 border-t-0 py-1 text-left ps-4">{{ $tem->product->supplier_name }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 w-10 text-center ">{{ get_per($tem->product_id,'S') }}</td>
                                 <td class="ps-2 border border-slate-400 border-t-0 py-1 text-center ">{{ $tem->scanned_qty }}</td>
                             </tr>
