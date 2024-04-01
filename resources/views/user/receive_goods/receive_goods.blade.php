@@ -411,7 +411,7 @@
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->ph_no }} </b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->nrc_no }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->truck_no }}</b>
-                                <b class="mb-4 text-xl">:&nbsp;{{ $item->truck->truck_name }}</b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->truck->truck_name ?? '' }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->gate == 0 ? getAuth()->branch->branch_name.' Gate' : $item->gates->name }}</b>
                                 <b class="mb-4 text-xl">:&nbsp;{{ $item->scanned_goods ?? 0 }}</b>
                             </div>
