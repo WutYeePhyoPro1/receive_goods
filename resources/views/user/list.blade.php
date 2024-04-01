@@ -120,6 +120,7 @@
                                     @if ($item->status != 'complete')
                                         <button class="bg-rose-500 hover:bg-rose-700 px-1 rounded-md mr-1 del_doc_btn" data-id="{{ $item->id }}"><i class='bx bxs-trash-alt text-white mt-1'></i></button>
                                     @endif
+                                    <button class="bg-sky-500 hover:bg-sky-700 px-1 rounded-md mr-1 edit_btn" onclick="window.location.href = '/edit/'+{{$item->id}}"><i class='bx bxs-edit text-white mt-1'></i></button>
                                 </td>
                             @endcan
                             <td class="h-10 text-center border border-slate-400">{{ $item->total_duration }}</td>

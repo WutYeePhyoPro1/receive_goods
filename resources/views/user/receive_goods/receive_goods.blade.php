@@ -27,7 +27,10 @@
             @endif
 
             @if(image_exist($main->id))
-            <button class="h-12 bg-sky-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-sky-600" id="show_image" title="Show Image"><i class='bx bxs-image mt-2'></i></button>
+                <button class="h-12 bg-amber-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-amber-600" id="show_image" title="Show Image"><i class='bx bxs-image mt-2'></i></button>
+            @endif
+            @if($status == 'edit')
+                <button class="h-12 bg-sky-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-sky-600" id="edit_image" title="Edit Image" onclick="$('#car_choose').show()"><i class='bx bxs-image-add mt-2 ms-1'></i></button>
             @endif
         </div>
         <div class="flex">
@@ -46,7 +49,7 @@
             @if ($status != 'view' && isset($cur_driver->start_date))
             <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
             <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
-            @elseif(!isset($cur_driver->start_date) && !dc_staff() && $status != 'view' && $main->status != 'complete')
+            @elseif(!isset($cur_driver->start_date) && !dc_staff() && $status == 'scan' && $main->status != 'complete')
                 <button class="h-12 bg-rose-300 hover:bg-rose-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg" id="start_count_btn">Start Count</button>
             @endif
         </div>
@@ -303,6 +306,8 @@
             </div>
         </div>
     </div>
+
+
     {{-- Decision Modal --}}
  {{-- <div class="hidden" id="decision">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
@@ -742,7 +747,7 @@
 
        {{-- Image Modal --}}
    <div class="hidden" id="image_model">
-    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
+    <div class="flex items-center fixed inset-0 justify-center z-100 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
         <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
             <!-- Modal content -->
             <div class="card rounded">
@@ -811,6 +816,78 @@
         </div>
     </div>
 {{-- end modal --}}
+
+    @if($status == 'edit')
+        {{-- start modal --}}
+        {{-- choose car modal --}}
+        <div class="hidden" id="car_choose" >
+            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                    <!-- Modal content -->
+                    <div class="card rounded">
+                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                        id="show_doc_no"></span>Please Choose Your Car No&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="w-6 h-6 hidden svgclass">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                    onclick="$('#car_choose').hide()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                    </div>
+                    <div class="card-body car_choose_body">
+                        @foreach ($driver as $item)
+                            <div class="text-center bg-slate-100 py-1 font-semibold font-serif cursor-pointer hover:bg-slate-300 rounded border mb-2 car_no" data-id="{{ $item->id }}" style="box-shadow: 4px 4px 4px rgb(0,0,0,0.2)">{{ $item->truck_no }}</div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- end modal --}}
+
+        {{-- start modal --}}
+        {{-- edit img & car no modal --}}
+        <div class="hidden" id="change_img" >
+            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="">
+                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                    <!-- Modal content -->
+                    <div class="card rounded">
+                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                        id="show_doc_no"></span>Edit Your Car No And Images&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="w-6 h-6 hidden svgclass">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                    onclick="$('#change_img').hide()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                    </div>
+                    <div class="card-body change_img_body">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- end modal --}}
+    @endif
+
 
     @push('js')
         <script >
@@ -1812,6 +1889,138 @@
                         })
                     }
                 })
+
+                if($status == 'edit')
+                {
+                    $(document).on('click','.car_no',function(){
+                        $index = $('.car_no').index(this);
+                        $id     = $(this).data('id');
+
+                        $.ajax({
+                            url : '/get_img/'+$id,
+                            success: function(res)
+                            {
+                                $length     = res.image.length;
+                                console.log($length);
+                                $color1      = $length>0 ? 'bg-emerald-200' : 'hover:bg-slate-100'
+                                $color2      = $length>1 ? 'bg-emerald-200' : 'hover:bg-slate-100'
+                                $color3      = $length>2 ? 'bg-emerald-200' : 'hover:bg-slate-100'
+                                $list   = `
+                                <div class="edit_con">
+                                <form action="{{ route('update_image') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                    <div class="text-center">
+                                        <input type="text" name="truck_no" class="ps-2 py-2 w-[80%] rounded border" value="${res.driver.truck_no}">
+                                        <input type='hidden' name="driver_id" value="${res.driver.id}">
+                                        <input type='hidden' name='reg_id' value="${res.driver.received_goods_id}">
+                                    </div>
+                                    <div class=" my-5">
+
+                                        <div class="grid grid-cols-3 gap-10 col-span-2 mx-10">
+                                            <div class="flex flex-col relative">
+                                            <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer ${$color1} rounded-lg shadow-xl img_btn flex" onclick="$('#img1').click()" title="image 1"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">1</span></div>
+                                `;
+                                if($length > 0)
+                                {
+                                    $list +=`
+                                    <button type="button" class="bg-rose-500 hover:bg-rose-800 text-white w-6 rounded del_img" data-id="${res.image[0].id}" style="position:absolute;margin-left:73px;z-index:100000 !important">-</button>
+                                    <div class="flex justify-center">
+                                        <small class="cursor-pointer hover:underline view_image" data-id="${res.image[0].id}">view</small>
+                                        <input type="hidden" name="image1" value="ok">
+                                    </div>
+                                    `;
+                                    // <small class="cursor-pointer">preview</small>
+                                }
+
+                                $list += `
+                                        </div>
+                                        <div class="flex flex-col relative">
+                                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer ${$color2} rounded-lg shadow-xl img_btn flex" onclick="$('#img2').click()" title="image 2"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">2</span></div>
+                                `;
+
+                                if($length > 1)
+                                {
+                                    $list +=`
+                                    <button type="button" class="bg-rose-500 hover:bg-rose-800 text-white w-6 rounded del_img" data-id="${res.image[1].id}" style="position:absolute;margin-left:73px;z-index:100000 !important">-</button>
+                                    <div class="flex justify-center">
+                                        <small class="cursor-pointer hover:underline view_image" data-id="${res.image[1].id}">view</small>
+                                        <input type="hidden" name="image2" value="ok">
+                                    </div>
+                                    `;
+                                }
+
+                                $list += `
+                                        </div>
+                                        <div class="flex flex-col relative">
+                                            <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer ${$color3} rounded-lg shadow-xl img_btn flex" onclick="$('#img3').click()" title="image 3"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">3</span></div>
+
+                                `;
+
+                                if($length > 2)
+                                {
+                                    $list += `
+                                    <button type="button" class="bg-rose-500 hover:bg-rose-800 text-white w-6 rounded del_img" data-id="${res.image[2].id}" style="position:absolute;margin-left:73px;z-index:100000 !important">-</button>
+                                    <div class="flex justify-center">
+                                        <small class="cursor-pointer hover:underline view_image" data-id="${res.image[2].id}">view</small>
+                                        <input type="hidden" name="image3" value="ok">
+                                    </div>
+                                    `;
+                                }
+                                $list += `
+                                        </div>
+                                            <input type="file" class="car_img" accept="image/*" name="image_1" hidden id="img1">
+                                            <input type="file" class="car_img" accept="image/*" name="image_2" hidden id="img2">
+                                            <input type="file" class="car_img" accept="image/*" name="image_3" hidden id="img3">
+                                        <div class="col-span-3">
+                                            <button type="submit" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                                `;
+
+                                $(".change_img_body").html('');
+                                $(".change_img_body").append($list);
+                                $('#change_img').show();
+                                $('#car_choose').hide();
+                            }
+                        })
+
+                    })
+
+                    $(document).on('click','.view_image',function(e){
+                        $id     = $(this).data('id');
+
+                        $.ajax({
+                            url : "{{route('show_one')}}",
+                            type: "POST",
+                            data: {_token:token,id:$id},
+                            success: function(res){
+                                $list = '';
+                                $list += `
+                                <div class="">
+                                    <img src="{{ asset('storage/${res}') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                                </div>
+                                `;
+                                $('#image_container').html('');
+                                $('#image_container').append($list);
+                                // $('#change_img').hide();
+                                $('#image_model').show();
+                            }
+                        })
+                    })
+
+                    $(document).on('click','.del_img',function(){
+                        $id     = $(this).data('id');
+
+                        $.ajax({
+                            url : '/del_one_img/'+$id,
+                            success: function(res){
+                                window.location.reload();
+                            }
+                        })
+                    })
+                }
             })
         </script>
     @endpush

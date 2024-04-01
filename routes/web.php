@@ -129,5 +129,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         route::group(['controller'=>AdminController::class],function(){
 
             route::post('ajax/del_reg','del_reg')->name('del_reg');
+            route::get('edit/{id}','edit_reg')->name('edit_reg');
+            route::get('get_img/{id}','get_img')->name('get_image');
+            route::post('show_one','show_one')->name('show_one');
+            route::post('update_image','update_image')->name('update_image');
+            route::get('del_one_img/{id}','del_one_img');
         });
 });

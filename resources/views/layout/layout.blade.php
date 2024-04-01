@@ -43,7 +43,7 @@
                 @endcan
 
                 <li class="sidebar_items" onclick="javascript:window.location.href='/list'">
-                    @if (request()->is('list') || ((getAuth()->role == 1 || getAuth()->role == 4) && (request()->is('receive_good*') || request()->is('view_goods*'))))
+                    @if (request()->is('list') )
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
                     @endif
@@ -55,7 +55,7 @@
 
                 @can('user-management')
                     <li class="sidebar_items relative" id="user_lay" >
-                        @if (request()->is('user*') || request()->is('role*') || request()->is('permission*') || request()->is('edit_user*') || request()->is('create_user'))
+                    @if (request()->is('user*') || request()->is('role*') || request()->is('permission*') || request()->is('edit_user*') || request()->is('create_user'))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
                     @endif
