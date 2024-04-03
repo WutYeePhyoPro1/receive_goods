@@ -43,7 +43,7 @@ class userController extends Controller
         $this->repository = $repository;
         $this->middleware('auth');
         $this->middleware(PermissionMiddleware::class . ':user-management')->only(['user', 'store_user', 'edit_user', 'update_user', 'del_user']);
-        $this->middleware(PermissionMiddleware::class . ':role-management')->only(['role', 'store_role', 'edit_role', 'update_role', 'del_role']);
+        // $this->middleware(PermissionMiddleware::class . ':role-management')->only(['role', 'store_role', 'edit_role', 'update_role', 'del_role']);
         $this->middleware(PermissionMiddleware::class . ':permission-management')->only(['permission', 'store_permission', 'view_permission']);
         $this->middleware(PermissionMiddleware::class . ':barcode-scan')->only(['car_info','join_receive','receive_goods','car']);
     }
