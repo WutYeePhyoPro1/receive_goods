@@ -505,6 +505,13 @@ class ReportController extends Controller
     public function man_add()
     {
         Common::Log(route('man_add'),"go to manually added page");
+        $data = get_branch_truck();
+        $truck_id   = $data[0];
+        $loc        = $data[1];
+        $reg        = $data[2];
+        $user_branch    = getAuth()->branch_id;
+        $mgld_dc        = [17,19,20];
+
         $report = 'man_add';
         $url    = 'man_add';
 
@@ -515,6 +522,11 @@ class ReportController extends Controller
             return back()->with('error','Please add search method');
         }
 
+        $product_ids   = Tracking::when($loc != 'ho',function($q) use($truck_id){
+            $q->whereIn('driver_info_id',$truck_id);
+                })
+            ->pluck('product_id');
+        
         $pd_ids = [];
         if(request('search') == 'main_no' && request('search_data'))
         {
@@ -549,6 +561,7 @@ class ReportController extends Controller
                                         $q->whereIn('product_id',$pd_ids);
                                     })
                                     ->whereNotNull('product_id')
+                                    ->whereIn('product_id',$product_ids)
                                     ->paginate(15);
 
         return view('user.report.report',compact('report','url','data'));

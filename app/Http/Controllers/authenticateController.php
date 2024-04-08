@@ -62,6 +62,10 @@ class authenticateController extends Controller
         $loc        = $data[1];
         $reg        = $data[2];
         // dd($truck_id);
+        $product_ids   = Tracking::when($loc != 'ho',function($q) use($truck_id){
+            $q->whereIn('driver_info_id',$truck_id);
+                })
+            ->whereDate('created_at',Carbon::today())->pluck('product_id');
         $products   = Tracking::when($loc != 'ho',function($q) use($truck_id){
                             $q->whereIn('driver_info_id',$truck_id);
                                 })
@@ -104,8 +108,13 @@ class authenticateController extends Controller
                             ->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))
                             ->get();
         $shortage   = $shortage->sum('sub');
-        $print      = printTrack::whereDate('created_at',Carbon::today())->sum('quantity');
-        $non_scan   = AddProductTrack::whereDate('created_at',Carbon::today())->sum('added_qty');
+        $print      = printTrack::whereDate('created_at',Carbon::today())
+                                ->whereIn('product_id',$product_ids)
+                                ->sum('quantity');
+        $non_scan   = AddProductTrack::whereDate('created_at',Carbon::today())
+                                        ->whereIn('truck_id',$truck_id)
+                                        ->whereNotNull('product_id')
+                                        ->sum('added_qty');
         return view('user.home',compact('products','docs','cars','del','com_doc','po','shortage','print','non_scan'));
     }
 }
