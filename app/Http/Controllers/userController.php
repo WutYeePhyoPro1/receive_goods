@@ -417,7 +417,7 @@ class userController extends Controller
         }
 
 
-        $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',getAuth()->branch_id)->get();
+        $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',getAuth()->branch_id)->withTrashed()->get();
         $same = count($same);
         if($same > 0){
             $name = $shr.'-'.sprintf("%04d",$same+1);
