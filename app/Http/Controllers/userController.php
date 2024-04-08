@@ -402,13 +402,13 @@ class userController extends Controller
                 'gate'          => 'required',
             ]);
 
-            $validator->after(function ($validator) use($request) {
-                if ($request->image_1 == null && $request->image_2 == null && $request->image_3 == null) {
-                    $validator->errors()->add(
-                        'atLeastOne', 'Please Fill Atleast One Image'
-                    );
-                }
-            });
+            // $validator->after(function ($validator) use($request) {
+            //     if ($request->image_1 == null && $request->image_2 == null && $request->image_3 == null) {
+            //         $validator->errors()->add(
+            //             'atLeastOne', 'Please Fill Atleast One Image'
+            //         );
+            //     }
+            // });
             if ($validator->fails()) {
                 return back()->withErrors($validator)
                             ->withInput();
