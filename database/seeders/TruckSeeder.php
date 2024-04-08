@@ -27,7 +27,10 @@ class TruckSeeder extends Seeder
             "16Ft - Flat",
             "16Ft - Box",
             "Hijet",
-            "Light Truck"
+            "Light Truck",
+            "Owned Car",
+            "Bicycle",
+            "Other"
         ];
 
         foreach($truck as $item)

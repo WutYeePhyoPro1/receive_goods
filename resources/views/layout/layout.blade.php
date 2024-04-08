@@ -10,7 +10,6 @@
     <link rel="icon" href="{{ asset('image/background_img/package.png') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="{{ asset('js/jquery.min.js') }}"></script>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('css')
 </head>
@@ -27,7 +26,6 @@
                         <span>Dashboard</span>
                     </div>
                 </li>
-
 
                 @can ('barcode-scan')
                     <li class="sidebar_items" onclick="javascript:window.location.href='/car_info'">
@@ -55,7 +53,7 @@
 
                 @can('user-management')
                     <li class="sidebar_items relative" id="user_lay" >
-                    @if (request()->is('user*') || request()->is('role*') || request()->is('permission*') || request()->is('edit_user*') || request()->is('create_user'))
+                    @if (request()->is('user*') || request()->is('role*') || request()->is('permission*') || request()->is('gate*') || request()->is('car_type*'))
                         <div class="" style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
                     @endif
@@ -72,6 +70,8 @@
                             @endcan
                             @can('permission-management')
                                 <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('permission') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/permission'">Permission</li>
+                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('permission') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/gate'">Gate</li>
+                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('permission') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/car_type'">Car Type</li>
                             @endcan
                         </ul>
                     </li>
@@ -116,7 +116,17 @@
             <div class="flexv whitespace-nowrap" style="line-height: 60px">
                 <span class="mr-4"><i class='bx bxs-user-account mr-1' style="transform: translateY(2px)"></i> User : {{ getAuth()->name }}</span> |&nbsp;&nbsp;
                 <span class="mr-4"><i class='bx bx-user-voice mr-1' style="transform: translateY(2px)"></i> Role : {{ getAuth()->roleName() }}</span> |&nbsp;&nbsp;
-                <span class="mr-4"><i class='bx bx-store-alt mr-1' style="transform: translateY(2px)"></i> Branch : {{ getAuth()->branch->branch_name }}</span> |&nbsp;&nbsp;
+                <span class="mr-4 relative"><i class='bx bx-store-alt mr-1' style="transform: translateY(2px)"></i> Branch : <span class=" {{ count(multi_br()) > 1  ? 'bg-amber-200 p-2 cursor-pointer rounded ch_br' : '' }} ">{{ getAuth()->branch->branch_name }}</span>
+                @if( count(multi_br()) > 1 )
+                    <ul class="absolute max-h-48 w-32 bg-rose-600 hidden" id="change_br" style="bottom:155%;left:45%;overflow-y:auto">
+                        @foreach (multi_br() as $item)
+                            @if (getAuth()->branch_id != $item->branch_id)
+                                <li class="ps-2 bg-amber-200 hover:bg-white cursor-pointer py-0" onclick="javascript:window.location.href='/change_branch/{{ $item->branch_id }}'">{{ $item->branch->branch_name }}</li>
+                            @endif
+                        @endforeach
+                    </ul>
+                @endif
+            </span> |&nbsp;&nbsp;
                 {{-- <span class="mr-4"><i class='bx bx-signal-5 mr-1' style="transform: translateY(2px)"></i> Server Link :
                    @if(isset($_SERVER['SERVER_ADDR']))
                         {{ $_SERVER['SERVER_ADDR'] }}
@@ -128,6 +138,7 @@
             </div>
         </div>
 </body>
+
 
         <script>
             $(document).ready(function(e){
@@ -223,6 +234,17 @@
                             $('.car_auto').html('');
                         }
                     })
+                })
+
+                $(document).on('click','.ch_br',function(e){
+                    $('#change_br').toggle();
+                })
+
+                $(document).on('click',function(e){
+                    if(!e.target.matches('.ch_br'))
+                    {
+                            $('#change_br').hide();
+                    }
                 })
             })
         </script>

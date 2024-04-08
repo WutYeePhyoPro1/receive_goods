@@ -25,6 +25,7 @@ return new class extends Migration
             $table->double('remaining_qty')->nullable();
             $table->double('exceed_qty')->nullable();
             $table->text('remark')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

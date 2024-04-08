@@ -11,6 +11,7 @@ use App\Models\DriverInfo;
 use App\Models\RemoveTrack;
 use App\Models\GoodsReceive;
 use App\Models\UploadImage;
+use App\Models\UserBranch;
 use Illuminate\Support\Facades\DB;
 
     function getAuth()
@@ -400,4 +401,10 @@ use Illuminate\Support\Facades\DB;
     {
         $image = UploadImage::where('received_goods_id',$id)->get();
         return count($image)>0 ? true : false;
+    }
+
+    function multi_br()
+    {
+        $br = UserBranch::with('branch')->where('user_id',getAuth()->id)->get();
+        return $br;
     }

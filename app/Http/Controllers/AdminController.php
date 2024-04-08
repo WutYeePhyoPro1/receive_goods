@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Truck;
 use App\Models\CarGate;
 use App\Models\Product;
 use App\Models\Document;
 use App\Models\Tracking;
+use App\Customize\Common;
 use App\Models\ScanTrack;
 use App\Models\DriverInfo;
 use App\Models\printTrack;
@@ -15,7 +17,10 @@ use App\Models\GoodsReceive;
 use Illuminate\Http\Request;
 use App\Models\AddProductTrack;
 use App\Models\changeTruckProduct;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Storage;
+
+use function PHPSTORM_META\type;
 
 class AdminController extends Controller
 {
@@ -196,4 +201,144 @@ class AdminController extends Controller
             $image->delete();
         }
     }
+
+    public function gate()
+    {
+        $type = 'gate';
+        $data = CarGate::with('branches')->paginate(15);
+        return view('user.user',compact('type','data'));
+    }
+
+    public function car_type()
+    {
+        $type = 'car_type';
+        $data = Truck::paginate(15);
+        return view('user.user',compact('type','data'));
+    }
+
+    public function create_gate()
+    {
+        $type = 'gate';
+        Common::branch_data();
+        return view('user.create_edit',compact('type'));
+    }
+
+    public function store_gate(Request $request)
+    {
+        $gate   = new CarGate();
+        $gate->name     = $request->gate;
+        $gate->branch   = $request->branch;
+        $create         = $gate->save();
+        if($create)
+        {
+            return redirect()->route('gate')->with('success','Gate Create Success');
+        }
+        return redirect()->route('gate')->with('fails','Gate Create Fails');
+    }
+
+    public function edit_gate($id)
+    {
+        Common::branch_data();
+        $type = 'gate';
+        $data = CarGate::find($id);
+        return view('user.create_edit',compact('data','type'));
+    }
+
+    public function update_gate(Request $request)
+    {
+        $gate = CarGate::find($request->id);
+        $gate->name = $request->gate;
+        $gate->branch = $request->branch;
+        $up = $gate->save();
+        if($up)
+        {
+            return redirect()->route('gate')->with('success','Gate Update Success');
+        }
+        return redirect()->route('gate')->with('fails','Gate Update Fails');
+
+    }
+
+    public function del(Request $request)
+    {
+        if($request->type == 'user')
+        {
+            $action = User::where('id',$request->id)->delete();
+            if($action){
+                return response()->json(200);
+            }
+        }elseif($request->type == 'role')
+        {
+            $id = $request->id;
+            $role = Role::find($id);
+            if($role)
+            {
+                $role->permissions()->detach();
+                $role->delete();
+                return response(200);
+            }
+            return response(404);
+        }elseif($request->type == 'gate')
+        {
+            $id = $request->id;
+            $gate = CarGate::find($id);
+
+            if($gate)
+            {
+                $gate->delete();
+                return response(200);
+            }
+            return response(404);
+        }elseif($request->type == 'car_type')
+        {
+            $id = $request->id;
+            $car_type   = Truck::find($id);
+            if($car_type)
+            {
+                $car_type->delete();
+                return response(200);
+            }
+            return response(404);
+        }
+    }
+
+    public function create_car_type()
+    {
+        $type   = 'car_type';
+        return view('user.create_edit',compact('type'));
+    }
+
+    public function store_car_type(Request $request)
+    {
+        $request->validate([
+            'car_type'  => 'required'
+        ]);
+        $car_type = new Truck();
+        $car_type ->truck_name = $request->car_type;
+        $car_type->save();
+        return redirect()->route('car_type')->with('success','Car Type Add Success');
+    }
+
+    public function edit_car_type($id)
+    {
+        $data = Truck::find($id);
+        $type = 'car_type';
+        return view('user.create_edit',compact('data','type'));
+    }
+
+    public function update_car_type(Request $request)
+    {
+        $id = $request->id;
+        $request->validate([
+            'car_type'    => "required|unique:trucks,truck_name,$id,id"
+        ]);
+        $truck  = Truck::find($id);
+        $truck->truck_name  = $request->car_type;
+        $update = $truck->save();
+        if($update)
+        {
+            return redirect()->route('car_type')->with('success','Car Type Update Success');
+        }
+        return redirect()->route('car_type')->with('fails','Car Type Update Fails');
+    }
 }
+

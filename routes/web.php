@@ -43,11 +43,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('user','user')->name('user');
             route::get('role','role')->name('role');
             route::get('permission','permission')->name('permission');
-            route::get('create_user','create_user')->name('create_user');
-            route::get('edit_user/{id}','edit_user')->name('edit_user');
+            route::get('user/create','create_user')->name('create_user');
+            route::get('user/edit/{id}','edit_user')->name('edit_user');
 
-            route::get('create_role','create_role')->name('create_role');
-            route::get('create_permission','create_permission')->name('create_permission');
+            route::get('role/create','create_role')->name('create_role');
+            route::get('permission/create','create_permission')->name('create_permission');
 
             route::post('car_info','store_car_info')->name('store_car_info');
             route::post('doc_info','store_doc_info')->name('store_doc_info');
@@ -57,7 +57,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('store_role','store_role')->name('store_role');
             route::get('edit_role/{id}','edit_role')->name('edit_role');
             route::post('update_role','update_role')->name('update_role');
-            route::post('del_role','del_role')->name('del_role');
 
             route::post('store_permission','store_permission')->name('store_permission');
             route::get('view_permission/{id}','view_permission')->name('view_permission');
@@ -67,7 +66,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             route::get('get_driver_info/{id}','driver_info');
             route::post('active_user','active_user')->name('active_user');
-            route::post('del_user','del_user')->name('del_user');
+
             route::post('del_doc','del_doc')->name('del_doc');
 
             route::post('add_product_qty','add_product_qty')->name('add_product_qty');
@@ -124,6 +123,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('ajax/show_image','show_image')->name('show_image');
             route::get('start_count/{id}','start_count');
             route::post('print_track','print_track')->name('print_track');
+
+            route::get('change_branch/{id}','change_branch');
         });
 
         route::group(['controller'=>AdminController::class],function(){
@@ -134,5 +135,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('show_one','show_one')->name('show_one');
             route::post('update_image','update_image')->name('update_image');
             route::get('del_one_img/{id}','del_one_img');
+
+            route::get('gate','gate')->name('gate');
+            route::get('gate/create','create_gate');
+            route::get('gate/edit/{id}','edit_gate');
+            route::post('gate/store','store_gate')->name('store_gate');
+            route::post('gate/update','update_gate')->name('update_gate');
+
+            route::get('car_type','car_type')->name('car_type');
+            route::get('car_type/create','create_car_type');
+            route::get('car_type/edit/{id}','edit_car_type');
+            route::post('car_type /store','store_car_type')->name('store_car_type');
+            route::post('car_type/update','update_car_type')->name('update_car_type');
+
+            route::post('del','del')->name('del');
         });
 });

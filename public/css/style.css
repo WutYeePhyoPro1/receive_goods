@@ -3,16 +3,16 @@ body {
 }
 
 .main_product_table::-webkit-scrollbar,
-body::-webkit-scrollbar {
+body::-webkit-scrollbar,#change_br::-webkit-scrollbar {
     width: 5px;
 }
 
 .main_product_table::-webkit-scrollbar-track,
-body::-webkit-scrollbar-track {
+body::-webkit-scrollbar-track,#change_br::-webkit-scrollbar-track {
     background-color: rgb(216, 216, 216);
 }
 
-.main_product_table::-webkit-scrollbar-thumb {
+.main_product_table::-webkit-scrollbar-thumb,#change_br::-webkit-scrollbar-thumb {
     background-color: rgb(255, 166, 0);
     border-radius: 10px;
 }
