@@ -110,6 +110,7 @@
                                 $i = 0;
                                 $j = 0;
                             ?>
+
                             @foreach($document as $item)
                                 @if (  count(search_pd($item->id)) > 0)
                                     <tbody class="main_body">
@@ -150,7 +151,7 @@
                                                     <div class="main_scan">
                                                         {{ $tem->scanned_qty }}
                                                         @if (isset($cur_driver->start_date))
-                                                            <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $key }}" title="add quantity"></i>
+                                                            <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                         @endif
                                                     </div>
                                                     <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
@@ -1220,6 +1221,7 @@
 
                     $(document).on('click','#auth_con',function(e){
                         $index  = $('#index').val();
+                        console.log($index);
                         $data = $('#auth_con_form').serialize();
 
                         $notempty = false;

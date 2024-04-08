@@ -31,6 +31,7 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\UploadImage;
+use App\Models\UserBranch;
 use Symfony\Component\CssSelector\Node\FunctionNode;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
@@ -576,12 +577,21 @@ class userController extends Controller
         $user->password         = Hash::make($request->password);
         $user->password_str     = $request->password;
         $user->department_id    = $request->department;
-        $user->branch_id        = $request->branch;
+        $user->branch_id        = $request->branch[0];
         $user->status           = $request->status == 'active' ? 1 : 0;
         $user->role             = $request->role;
         $succ = $user->save();
 
+
+
         if($succ){
+            foreach($request->branch as $item)
+            {
+                $user_br                = new UserBranch();
+                $user_br->user_id       = $user->id;
+                $user_br->branch_id     = $item;
+                $user_br->save();
+            }
             $role = Role::where('id',$request->role)->first();
             $role = $role->name;
             $user->assignRole($role);
@@ -605,14 +615,6 @@ class userController extends Controller
         }
     }
 
-    public function del_user(Request $request)
-    {
-        // dd($request->all());
-        $action = User::where('id',$request->id)->delete();
-        if($action){
-            return response()->json(200);
-        }
-    }
 
     public function edit_user($id)
     {
@@ -620,9 +622,10 @@ class userController extends Controller
         $branch = Branch::get();
         $department = Department::get();
         $role       = Role::whereNot('name','admin')->get();
+        $user_branch= UserBranch::where('user_id',$id)->pluck('branch_id');
         view()->share(['branch'=>$branch,'department'=>$department,'role'=>$role]);
         $type       = 'user';
-        return view('user.create_edit',compact('data','type'));
+        return view('user.create_edit',compact('data','type','user_branch'));
     }
 
     public function update_user(Request $request)
@@ -647,10 +650,23 @@ class userController extends Controller
                 'password'      => Hash::make($request->password),
                 'password_str'  => $request->password,
                 'department_id' => $request->department,
-                'branch_id'     => $request->branch,
+                'branch_id'     => $request->branch[0],
                 'status'     => $request->status == 'active' ? 1 : 0,
                 'role'     => $request->role
             ]);
+
+            $user_br = UserBranch::where('user_id',$id)->first();
+            if($user_br)
+            {
+                UserBranch::where('user_id',$id)->delete();
+            }
+            foreach($request->branch as $index=>$item)
+            {
+                UserBranch::create([
+                    'user_id'   => $id,
+                    'branch_id' => $item
+                ]);
+            }
 
             $role = Role::where('id',$request->role)->first();
             $role = $role->name;
@@ -716,18 +732,6 @@ class userController extends Controller
         }
     }
 
-    public function del_role(Request $request)
-    {
-        $id = $request->id;
-        $role = Role::find($id);
-        if($role)
-        {
-            $role->permissions()->detach();
-            $role->delete();
-            return response(200);
-        }
-        return response(404);
-    }
 
     public function create_permission()
     {

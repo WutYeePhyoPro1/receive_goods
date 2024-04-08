@@ -22,19 +22,31 @@
                 @case('permission')
                 Permissions Lists
                 @break
+                @case('gate')
+                Gate Lists
+                @break
+                @case('car_type')
+                Car Type Lists
+                @break
                 @default
                 Users Lists
             @endswitch</span>
             <?php
                 switch ($type) {
                     case 'user':
-                        $url = 'create_user';
+                        $url = 'user/create';
                         break;
                     case 'role':
-                        $url = 'create_role';
+                        $url = 'role/create';
                         break;
                     case 'permission':
-                        $url = 'create_permission';
+                        $url = 'permission/create';
+                        break;
+                    case 'gate':
+                        $url = 'gate/create';
+                        break;
+                    case 'car_type':
+                        $url = 'car_type/create';
                         break;
                     default:
                         $url = url()->current();
@@ -93,6 +105,19 @@
                             <th class="py-2 bg-slate-400 border">Name</th>
                             <th class="py-2 bg-slate-400  rounded-tr-md">Action</th>
                         </tr>
+                    @elseif ($type == 'gate')
+                        <tr>
+                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                            <th class="py-2 bg-slate-400 border">Gate Name</th>
+                            <th class="py-2 bg-slate-400 border">Branch</th>
+                            <th class="py-2 bg-slate-400  rounded-tr-md">Action</th>
+                        </tr>
+                    @elseif ($type == 'car_type')
+                        <tr>
+                            <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
+                            <th class="py-2 bg-slate-400 border">Car Name</th>
+                            <th class="py-2 bg-slate-400  rounded-tr-md">Action</th>
+                        </tr>
                     @endif
                 </thead>
                 <tbody>
@@ -119,7 +144,7 @@
                                 </td>
                                 <td class="h-10 text-center border border-slate-400 ">
                                     @if ($item->role != 1)
-                                    <button class="bg-sky-500 hover:bg-sky-700 px-1 rounded-md mr-1" onclick="window.location.href = 'edit_user/{{ $item->id }}'"><i class='bx bxs-edit text-white mt-1' ></i></button>
+                                    <button class="bg-sky-500 hover:bg-sky-700 px-1 rounded-md mr-1" onclick="window.location.href = 'user/edit/{{ $item->id }}'"><i class='bx bxs-edit text-white mt-1' ></i></button>
                                     <button class="bg-rose-500 hover:bg-rose-700 px-1 rounded-md mr-1 del_btn" data-id="{{ $item->id }}"><i class='bx bxs-trash-alt text-white mt-1'></i></button>
                                     @endif
                                 </td>
@@ -131,7 +156,7 @@
                             <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->name }}</td>
                             <td class="h-10 text-center border border-slate-400 ">
-                                <button class="bg-sky-500 hover:bg-sky-700 px-1 rounded-md mr-1" onclick="window.location.href = 'edit_role/{{ $item->id }}'"><i class='bx bxs-edit text-white mt-1' ></i></button>
+                                <button class="bg-sky-500 hover:bg-sky-700 px-1 rounded-md mr-1" onclick="window.location.href = 'role/edit/{{ $item->id }}'"><i class='bx bxs-edit text-white mt-1' ></i></button>
                                 <button class="bg-rose-500 hover:bg-rose-700 px-1 rounded-md mr-1 del_btn" data-id="{{ $item->id }}"><i class='bx bxs-trash-alt text-white mt-1'></i></button>
                             </td>
                         </tr>
@@ -146,7 +171,31 @@
                             </td>
                         </tr>
                     @endforeach
+                    @elseif ($type == 'gate')
+                        @foreach ($data as $item)
+                            <tr>
+                                <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->name }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->branches->branch_name }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">
+                                    <button class="bg-sky-500 hover:bg-sky-700 px-1 rounded-md mr-1" onclick="window.location.href = 'gate/edit/{{ $item->id }}'"><i class='bx bxs-edit text-white mt-1' ></i></button>
+                                    <button class="bg-rose-500 hover:bg-rose-700 px-1 rounded-md mr-1 del_btn" data-id="{{ $item->id }}"><i class='bx bxs-trash-alt text-white mt-1'></i></button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @elseif ($type == 'car_type')
+                            @foreach ($data as $item)
+                                <tr>
+                                    <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->truck_name }}</td>
+                                    <td class="h-10 text-center border border-slate-400 ">
+                                        <button class="bg-sky-500 hover:bg-sky-700 px-1 rounded-md mr-1" onclick="window.location.href = 'car_type/edit/{{ $item->id }}'"><i class='bx bxs-edit text-white mt-1' ></i></button>
+                                        <button class="bg-rose-500 hover:bg-rose-700 px-1 rounded-md mr-1 del_btn" data-id="{{ $item->id }}"><i class='bx bxs-trash-alt text-white mt-1'></i></button>
+                                    </td>
+                                </tr>
+                            @endforeach
                     @endif
+
                 </tbody>
             </table>
         </div>
@@ -201,12 +250,7 @@
                    $id = $(this).data('id');
                     $this = $(this);
                     $type = $('#type').val();
-                    if($type == 'user')
-                    {
-                        $url = "{{ route('del_user') }}";
-                    }else{
-                        $url = "{{ route('del_role') }}"
-                    }
+                    $url = "{{ route('del') }}";
 
                    Swal.fire({
                     icon : 'info',
@@ -219,7 +263,7 @@
                         $.ajax({
                             url : $url,
                             type: 'post',
-                            data: {_token:token , id : $id},
+                            data: {_token:token , id : $id ,type : $type},
                             success: function(res){
                                 $this.parent().parent().remove();
                                 $('.error_msg').append(`

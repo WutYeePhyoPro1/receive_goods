@@ -37,7 +37,7 @@ class ActionController extends Controller
     public function search_doc(Request $request)
     {
 
-        $val = $request->data;
+        $val = trim(strtoupper($request->data),' ');
         $type = substr($val,0,2);
         $reg = get_branch_truck()[2];
 
@@ -63,7 +63,7 @@ class ActionController extends Controller
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
                 where statusflag <> 'C'
-                and statusflag in ('P','Y')
+                ---and statusflag in ('P','Y')
                 $brch_con
                 and purchaseno= '$val'
             ");
@@ -98,10 +98,10 @@ class ActionController extends Controller
         $unit   = preg_replace("/[^A-Za-z].*/", '', $all);
         $unit   = $unit == '' ? 'S' : $unit;
         $poi    = false;
-        if(substr($all,0,3) == 'POI')
+        if(strtoupper(substr($all,0,3)) == 'POI')
         {
             $reg = get_branch_truck()[2];
-
+            $all = strtoupper($all);
             $docs = Document::where('document_no',$all)
                             ->whereIn('received_goods_id',$reg)->first();
             if($docs)
@@ -658,5 +658,14 @@ class ActionController extends Controller
         }
 
         return response(200);
+    }
+
+    public function change_branch($id)
+    {
+        $user = User::find(getAuth()->id);
+        $user->branch_id = $id;
+        $user->save();
+
+        return back();
     }
 }

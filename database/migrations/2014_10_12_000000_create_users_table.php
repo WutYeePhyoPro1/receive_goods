@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('password_str');
             $table->string('role');
             $table->integer('department_id');
-            $table->integer('branch_id');
+            $table->integer('branch_id')->nullable();
             $table->integer('status',1);
             $table->rememberToken();
             $table->timestamps();
