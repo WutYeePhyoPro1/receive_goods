@@ -48,7 +48,7 @@ class ActionController extends Controller
         }
         // dd($type);
         $conn = DB::connection('master_product');
-
+      
         if($type == "PO")
         {
             $brch_con = '';
@@ -57,6 +57,7 @@ class ActionController extends Controller
                 $user_brch = getAuth()->branch->branch_code;
                 $brch_con = "and brchcode = '$user_brch'";
             }
+
             $data = $conn->select("
                 select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
                 from  purchaseorder.po_purchaseorderhd aa

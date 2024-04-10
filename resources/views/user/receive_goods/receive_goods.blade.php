@@ -143,8 +143,8 @@
                                                     <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
                                                     <input type="hidden" class="pd_id" value="{{ $tem->id }}">
                                                     <div class='px-5 bar_stick1 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
-                                                    <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,1,25 ) !!}</div>
-                                                    <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,1,50 ) !!}</div>
+                                                    <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,25 ) !!}</div>
+                                                    <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
                                                 </td>
 
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
@@ -1109,26 +1109,29 @@
 
 
                             const new_pr = window.open("","","width=900,height=600");
+                             $name = $name.length > 45 ? $name.substring(0,45)+'...' : $name;
                             if($type == 1)
                             {
 
                                 $bar = $('.bar_stick1').eq($index).html();
                                 new_pr.document.write(
-                                "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:50px;gap:3px}"
+                                "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:40px;gap:3px}"
                             );
 
                             new_pr.document.write(
                                "</style></head><body><div id='per_div'>"
                             )
-
+                            $color = 100;
+                            $margin = $pd_code.length > 11 ? 10 : 30;
                             for($i = 0 ; $i < $qty ; $i++)
                             {
+
                                 new_pr.document.write(`
-                                    <div class="" style="style="padding: 7px 0;margin-top:10px">
+                                    <div class="" style="padding: 7px 0;margin-top:5px;">
 
                                             <small class="" style="font-size:1.2rem;font-weight:700;">${$name}</small>
 
-                                        <div style="">${$bar}</div>
+                                        <div style="margin-left:${ $margin }px">${$bar}</div>
                                         <div style="padding:5px 0;display:flex;flex-direction:column">
                                              <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1200">${$pd_code}</b>
                                              <small class="" style="margin-left:200px;transform:translateY(-10px);font-size:1rem;font-weight:700; font-family: "Times New Roman", Times, serif">${$unit}</small>
@@ -1136,6 +1139,7 @@
                                         </div>
                                     </div>
                                 `);
+                                $color = $color+10;
                             }
                                 new_pr.document.write("</div></body></html>");
                             }else if($type == 2)
@@ -1143,32 +1147,28 @@
                                 $bar = $('.bar_stick2').eq($index).html();
 
                                 new_pr.document.write(
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:50px;gap:10px}"
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:50px;gap:10px}"
                                 );
 
                                 new_pr.document.write(
                                    "</style></head><body style='margin:0;padding:8px 0'><div id='per_div'>"
                                 )
-
                                 for($i = 0 ; $i < $qty ; $i++)
                                 {
-
-
-                                    new_pr.document.write(`
-                                        <div class="" style="padding: 0 10px 5px 10px;position:relative;">
+                      new_pr.document.write(`
+                                        <div class="" style="padding: 10px 10px 5px 8px;position:relative;">
 
                                             <small class="" style="font-size:0.8rem;font-weight:900;">${$name}</small>
                                            <div style="position:absolute;right:50px;top:30px">
                                                 <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
                                             </div>
-                                            <div style="padding-left:50px">${$bar}</div>
+                                            <div style="margin-left:5px;padding:3px 0">${$bar}</div>
                                             <div style="padding:5px 0;display:flex;flex-direction:column">
                                                 <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.8rem;font-weight:900">${$pd_code}</b>
-
                                                 <small class="" style="margin: 0 0 0 20px;font-size:0.8rem;font-weight:700">${$full_date}</small>
                                             </div>
                                         </div>
-                                    `);
+                                `);
                                 }
                                 new_pr.document.write("</div></body></html>");
                             }else if($type == 3)
@@ -1176,7 +1176,7 @@
                                 $bar = $('.bar_stick3').eq($index).html();
 
                                 new_pr.document.write(
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:auto auto auto;margin-left:50px;gap:10px}"
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:50px;gap:10px}"
                                 );
 
                                 new_pr.document.write(
@@ -1186,13 +1186,13 @@
                                 for($i = 0 ; $i < $qty ; $i++)
                                 {
                                     new_pr.document.write(`
-                                    <div class="" style="padding: 0 10px 5px 10px;position:relative;">
+                                    <div class="" style="padding: 15px 10px 5px 5px;position:relative;">
 
-                                    <small class="" style="font-size:1.2rem;font-weight:900;">${$name}</small>
+                                    <small class="" style="font-size:1rem;font-weight:900;">${$name}</small>
                                     <div style="position:absolute;right:50px;top:30px">
                                         <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
                                     </div>
-                                    <div style="padding-left:50px">${$bar}</div>
+                                    <div style="padding-left:5px">${$bar}</div>
                                     <div style="padding:5px 0;display:flex;flex-direction:column">
                                         <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
                                         <div style="display:flex">
@@ -1903,7 +1903,7 @@
                             success: function(res)
                             {
                                 $length     = res.image.length;
-                                console.log($length);
+                                // console.log($length);
                                 $color1      = $length>0 ? 'bg-emerald-200' : 'hover:bg-slate-100'
                                 $color2      = $length>1 ? 'bg-emerald-200' : 'hover:bg-slate-100'
                                 $color3      = $length>2 ? 'bg-emerald-200' : 'hover:bg-slate-100'
