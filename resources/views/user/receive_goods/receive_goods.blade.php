@@ -1013,19 +1013,7 @@
                     })
                 })
 
-                if(!$finish)
-                {
-                    $(document).on('click','.change_scan',function(e){
-                        $id     = $(this).data('index');
-                        $('#index').val($id);
-                        $('#employee_code').val('');
-                        $('#pass').val('');
-                        $('.error_msg').text('');
-                        $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
-                        $('#pass_con').show();
-                    })
-
-                    $(document).on('change','.car_img',function(e){
+                $(document).on('change','.car_img',function(e){
                         $index = $('.car_img').index($(this));
                         $('#pree_'+$index).remove();
                         $('.img_btn').eq($index).addClass('bg-emerald-200').after(`
@@ -1046,6 +1034,20 @@
                     $("#pr_im").src(URL.createObjectURL($('.car_img').eq($index).target.files[0]))
 
                 })
+
+                if(!$finish)
+                {
+                    $(document).on('click','.change_scan',function(e){
+                        $id     = $(this).data('index');
+                        $('#index').val($id);
+                        $('#employee_code').val('');
+                        $('#pass').val('');
+                        $('.error_msg').text('');
+                        $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
+                        $('#pass_con').show();
+                    })
+
+
 
                     // $(document).on('click','.sticker',function(e){
                     //     $('.bar_stick').remove();

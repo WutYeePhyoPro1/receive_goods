@@ -629,8 +629,9 @@ class userController extends Controller
     }
 
     public function update_user(Request $request)
-    {
+    {     
         $id = $request->id;
+
         $request->validate([
             'name'                      => 'required',
             'employee_code'             => "required|unique:users,employee_code,$id,id",
@@ -644,6 +645,7 @@ class userController extends Controller
         if(getAuth()->role == 1)
         {
             $user = User::find($id);
+            dd($user);
             User::where('id',$id)->update([
                 'name'          => $request->name,
                 'employee_code' => $request->employee_code,
