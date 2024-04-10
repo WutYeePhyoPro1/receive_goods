@@ -645,7 +645,7 @@ class userController extends Controller
         if(getAuth()->role == 1)
         {
             $user = User::find($id);
-            dd($user);
+
             User::where('id',$id)->update([
                 'name'          => $request->name,
                 'employee_code' => $request->employee_code,

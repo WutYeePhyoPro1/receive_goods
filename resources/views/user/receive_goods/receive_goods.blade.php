@@ -1161,7 +1161,7 @@
                                         <div class="" style="padding: 10px 10px 5px 8px;position:relative;">
 
                                             <small class="" style="font-size:0.8rem;font-weight:900;">${$name}</small>
-                                           <div style="position:absolute;right:50px;top:30px">
+                                           <div style="position:absolute;right:70px;top:70px">
                                                 <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
                                             </div>
                                             <div style="margin-left:5px;padding:3px 0">${$bar}</div>
