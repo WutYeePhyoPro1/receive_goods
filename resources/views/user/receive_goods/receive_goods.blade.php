@@ -1121,6 +1121,7 @@
                                "</style></head><body><div id='per_div'>"
                             )
 
+
                             for($i = 0 ; $i < $qty ; $i++)
                             {
                                 new_pr.document.write(`
@@ -1155,16 +1156,15 @@
 
 
                                     new_pr.document.write(`
-                                        <div class="" style="padding: 0 10px 5px 10px;position:relative;">
+                                        <div class="" style="padding: 0 10px 5px 10px;margin-top:10px;position:relative;">
 
                                             <small class="" style="font-size:0.8rem;font-weight:900;">${$name}</small>
                                            <div style="position:absolute;right:50px;top:30px">
                                                 <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
-                                            </div>
+                                            </div>66666666
                                             <div style="padding-left:50px">${$bar}</div>
                                             <div style="padding:5px 0;display:flex;flex-direction:column">
                                                 <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.8rem;font-weight:900">${$pd_code}</b>
-
                                                 <small class="" style="margin: 0 0 0 20px;font-size:0.8rem;font-weight:700">${$full_date}</small>
                                             </div>
                                         </div>
