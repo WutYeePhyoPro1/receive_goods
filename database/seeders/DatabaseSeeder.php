@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             TruckSeeder::class,
             SourceSeeder::class,
             CarGateSeeder::class,
+            PrintReasonSeeder::class,
 
             // Add more seeder classes as needed
         ]);

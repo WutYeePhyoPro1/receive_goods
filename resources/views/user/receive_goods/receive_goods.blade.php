@@ -734,6 +734,11 @@
                             <option value="2">Bar 2</option>
                             <option value="3">Bar 3</option>
                         </Select>
+                        <Select class="w-full border border-slate-300 py-3 ps-2 bg-white rounded-lg appearance-none mt-2" id="reason">
+                            @foreach ($reason as $item)
+                                <option value="{{ $item->id }}">{{ $item->reason }}</option>
+                            @endforeach
+                        </Select>
                         <input type="number" id="print_count" class="appearance-none w-full border-2 border-slate-300 rounded-lg min-h-12 mt-4 ps-2 focus:outline-none focus:border-sky-200 focus:border-3" placeholder="500 ထက်မပိုပါနဲ့">
                         <button type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
                     </div>
@@ -1013,19 +1018,7 @@
                     })
                 })
 
-                if(!$finish)
-                {
-                    $(document).on('click','.change_scan',function(e){
-                        $id     = $(this).data('index');
-                        $('#index').val($id);
-                        $('#employee_code').val('');
-                        $('#pass').val('');
-                        $('.error_msg').text('');
-                        $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
-                        $('#pass_con').show();
-                    })
-
-                    $(document).on('change','.car_img',function(e){
+                $(document).on('change','.car_img',function(e){
                         $index = $('.car_img').index($(this));
                         $('#pree_'+$index).remove();
                         $('.img_btn').eq($index).addClass('bg-emerald-200').after(`
@@ -1046,6 +1039,20 @@
                     $("#pr_im").src(URL.createObjectURL($('.car_img').eq($index).target.files[0]))
 
                 })
+
+                if(!$finish)
+                {
+                    $(document).on('click','.change_scan',function(e){
+                        $id     = $(this).data('index');
+                        $('#index').val($id);
+                        $('#employee_code').val('');
+                        $('#pass').val('');
+                        $('.error_msg').text('');
+                        $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
+                        $('#pass_con').show();
+                    })
+
+
 
                     // $(document).on('click','.sticker',function(e){
                     //     $('.bar_stick').remove();
@@ -1090,6 +1097,7 @@
                         $name   = $('.pd_name').eq($index).val();
                         $id     = $('.pd_id').eq($index).val();
                         $type   = $('#bar_type').val();
+                        $reason = $('#reason').val();
                         if($qty > 0 && $qty != ''){
                             $td  = new Date();
                             $date = [ String($td.getDate()).padStart(2, '0'),String($td.getMonth() + 1).padStart(2, '0'),$td.getFullYear()].join('/');
@@ -1097,16 +1105,13 @@
                             $time = [(String($td.getHours()).padStart(2, '0')%12 || 12), String($td.getMinutes()).padStart(2, '0'), String($td.getSeconds()).padStart(2, '0')].join(':');
                             $full_date = $date+' '+$time+' '+$period;
 
-
                             $.ajax({
                                 url : "{{ route('print_track') }}",
                                 type: 'POST',
-                                data: {_token:token,id:$id,qty:$qty,type:$type},
+                                data: {_token:token,id:$id,qty:$qty,type:$type,reason:$reason},
                                 success: function(res){
-
                                 }
                             })
-
 
                             const new_pr = window.open("","","width=900,height=600");
                              $name = $name.length > 45 ? $name.substring(0,45)+'...' : $name;
