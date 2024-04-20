@@ -354,22 +354,10 @@ use Illuminate\Support\Facades\DB;
         }else{
             $reg = $reg->where('branch_id',$user_branch)->pluck('id');
         }
-
-        $truck_id = DriverInfo::Select('driver_infos.*','goods_receives.branch_id')
-        ->leftJoin('goods_receives','driver_infos.received_goods_id','goods_receives.id');
-        if($loc == 'dc')
-        {
-            $truck_id =$truck_id->whereIn('goods_receives.branch_id',$mgld_dc)
-                                    ->pluck('id');
-
-        }elseif($loc == 'ho')
-        {
-            $truck_id =$truck_id->pluck('id');
-        }else{
-            $truck_id = $truck_id->where('goods_receives.branch_id',$user_branch)
-                                ->pluck('id');
-        }
-
+        // dd($reg);
+        $truck_id = DriverInfo::Select('id','received_goods_id')->whereIn('received_goods_id',$reg)
+                ->pluck('id');
+     
         $data = [$truck_id, $loc,$reg];
 
         return $data;
