@@ -101,6 +101,7 @@ class authenticateController extends Controller
                                     })
                                     ->whereDate('updated_at',Carbon::today())
                                     ->pluck('id');
+          
         $fin_docs   = Document::whereIn('received_goods_id',$fin_reg)->pluck('id');
         $shortage   = Product::select(DB::raw('Floor(qty-scanned_qty) as sub'),'*')
                             ->whereIn('document_id',$fin_docs)

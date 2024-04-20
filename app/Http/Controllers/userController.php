@@ -117,9 +117,10 @@ class userController extends Controller
         $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
+        $reason         = PrintReason::get();
         $status = 'view';
 
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document','reason'));
     }
 
     public function car_info()
