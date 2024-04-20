@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use App\Interfaces\ActionRepositoryInterface;
 use App\Models\printTrack;
+use App\Models\UserBranch;
 
 class ActionController extends Controller
 {
@@ -57,13 +58,14 @@ class ActionController extends Controller
                 $user_brch = getAuth()->branch->branch_code;
                 $brch_con = "and brchcode = '$user_brch'";
             }
+
             $data = $conn->select("
                 select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
                 from  purchaseorder.po_purchaseorderhd aa
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
                 where statusflag <> 'C'
-                ---and statusflag in ('P','Y')
+                and statusflag in ('P','Y')
                 $brch_con
                 and purchaseno= '$val'
             ");
@@ -495,10 +497,21 @@ class ActionController extends Controller
         $password    = explode('&',$request->data)[1];
         $password    = explode('=',$password)[1];
         $user = User::where('employee_code', $emplyee)->first();
-        if(isset($user) && Hash::check($password, $user->password) && $user->role == 4)
+        $user_branch    = getAuth()->branch_id;
+        $same_br        = false;
+        if(isset($user))
         {
-
-            return response()->json($user,200);
+            $branch_exst = UserBranch::where(['user_id'=>$user->id,'branch_id'=>$user_branch])->first();
+            if($branch_exst || $user_branch==$user->branch_id)
+            {
+                $same_br = true;
+            }
+            if($same_br && Hash::check($password, $user->password) && $user->role == 4)
+            {
+                return response()->json($user,200);
+            }else{
+                return response()->json(['message'=>'Credential Does Not Match'],404);
+            }
         }else{
             return response()->json(['message'=>'Not found'],404);
         }
@@ -642,7 +655,7 @@ class ActionController extends Controller
 
     public function print_track(Request $request)
     {
-        $dub_pr     = printTrack::where(['product_id'=>$request->id,'bar_type'=>$request->type])->first();
+        $dub_pr     = printTrack::where(['product_id'=>$request->id,'bar_type'=>$request->type,'reason'=>$request->reason])->first();
         if($dub_pr)
         {
             $dub_pr->update([
@@ -654,6 +667,7 @@ class ActionController extends Controller
             $track_pr->by_user      = getAuth()->id;
             $track_pr->quantity     = $request->qty;
             $track_pr->bar_type     = $request->type;
+            $track_pr->reason       = $request->reason;
             $track_pr->save();
         }
 

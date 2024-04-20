@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
 use App\Interfaces\UserRepositoryInterface;
+use App\Models\PrintReason;
 use App\Models\UploadImage;
 use App\Models\UserBranch;
 use Symfony\Component\CssSelector\Node\FunctionNode;
@@ -185,6 +186,7 @@ class userController extends Controller
 
     public function receive_goods($id)
     {
+        // dd('yes');
         $data = get_branch_truck();
         $truck_id   = $data[0];
         $loc        = $data[1];
@@ -205,13 +207,8 @@ class userController extends Controller
                             $q->where('branch',$user_branch_code);
                         })->get();
 
-        $log            = new Log();
-        $log->user_id   = getAuth()->id;
-        $log->history   = route('receive_goods',['id' => $id]);
-        $log->action    = 'Go To Receive Goods Page';
-        $log->save();
-
-        view()->share(['status'=>'scan']);
+        $reason     = PrintReason::get();
+        view()->share(['status'=>'scan','reason'=>$reason]);
         // $time_start = Carbon::parse($time_str)->format('H:i:s');
         return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document'));
     }
@@ -402,13 +399,13 @@ class userController extends Controller
                 'gate'          => 'required',
             ]);
 
-            $validator->after(function ($validator) use($request) {
-                if ($request->image_1 == null && $request->image_2 == null && $request->image_3 == null) {
-                    $validator->errors()->add(
-                        'atLeastOne', 'Please Fill Atleast One Image'
-                    );
-                }
-            });
+            // $validator->after(function ($validator) use($request) {
+            //     if ($request->image_1 == null && $request->image_2 == null && $request->image_3 == null) {
+            //         $validator->errors()->add(
+            //             'atLeastOne', 'Please Fill Atleast One Image'
+            //         );
+            //     }
+            // });
             if ($validator->fails()) {
                 return back()->withErrors($validator)
                             ->withInput();
@@ -417,7 +414,7 @@ class userController extends Controller
         }
 
 
-        $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',getAuth()->branch_id)->get();
+        $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',getAuth()->branch_id)->withTrashed()->get();
         $same = count($same);
         if($same > 0){
             $name = $shr.'-'.sprintf("%04d",$same+1);
@@ -631,6 +628,7 @@ class userController extends Controller
     public function update_user(Request $request)
     {
         $id = $request->id;
+
         $request->validate([
             'name'                      => 'required',
             'employee_code'             => "required|unique:users,employee_code,$id,id",
@@ -644,6 +642,7 @@ class userController extends Controller
         if(getAuth()->role == 1)
         {
             $user = User::find($id);
+
             User::where('id',$id)->update([
                 'name'          => $request->name,
                 'employee_code' => $request->employee_code,

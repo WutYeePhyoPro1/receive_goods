@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('print_tracks', function (Blueprint $table) {
+        Schema::create('print_reasons', function (Blueprint $table) {
             $table->id();
-            $table->integer('product_id');
-            $table->integer('by_user');
-            $table->integer('quantity');
-            $table->string('bar_type',56);
             $table->string('reason');
             $table->timestamps();
         });
@@ -27,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('print_tracks');
-}
+        Schema::dropIfExists('print_reasons');
+    }
 };

@@ -74,7 +74,8 @@
             "funding": [
                 {
                     "url": "https://fruitcake.nl",
-                    "type": "custom"
+                    "type": "cus
+                    "
                 },
                 {
                     "url": "https://github.com/barryvdh",
