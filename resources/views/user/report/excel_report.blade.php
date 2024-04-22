@@ -96,7 +96,8 @@
                     <th class="py-2 bg-slate-400 border">Document No</th>
                     <th class="py-2 bg-slate-400 border">Product Code</th>
                     <th class="py-2 bg-slate-400 border">Quantity</th>
-                    <th class="py-2 bg-slate-400 rounded-tr-md">Type</th>
+                    <th class="py-2 bg-slate-400 border">Type</th>
+                    <th class="py-2 bg-slate-400 rounded-tr-md">Reason</th>
                 </tr>
             @elseif ($report == 'man_add')
                 <tr>
@@ -206,6 +207,7 @@
                                 <td class="h-10 text-center border border-slate-400">{{ $item->product->bar_code }}</td>
                                 <td class="h-10 text-center border border-slate-400 ">{{ $item->quantity }}</td>
                                 <td class="h-10 text-center border border-slate-400 ">{{ 'Bar '.$item->bar_type }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ $item->reasons->reason ?? '' }}</td>
                         </tr>
                     @endforeach
                 @elseif($report == 'man_add')
