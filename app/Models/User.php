@@ -54,8 +54,15 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class,'branch_id','id');
     }
 
+    public function user_branches()
+    {
+        return $this->hasMany(UserBranch::class,'user_id','id');
+    }
+
     public function roleName()
     {
         return $this->roles->first()->name;
     }
+
+
 }

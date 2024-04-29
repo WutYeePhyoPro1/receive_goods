@@ -46,7 +46,7 @@
                 <span class="text-emerald-600 font-bold text-3xl ms-40 underline">Complete</span>
                 <!-- <a href="{{ route('complete_doc_print',['id'=>$main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a> -->
             @endif
-            @if ($status != 'view' && isset($cur_driver->start_date))
+            @if ($status != 'view' && isset($cur_driver->start_date) && $main->user_id == getAuth()->id)
             <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
             <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
             @elseif(!isset($cur_driver->start_date) && !dc_staff() && $status == 'scan' && $main->status != 'complete')
@@ -517,7 +517,7 @@
                                 <?php
                                     $dc = [17,19,20];
                                 ?>
-                                @if (dc_staff())
+                                @if (dc_staff() && $main->user_id == getAuth()->id)
                                     <div class="flex flex-col px-10">
                                         <label for="gate">Gate<span class="text-rose-600">*</span> :</label>
                                         <Select name="gate" id="gate" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">

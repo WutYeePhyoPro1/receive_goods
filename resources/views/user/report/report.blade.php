@@ -269,29 +269,58 @@
                     @if ($report == 'product')
                         @foreach ($product as $item)
                             @if (dc_staff())
-                                <tr>
-                                    <td class="h-10 text-center border border-slate-400">{{ $product->firstItem()+$loop->index  }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->doc->received->document_no }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
-                                    <td class="h-10 text-center border border-slate-400 ">{{ $item->bar_code }}</td>
-                                    <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'L') }}</td>
-                                    <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'M') }}</td>
-                                    <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'S') }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
-                                </tr>
+                                @if(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'))
+                                    <tr>
+                                        <td class="h-10 text-center border border-slate-400">{{ $product->firstItem()+$loop->index  }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->received->document_no }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->document_no }}</td>
+                                        <td class="h-10 text-center border border-slate-400 ">{{ $item->product->bar_code }}</td>
+                                        <td class="h-10 text-center border border-slate-400 w-10">{{ get_scan_truck_pd($item->driver_info_id,$item->product_id,'L') }}</td>
+                                        <td class="h-10 text-center border border-slate-400 w-10">{{ get_scan_truck_pd($item->driver_info_id,$item->product_id,'M') }}</td>
+                                        <td class="h-10 text-center border border-slate-400 w-10">{{ get_scan_truck_pd($item->driver_info_id,$item->product_id,'S') }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->product->qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
+                                    </tr>
+                                @else
+                                    <tr>
+                                        <td class="h-10 text-center border border-slate-400">{{ $product->firstItem()+$loop->index  }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->doc->received->document_no }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
+                                        <td class="h-10 text-center border border-slate-400 ">{{ $item->bar_code }}</td>
+                                        <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'L') }}</td>
+                                        <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'M') }}</td>
+                                        <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'S') }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
+                                    </tr>
+                                @endif
+
                             @else
-                                <tr>
-                                    <td class="h-10 text-center border border-slate-400">{{ $product->firstItem()+$loop->index  }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->doc->received->document_no }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
-                                    <td class="h-10 text-center border border-slate-400 ">{{ $item->bar_code }}</td>
-                                    <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'S') }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
-                                    <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
-                                </tr>
+                                @if(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'))
+                                    <tr>
+                                        <td class="h-10 text-center border border-slate-400">{{ $product->firstItem()+$loop->index  }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->received->document_no }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->document_no }}</td>
+                                        <td class="h-10 text-center border border-slate-400 ">{{ $item->product->bar_code }}</td>
+                                        <td class="h-10 text-center border border-slate-400 w-10">{{ get_scan_truck_pd($item->driver_info_id,$item->product_id,'S') }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->product->scanned_qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->product->qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->product->created_at->format('Y-m-d')}}</td>
+                                    </tr>
+                                @else
+                                    <tr>
+                                        <td class="h-10 text-center border border-slate-400">{{ $product->firstItem()+$loop->index  }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->doc->received->document_no }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
+                                        <td class="h-10 text-center border border-slate-400 ">{{ $item->bar_code }}</td>
+                                        <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'S') }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
+                                    </tr>
+                                @endif
                             @endif
                         @endforeach
                     @elseif ($report == 'finish')
@@ -404,7 +433,9 @@
                             <tr>
                                 <td colspan="{{ dc_staff() ? '7' : '5' }}"></td>
                                 <td class="h-10 text-center border border-slate-400">Total Scanned Qty : <b>{{ $all_sum['scanned_sum'] }}</b></td>
-                                <td class="h-10 text-center border border-slate-400">Total Qty : <b>{{ $all_sum['qty_sum'] }}</b></td>
+                                @if(!(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date')))
+                                    <td class="h-10 text-center border border-slate-400">Total Qty : <b>{{ $all_sum['qty_sum'] }}</b></td>
+                                @endif
                                 <td></td>
                             </tr>
                         </tbody>

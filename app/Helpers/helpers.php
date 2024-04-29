@@ -354,10 +354,9 @@ use Illuminate\Support\Facades\DB;
         }else{
             $reg = $reg->where('branch_id',$user_branch)->pluck('id');
         }
-        // dd($reg);
         $truck_id = DriverInfo::Select('id','received_goods_id')->whereIn('received_goods_id',$reg)
                 ->pluck('id');
-     
+
         $data = [$truck_id, $loc,$reg];
 
         return $data;

@@ -128,7 +128,16 @@
                                 <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->name }}</td>
                                 <td class="h-10 text-center border border-slate-400">{{ $item->employee_code }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->branch->branch_name }}</td>
+                                @if(count($item->user_branches) > 0)
+                                    <td class="h-10 text-center border border-slate-400">
+                                    @foreach($item->user_branches as $index => $tem)
+                                    {{ $tem->branch->branch_name.(count($item->user_branches)-1 == $index ? '' : ',') }}
+                                    @endforeach
+                                    
+                                    </td>
+                                @else 
+                                    <td class="h-10 text-center border border-slate-400">{{ $item->branch->branch_name }}</td>
+                                @endif
                                 <td class="h-10 text-center border border-slate-400">{{ $item->roleName() }}</td>
                                 <td class="h-10 text-center border border-slate-400 {{ $item->status == 1 ? 'text-emerald-600' : 'text-rose-600' }} ">
                                     @if($item->role != 1)

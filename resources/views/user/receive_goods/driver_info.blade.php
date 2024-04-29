@@ -116,9 +116,14 @@
                             <div class="flex flex-col">
                                 <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img3').click()" title="image 3"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">3</span></div>
                             </div>
-                            <small class="text-rose-400 -translate-y-7 ms-12">i : ပုံမထည့်လဲ ရပါတယ် ခင်ဗျ</small>
-                            {{--- @error('atLeastOne')
-                            @enderror ---}}
+                            @if(dc_staff())
+                                @error('atLeastOne')
+                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                @enderror 
+                            @else
+                                <small class="text-rose-400 -translate-y-7 ms-12">i : ပုံမထည့်လဲ ရပါတယ် ခင်ဗျ</small>
+                            @endif
+
                         </div>
                             <input type="file" class="car_img" accept="image/*" name="image_1" hidden value="null" id="img1">
                             <input type="file" class="car_img" accept="image/*" name="image_2" hidden value="null" id="img2">

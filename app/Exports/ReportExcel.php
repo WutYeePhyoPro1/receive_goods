@@ -34,10 +34,17 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
     public  function view(): View
     {
         $report = $this->filter['report'];
+        $data = get_branch_truck();
+        $truck_id   = $data[0];
+        $loc        = $data[1];
+        $reg        = $data[2];
+        $user_branch    = getAuth()->branch_id;
+        $mgld_dc        = [17,19,20];
+
         if($this->filter['report'] == 'product')
         {
             $product = [];
-
+            $doc = Document::whereIn('received_goods_id',$reg)->pluck('id');
             if(isset($this->filter['search'])){
                 if($this->filter['search'] == 'main_no')
             {
@@ -58,22 +65,33 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
             }
             }
 
-            $product = Product::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date'])  && !isset($this->filter['search_data']) , function($q){
-                                $q->whereDate('created_at',Carbon::today());
-            })
-                                ->when( isset($this->filter['search']) && ($this->filter['search'] == 'main_no' || $this->filter['search'] == 'document_no') && $this->filter['search_data'],function($q) use($product){
-                                    $q->whereIn('id',$product);
-                                })
-                                ->when( isset($this->filter['search']) && $this->filter['search'] == 'product_code' && $this->filter['search_data'],function($q){
-                                    $q->where('bar_code',$this->filter['search_data']);
-                                })
-                                ->when(isset($this->filter['from_date']),function($q){
-                                    $q->where('created_at','>=',$this->filter['from_date']);
-                                })
-                                ->when(isset($this->filter['to_date']),function($q){
-                                    $q->where('created_at','<=',$this->filter['to_date']);
-                                })
-                                ->get();
+            if(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date'])  && !isset($this->filter['search_data'])){
+                $pd_ids = Product::whereIn('document_id',$doc)->pluck('id');
+
+                $product = Tracking::with('product')->whereIn('product_id',$pd_ids)
+                                    ->whereIn('driver_info_id',$truck_id)
+                                    ->whereDate('created_at',Carbon::today())
+                                    ->get();
+            }else{
+                $product = Product::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date'])  && !isset($this->filter['search_data']) , function($q){
+                    $q->whereDate('created_at',Carbon::today());
+})
+                    ->when( isset($this->filter['search']) && ($this->filter['search'] == 'main_no' || $this->filter['search'] == 'document_no') && $this->filter['search_data'],function($q) use($product){
+                        $q->whereIn('id',$product);
+                    })
+                    ->when( isset($this->filter['search']) && $this->filter['search'] == 'product_code' && $this->filter['search_data'],function($q){
+                        $q->where('bar_code',$this->filter['search_data']);
+                    })
+                    ->when(isset($this->filter['from_date']),function($q){
+                        $q->where('created_at','>=',$this->filter['from_date']);
+                    })
+                    ->when(isset($this->filter['to_date']),function($q){
+                        $q->where('created_at','<=',$this->filter['to_date']);
+                    })
+                    ->get();
+            }
+
+
 
             $all = $product;
 
@@ -106,8 +124,14 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
                                     $q->where('start_date','<=',$this->filter['to_date']);
                                 })
                                 ->when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date']) && !isset($this->filter['branch']) && !isset($this->filter['search_data']) , function($q){
-                                    $q->whereDate('created_at',Carbon::today());
+                                    $q->whereDate('updated_at',Carbon::today());
                 })
+                                ->when($loc =='dc',function($q) use($mgld_dc){
+                                    $q->whereIn('branch_id',$mgld_dc);
+                                })
+                                ->when($loc == 'other',function($q) use ($user_branch){
+                                    $q->where('branch_id',$user_branch);
+                                })
                                 ->whereNotNull('total_duration')
                                 ->where('status','complete')
                                 ->orderBy('created_at','desc')
@@ -155,6 +179,9 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
                             ->when(isset($this->filter['to_date']),function($q){
                                 $q->where('created_at','<=',$this->filter['to_date']);
                             })
+                            ->when($loc != 'ho',function($q) use($truck_id){
+                                $q->whereIn('id',$truck_id);
+                                    })
                             ->get();
 
             $all = $truck;
@@ -250,6 +277,7 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
                                     ->when(request('to_date'),function($q){
                                         $q->whereDate('created_at','<=',request('to_date'));
                                     })
+                                    ->whereIn('received_goods_id',$reg)
                                     ->get();
                                     $all = $docs;
 
@@ -275,11 +303,22 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
             }
         }
 
-        $reg_ids        = GoodsReceive::where('status','complete')->pluck('id');
+
+        $reg        = GoodsReceive::where('status','complete')
+                                        ->when($loc =='dc',function($q) use($mgld_dc){
+                                            $q->whereIn('branch_id',$mgld_dc);
+                                        })
+                                        ->when($loc == 'other',function($q) use($user_branch){
+                                            $q->where('branch_id',$user_branch);
+                                        });
+        $reg_ids        = $reg->pluck('id');
         $document_ids   = Document::whereIn('received_goods_id',$reg_ids)->pluck('id');
-        $data   = Product::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date']) && !isset($this->filter['search_data']),function($q)
+
+        $data   = Product::when(!isset($this->filter['search']) && !isset($this->filter['from_date']) &&  !isset($this->filter['to_date']) && !isset($this->filter['search_data']),function($q) use($reg)
                         {
-                            $q->whereDate('created_at',Carbon::today());
+                            $tdy_reg = $reg->whereDate('updated_at',Carbon::today())->pluck('id');
+                            $tdy_doc = Document::whereIn('received_goods_id',$tdy_reg)->pluck('id');
+                            $q->whereIn('document_id',$tdy_doc);
                         })
                         ->when(isset($this->filter['search']) && $this->filter['search'] != 'product_code' && $this->filter['search_data'],function($q) use($pd_ids) {
 
@@ -309,7 +348,16 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
         $all = $data;
     }elseif($report == 'print')
     {
-        $pd_ids = [];
+        $reg        = GoodsReceive::where('status','complete')
+                                ->when($loc =='dc',function($q) use($mgld_dc){
+                                    $q->whereIn('branch_id',$mgld_dc);
+                                })
+                                ->when($loc == 'other',function($q) use($user_branch){
+                                    $q->where('branch_id',$user_branch);
+                                });
+        $reg_ids        = $reg->pluck('id');
+        $document_ids   = Document::whereIn('received_goods_id',$reg_ids)->pluck('id');
+        $pd_ids = Product::whereIn('document_id',$document_ids)->pluck('id');
 
         if(isset($this->filter['search']))
         {
@@ -336,16 +384,14 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
                         {
                             $q->whereDate('created_at',Carbon::today());
                         })
-                        ->when(isset($this->filter['search']) && $this->filter['search'] && $this->filter['search_data'],function($q) use($pd_ids) {
 
-                            $q->whereIn('id',$pd_ids);
-                        })
                         ->when(request('from_date'),function($q){
                             $q->whereDate('created_at', '>=', request('from_date'));
                         })
                         ->when(request('to_date'),function($q){
                             $q->whereDate('created_at','<=',request('to_date'));
                         })
+                        ->whereIn('id',$pd_ids)
                         ->get();
 
 

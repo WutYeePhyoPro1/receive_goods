@@ -221,7 +221,7 @@ class userController extends Controller
         $log->user_id   = getAuth()->id;
         $log->history   = route('join_receive',['id'=>$id,'car'=>$car]);
         $log->action    = "Join To Other's Receive Goods Page";
-        $log->save();
+        // $log->save();
 
         $main = GoodsReceive::where('id',$id)->first();
         $truck = Truck::get();
@@ -229,8 +229,9 @@ class userController extends Controller
         $cur_driver = DriverInfo::where('id',$car)->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();;
+        $reason        = PrintReason::get();
         $status = 'join';
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','scan_document','status'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','scan_document','status','reason'));
     }
 
     public function user()
@@ -238,11 +239,12 @@ class userController extends Controller
         $search = '';
         if(request('search_data'))
         {
-            $search  =request('search_data');
+            $search  =Ucwords(request('search_data'));
             $type = trim(substr(request('search_data'), 0, 3));
             $isint = ctype_digit($type);
         }
-        $data = User::when(request('branch'),function($q){
+        $data = User::with('user_branches')
+                    ->when(request('branch'),function($q){
                         $q->where('branch_id',request('branch'));
                     })
                     ->when(request('search_data') && $isint,function($q){
@@ -251,7 +253,9 @@ class userController extends Controller
                     ->when(request('search_data') && !$isint,function($q) use($search) {
                         $q->where('name', 'like', "%{$search}%");
                     })
+                    ->orderBy('id')
                     ->paginate(15);
+        // dd($data);
         $branch= Branch::get();
         $type= 'user';
         return view('user.user',compact('data','branch','type'));
