@@ -14,6 +14,7 @@ use App\Models\DriverInfo;
 use App\Models\printTrack;
 use App\Models\UploadImage;
 use App\Models\GoodsReceive;
+use App\Models\PrintReason;
 use Illuminate\Http\Request;
 use App\Models\AddProductTrack;
 use App\Models\changeTruckProduct;
@@ -102,9 +103,9 @@ class AdminController extends Controller
         $cur_driver = DriverInfo::where(['received_goods_id'=>$id,'user_id'=>getAuth()->id])->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
+        $reason         = PrintReason::get();
 
-
-        view()->share(['status'=>'edit']);
+        view()->share(['status'=>'edit','reason'=>$reason]);
         // $time_start = Carbon::parse($time_str)->format('H:i:s');
         return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','scan_document'));
     }

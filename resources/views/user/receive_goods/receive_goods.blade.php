@@ -1120,23 +1120,23 @@
 
                                 $bar = $('.bar_stick1').eq($index).html();
                                 new_pr.document.write(
-                                "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:40px;gap:3px}"
+                                "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:40px;gap:5px}"
                             );
 
                             new_pr.document.write(
                                "</style></head><body><div id='per_div'>"
                             )
                             $color = 100;
-                            $margin = $pd_code.length > 11 ? 10 : 30;
+                            $margin = $pd_code.length > 11 ? 20 : 30;
                             for($i = 0 ; $i < $qty ; $i++)
                             {
 
                                 new_pr.document.write(`
-                                    <div class="" style="padding: 7px 0;margin-top:5px;">
+                                    <div class="" style="padding: 7px 0;margin-top:15px;">
 
                                             <small class="" style="font-size:1.2rem;font-weight:700;">${$name}</small>
 
-                                        <div style="margin-left:${ $margin }px">${$bar}</div>
+                                        <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
                                         <div style="padding:5px 0;display:flex;flex-direction:column">
                                              <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1200">${$pd_code}</b>
                                              <small class="" style="margin-left:200px;transform:translateY(-10px);font-size:1rem;font-weight:700; font-family: "Times New Roman", Times, serif">${$unit}</small>
@@ -1191,13 +1191,13 @@
                                 for($i = 0 ; $i < $qty ; $i++)
                                 {
                                     new_pr.document.write(`
-                                    <div class="" style="padding: 15px 10px 5px 5px;position:relative;">
+                                    <div class="" style="padding: 25px 10px 5px 5px;position:relative;">
 
                                     <small class="" style="font-size:1rem;font-weight:900;">${$name}</small>
-                                    <div style="position:absolute;right:50px;top:30px">
+                                    <div style="position:absolute;right:50px;top:120px">
                                         <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
                                     </div>
-                                    <div style="padding-left:5px">${$bar}</div>
+                                    <div style="padding-left:5px;margin-top:15">${$bar}</div>
                                     <div style="padding:5px 0;display:flex;flex-direction:column">
                                         <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
                                         <div style="display:flex">

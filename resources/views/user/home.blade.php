@@ -3,7 +3,7 @@
 @section('content')
 <span class="px-5 text-2xl font-serif underline">Today's Report</span>
     <div class="grid grid-cols-5 gap-5 px-5">
-        <div class=" min-h-60 rounded-xl shadow-2xl border border-slate-200  mt-10 relative" style="background-color: rgba(131, 131, 131, 0.12)">
+        <div class=" min-h-60 rounded-xl shadow-2xl border border-slate-600  mt-10 relative" style="background-color: rgba(131, 131, 131, 0.12)">
             <div class="">
                 <span class="text-xl font-serif float-right mr-3 mt-2">Total Scanned Products</span>
             </div>

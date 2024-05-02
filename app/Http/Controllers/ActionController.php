@@ -65,7 +65,7 @@ class ActionController extends Controller
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
                 where statusflag <> 'C'
-                --and statusflag in ('P','Y')
+                and statusflag in ('P','Y')
                 $brch_con
                 and purchaseno= '$val'
             ");
@@ -520,6 +520,7 @@ class ActionController extends Controller
     public  function add_product(Request $request)
     {
         Common::Log(route('add_product'),"manually add product qty");
+
         $product = Product::find($request->product);
         $track   = Tracking::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id])->first();
         $scan_track = ScanTrack::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id,'unit'=>'S'])->first();
