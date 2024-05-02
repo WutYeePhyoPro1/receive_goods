@@ -63,15 +63,15 @@
                         </div>
                         <ul class=" rounded-lg shadow-lg w-full p-2 absolute user_div"  style="">
                             @can('user-management')
-                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('user') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/user'">User</li>
+                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('user*')  ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/user'">User</li>
                             @endcan
                             @can('role-management')
-                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('role') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/role'">Role</li>
+                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('role*') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/role'">Role</li>
                             @endcan
                             @can('permission-management')
-                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('permission') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/permission'">Permission</li>
-                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('permission') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/gate'">Gate</li>
-                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('permission') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/car_type'">Car Type</li>
+                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('permission*') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/permission'">Permission</li>
+                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('gate*') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/gate'">Gate</li>
+                                <li class="p-2 mt-1 hover:bg-amber-500 {{ request()->is('car_type*') ? 'bg-amber-500' : '' }}" onclick="javascript:window.location.href='/car_type'">Car Type</li>
                             @endcan
                         </ul>
                     </li>
@@ -118,7 +118,7 @@
                 <span class="mr-4"><i class='bx bx-user-voice mr-1' style="transform: translateY(2px)"></i> Role : {{ getAuth()->roleName() }}</span> |&nbsp;&nbsp;
                 <span class="mr-4 relative"><i class='bx bx-store-alt mr-1' style="transform: translateY(2px)"></i> Branch : <span class=" {{ count(multi_br()) > 1  ? 'bg-amber-200 p-2 cursor-pointer rounded ch_br' : '' }} ">{{ getAuth()->branch->branch_name }}</span>
                 @if( count(multi_br()) > 1 )
-                    <ul class="absolute max-h-48 w-32 bg-rose-600 hidden" id="change_br" style="bottom:155%;left:45%;overflow-y:auto">
+                    <ul class="absolute max-h-48 w-32 bg-rose-600 hidden rounded-lg shadow-lg" id="change_br" style="bottom:155%;left:45%;overflow-y:auto">
                         @foreach (multi_br() as $item)
                             @if (getAuth()->branch_id != $item->branch_id)
                                 <li class="ps-2 bg-amber-200 hover:bg-white cursor-pointer py-0" onclick="javascript:window.location.href='/change_branch/{{ $item->branch_id }}'">{{ $item->branch->branch_name }}</li>

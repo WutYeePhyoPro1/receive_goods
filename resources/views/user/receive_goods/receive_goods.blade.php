@@ -1117,7 +1117,7 @@
                              $name = $name.length > 45 ? $name.substring(0,45)+'...' : $name;
                             if($type == 1)
                             {
-
+                                console.log($index);
                                 $bar = $('.bar_stick1').eq($index).html();
                                 new_pr.document.write(
                                 "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:40px;gap:5px}"
