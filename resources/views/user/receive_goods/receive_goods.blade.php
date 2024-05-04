@@ -1128,7 +1128,7 @@
                             )
                             $color = 100;
                             $margin = $pd_code.length > 11 ? 10 : 30;
-                            for($i = 0 ; $i < 12 ; $i++)
+                            for($i = 0 ; $i < 18 ; $i++)
                             {
 
                                 new_pr.document.write(`
