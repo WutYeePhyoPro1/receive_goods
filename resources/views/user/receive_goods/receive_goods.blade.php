@@ -1114,7 +1114,7 @@
                             })
 
                             const new_pr = window.open("","","width=900,height=600");
-                             $name = $name.length > 45 ? $name.substring(0,45)+'...' : $name;
+                             $name = $name.length > 80 ? $name.substring(0,80)+'...' : $name;
                             if($type == 1)
                             {
 
@@ -1127,14 +1127,14 @@
                                "</style></head><body><div id='per_div'>"
                             )
                             $color = 100;
-                            $margin = $pd_code.length > 11 ? 20 : 30;
-                            for($i = 0 ; $i < $qty ; $i++)
+                            $margin = $pd_code.length > 11 ? 10 : 30;
+                            for($i = 0 ; $i < 12 ; $i++)
                             {
 
                                 new_pr.document.write(`
                                     <div class="" style="padding: 7px 0;margin-top:15px;">
 
-                                            <small class="" style="font-size:1.2rem;font-weight:700;">${$name}</small>
+                                            <small class="" style="font-size:1rem;font-weight:700;">${$name}</small>
 
                                         <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
                                         <div style="padding:5px 0;display:flex;flex-direction:column">
