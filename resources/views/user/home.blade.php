@@ -16,7 +16,7 @@
                 @endif  >{{ strlen($products) < 6 ? $products : substr($products,0,4).'..' }}</span>
             </div>
         </div>
-        <div class=" min-h-60 rounded-xl shadow-2xl border border-amber-200  mt-10 relative" style="background-color: rgba(189, 190, 121, 0.12)">
+        <div class=" min-h-60 rounded-xl shadow-2xl border border-amber-600  mt-10 relative" style="background-color: rgba(189, 190, 121, 0.12)">
             <div class="flex justify-end w-full">
                 <span class="text-xl font-serif mr-3 mt-2">PO/TO Documents</span>
             </div>
@@ -28,7 +28,7 @@
                      onclick="javascript:window.location.href = 'po_to_list'" @endif>{{ $po }}</span>
             </div>
         </div>
-        <div class=" min-h-60 rounded-xl shadow-2xl border border-emerald-200  mt-10 relative" style="background-color: rgba(121, 190, 173, 0.12)">
+        <div class=" min-h-60 rounded-xl shadow-2xl border border-emerald-600  mt-10 relative" style="background-color: rgba(121, 190, 173, 0.12)">
             <div class="flex justify-end w-full">
                 <span class="text-xl font-serif mr-3 mt-2">Completed Documents</span>
             </div>
@@ -42,7 +42,7 @@
                 <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-emerald-600' : 'cursor-default' }}"  @can('view-detail-report') onclick="jsvascript:window.location.href = '/finished_documents'" @endcan>{{ $com_doc }}</span>
             </div>
         </div>
-        <div class=" min-h-60 rounded-xl shadow-2xl border border-sky-200  mt-10 relative" style="background-color: rgba(121, 151, 190, 0.12)">
+        <div class=" min-h-60 rounded-xl shadow-2xl border border-sky-600  mt-10 relative" style="background-color: rgba(121, 151, 190, 0.12)">
             <div class="flex justify-end w-full">
                 <span class="text-xl font-serif mr-3 mt-2">Unloading Trucks</span>
             </div>
@@ -54,7 +54,7 @@
                      onclick="javascript:window.location.href = '/truck_list'" @endcan>{{ $cars }}</span>
             </div>
         </div>
-        <div class=" min-h-60 rounded-xl shadow-2xl border border-rose-200  mt-10 relative" style="background-color: rgba(190, 121, 121, 0.12)">
+        <div class=" min-h-60 rounded-xl shadow-2xl border border-rose-600  mt-10 relative" style="background-color: rgba(190, 121, 121, 0.12)">
             <div class="flex justify-end w-full">
                 <span class="text-xl font-serif mr-3 mt-2">Adjust(-) Products</span>
             </div>
@@ -68,7 +68,7 @@
         </div>
         <div class=""></div>
         <div class=""></div>
-        <div class=" min-h-60 rounded-xl shadow-2xl border border-emerald-200  mt-10 relative" style="background-color: rgba(121, 190, 173, 0.12)">
+        <div class=" min-h-60 rounded-xl shadow-2xl border border-emerald-600  mt-10 relative" style="background-color: rgba(121, 190, 173, 0.12)">
             <div class="flex justify-end w-full">
                 <span class="text-xl font-serif mr-3 mt-2">Non Scanned Product</span>
             </div>
@@ -80,7 +80,7 @@
                 <span class="text-7xl select-none {{ getAuth()->role != 2 ? 'cursor-pointer hover:text-emerald-600' : 'cursor-default' }}" title="{{ $non_scan}}"   @can('view-detail-report') onclick="jsvascript:window.location.href = '/man_add'" @endcan>{{ $non_scan }}</span>
             </div>
         </div>
-        <div class=" min-h-60 rounded-xl shadow-2xl border border-sky-200  mt-10 relative" style="background-color: rgba(121, 151, 190, 0.12)">
+        <div class=" min-h-60 rounded-xl shadow-2xl border border-sky-600  mt-10 relative" style="background-color: rgba(121, 151, 190, 0.12)">
             <div class="flex justify-end w-full">
                 <span class="text-xl font-serif mr-3 mt-2">BarCode Printed Products</span>
             </div>
@@ -92,7 +92,7 @@
                      onclick="javascript:window.location.href = '/print_list'" @endcan>{{ strlen($print) < 6 ? $print : substr($print,0,4).'..' }}</span>
             </div>
         </div>
-        <div class=" min-h-60 rounded-xl shadow-2xl border border-rose-200  mt-10 relative" style="background-color: rgba(190, 121, 121, 0.12)">
+        <div class=" min-h-60 rounded-xl shadow-2xl border border-rose-600  mt-10 relative" style="background-color: rgba(190, 121, 121, 0.12)">
             <div class="flex justify-end w-full">
                 <span class="text-xl font-serif mr-3 mt-2">Shortage Products (Completed)</span>
             </div>

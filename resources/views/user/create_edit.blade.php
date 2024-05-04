@@ -171,7 +171,7 @@
                             @foreach ($permission->chunk(4) as $item)
                                     @foreach ($item as $index=>$tem)
                                         <div class="flex px-10">
-                                            <input type="checkbox" name="permission[]" value="{{ $tem->id }}" class="per_check" id="per_{{ $index }}" {{ $data->permissions->contains($tem) ? 'checked' : '' }}>
+                                            <input type="checkbox" name="permission[]" value="{{ $tem->id }}" class="per_check" id="per_{{ $index }}" {{ isset($data) ? ($data->permissions->contains($tem) ? 'checked' : '') : '' }}>
                                             <label class="ms-4 cursor-pointer select-none" for="per_{{ $index }}">{{ $tem->name }}</label>
                                         </div>
                                     @endforeach

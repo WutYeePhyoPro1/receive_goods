@@ -4,7 +4,7 @@ body {
 
 .main_product_table::-webkit-scrollbar,
 body::-webkit-scrollbar,#change_br::-webkit-scrollbar {
-    width: 5px;
+    width: 2px;
 }
 
 .main_product_table::-webkit-scrollbar-track,

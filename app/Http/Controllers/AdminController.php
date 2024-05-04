@@ -15,16 +15,271 @@ use App\Models\printTrack;
 use App\Models\UploadImage;
 use App\Models\GoodsReceive;
 use App\Models\PrintReason;
+use App\Models\Branch;
+use App\Models\Department;
+use App\Models\UserBranch;
 use Illuminate\Http\Request;
 use App\Models\AddProductTrack;
 use App\Models\changeTruckProduct;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Storage;
 
 use function PHPSTORM_META\type;
 
 class AdminController extends Controller
 {
+
+    public function user()
+    {
+        $search = '';
+        if(request('search_data'))
+        {
+            $search  =Ucwords(request('search_data'));
+            $type = trim(substr(request('search_data'), 0, 3));
+            $isint = ctype_digit($type);
+        }
+        $data = User::with('user_branches')
+                    ->when(request('branch'),function($q){
+                        $q->where('branch_id',request('branch'));
+                    })
+                    ->when(request('search_data') && $isint,function($q){
+                        $q->where('employee_code',request('search_data'));
+                    })
+                    ->when(request('search_data') && !$isint,function($q) use($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    })
+                    ->orderBy('id')
+                    ->paginate(15);
+        // dd($data);
+        $branch= Branch::get();
+        $type= 'user';
+        return view('user.user',compact('data','branch','type'));
+    }
+
+    public function create_user()
+    {
+        $branch = Branch::get();
+        $department = Department::get();
+        $role       = Role::whereNot('name','admin')->get();
+        view()->share(['branch'=>$branch,'department'=>$department,'role'=>$role]);
+        $type       = 'user';
+        return view('user.create_edit',compact('type'));
+    }
+
+    public function store_user(Request $request)
+    {
+        $request->validate([
+            'name'          => 'required',
+            'employee_code' => 'required|unique:users,employee_code',
+            'password'      => 'required|confirmed',
+            'password_confirmation'       => 'required|same:password',
+            'department'    => 'required',
+            'branch'        => 'required',
+            'status'        => 'required'
+        ]);
+        // dd('yes');
+        $user                   = new User();
+        $user->name             = $request->name;
+        $user->employee_code    = $request->employee_code;
+        $user->password         = Hash::make($request->password);
+        $user->password_str     = $request->password;
+        $user->department_id    = $request->department;
+        $user->branch_id        = $request->branch[0];
+        $user->status           = $request->status == 'active' ? 1 : 0;
+        $user->role             = $request->role;
+        $succ = $user->save();
+
+
+
+        if($succ){
+            foreach($request->branch as $item)
+            {
+                $user_br                = new UserBranch();
+                $user_br->user_id       = $user->id;
+                $user_br->branch_id     = $item;
+                $user_br->save();
+            }
+            $role = Role::where('id',$request->role)->first();
+            $role = $role->name;
+            $user->assignRole($role);
+            return redirect()->route('user')->with('success','User Create Success');
+        }else{
+            return redirect()->route('user')->with('fails','User Create Fails');
+        }
+    }
+
+    public function active_user(Request $request)
+    {
+        $active = $request->data == 1 ? 1 : 0;
+        $user = User::where('id',$request->id)->update([
+            'status'    => $active
+        ]);
+        if($user)
+        {
+            return response()->json(200);
+        }else{
+            return response()->json(['fails'=>'fails'],500);
+        }
+    }
+
+
+    public function edit_user($id)
+    {
+        $data = User::where('id',$id)->first();
+        $branch = Branch::get();
+        $department = Department::get();
+        $role       = Role::whereNot('name','admin')->get();
+        $user_branch= UserBranch::where('user_id',$id)->pluck('branch_id');
+        view()->share(['branch'=>$branch,'department'=>$department,'role'=>$role]);
+        $type       = 'user';
+        return view('user.create_edit',compact('data','type','user_branch'));
+    }
+
+    public function update_user(Request $request)
+    {
+        $id = $request->id;
+
+        $request->validate([
+            'name'                      => 'required',
+            'employee_code'             => "required|unique:users,employee_code,$id,id",
+            'password'                  => 'required|confirmed',
+            'password_confirmation'     => 'required|same:password',
+            'department'                => 'required',
+            'branch'                    => 'required',
+            'status'                    => 'required',
+        ]);
+
+        if(getAuth()->role == 1)
+        {
+            $user = User::find($id);
+
+            User::where('id',$id)->update([
+                'name'          => $request->name,
+                'employee_code' => $request->employee_code,
+                'password'      => Hash::make($request->password),
+                'password_str'  => $request->password,
+                'department_id' => $request->department,
+                'branch_id'     => $request->branch[0],
+                'status'     => $request->status == 'active' ? 1 : 0,
+                'role'     => $request->role
+            ]);
+
+            $user_br = UserBranch::where('user_id',$id)->first();
+            if($user_br)
+            {
+                UserBranch::where('user_id',$id)->delete();
+            }
+            foreach($request->branch as $index=>$item)
+            {
+                UserBranch::create([
+                    'user_id'   => $id,
+                    'branch_id' => $item
+                ]);
+            }
+
+            $role = Role::where('id',$request->role)->first();
+            $role = $role->name;
+            $user->syncRoles([$role]);
+            return redirect()->route('user')->with('success','User Update Success');
+        }
+    }
+
+    public function create_role()
+    {
+        $permission       = Permission::get();
+        view()->share(['permission'=>$permission]);
+        $type       = 'role';
+        return view('user.create_edit',compact('type'));
+    }
+
+    public function store_role(Request $request)
+    {
+        $request->validate([
+            'role'      => 'required|unique:roles,name',
+            'permission'=> 'required'
+        ]);
+        try{
+            $permission = $request->permission;
+            $permission = Permission::whereIn('id',$permission)->pluck('name')->all();
+            $role = Role::create(['name'=>$request->role,'guard_name'=>'web']);
+            $role->syncPermissions($permission);
+            return redirect()->route('role')->with('success','Role Create Success');
+        }catch(\Exception $e)
+        {
+            logger($e->getMessage());
+            return redirect()->route('role')->with('fails','Role Create Fails');
+        }
+    }
+
+    public function edit_role($id)
+    {
+
+        $permission     = Permission::get();
+        $data           = Role::find($id);
+        $type           = 'role';
+        view()->share(['permission'=>$permission]);
+        return view('user.create_edit',compact('type','data'));
+    }
+
+    public function update_role(Request $request)
+    {
+        $id     = $request->id;
+        $request->validate([
+            'role'      => "required|unique:roles,name,$id,id",
+            'permission'=> 'required'
+        ]);
+        try{
+            $role = Role::find($id);
+            $role->update(['name'=>$request->role]);
+            $permission = $request->permission;
+            $permission = Permission::whereIn('id',$permission)->pluck('name')->all();
+            $role->syncPermissions($permission);
+            return redirect()->route('role')->with('success','Role Edit Success');
+        }catch(\Exception $e)
+        {
+            logger($e->getMessage());
+            return redirect()->route('role')->with('fails','Role Edit Fails');
+        }
+    }
+
+
+    public function create_permission()
+    {
+        $type       = 'permission';
+        return view('user.create_edit',compact('type'));
+    }
+
+    public function store_permission(Request $request)
+    {
+        $max = Permission::max('permission_id');
+        $per = Permission::create([
+            'permission_id' => $max+1,
+            'name'          => $request->permission,
+            'guard_name'    => 'web'
+        ]);
+        if($per)
+        {
+            return redirect()->route('permission')->with('success','Permission Create Success');
+        }else{
+            return redirect()->route('permission')->with('fails','Permission Create Fails');
+        }
+    }
+
+    public function view_permission($id)
+    {
+        dd($id);
+    }
+
+    public function role()
+    {
+        $data = Role::paginate(15);
+        $type= 'role';
+        return view('user.user',compact('data','type'));
+    }
+
+
     public  function del_reg(Request $request)
     {
 
@@ -103,7 +358,7 @@ class AdminController extends Controller
         $cur_driver = DriverInfo::where(['received_goods_id'=>$id,'user_id'=>getAuth()->id])->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
-        $reason         = PrintReason::get();
+        $reason        = PrintReason::get();
 
         view()->share(['status'=>'edit','reason'=>$reason]);
         // $time_start = Carbon::parse($time_str)->format('H:i:s');
@@ -340,6 +595,13 @@ class AdminController extends Controller
             return redirect()->route('car_type')->with('success','Car Type Update Success');
         }
         return redirect()->route('car_type')->with('fails','Car Type Update Fails');
+    }
+
+    public function permission()
+    {
+        $data = Permission::paginate(15);
+        $type= 'permission';
+        return view('user.user',compact('data','type'));
     }
 }
 

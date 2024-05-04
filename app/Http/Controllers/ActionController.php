@@ -357,12 +357,6 @@ class ActionController extends Controller
             'scanned_qty'   => $product_scan
         ]);
 
-        $track                  = new changeTruckProduct();
-        $track->user_id         = getAuth()->id;
-        $track->driver_info_id  = $request->driver;
-        $track->product_id      = $request->product;
-        $track->qty             = $old - $qty;
-        $track->save();
 
         return response()->json(200);
     }
@@ -436,11 +430,13 @@ class ActionController extends Controller
         $now        = strtotime(Carbon::now()->format('Y-m-d H:i:s'));
 
         $data =  $this->repository->get_remain($id);
+
         $diff = $now - $start_time;
         $hour   = (int)($diff / 3600);
         $min    = (int)(($diff % 3600) / 60);
         $sec    = (int)(($diff % 3600) % 60);
         $time   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+        
         $this_scanned = get_scanned_qty($id);
         if($driver)
         {
