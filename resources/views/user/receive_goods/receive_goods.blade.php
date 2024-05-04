@@ -1120,19 +1120,20 @@
                                 console.log($index);
                                 $bar = $('.bar_stick1').eq($index).html();
                                 new_pr.document.write(
-                                "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:40px;gap:5px}"
+                                "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:27px;gap:3px}"
                             );
 
                             new_pr.document.write(
                                "</style></head><body><div id='per_div'>"
                             )
                             $color = 100;
-                            $margin = $pd_code.length > 11 ? 20 : 30;
+                            $margin = $pd_code.length > 11 ? 10 : 30;
                             for($i = 0 ; $i < $qty ; $i++)
                             {
+                                $margin2 = ($i+1) % 3 == 0 ? 3 : 0;
 
                                 new_pr.document.write(`
-                                    <div class="" style="padding: 7px 0;margin-top:15px;">
+                                    <div class="" style="padding: 7px 0;margin-top:15px;margin-left:${$margin2}px">
 
                                             <small class="" style="font-size:1.2rem;font-weight:700;">${$name}</small>
 
@@ -1152,16 +1153,16 @@
                                 $bar = $('.bar_stick2').eq($index).html();
 
                                 new_pr.document.write(
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:50px;gap:10px}"
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:30px;gap:10px}"
                                 );
 
                                 new_pr.document.write(
-                                   "</style></head><body style='margin:0;padding:8px 0'><div id='per_div'>"
+                                   "</style></head><body style='margin:0;padding:0'><div id='per_div'>"
                                 )
                                 for($i = 0 ; $i < $qty ; $i++)
                                 {
                       new_pr.document.write(`
-                                        <div class="" style="padding: 10px 10px 5px 8px;position:relative;">
+                                        <div class="" style="margin: 10px 10px 5px 2px;position:relative;">
 
                                             <small class="" style="font-size:0.8rem;font-weight:900;">${$name}</small>
                                            <div style="position:absolute;right:70px;top:70px">
@@ -1169,7 +1170,7 @@
                                             </div>
                                             <div style="margin-left:5px;padding:3px 0">${$bar}</div>
                                             <div style="padding:5px 0;display:flex;flex-direction:column">
-                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.8rem;font-weight:900">${$pd_code}</b>
+                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.9rem;font-weight:900">${$pd_code}</b>
                                                 <small class="" style="margin: 0 0 0 20px;font-size:0.8rem;font-weight:700">${$full_date}</small>
                                             </div>
                                         </div>
@@ -1181,7 +1182,7 @@
                                 $bar = $('.bar_stick3').eq($index).html();
 
                                 new_pr.document.write(
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:50px;gap:10px}"
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:30px;gap:10px}"
                                 );
 
                                 new_pr.document.write(

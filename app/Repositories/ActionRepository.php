@@ -95,7 +95,7 @@ Class ActionRepository implements ActionRepositoryInterface
         $receive = GoodsReceive::where('id', $id)->first();
 
             if (!$receive->vendor_name) {
-                $vendor_name = $data[0]->vendorname;
+                $vendor_name = $data[0]->vendorname ?? $data[0]->to_branch;
                 $receive->update([
                     'vendor_name' => $vendor_name
                 ]);
@@ -117,22 +117,22 @@ Class ActionRepository implements ActionRepositoryInterface
                 }
             }
             $doc = Document::create([
-                'document_no'       => $data[0]->purchaseno,
+                'document_no'       => $data[0]->purchaseno ?? $data[0]->to_docno,
                 'received_goods_id'  => $id
             ]);
             $dub_pd = [];
             for($i = 0 ; $i < count($data) ; $i++){
-                if(!in_array($data[$i]->productcode,$dub_pd))
+                if(!in_array($data[$i]->productcode ?? $data[$i]->product_code,$dub_pd))
                 {
                     $pd_code                = new Product();
                     $pd_code->document_id   = $doc->id;
-                    $pd_code->bar_code       = $data[$i]->productcode;
-                    $pd_code->supplier_name = $data[$i]->productname;
-                    $pd_code->qty           = (int)($data[$i]->goodqty);
+                    $pd_code->bar_code       = $data[$i]->productcode ?? $data[$i]->product_code;
+                    $pd_code->supplier_name = $data[$i]->productname ?? $data[$i]->product_code;
+                    $pd_code->qty           = (int)($data[$i]->goodqty ?? $data[$i]->qty);
                     $pd_code->scanned_qty   = 0;
                     $pd_code->unit          = $data[$i]->unit;
                     $pd_code->save();
-                    $dub_pd[]    = $data[$i]->productcode;
+                    $dub_pd[]    = $data[$i]->productcode ?? $data[$i]->product_code;
                 }else{
                     $search_dub = Product::where(['document_id'=>$doc->id,'bar_code'=>$data[$i]->productcode])->first();
                     $qty = $search_dub->qty;

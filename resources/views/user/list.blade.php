@@ -75,6 +75,7 @@
                         <th class="py-2 bg-slate-400 border">Status</th>
                         <th class="py-2 bg-slate-400 border">Document</th>
                         <th class="py-2 bg-slate-400 border">Source</th>
+                        <th class="py-2 bg-slate-400 border">Supplier Name</th>
                         {{-- <th class="py-2 bg-slate-400 border">PO QTY</th>
                         <th class="py-2 bg-slate-400 border">Remain QTY</th>
                         <th class="py-2 bg-slate-400 border">Exceed QTY</th> --}}
@@ -111,6 +112,7 @@
 
                             </td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->source_good->name }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ strlen($item->vendor_name) > 50 ? substr($item->vendor_name,0,50).'...' : $item->vendor_name }}</td>
                             {{-- <td class="h-10 text-center border border-slate-400">{{ get_total_qty($item->id) }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->remaining_qty }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->exceed_qty }}</td> --}}
