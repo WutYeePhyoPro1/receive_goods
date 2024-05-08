@@ -436,7 +436,7 @@ class ActionController extends Controller
         $min    = (int)(($diff % 3600) / 60);
         $sec    = (int)(($diff % 3600) % 60);
         $time   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
-        
+
         $this_scanned = get_scanned_qty($id);
         if($driver)
         {
