@@ -123,7 +123,7 @@
                                             <tr class="h-10">
                                                 @if ($key == 0)
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                    @if (getAuth()->id == $item->received->user_id)
+                                                    @if (getAuth()->id == $cur_driver->user_id)
                                                         <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
                                                     @endif
                                                 </td>
