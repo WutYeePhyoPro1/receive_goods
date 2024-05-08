@@ -1115,34 +1115,35 @@
 
                             const new_pr = window.open("","","width=900,height=600");
                              $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
-                             $mar_top = $name.length > 50 ? 5 : 10;
+                             $mar_top = $name.length > 50 ? 5 : ($name.length > 30 ? 10 : 30);
                             if($type == 1)
                             {
                                 $bar = $('.bar_stick1').eq($index).html();
                                 new_pr.document.write(
-                                "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:27px;gap:3px}"
+                                "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:27px;gap:3px}"
                             );
 
                             new_pr.document.write(
                                "</style></head><body><div id='per_div'>"
                             )
                             $color = 100;
-                            $margin = $pd_code.length > 11 ? 10 : 30;
+                            $margin = $pd_code.length > 11 ? 10 : 40;
                             for($i = 0 ; $i < $qty ; $i++)
                             {
                                 $margin2 = ($i+1) % 3 == 0 ? 3 : 0;
 
+
                                 new_pr.document.write(`
-                                    <div class="" style="padding: 0;margin-top:${$mar_top}px;margin-left:${$margin2}px">
+                                    <div class="" style="padding: 0 ;margin-top:${$mar_top}px;margin-left:${$margin2}px">
 
                                             <small class="" style="font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
                                         <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
                                         <div style="padding:5px 0;display:flex;flex-direction:column">
-                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000">${$pd_code}</b
+                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
                                              >
-                                             <small class="" style="margin-left:200px;transform:translateY(-10px);font-size:1rem;font-weight:700; font-family: "Times New Roman", Times, serif">${$unit}</small>
-                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
+                                             <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
+                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
                                         </div>
                                     </div>
                                 `);
@@ -1154,7 +1155,7 @@
                                 $bar = $('.bar_stick2').eq($index).html();
                                 $name = $name.length > 40 ? $name.substring(0,40)+'..' : $name;
                                 new_pr.document.write(
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:30px;gap:10px}"
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:30px;gap:10px}"
                                 );
 
                                 new_pr.document.write(
@@ -1165,14 +1166,14 @@
                       new_pr.document.write(`
                                         <div class="" style="margin: 10px 10px 5px 2px;position:relative;">
 
-                                            <small class="" style="font-size:0.8rem;font-weight:900;">${$name}</small>
+                                            <small class="" style="font-size:0.8rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
                                            <div style="position:absolute;right:70px;top:70px">
-                                                <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
+                                                <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
                                             </div>
                                             <div style="margin-left:5px;padding:3px 0">${$bar}</div>
                                             <div style="padding:5px 0;display:flex;flex-direction:column">
-                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.9rem;font-weight:900">${$pd_code}</b>
-                                                <small class="" style="margin: 0 0 0 20px;font-size:0.8rem;font-weight:700">${$full_date}</small>
+                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.9rem;font-weight:900;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
+                                                <small class="" style="margin: 0 0 0 20px;font-size:0.8rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$full_date}</small>
                                             </div>
                                         </div>
                                 `);
@@ -1183,7 +1184,7 @@
                                 $bar = $('.bar_stick3').eq($index).html();
 
                                 new_pr.document.write(
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 34%;margin-left:30px;gap:10px}"
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:30px;gap:10px}"
                                 );
 
                                 new_pr.document.write(
