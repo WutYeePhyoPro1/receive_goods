@@ -213,9 +213,10 @@ $product_sum = Product::when(!request('search')  && !request('search_data') && !
         $truck = [];
         if(request('search') == 'main_no' && request('search_data'))
         {
-            $main = GoodsReceive::where('document_no',request('search'))->first();
+            $main = GoodsReceive::where('document_no',request('search_data'))->first();
             if($main)
             {
+         
                 $truck= DriverInfo::where('received_goods_id',$main->id)->pluck('id');
             }
         }elseif(request('search') == 'product_code' && request('search_data'))

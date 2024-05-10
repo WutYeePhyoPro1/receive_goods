@@ -55,7 +55,7 @@ class userController extends Controller
         Common::Log(route('list'),"go to List Page");
 
         $user_branch    = getAuth()->branch_id;
-        $mgld_dc        = [17,19,20];
+        $mgld_dc        = ['17','19','20'];
         if(in_array($user_branch,$mgld_dc))
         {
             $loc    = 'dc';
@@ -64,7 +64,6 @@ class userController extends Controller
         }else{
             $loc    = 'other';
         }
-
         if(request('search') && !request('search_data'))
         {
             return back()->with('error','Please add search data');
@@ -95,6 +94,7 @@ class userController extends Controller
                             })
                             ->when($loc == 'dc',function($q) use($mgld_dc){
                                 $q->whereIn('branch_id',$mgld_dc);
+
                             })
                             ->when($loc == 'other',function($q) use($user_branch){
                                 $q->where('branch_id',$user_branch);
@@ -237,7 +237,6 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
-        // dd('no');
         Common::Log(route('store_car_info'),"Store Car Infomation");
         $status = 'scan';
         $driver = DriverInfo::where('received_goods_id',$request->main_id)->get();
@@ -348,7 +347,6 @@ class userController extends Controller
     public function store_doc_info(Request $request)
     {
         Common::Log(route('store_doc_info'),"Store Infomation and Generate REG");
-
         if(dc_staff())
         {
             $data = $request->validate([
@@ -358,11 +356,20 @@ class userController extends Controller
             $branch = Branch::where('id',$request->branch)->first();
             $shr  = 'REG'.$branch->branch_short_name.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         }else{
-            $validator = Validator::make($request->all(),[
-                'truck_no'      => 'required',
-                'driver_name'   => 'required',
-                'gate'          => 'required',
-            ]);
+            if($request->no_car == 0)
+            {
+                $validator = Validator::make($request->all(),[
+                    'truck_no'      => 'required',
+                    'driver_name'   => 'required',
+                    'gate'          => 'required',
+                ]);
+            }else{
+                $validator = Validator::make($request->all(),[
+                    'driver_name'   => 'required',
+                    'gate'          => 'required',
+                ]);
+            }
+
 
             // $validator->after(function ($validator) use($request) {
             //     if ($request->image_1 == null && $request->image_2 == null && $request->image_3 == null) {

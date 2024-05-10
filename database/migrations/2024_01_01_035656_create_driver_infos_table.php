@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('type_truck',56)->nullable();
             $table->integer('received_goods_id');
             $table->string('driver_name');
-            $table->string('truck_no');
+            $table->string('truck_no')->nullable();
             $table->string('nrc_no')->nullable();
             $table->double('scanned_goods')->nullable();
             $table->date('start_date')->nullable();

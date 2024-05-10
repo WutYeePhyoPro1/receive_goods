@@ -46,7 +46,7 @@
                 <span class="text-emerald-600 font-bold text-3xl ms-40 underline">Complete</span>
                 <!-- <a href="{{ route('complete_doc_print',['id'=>$main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a> -->
             @endif
-            @if ($status != 'view' && isset($cur_driver->start_date) && $main->user_id == getAuth()->id)
+            @if ($status != 'view' && isset($cur_driver->start_date) && ($main->user_id == getAuth()->id || $cur_driver->user_id == getAuth()->id))
             <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
             <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
             @elseif(!isset($cur_driver->start_date) && !dc_staff() && $status == 'scan' && $main->status != 'complete')
@@ -123,7 +123,7 @@
                                             <tr class="h-10">
                                                 @if ($key == 0)
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                    @if (getAuth()->id == $cur_driver->user_id)
+                                                    @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || dc_staff())
                                                         <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
                                                     @endif
                                                 </td>
