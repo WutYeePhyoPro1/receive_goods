@@ -667,13 +667,15 @@ class ActionController extends Controller
 
     public function print_track(Request $request)
     {
-        $dub_pr     = printTrack::where(['product_id'=>$request->id,'bar_type'=>$request->type,'reason'=>$request->reason])->first();
+        $dub_pr     = printTrack::where(['product_id'=>$request->id,'bar_type'=>$request->type,'reason'=>$request->reason,])->whereDate('created_at',Carbon::today())->first();
         if($dub_pr)
         {
+    
             $dub_pr->update([
                 'quantity'  => $dub_pr->quantity + $request->qty
             ]);
         }else{
+
             $track_pr       = new printTrack();
             $track_pr->product_id   = $request->id;
             $track_pr->by_user      = getAuth()->id;
