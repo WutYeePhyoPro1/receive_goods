@@ -128,7 +128,7 @@ Class ActionRepository implements ActionRepositoryInterface
                     $pd_code->document_id   = $doc->id;
                     $pd_code->bar_code       = $data[$i]->productcode ?? $data[$i]->product_code;
                     $pd_code->supplier_name = $data[$i]->productname ?? $data[$i]->product_name;
-                    $pd_code->qty           = (int)($data[$i]->goodqty ?? $data[$i]->qty);
+                    $pd_code->qty           = (float)($data[$i]->goodqty ?? $data[$i]->qty);
                     $pd_code->scanned_qty   = 0;
                     $pd_code->unit          = $data[$i]->unit;
                     $pd_code->save();
