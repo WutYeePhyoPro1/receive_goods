@@ -223,7 +223,7 @@
                                                 <tr class="h-10 scanned_pd_div">
                                                     @if ($index == 0)
                                                             <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
-                                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
+                                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0 {{ check_all_scan($item->id) ? 'bg-green-200 text-green-600' : '' }}">{{ $item->document_no }}</td>
                                                     @else
                                                             <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
                                                             <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>

@@ -207,11 +207,13 @@ class ActionController extends Controller
                 $product->update([
                     'scanned_qty' => $scanned
                 ]);
+                // product code တခုထက်ပို
             }elseif(count($all_product) > 1)
             {
                 $full_pd =Product::whereIn('document_id',$doc_ids)
                         ->where('bar_code',$item)
                         ->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))
+                        ->orderBy('id')
                         ->get();
                 $count      = 0;
                 if(count($full_pd) > 0)
@@ -401,22 +403,23 @@ class ActionController extends Controller
             $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
             $this_scanned = get_scanned_qty($driver->id);
             // dd(get_all_duration($request->id));
-            if(cur_truck_sec($driver->id) < 86401)
-            {
-                $receive->update([
-                    'total_duration'        => get_all_duration($request->id),
-                    'remaining_qty'         => $data['remaining'],
-                    'exceed_qty'            => $data['exceed'],
-                    'status'                => 'incomplete'
-                ]);
+            
+            // if(cur_truck_sec($driver->id) < 86401)
+            // {
+            //     $receive->update([
+            //         'total_duration'        => get_all_duration($request->id),
+            //         'remaining_qty'         => $data['remaining'],
+            //         'exceed_qty'            => $data['exceed'],
+            //         'status'                => 'incomplete'
+            //     ]);
 
-                $driver->update([
-                    'scanned_goods' => $this_scanned,
-                    'duration'      => $pass
-                ]);
-            }else{
-                return response()->json(500);
-            }
+            //     $driver->update([
+            //         'scanned_goods' => $this_scanned,
+            //         'duration'      => $pass
+            //     ]);
+            // }else{
+            //     return response()->json(500);
+            // }
 
 
         }else{
@@ -517,7 +520,7 @@ class ActionController extends Controller
             {
                 $same_br = true;
             }
-            if($same_br && Hash::check($password, $user->password) && $user->role == 4)
+            if($same_br && Hash::check($password, $user->password) && ($user->role == 3 || $user->role ==4))
             {
                 return response()->json($user,200);
             }else{

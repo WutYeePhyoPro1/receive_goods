@@ -32,9 +32,12 @@ use Illuminate\Support\Facades\DB;
     function search_pd($id)
     {
         $doc = Document::where('id',$id)->first();
+       
         $main = GoodsReceive::where('id',$doc->received_goods_id)->first();
+        
         if($main->status != 'complete')
         {
+            
             return Product::where('document_id',$id)
                             ->where(DB::raw('scanned_qty'), '<', DB::raw('qty'))
                             ->orderBy('id','asc')
@@ -101,6 +104,20 @@ use Illuminate\Support\Facades\DB;
            $msg = "bg-rose-200 text-rose-600";
         }
         return $msg;
+    }
+
+    function check_all_scan($id)
+    {
+      $finish = true;
+         $pds = Product::where('document_id',$id)->get();
+         foreach($pds as $item)
+         {
+             if($item->qty != $item->scanned_qty){
+                    $finish    = false;
+                    break;
+            }
+         }
+         return $finish;
     }
 
     function get_total_qty($id)

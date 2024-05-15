@@ -116,6 +116,7 @@ class userController extends Controller
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
+        // dd($id);
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $reason         = PrintReason::get();
         $status = 'view';
