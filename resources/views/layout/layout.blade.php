@@ -12,6 +12,8 @@
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('css')
+   
+
 </head>
 <body>
         <div class="side_bar">
@@ -139,7 +141,8 @@
         </div>
 </body>
 
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        
         <script>
             $(document).ready(function(e){
                 var token = $("meta[name='__token']").attr('content');

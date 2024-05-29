@@ -109,19 +109,21 @@ class userController extends Controller
 
     public function view_goods($id)
     {
+        // dd($id);
         Common::Log(route('view_goods',['id'=>$id]),"View REG Page");
-
         $main = GoodsReceive::where('id',$id)->first();
         $truck = Truck::get();
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
-        // dd($id);
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
+        $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
+        $all_id = Document::where('received_goods_id', $id)->pluck('id');
+        $all_bar_code = Product::whereIn('document_id',$all_id)->pluck('bar_code');
         $reason         = PrintReason::get();
         $status = 'view';
 
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document','reason'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document','reason','id','scan_document_no','all_bar_code'));
     }
 
     public function car_info()
@@ -189,6 +191,7 @@ class userController extends Controller
     public function receive_goods($id)
     {
         // dd('yes');
+
         $data = get_branch_truck();
         $truck_id   = $data[0];
         $loc        = $data[1];
@@ -200,8 +203,11 @@ class userController extends Controller
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where(['received_goods_id'=>$id,'user_id'=>getAuth()->id])->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
+        // $document_no = Document::where('receive_goods_id',$id)->value('document_no');
+        // dd($document_no);
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         // dd($scan_document);
+        // return;
         $gate   = CarGate::when($loc == 'dc',function($q) {
                         $q->whereIn('branch',['MM-505','MM-510','MM-511']);
                         })
@@ -580,5 +586,59 @@ class userController extends Controller
                             ->latest()
                             ->first();
         return response()->json($data,200);
+    }
+
+    public function search_document_no(Request $request)
+    {
+        $id = $request->input('id');
+        $input_document_no = $request->input('document_no');
+        $input_barcode_no = $request->input('barcode_no');
+
+        $response = [];
+        if ($input_document_no) {
+            $query = Document::where('received_goods_id', $id)->where('document_no', $input_document_no);
+            $documents = $query->orderBy('updated_at', 'desc')->get();
+            if ($documents->isEmpty()) {
+                return response()->json(['documents' => $response]);
+            }
+
+            foreach ($documents as $doc) {
+                $document_id = $doc->id;
+                $search_pd = search_pd($document_id);      
+
+                if ($search_pd->isNotEmpty()) {
+                    $bar_codes = [];
+                    $supplier_names = [];
+                    $qtys = [];
+                    $scanned_qtys = [];
+
+                    foreach ($search_pd as $pd_data) {
+                        $bar_codes[] = $pd_data->bar_code;
+                        $supplier_names[] = $pd_data->supplier_name;
+                        $qtys[] = $pd_data->qty;
+                        $scanned_qtys[] = $pd_data->scanned_qty;
+                    }
+
+                    $merged_data = [
+                        'id' => $doc->id,
+                        'document_no' => $doc->document_no,
+                        'received_goods_id' => $doc->received_goods_id,
+                        'remark' => $doc->remark,
+                        'document_id' => $document_id,
+                        'bar_code' => $bar_codes,
+                        'supplier_name' => $supplier_names,
+                        'qty' => $qtys,
+                        'scanned_qty' => $scanned_qtys,
+                    ];
+                    
+                    $response[] = $merged_data;
+                }
+            }
+        } else {
+            return response()->json(['documents' => $response]);
+        }
+
+        return response()->json(['documents' => $response]);
+        
     }
 }

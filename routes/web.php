@@ -55,6 +55,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('add_product_qty','add_product_qty')->name('add_product_qty');
             route::post('search_car','search_car')->name('search_car');
             route::post('get_car','get_car')->name('get_car');
+            route::get('/search_document_no','search_document_no')->name('document_no_search');
         });
 
         route::group(['controller'=>ReportController::class],function(){

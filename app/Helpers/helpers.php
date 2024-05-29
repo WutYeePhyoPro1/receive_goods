@@ -32,12 +32,9 @@ use Illuminate\Support\Facades\DB;
     function search_pd($id)
     {
         $doc = Document::where('id',$id)->first();
-       
         $main = GoodsReceive::where('id',$doc->received_goods_id)->first();
-        
         if($main->status != 'complete')
         {
-            
             return Product::where('document_id',$id)
                             ->where(DB::raw('scanned_qty'), '<', DB::raw('qty'))
                             ->orderBy('id','asc')
