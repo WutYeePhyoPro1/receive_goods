@@ -43,6 +43,25 @@ use Illuminate\Support\Facades\DB;
         return [];
     }
 
+    function search_pd_barcode($id)
+    {
+        $doc = Document::find($id);
+        if (!$doc) {
+            return [];
+        }
+
+        $main = GoodsReceive::find($doc->received_goods_id);
+        if ($main && $main->status != 'complete') {
+            return Product::where('document_id', $id)
+                ->whereColumn('scanned_qty', '<', 'qty')
+                ->orderBy('id', 'asc')
+                ->pluck('bar_code')
+                ->toArray();
+        }
+
+        return [];
+    }
+
     function search_scanned_pd($id)
     {
         return Product::where('document_id',$id)

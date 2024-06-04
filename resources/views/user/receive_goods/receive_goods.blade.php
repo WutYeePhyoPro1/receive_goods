@@ -4,7 +4,7 @@
      #resultCount {
         margin-top: 10px;
         font-weight: bold;
-        color: green;
+        color: rgb(214, 42, 11);
         display: none;
     }
 
@@ -89,28 +89,13 @@
         <span class="ms-1">previous scanned barcode : <b id="prev_scan">{{ Session::get('first_time_search_'.$main->id) }}</b></span>
         <input type="hidden" id="finished" value="{{ $main->status == 'complete' ? true : false }}">
     @endif
+
     {{-- @if (isset($status) && $status != 'view') --}}
         <input type="hidden" id="cur_truck" value="{{ $cur_driver->id ?? '' }}">
     {{-- @endif --}}
 
-    {{-- <div class="flex flex-wrap -mx-2">
-        <span>{{ $id }}</span>
-        <span>{{ $scan_document }}</span>
-        <div class="w-full sm:w-1/2 px-2 mb-4">
-            <div class="form-group">
-                <label for="document_no" class="font-bold">Document No</label>
-                    <input id="idInput" type="hidden" name="id" value="{{ $id }}">
-                    <input id="documentNoInput" type="text" class="form-control border rounded px-3 py-2 mt-1 w-full"  name="document_no" id="document_no" value="">
-                    <button id="document_no_search" class="btn btn-primary bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">Search</button>
-                <p id="resultCount"></p>
-            </div>
-        </div>
-    </div> --}}
-
     <div class="flex flex-wrap -mx-2">
-        <div class="w-full sm:w-1/2 px-2 mt-4">
-            {{-- <span>{{ $id }}</span>
-            <span>{{ $scan_document }}</span> --}}
+        <div class="w-full sm:w-1/6 px-2 mt-4">
             <div class="form-group">
                 <select id="documentNoSelect">
                     <option value="">search document no</option>
@@ -122,15 +107,54 @@
             <div class="form-group mt-4">
                 <select id="barcodeSelect">
                     <option value="">search bar code</option>
-                    @foreach ($all_bar_code as $allbarcode)
-                        <option id="barcodeIput" value="{{ $allbarcode}}">{{ $allbarcode}}</option>
+                    @foreach ($document as $data)
+                    @php
+                        $barcodes = search_pd_barcode($data['id']);
+                    @endphp
+                        @foreach ($barcodes as $barcode)
+                            <option value="{{ $barcode }}">{{ $barcode }}</option>
+                        @endforeach
                     @endforeach
                 </select>
             </div>
             <input id="idInput" type="hidden" name="id" value="{{ $id }}">
             <button id="document_no_search" class="btn btn-primary bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">Search</button>
+            <p id="resultCount">Not result found</p>
         </div>
     </div>
+    
+
+    {{-- <div class="flex flex-wrap -mx-2">
+        <div class="w-full px-2 mt-4">
+            <div class="form-group flex items-center sm:w-1/6">
+                <select id="documentNoSelect" class="form-select mr-2">
+                    <option value="">Search document no</option>
+                    @foreach ($scan_document_no as $documentNo)
+                        <option id="documentNoInput" value="{{ $documentNo }}">{{ $documentNo }}</option>
+                    @endforeach
+                </select>
+                
+                <select id="barcodeSelect" class="form-select mr-2">
+                    <option value="">Search bar code</option>
+                    @foreach ($document as $data)
+                    @php
+                        $barcodes = search_pd_barcode($data['id']);
+                    @endphp
+                        @foreach ($barcodes as $barcode)
+                            <option value="{{ $barcode }}">{{ $barcode }}</option>
+                        @endforeach
+                    @endforeach
+                </select>
+    
+                <input id="idInput" type="hidden" name="id" value="{{ $id }}">
+                <button id="document_no_search" class="btn btn-primary bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Search
+                </button>
+                <p id="resultCount" class="mt-2">Not result found</p>
+            </div>
+            
+        </div>
+    </div> --}}
     
     <div class="grid grid-cols-2 gap-2">
         <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
@@ -236,17 +260,17 @@
                                         ?>
                                         <tr class="h-10">
                                             @if ($key == 0)
-                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || dc_staff())
-                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
-                                                @endif
-                                            </td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_times">{{ $i+1 }}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
+                                                <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
+                                                    @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || dc_staff())
+                                                        <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
+                                                    @endif
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_times">{{ $i+1 }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
                                             @else
-                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
                                             @endif
 
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
@@ -270,6 +294,7 @@
                                                 </div>
                                                 <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
                                             </td>
+
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
                                         </tr>
                                         <?php
@@ -352,8 +377,11 @@
                                                     <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
                                                     <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
                                                 @endif
+                                                
                                                 <td class="ps-2 border border-slate-400 border-t-0  {{ $color }}">{{ $tem->bar_code }}</td>
+
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
+
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty }}</td>
                                             </tr>
                                             {{-- @endif --}}
@@ -362,6 +390,9 @@
                                     @endif
                                 @endforeach
                             @endif
+
+                            <tbody class="search_scan_body"></tbody>
+                            
                     </table>
                 </div>
             </div>
@@ -387,42 +418,41 @@
 
                             <?php $i=0 ?>
                             @foreach ($document as $item)
-                            @if (count(search_excess_pd($item->id))>0)
-                            <?php
-                                $i++;
-                            ?>
-                                <tbody class="excess_body" >
-                                @foreach (search_excess_pd($item->id) as $index=>$tem)
+                                @if (count(search_excess_pd($item->id))>0)
                                 <?php
-                                            ?>
-                                            <tr class="h-10">
-                                                <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
-                                                    @can('adjust-excess')
-                                                        @if ($main->status == 'complete'  && ($tem->qty < $tem->scanned_qty))
-                                                            <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
-                                                        @endif
-                                                    @endcan
-                                                </td>
-                                                @if ($index == 0)
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
-                                                @else
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                    $i++;
+                                ?>
+                                    <tbody class="excess_body">
+                                    @foreach (search_excess_pd($item->id) as $index=>$tem)
+                                    <?php
+                                    ?>
+                                    <tr class="h-10">
+                                        <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
+                                            @can('adjust-excess')
+                                                @if ($main->status == 'complete'  && ($tem->qty < $tem->scanned_qty))
+                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
                                                 @endif
-                                                        <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->bar_code }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
+                                            @endcan
+                                        </td>
+                                        @if ($index == 0)
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
+                                        @else
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                        @endif
+                                                <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->bar_code }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
+                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic' data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}" data-eq="{{ $index }}"></i>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
+                                    </tr>
+                                    @endforeach
+                                    </tbody>
 
-                                                            <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic' data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}" data-eq="{{ $index }}"></i>
-
-                                                        </td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-
-                            @endif
-                                @endforeach
+                                @endif
+                            @endforeach
+                            <tbody class="excess_scan_body"></tbody>
                     </table>
                 </div>
             </div>
@@ -863,9 +893,6 @@
                         <input type="number" id="print_count" class="appearance-none w-full border-2 border-slate-300 rounded-lg min-h-12 mt-4 ps-2 focus:outline-none focus:border-sky-200 focus:border-3" placeholder="500 ထက်မပိုပါနဲ့">
                         <button type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
                     </div>
-
-
-
                 </div>
             </div>
     </div>
@@ -1029,47 +1056,146 @@
                     selectOnTab	: true
                 });
 
-                // $('#document_no_search').on('keyup', function() {
+                var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
+                var mainStatus = @json($main->status);
+                console.log(mainStatus);
+
                 $('#document_no_search').click(function() {
                     var id = $('#idInput').val();
                     var documentNo = $('#documentNoSelect').val();
                     var barcodeNo = $('#barcodeSelect').val();
-                    console.log(documentNo);
                     $.ajax({
                         url: '/search_document_no',
                         type: 'GET',
                         data: { id: id, document_no: documentNo, barcode_no : barcodeNo },
                         success: function(response) {
                             var documents = response.documents;
-                            if (documents.length > 0) {
+                            var scanDocuments = response.scan_documents;
+                            var excessDocuments = response.excess_documents;
+                            var need_document_inform  = response.need_document_inform;
+
+                            var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
+                            var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
+                            var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
+
+                            if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
+
+                                $('#resultCount').hide();
                                 $('.main_body').hide();
+                                $('.scan_body').hide();
+                                $('.excess_body').hide();
                                 $('.search_main_body').empty();
-                                documents.forEach((document, i) => {
-                                    let barCodes = document.bar_code;
-                                    let supplierNames = document.supplier_name;
-                                    let qtys = document.qty;
-                                    let scannedQtys = document.scanned_qty;
-                                    
-                                    for (let j = 0; j < barCodes.length; j++) {
-                                        let rowHtml = `<tr class="h-10">
-                                            <td></td>
-                                            ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td></td>'}
-                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                ${document.document_no}
-                                            </td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add px-2 bar_code">${barCodes[j]}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add">${supplierNames[j]}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add qty">${ qtys[j] }</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add scanned_qty">${scannedQtys[j]}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add border-r-0 remain_qty">${ qtys[j] - scannedQtys[j] }</td>
-                                                    </tr>`;
-                                        $('.search_main_body').append(rowHtml);
-                                    }
-                                });
+                                $('.search_scan_body').empty();
+                                $('.excess_scan_body').empty();
+                                if (!isEmptyDocuments) {
+                                    documents.forEach((document, i) => {
+                                        let barCodes = document.bar_code;
+                                        let supplierNames = document.supplier_name;
+                                        let qtys = document.qty;
+                                        let scannedQtys = document.scanned_qty;
+                                        let checkColor = document.check_color;
+                                        let scanZero = document.scan_zero;
+                                        let searchpdId = document.search_pd_id;
+
+                                        let isDcStaff = need_document_inform.isDcStaff;
+                                        let curDriver = need_document_inform.curDriver;
+                                        let authId = need_document_inform.authId;
+                                        let curDriverStartDate = need_document_inform.cur_driver_start_date;
+
+                                        for (let j = 0; j < barCodes.length; j++) {
+                                            let buttonHtml = '';
+                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
+                                                buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${document_no}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let rowHtml = `<tr class="h-10">
+                                                <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_no">${document.document_no}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">${barCodes[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="${j}">${qtys[j]}</span>
+                                                    <input type="hidden" class="pd_name" value="${supplierNames[j]}">
+                                                    <input type="hidden" class="pd_id" value="">
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  scanned_qty">
+                                                    <div class="main_scan">
+                                                        ${scannedQtys[j]}
+                                                            <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="${j}" title="add quantity"></i> 
+                                                    </div>
+                                                    <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
+                                            </tr>`;
+                                            $('.search_main_body').append(rowHtml);                  
+                                        }
+                                    });
+                                }
+                                if (!isEmptyScanDocuments) {
+                                    scanDocuments.forEach((scanDocument, i) => {
+                                        let sanbarCodes = scanDocument.bar_code;
+                                        let sansupplierNames = scanDocument.supplier_name;
+                                        let sanqtys = scanDocument.qty;
+                                        let sanscannedQtys = scanDocument.scanned_qty;
+                                        let scanColor = scanDocument.scan_color;
+                                        let allScanned = scanDocument.all_scanned;
+
+                                        for (let j = 0; j < sanbarCodes.length; j++) {
+                                            // Convert to integers
+                                            let qty = parseInt(sanqtys[j], 10);
+                                            let scannedQty = parseInt(sanscannedQtys[j], 10);
+
+                                            let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">${scanDocument.document_no}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sanbarCodes[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sansupplierNames[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
+                                                    ${scannedQty > qty ? qty : scannedQty}
+                                                </td>
+                                            </tr>`;
+                                            $('.search_scan_body').append(rowHtmltwo);
+                                        }
+                                    });
+                                }
+                                if (!isEmptyExcessDocuments) {
+                                    excessDocuments.forEach((excessDocument, i) => {
+                                        let excessBarCodes = excessDocument.bar_code;
+                                        let excessSupplierNames = excessDocument.supplier_name;
+                                        let excessQtys = excessDocument.qty;
+                                        let excessScannedQtys = excessDocument.scanned_qty;
+                                        let excessRemarks = excessDocument.remark || [];
+                                        for (let j = 0; j < excessBarCodes.length; j++) {
+                                            let remainingQty = excessScannedQtys[j] - excessQtys[j];
+                                            let quantityClass = remainingQty < 0 ? 'text-red-500' : '';
+                                            let remarkClass = excessRemarks[j] === undefined ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600';
+                                            let buttonHtml = '';
+                                            if (canAdjustExcess && mainStatus === 'complete' && excessQtys[j] < excessScannedQtys[j]) {
+                                            buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="${excessDocument.id}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let rowHtmlthree = `<tr class="h-10">
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0"}">${excessDocument.document_no}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="ps-2 border border-slate-400 border-t-0">${excessBarCodes[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ">${excessSupplierNames[j]}
+                                                    <i class="bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white ${remarkClass}" data-pd="${excessBarCodes[j]}" data-id="${excessDocument.id}" data-eq="${j}"></i>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ${quantityClass}">${remainingQty} </td>
+                                            </tr>`;
+                                            $('.excess_scan_body').append(rowHtmlthree);
+                                        }
+                                    });
+                                }
                             } else {
-                                console.log('no data');
+
                                 $('.main_body').show();
+                                $('.scan_body').show();
+                                $('.excess_body').show();
                                 $('.search_main_body').empty();
+                                $('.search_scan_body').empty();
+                                $('.excess_scan_body').empty();
+                                $('#resultCount').show();
                             }
                         },
                         error: function(xhr, status, error) {
