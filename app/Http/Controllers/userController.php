@@ -141,6 +141,7 @@ class userController extends Controller
                         ->where('driver_infos.user_id', getAuth()->id)
                         ->whereNull('driver_infos.duration')
                         ->first();
+                        
         $emp = GoodsReceive::where('user_id',getAuth()->id)
                             ->whereNull('total_duration')
                             ->first();

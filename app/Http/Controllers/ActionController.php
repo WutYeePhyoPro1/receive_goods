@@ -462,22 +462,22 @@ class ActionController extends Controller
                 'status'                => 'complete'
             ]);
 
-        if(cur_truck_sec($driver->id) < 86401)
-        {
-            $receive->update([
-                'total_duration'        => get_all_duration($id),
-                'remaining_qty'         => $data['remaining'],
-                'exceed_qty'            => $data['exceed'],
-                'status'                => 'complete'
-            ]);
+        // if(cur_truck_sec($driver->id) < 86401)
+        // {
+        //     $receive->update([
+        //         'total_duration'        => get_all_duration($id),
+        //         'remaining_qty'         => $data['remaining'],
+        //         'exceed_qty'            => $data['exceed'],
+        //         'status'                => 'complete'
+        //     ]);
 
-            $driver->update([
-                'scanned_goods' => $this_scanned,
-                'duration'      => $time
-            ]);
+        //     $driver->update([
+        //         'scanned_goods' => $this_scanned,
+        //         'duration'      => $time
+        //     ]);
 
-            return response()->json(200);
-        }
+        //     return response()->json(200);
+        // }
         return response()->json(500);
         }
     }
@@ -487,6 +487,7 @@ class ActionController extends Controller
     {
         $product = Product::where('id',$request->id)->first();
         $remove_qty = $product->scanned_qty - $product->qty;
+        // dd($product,$remove_qty);    
         $product->update([
             'scanned_qty' => $product->qty
         ]);
@@ -517,7 +518,7 @@ class ActionController extends Controller
             {
                 $same_br = true;
             }
-            if($same_br && Hash::check($password, $user->password) && $user->role == 4)
+            if($same_br && Hash::check($password, $user->password) && ($user->role == 4 || $user->role==3))
             {
                 return response()->json($user,200);
             }else{
@@ -670,7 +671,7 @@ class ActionController extends Controller
         $dub_pr     = printTrack::where(['product_id'=>$request->id,'bar_type'=>$request->type,'reason'=>$request->reason,])->whereDate('created_at',Carbon::today())->first();
         if($dub_pr)
         {
-    
+
             $dub_pr->update([
                 'quantity'  => $dub_pr->quantity + $request->qty
             ]);
