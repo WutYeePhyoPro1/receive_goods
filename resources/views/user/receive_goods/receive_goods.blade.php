@@ -343,19 +343,7 @@
                                                 @endif
                                                 
                                                 <td class="ps-2 border border-slate-400 border-t-0  {{ $color }}">{{ $tem->bar_code }}</td>
-                                                <tr class="h-10 scanned_pd_div">
-                                               
-                                                    @if ($index == 0)
-                                                            <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-l-0">{{ $i }}</td>
-                                                            <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-l-0">{{ $item->document_no }}</td>
-                                                    @else
-                                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                    @endif
-                                                            <td class="ps-2 border border-slate-400 border-t-0  ">{{ $tem->bar_code }}</td>
-                                                            <td class="ps-2 border border-slate-400 border-t-0 ">{{ $tem->supplier_name }}</td>
-                                                            <td class="ps-2 border border-slate-400 border-t-0  border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
-                                                </tr>
+
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
 
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty }}</td>
@@ -1287,7 +1275,7 @@
                 $cur_id = $('#cur_truck').val() ?? '';
                 $dc_staff = "{{ getAuth()->branch_id}}";
                 $dc_staff = $dc_staff.includes([17,19,20]) ? true: false;
-                
+
                 function reload_page(){
                     $('.main_table').load(location.href + ' .main_table');
                     $('.scan_parent').load(location.href + ' .scan_parent', function() {
@@ -2131,10 +2119,9 @@
                 }
 
             }
-            if($finish && $role !=2){
+            if(!$finish && $role !=2){
                         $(document).on('click','.del_exceed',function(e){
                             $id = $(this).data('id');
-
                             $.ajax({
                                 url: "{{ route('del_exceed') }}",
                                 type: 'POST',
