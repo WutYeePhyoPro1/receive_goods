@@ -589,8 +589,16 @@ class userController extends Controller
         $input_document_no = $request->input('document_no');
         $input_barcode_no = $request->input('barcode_no');
         $isDcStaff = dc_staff();
-        $curDriver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
-        $cur_driver_start_date = $curDriver->start_date;
+        
+        $curDriverFirst = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
+        if($curDriverFirst) {
+            $curDriver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
+            $cur_driver_start_date = $curDriver->start_date;
+        } else {
+            $curDriver = [];
+            $cur_driver_start_date = [];
+        }
+
         $authId = getAuth()->id;
         $response = [];
         $scan_response = [];
@@ -719,7 +727,7 @@ class userController extends Controller
 
                     foreach($search_excess_pd as $excess_pd_data) {
                         if($input_barcode_no) {
-                            if(excess_pd_data->bar_code == $input_barcode_no) {
+                            if($excess_pd_data->bar_code == $input_barcode_no) {
                                 $excess_bar_codes[] = $excess_pd_data->bar_code;
                                 $excess_supplier_names[] = $excess_pd_data->supplier_name;
                                 $excess_qtys[] = $excess_pd_data->qty;
