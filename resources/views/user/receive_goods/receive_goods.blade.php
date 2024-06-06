@@ -1196,7 +1196,7 @@
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0"}">${excessDocument.document_no}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="ps-2 border border-slate-400 border-t-0">${excessBarCodes[j]}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 ">${excessSupplierNames[j]}
-                                                    <i class="bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white ${remarkClass}" data-pd="${excessBarCodes[j]}" data-id="${excessDocument.id}" data-eq="${j}"></i>
+                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white remark_ic ${remarkClass} remark_ic' data-pd="${excessBarCodes[j]}" data-id="${excessDocument.id}" data-eq="${j}"></i>
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ${quantityClass}">${remainingQty} </td>
                                             </tr>`;
