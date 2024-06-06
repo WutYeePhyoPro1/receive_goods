@@ -95,17 +95,15 @@
     {{-- @endif --}}
 
     <div class="flex flex-wrap -mx-2">
-        <div class="w-full sm:w-1/6 px-2 mt-4">
-            <div class="form-group">
-                <select id="documentNoSelect">
+        <div class="w-1/2 px-2 mt-4">
+            <div class="form-group flex items-center space-x-4">
+                <select id="documentNoSelect" class="form-select block w-full mt-1">
                     <option value="">search document no</option>
                     @foreach ($scan_document_no as $documentNo)
-                        <option  id="documentNoInput" value="{{ $documentNo }}">{{ $documentNo }}</option>
+                        <option id="documentNoInput" value="{{ $documentNo }}">{{ $documentNo }}</option>
                     @endforeach
                 </select>
-            </div>
-            <div class="form-group mt-4">
-                <select id="barcodeSelect">
+                <select id="barcodeSelect" class="form-select block w-full mt-1">
                     <option value="">search bar code</option>
                     @foreach ($document as $data)
                     @php
@@ -116,45 +114,14 @@
                         @endforeach
                     @endforeach
                 </select>
-            </div>
-            <input id="idInput" type="hidden" name="id" value="{{ $id }}">
-            <button id="document_no_search" class="btn btn-primary bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">Search</button>
-            <p id="resultCount">Not result found</p>
-        </div>
-    </div>
-    
-
-    {{-- <div class="flex flex-wrap -mx-2">
-        <div class="w-full px-2 mt-4">
-            <div class="form-group flex items-center sm:w-1/6">
-                <select id="documentNoSelect" class="form-select mr-2">
-                    <option value="">Search document no</option>
-                    @foreach ($scan_document_no as $documentNo)
-                        <option id="documentNoInput" value="{{ $documentNo }}">{{ $documentNo }}</option>
-                    @endforeach
-                </select>
-                
-                <select id="barcodeSelect" class="form-select mr-2">
-                    <option value="">Search bar code</option>
-                    @foreach ($document as $data)
-                    @php
-                        $barcodes = search_pd_barcode($data['id']);
-                    @endphp
-                        @foreach ($barcodes as $barcode)
-                            <option value="{{ $barcode }}">{{ $barcode }}</option>
-                        @endforeach
-                    @endforeach
-                </select>
-    
                 <input id="idInput" type="hidden" name="id" value="{{ $id }}">
-                <button id="document_no_search" class="btn btn-primary bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <button id="document_no_search" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Search
                 </button>
-                <p id="resultCount" class="mt-2">Not result found</p>
             </div>
-            
+            <p id="resultCount" class="mt-2">Not result found</p>
         </div>
-    </div> --}}
+    </div>
     
     <div class="grid grid-cols-2 gap-2">
         <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
@@ -284,7 +251,6 @@
                                                 <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,22 ) !!}</div>
                                                 <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
                                             </td>
-
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
                                                 <div class="main_scan">
                                                     {{ $tem->scanned_qty }}
@@ -294,7 +260,6 @@
                                                 </div>
                                                 <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
                                             </td>
-
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
                                         </tr>
                                         <?php
@@ -306,7 +271,6 @@
                             @endif
                         @endforeach
                         <input type="hidden" id="count" value="{{ $i }}">
-
                         <tbody class="search_main_body">
                         </tbody>
                 </table>
@@ -1046,6 +1010,7 @@
     @push('js')
         <script >
 
+
             $(document).ready(function() {
 
                 new TomSelect("#documentNoselect",{
@@ -1058,12 +1023,13 @@
 
                 var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
                 var mainStatus = @json($main->status);
-                console.log(mainStatus);
 
                 $('#document_no_search').click(function() {
                     var id = $('#idInput').val();
                     var documentNo = $('#documentNoSelect').val();
                     var barcodeNo = $('#barcodeSelect').val();
+
+                    console.log(id, documentNo, barcodeNo)
                     $.ajax({
                         url: '/search_document_no',
                         type: 'GET',
@@ -1077,9 +1043,7 @@
                             var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
                             var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
                             var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
-
                             if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
-
                                 $('#resultCount').hide();
                                 $('.main_body').hide();
                                 $('.scan_body').hide();
@@ -1096,16 +1060,20 @@
                                         let checkColor = document.check_color;
                                         let scanZero = document.scan_zero;
                                         let searchpdId = document.search_pd_id;
-
+                                        let Unit = document.unit;
+                                        let documentno = document.document_no;
                                         let isDcStaff = need_document_inform.isDcStaff;
                                         let curDriver = need_document_inform.curDriver;
                                         let authId = need_document_inform.authId;
                                         let curDriverStartDate = need_document_inform.cur_driver_start_date;
-
                                         for (let j = 0; j < barCodes.length; j++) {
                                             let buttonHtml = '';
                                             if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
-                                                buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${document_no}"><i class='bx bx-minus'></i></button>`;
+                                                buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let additionalIconHtml = '';
+                                            if (curDriverStartDate) {
+                                                additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="${j}" title="add quantity"></i>`;
                                             }
                                             let rowHtml = `<tr class="h-10">
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>
@@ -1115,21 +1083,70 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
                                                     <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="${j}">${qtys[j]}</span>
+                                                    <input type="hidden" class="pd_unit" value="${Unit[j]}">
                                                     <input type="hidden" class="pd_name" value="${supplierNames[j]}">
-                                                    <input type="hidden" class="pd_id" value="">
+                                                    <input type="hidden" class="pd_id" value="${searchpdId[j]}">
+                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 22)}</div>
+                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  scanned_qty">
                                                     <div class="main_scan">
                                                         ${scannedQtys[j]}
-                                                            <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="${j}" title="add quantity"></i> 
+                                                        ${additionalIconHtml}
                                                     </div>
                                                     <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
                                             </tr>`;
-                                            $('.search_main_body').append(rowHtml);                  
+                                            $('.search_main_body').append(rowHtml);
                                         }
                                     });
+                                }
+
+                                function generateBarcodeHTML(barcode, height) {
+                                    let barcodeHTML = `
+                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
+                                        </div>
+                                    `;
+                                    return barcodeHTML;
                                 }
                                 if (!isEmptyScanDocuments) {
                                     scanDocuments.forEach((scanDocument, i) => {
@@ -1187,6 +1204,49 @@
                                         }
                                     });
                                 }
+
+                                function generateBarcodeHTML(barcode, height) {
+                                    let barcodeHTML = `
+                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
+                                        </div>
+                                    `;
+                                    return barcodeHTML;
+                                }
+
                             } else {
 
                                 $('.main_body').show();

@@ -51,14 +51,13 @@ use Illuminate\Support\Facades\DB;
         }
 
         $main = GoodsReceive::find($doc->received_goods_id);
-        if ($main && $main->status != 'complete') {
+        // if ($main && $main->status != 'complete') {
             return Product::where('document_id', $id)
-                ->whereColumn('scanned_qty', '<', 'qty')
+                // ->whereColumn('scanned_qty', '<', 'qty')
                 ->orderBy('id', 'asc')
                 ->pluck('bar_code')
                 ->toArray();
-        }
-
+        // }
         return [];
     }
 

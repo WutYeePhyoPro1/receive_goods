@@ -35,6 +35,7 @@ use App\Models\UploadImage;
 use App\Models\UserBranch;
 use Symfony\Component\CssSelector\Node\FunctionNode;
 use Spatie\Permission\Middleware\PermissionMiddleware;
+use Milon\Barcode\DNS1D;
 
 class userController extends Controller
 {
@@ -118,8 +119,6 @@ class userController extends Controller
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
-        // $all_id = Document::where('received_goods_id', $id)->pluck('id');
-        // $all_bar_code = Product::whereIn('document_id',$all_id)->pluck('bar_code');
         $reason         = PrintReason::get();
         $status = 'view';
 
@@ -203,11 +202,8 @@ class userController extends Controller
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where(['received_goods_id'=>$id,'user_id'=>getAuth()->id])->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
-        // $document_no = Document::where('receive_goods_id',$id)->value('document_no');
-        // dd($document_no);
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
-        // dd($scan_document);
-        // return;
+        $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
         $gate   = CarGate::when($loc == 'dc',function($q) {
                         $q->whereIn('branch',['MM-505','MM-510','MM-511']);
                         })
@@ -217,8 +213,7 @@ class userController extends Controller
 
         $reason     = PrintReason::get();
         view()->share(['status'=>'scan','reason'=>$reason]);
-        // $time_start = Carbon::parse($time_str)->format('H:i:s');
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document','id','scan_document_no'));
     }
 
     public function join_receive($id,$car)
@@ -593,12 +588,10 @@ class userController extends Controller
         $id = $request->input('id');
         $input_document_no = $request->input('document_no');
         $input_barcode_no = $request->input('barcode_no');
-
         $isDcStaff = dc_staff();
         $curDriver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         $cur_driver_start_date = $curDriver->start_date;
         $authId = getAuth()->id;
-
         $response = [];
         $scan_response = [];
         $excess_response = [];
@@ -633,8 +626,8 @@ class userController extends Controller
                     $qtys = [];
                     $scanned_qtys = [];
                     $color = [];
-                    // $scan_zero = [];
                     $search_pd_id = [];
+                    $unit = [];
         
                     foreach ($search_pd as $pd_data) {
                         if($input_barcode_no) {
@@ -644,8 +637,8 @@ class userController extends Controller
                                 $qtys[] = $pd_data->qty;
                                 $scanned_qtys[] = $pd_data->scanned_qty;
                                 $color[] = check_color($pd_data->id);
-                                // $scan_zero[] = scan_zero($pd_data->id); 
                                 $search_pd_id[] = $pd_data->id; 
+                                $unit[] = $pd_data->unit;
                             }
                         } else {
                             $bar_codes[] = $pd_data->bar_code;
@@ -653,8 +646,8 @@ class userController extends Controller
                             $qtys[] = $pd_data->qty;
                             $scanned_qtys[] = $pd_data->scanned_qty;
                             $color[] = check_color($pd_data->id);
-                            // $scan_zero[] = scan_zero($pd_data->id);   
-                            $search_pd_id[] = $pd_data->id; 
+                            $search_pd_id[] = $pd_data->id;
+                            $unit[] = $pd_data->unit;
                         }
                     }
         
@@ -670,7 +663,8 @@ class userController extends Controller
                         'scanned_qty' => $scanned_qtys,
                         'check_color' => $color,
                         'scan_zero' => scan_zero($document_id),
-                        'search_pd_id' => $search_pd_id
+                        'search_pd_id' => $search_pd_id,
+                        'unit' => $unit,
                     ];
                     
                     $response[] = $merged_data;
