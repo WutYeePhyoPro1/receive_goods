@@ -35,6 +35,7 @@ use App\Models\UploadImage;
 use App\Models\UserBranch;
 use Symfony\Component\CssSelector\Node\FunctionNode;
 use Spatie\Permission\Middleware\PermissionMiddleware;
+use Milon\Barcode\DNS1D;
 
 class userController extends Controller
 {
@@ -109,18 +110,19 @@ class userController extends Controller
 
     public function view_goods($id)
     {
+        // dd($id);
         Common::Log(route('view_goods',['id'=>$id]),"View REG Page");
-
         $main = GoodsReceive::where('id',$id)->first();
         $truck = Truck::get();
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
+        $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
         $reason         = PrintReason::get();
         $status = 'view';
 
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document','reason'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document','reason','id','scan_document_no'));
     }
 
     public function car_info()
@@ -189,6 +191,7 @@ class userController extends Controller
     public function receive_goods($id)
     {
         // dd('yes');
+
         $data = get_branch_truck();
         $truck_id   = $data[0];
         $loc        = $data[1];
@@ -201,7 +204,7 @@ class userController extends Controller
         $cur_driver = DriverInfo::where(['received_goods_id'=>$id,'user_id'=>getAuth()->id])->whereNull('duration')->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
-        // dd($scan_document);
+        $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
         $gate   = CarGate::when($loc == 'dc',function($q) {
                         $q->whereIn('branch',['MM-505','MM-510','MM-511']);
                         })
@@ -211,8 +214,7 @@ class userController extends Controller
 
         $reason     = PrintReason::get();
         view()->share(['status'=>'scan','reason'=>$reason]);
-        // $time_start = Carbon::parse($time_str)->format('H:i:s');
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document','id','scan_document_no'));
     }
 
     public function join_receive($id,$car)
@@ -580,5 +582,182 @@ class userController extends Controller
                             ->latest()
                             ->first();
         return response()->json($data,200);
+    }
+
+    public function search_document_no(Request $request)
+    {
+        $id = $request->input('id');
+        $input_document_no = $request->input('document_no');
+        $input_barcode_no = $request->input('barcode_no');
+        $isDcStaff = dc_staff();
+        $curDriver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
+        $cur_driver_start_date = $curDriver->start_date;
+        $authId = getAuth()->id;
+        $response = [];
+        $scan_response = [];
+        $excess_response = [];
+        $merged_need_document_inform = [];
+        if (($input_document_no && $input_barcode_no) || ($input_document_no && !$input_barcode_no) || (!$input_document_no && $input_barcode_no)) {
+            if ($input_document_no) {
+                $query = Document::where('received_goods_id', $id)->where('document_no', $input_document_no);
+            } elseif ($input_barcode_no) {
+                $documentIds = Product::where('bar_code', $input_barcode_no)->pluck('document_id');
+                if ($documentIds->isEmpty()) {
+                    return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
+                }
+                $query = Document::whereIn('id', $documentIds)->where('received_goods_id', $id);
+            } else {
+                return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
+            }
+        
+            $documents = $query->orderBy('id')->get();
+            if ($documents->isEmpty()) {
+                return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
+            }
+        
+            foreach ($documents as $doc) {
+                $document_id = $doc->id;
+                $search_pd = collect(search_pd($document_id));
+                $search_scaned_pd = collect(search_scanned_pd($document_id));
+                $search_excess_pd = collect(search_excess_pd($document_id));
+                
+                if ($search_pd->isNotEmpty()) {
+                    $bar_codes = [];
+                    $supplier_names = [];
+                    $qtys = [];
+                    $scanned_qtys = [];
+                    $color = [];
+                    $search_pd_id = [];
+                    $unit = [];
+        
+                    foreach ($search_pd as $pd_data) {
+                        if($input_barcode_no) {
+                            if ($pd_data->bar_code == $input_barcode_no) {
+                                $bar_codes[] = $pd_data->bar_code;
+                                $supplier_names[] = $pd_data->supplier_name;
+                                $qtys[] = $pd_data->qty;
+                                $scanned_qtys[] = $pd_data->scanned_qty;
+                                $color[] = check_color($pd_data->id);
+                                $search_pd_id[] = $pd_data->id; 
+                                $unit[] = $pd_data->unit;
+                            }
+                        } else {
+                            $bar_codes[] = $pd_data->bar_code;
+                            $supplier_names[] = $pd_data->supplier_name;
+                            $qtys[] = $pd_data->qty;
+                            $scanned_qtys[] = $pd_data->scanned_qty;
+                            $color[] = check_color($pd_data->id);
+                            $search_pd_id[] = $pd_data->id;
+                            $unit[] = $pd_data->unit;
+                        }
+                    }
+        
+                    $merged_data = [
+                        'id' => $doc->id,
+                        'document_no' => $doc->document_no,
+                        'received_goods_id' => $doc->received_goods_id,
+                        'remark' => $doc->remark,
+                        'document_id' => $document_id,
+                        'bar_code' => $bar_codes,
+                        'supplier_name' => $supplier_names,
+                        'qty' => $qtys,
+                        'scanned_qty' => $scanned_qtys,
+                        'check_color' => $color,
+                        'scan_zero' => scan_zero($document_id),
+                        'search_pd_id' => $search_pd_id,
+                        'unit' => $unit,
+                    ];
+                    
+                    $response[] = $merged_data;
+                }
+
+                if($search_scaned_pd->isNotEmpty()) {
+                    $scan_bar_codes = [];
+                    $scan_supplier_names = [];
+                    $scan_qtys = [];
+                    $scan_scanned_qtys = [];
+                    $scan_colors = [];
+
+                    foreach ($search_scaned_pd as $scan_pd_data) {
+                        if($input_barcode_no) {
+                            if($scan_pd_data->bar_code == $input_barcode_no) {
+                                $scan_bar_codes[] = $scan_pd_data->bar_code;
+                                $scan_supplier_names[] = $scan_pd_data->supplier_name;
+                                $scan_qtys[] = $scan_pd_data->qty;
+                                $scan_scanned_qtys[] = $scan_pd_data->scanned_qty;
+                                $scan_colors[] = check_scanned_color($scan_pd_data->id);
+                            }
+                        } else {
+                            $scan_bar_codes[] = $scan_pd_data->bar_code;
+                            $scan_supplier_names[] = $scan_pd_data->supplier_name;
+                            $scan_qtys[] = $scan_pd_data->qty;
+                            $scan_scanned_qtys[] = $scan_pd_data->scanned_qty;
+                            $scan_colors[] = check_scanned_color($scan_pd_data->id);
+                        }
+                    }
+
+                    $scan_merged_data = [
+                        'id' => $doc->id,
+                        'document_no' => $doc->document_no,
+                        'received_goods_id' => $doc->received_goods_id,
+                        'remark' => $doc->remark,
+                        'document_id' => $document_id,
+                        'bar_code' => $scan_bar_codes,
+                        'supplier_name' => $scan_supplier_names,
+                        'qty' => $scan_qtys,
+                        'scanned_qty' => $scan_scanned_qtys,
+                        'scan_color' => $scan_colors,
+                        'all_scanned' => check_all_scan($document_id),
+                    ];
+                    $scan_response[] = $scan_merged_data;
+                }
+
+                if($search_excess_pd->isNotEmpty()) {
+                    $excess_bar_codes = [];
+                    $excess_supplier_names = [];
+                    $excess_qtys = [];
+                    $excess_scanned_qtys = [];
+
+                    foreach($search_excess_pd as $excess_pd_data) {
+                        if($input_barcode_no) {
+                            if(excess_pd_data->bar_code == $input_barcode_no) {
+                                $excess_bar_codes[] = $excess_pd_data->bar_code;
+                                $excess_supplier_names[] = $excess_pd_data->supplier_name;
+                                $excess_qtys[] = $excess_pd_data->qty;
+                                $excess_scanned_qtys[] = $excess_pd_data->scanned_qty;
+                            }
+                        } else {
+                            $excess_bar_codes[] = $excess_pd_data->bar_code;
+                            $excess_supplier_names[] = $excess_pd_data->supplier_name;
+                            $excess_qtys[] = $excess_pd_data->qty;
+                            $excess_scanned_qtys[] = $excess_pd_data->scanned_qty;
+                        }
+                    }
+                    $excess_merged_data = [
+                        'id' => $doc->id,
+                        'document_no' => $doc->document_no,
+                        'received_goods_id' => $doc->received_goods_id,
+                        'remark' => $doc->remark,
+                        'document_id' => $document_id,
+                        'bar_code' => $excess_bar_codes,
+                        'supplier_name' => $excess_supplier_names,
+                        'qty' => $excess_qtys,
+                        'scanned_qty' => $excess_scanned_qtys,
+                    ];
+                    $excess_response[] = $excess_merged_data;
+                }
+                $merged_need_document_inform = [
+                    'isDcStaff' => $isDcStaff,
+                    'curDriver' => $curDriver,
+                    'authId' => $authId,
+                    'cur_driver_start_date' => $cur_driver_start_date
+                ];
+            }
+            return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
+        }else {
+            return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
+        }
+        return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
+        
     }
 }

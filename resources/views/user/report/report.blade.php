@@ -145,7 +145,7 @@
             <table class="w-full mt-4">
                 <thead>
                     @if ($report == 'product')
-                            @if (dc_staff())
+                            @if (dc_staff() || getAuth()->can('user-management'))
                                 <tr class="">
                                     <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
                                     <th class="py-2 bg-slate-400 border" rowspan="2">REG Document</th>
@@ -186,7 +186,7 @@
                                 <th class="py-2 bg-slate-400  rounded-tr-md">Created At</th>
                             <tr class="">
                         @elseif($report == 'truck')
-                                @if (dc_staff())
+                        @if (dc_staff() || getAuth()->can('user-management'))
                                     <tr>
                                         <th class="py-2 bg-slate-400  rounded-tl-md w-10" rowspan="2"></th>
                                         <th class="py-2 bg-slate-400 border" rowspan="2">Truck No</th>
@@ -268,7 +268,7 @@
                 <tbody>
                     @if ($report == 'product')
                         @foreach ($product as $item)
-                            @if (dc_staff())
+                            @if (dc_staff() || getAuth()->can('user-management'))
                                 @if(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'))
                                     <tr>
                                         <td class="h-10 text-center border border-slate-400">{{ $product->firstItem()+$loop->index  }}</td>
@@ -338,7 +338,7 @@
                         @endforeach
                     @elseif($report == 'truck')
                             @foreach ($truck as $item)
-                                    @if (dc_staff())
+                            @if (dc_staff() || getAuth()->can('user-management'))
                                         <tr class="hover:bg-slate-200 cursor-pointer" onclick="javascript:window.location.href = 'detail_truck/{{ $item->id }}'">
                                             <td class="h-10 text-center border border-slate-400">{{ $truck->firstItem()+$loop->index  }}</td>
                                             <td class="h-10 text-center border border-slate-400">{{ $item->truck_no }}</td>

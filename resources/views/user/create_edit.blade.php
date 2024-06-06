@@ -125,6 +125,7 @@
                             @error('branch')
                             <small class="text-rose-500 ms-1">{{ $message }}</small>
                         @enderror
+                        
                         </div>
                         <div class="flex flex-col px-10">
                             <label for="role">Role<span class="text-rose-600">*</span> :</label>

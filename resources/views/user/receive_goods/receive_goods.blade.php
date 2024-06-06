@@ -1,5 +1,21 @@
 @extends('layout.layout')
 
+<style>
+     #resultCount {
+        margin-top: 10px;
+        font-weight: bold;
+        color: rgb(214, 42, 11);
+        display: none;
+    }
+
+    
+
+    /* .highlight {
+        background-color: yellow;
+    } */
+    
+</style>
+
 @section('content')
     {{-- <span>this is received_good</span> --}}
     @if($errors->any())
@@ -73,11 +89,42 @@
         <span class="ms-1">previous scanned barcode : <b id="prev_scan">{{ Session::get('first_time_search_'.$main->id) }}</b></span>
         <input type="hidden" id="finished" value="{{ $main->status == 'complete' ? true : false }}">
     @endif
+
     {{-- @if (isset($status) && $status != 'view') --}}
         <input type="hidden" id="cur_truck" value="{{ $cur_driver->id ?? '' }}">
     {{-- @endif --}}
+
+    <div class="flex flex-wrap -mx-2">
+        <div class="w-1/2 px-2 mt-4">
+            <div class="form-group flex items-center space-x-4">
+                <select id="documentNoSelect" class="form-select block w-full mt-1">
+                    <option value="">search document no</option>
+                    @foreach ($scan_document_no as $documentNo)
+                        <option id="documentNoInput" value="{{ $documentNo }}">{{ $documentNo }}</option>
+                    @endforeach
+                </select>
+                <select id="barcodeSelect" class="form-select block w-full mt-1">
+                    <option value="">search bar code</option>
+                    @foreach ($document as $data)
+                    @php
+                        $barcodes = search_pd_barcode($data['id']);
+                    @endphp
+                        @foreach ($barcodes as $barcode)
+                            <option value="{{ $barcode }}">{{ $barcode }}</option>
+                        @endforeach
+                    @endforeach
+                </select>
+                <input id="idInput" type="hidden" name="id" value="{{ $id }}">
+                <button id="document_no_search" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Search
+                </button>
+            </div>
+            <p id="resultCount" class="mt-2">Not result found</p>
+        </div>
+    </div>
+    
     <div class="grid grid-cols-2 gap-2">
-    <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
+        <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
             <div class="border border-b-slate-400 h-10 bg-sky-50">
                 <span class="font-semibold leading-9 ml-3">
                     List Of Products
@@ -104,74 +151,130 @@
                             <th class="border border-slate-400 border-t-0 border-r-0">Remaining</th>
                         </tr>
                     </thead>
-                    <input type="hidden" id="doc_total" value="{{ count($document) }}">
+                    {{-- <input type="hidden" id="doc_total" value="{{ count($document) }}">
+                        <?php
+                            $i = 0;
+                            $j = 0;
+                        ?>
+                        @foreach($document as $item)
+                            @if (  count(search_pd($item->id)) > 0)
+                                <tbody class="main_body">
+                                    @foreach (search_pd($item->id) as $key=>$tem)
+                                        <?php
+                                            $color = check_color($tem->id);
+                                            ${'id' . $key} = $key;
+                                        ?>
+                                        <tr class="h-10">
+                                            @if ($key == 0)
+                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
+                                                @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || dc_staff())
+                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
+                                                @endif
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
+                                            @else
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
+                                            @endif
 
-                            <?php
-                                $i = 0;
-                                $j = 0;
-                            ?>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
+                                                <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{$tem->qty }}</span>
+                                                <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
+                                                <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
+                                                <input type="hidden" class="pd_id" value="{{ $tem->id }}">
+                                                <div class='px-5 bar_stick1 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
+                                                <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,22 ) !!}</div>
+                                                <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
+                                            </td>
 
-                            @foreach($document as $item)
-                                @if (  count(search_pd($item->id)) > 0)
-                                    <tbody class="main_body">
-                                        @foreach (search_pd($item->id) as $key=>$tem)
-                                            <?php
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
+                                                <div class="main_scan">
+                                                    {{ $tem->scanned_qty }}
+                                                    @if (isset($cur_driver->start_date))
+                                                        <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
+                                                    @endif
+                                                </div>
+                                                <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
+                                        </tr>
+                                        <?php
+                                        $j++
+                                        ?>
+                                    @endforeach
+                                </tbody>
+                                <?php $i++ ?>
+                            @endif
+                        @endforeach
+                        <input type="hidden" id="count" value="{{ $i }}"> --}}
 
-                                                $color = check_color($tem->id);
-                                                ${'id' . $key} = $key;
-                                                ?>
-                                            <tr class="h-10">
-                                                @if ($key == 0)
+                        <input type="hidden" id="doc_total" value="{{ count($document) }}">
+                        <?php
+                            $i = 0;
+                            $j = 0;
+                        ?>
+                        @foreach($document as $item)
+                            @if (  count(search_pd($item->id)) > 0)
+                                <tbody class="main_body">
+                                    @foreach (search_pd($item->id) as $key=>$tem)
+                                        <?php
+                                            $color = check_color($tem->id);
+                                            ${'id' . $key} = $key;
+                                        ?>
+                                        <tr class="h-10">
+                                            @if ($key == 0)
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
                                                     @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || dc_staff())
                                                         <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
                                                     @endif
                                                 </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_times">{{ $i+1 }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
-                                                @else
+                                            @else
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
-                                                @endif
+                                            @endif
 
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
-                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{$tem->qty }}</span>
-                                                    <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
-                                                    <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
-                                                    <input type="hidden" class="pd_id" value="{{ $tem->id }}">
-                                                    <div class='px-5 bar_stick1 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
-                                                    <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,22 ) !!}</div>
-                                                    <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
-                                                </td>
-
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
-                                                    <div class="main_scan">
-                                                        {{ $tem->scanned_qty }}
-                                                        @if (isset($cur_driver->start_date))
-                                                            <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
-                                                        @endif
-                                                    </div>
-                                                    <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
-                                            </tr>
-                                            <?php
-                                            $j++
-                                            ?>
-                                        @endforeach
-                                    </tbody>
-                                        <?php $i++ ?>
-                                @endif
-                            @endforeach
-
-                            <input type="hidden" id="count" value="{{ $i }}">
-
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
+                                                <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{$tem->qty }}</span>
+                                                <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
+                                                <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
+                                                <input type="hidden" class="pd_id" value="{{ $tem->id }}">
+                                                <div class='px-5 bar_stick1 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
+                                                <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,22 ) !!}</div>
+                                                <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
+                                                <div class="main_scan">
+                                                    {{ $tem->scanned_qty }}
+                                                    @if (isset($cur_driver->start_date))
+                                                        <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
+                                                    @endif
+                                                </div>
+                                                <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
+                                        </tr>
+                                        <?php
+                                        $j++
+                                        ?>
+                                    @endforeach
+                                </tbody>
+                                <?php $i++ ?>
+                            @endif
+                        @endforeach
+                        <input type="hidden" id="count" value="{{ $i }}">
+                        <tbody class="search_main_body">
+                        </tbody>
                 </table>
             </div>
-
         </div>
         <div class="mt-5 grid grid-rows-2 gap-2" style="max-height: 83vh;width:100%; overflow:hidden">
             <div class="border border-slate-400 rounded-md overflow-y-auto overflow-x-hidden main_product_table" style="max-height: 42.5vh;width:100%;">
@@ -193,33 +296,53 @@
                         </thead>
                             <?php $i=0 ?>
                             @if(count($scan_document) > 0)
-
                                 @foreach ($scan_document as $item)
-                            @if (count(search_scanned_pd($item->id))>0)
-                            <?php
-                                $i++;
-                            ?>
-                                <tbody class="scan_body" >
-                                @foreach (search_scanned_pd($item->id) as $index=>$tem)
-                                <?php
-                                            $color = check_scanned_color($tem->id);
-                                            $scanned[]  = $tem->bar_code;
+                                    @if (count(search_scanned_pd($item->id))>0)
+                                    <?php
+                                        $i++;
+                                    ?>
+                                    <tbody class="scan_body" >
+                                            @foreach (search_scanned_pd($item->id) as $index=>$tem)
+                                            <?php
+                                                $color = check_scanned_color($tem->id);
+                                                $scanned[]  = $tem->bar_code;
                                             ?>
-                                            {{-- @if ($tem->id == get_latest_scan_pd($main->id))
-                                            <tr class="h-10">
+                                                    {{-- @if ($tem->id == get_latest_scan_pd($main->id))
+                                                    <tr class="h-10">
+                                                        @if ($index == 0)
+                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest">{{ $i }}</td>
+                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest">{{ $item->document_no }}</td>
+                                                        @else
+                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest"></td>
+                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest"></td>
+                                                        @endif
+                                                                <td class="ps-2 border border-slate-400 border-t-0  {{ $color }} latest" >{{ $tem->bar_code }}</td>
+                                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} latest">{{ $tem->supplier_name }}</td>
+                                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} latest border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
+                                                    </tr>
+                                                    @else --}}
+                                            {{-- <tr class="h-10 scanned_pd_div">
                                                 @if ($index == 0)
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest">{{ $i }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest">{{ $item->document_no }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 {{ check_all_scan($item->id) ? 'bg-green-200 text-green-600' : '' }}">{{ $item->document_no }}</td>
                                                 @else
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest"></td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest"></td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
                                                 @endif
-                                                        <td class="ps-2 border border-slate-400 border-t-0  {{ $color }} latest" >{{ $tem->bar_code }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} latest">{{ $tem->supplier_name }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} latest border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
-                                            </tr>
-
-                                            @else --}}
+                                                <td class="ps-2 border border-slate-400 border-t-0  {{ $color }}">{{ $tem->bar_code }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
+                                            </tr> --}}
+                                            <tr class="h-10 scanned_pd_div">
+                                                @if ($index == 0)
+                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0 {{ check_all_scan($item->id) ? 'bg-green-200 text-green-600' : '' }}">{{ $item->document_no }}</td>
+                                                @else
+                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                @endif
+                                                
+                                                <td class="ps-2 border border-slate-400 border-t-0  {{ $color }}">{{ $tem->bar_code }}</td>
                                                 <tr class="h-10 scanned_pd_div">
                                                
                                                     @if ($index == 0)
@@ -233,15 +356,19 @@
                                                             <td class="ps-2 border border-slate-400 border-t-0 ">{{ $tem->supplier_name }}</td>
                                                             <td class="ps-2 border border-slate-400 border-t-0  border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
                                                 </tr>
+                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
+
+                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty }}</td>
+                                            </tr>
                                             {{-- @endif --}}
                                             @endforeach
-                                        </tbody>
-
-                            @endif
+                                    </tbody>
+                                    @endif
                                 @endforeach
                             @endif
 
-
+                            <tbody class="search_scan_body"></tbody>
+                            
                     </table>
                 </div>
             </div>
@@ -267,42 +394,41 @@
 
                             <?php $i=0 ?>
                             @foreach ($document as $item)
-                            @if (count(search_excess_pd($item->id))>0)
-                            <?php
-                                $i++;
-                            ?>
-                                <tbody class="excess_body" >
-                                @foreach (search_excess_pd($item->id) as $index=>$tem)
+                                @if (count(search_excess_pd($item->id))>0)
                                 <?php
-                                            ?>
-                                            <tr class="h-10">
-                                                <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
-                                                    @can('adjust-excess')
-                                                        @if ($main->status == 'complete'  && ($tem->qty < $tem->scanned_qty))
-                                                            <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
-                                                        @endif
-                                                    @endcan
-                                                </td>
-                                                @if ($index == 0)
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
-                                                @else
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                    $i++;
+                                ?>
+                                    <tbody class="excess_body">
+                                    @foreach (search_excess_pd($item->id) as $index=>$tem)
+                                    <?php
+                                    ?>
+                                    <tr class="h-10">
+                                        <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
+                                            @can('adjust-excess')
+                                                @if ($main->status == 'complete'  && ($tem->qty < $tem->scanned_qty))
+                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
                                                 @endif
-                                                        <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->bar_code }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
+                                            @endcan
+                                        </td>
+                                        @if ($index == 0)
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
+                                        @else
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                        @endif
+                                                <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->bar_code }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
+                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic' data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}" data-eq="{{ $index }}"></i>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
+                                    </tr>
+                                    @endforeach
+                                    </tbody>
 
-                                                            <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic' data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}" data-eq="{{ $index }}"></i>
-
-                                                        </td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-
-                            @endif
-                                @endforeach
+                                @endif
+                            @endforeach
+                            <tbody class="excess_scan_body"></tbody>
                     </table>
                 </div>
             </div>
@@ -351,7 +477,7 @@
 </div> --}}
 {{-- End Modal --}}
  {{-- Car info Modal --}}
- <div class="hidden" id="car_info">
+<div class="hidden" id="car_info">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
         <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
             <!-- Modal content -->
@@ -743,9 +869,6 @@
                         <input type="number" id="print_count" class="appearance-none w-full border-2 border-slate-300 rounded-lg min-h-12 mt-4 ps-2 focus:outline-none focus:border-sky-200 focus:border-3" placeholder="500 ထက်မပိုပါနဲ့">
                         <button type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
                     </div>
-
-
-
                 </div>
             </div>
     </div>
@@ -898,8 +1021,263 @@
 
     @push('js')
         <script >
-            $(document).ready(function(e){
 
+
+            $(document).ready(function() {
+
+                new TomSelect("#documentNoselect",{
+                    selectOnTab	: true
+                });
+
+                new TomSelect("#barcodeSelect",{
+                    selectOnTab	: true
+                });
+
+                var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
+                var mainStatus = @json($main->status);
+
+                $('#document_no_search').click(function() {
+                    var id = $('#idInput').val();
+                    var documentNo = $('#documentNoSelect').val();
+                    var barcodeNo = $('#barcodeSelect').val();
+
+                    console.log(id, documentNo, barcodeNo)
+                    $.ajax({
+                        url: '/search_document_no',
+                        type: 'GET',
+                        data: { id: id, document_no: documentNo, barcode_no : barcodeNo },
+                        success: function(response) {
+                            var documents = response.documents;
+                            var scanDocuments = response.scan_documents;
+                            var excessDocuments = response.excess_documents;
+                            var need_document_inform  = response.need_document_inform;
+
+                            var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
+                            var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
+                            var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
+                            if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
+                                $('#resultCount').hide();
+                                $('.main_body').hide();
+                                $('.scan_body').hide();
+                                $('.excess_body').hide();
+                                $('.search_main_body').empty();
+                                $('.search_scan_body').empty();
+                                $('.excess_scan_body').empty();
+                                if (!isEmptyDocuments) {
+                                    documents.forEach((document, i) => {
+                                        let barCodes = document.bar_code;
+                                        let supplierNames = document.supplier_name;
+                                        let qtys = document.qty;
+                                        let scannedQtys = document.scanned_qty;
+                                        let checkColor = document.check_color;
+                                        let scanZero = document.scan_zero;
+                                        let searchpdId = document.search_pd_id;
+                                        let Unit = document.unit;
+                                        let documentno = document.document_no;
+                                        let isDcStaff = need_document_inform.isDcStaff;
+                                        let curDriver = need_document_inform.curDriver;
+                                        let authId = need_document_inform.authId;
+                                        let curDriverStartDate = need_document_inform.cur_driver_start_date;
+                                        for (let j = 0; j < barCodes.length; j++) {
+                                            let buttonHtml = '';
+                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
+                                                buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let additionalIconHtml = '';
+                                            if (curDriverStartDate) {
+                                                additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="${j}" title="add quantity"></i>`;
+                                            }
+                                            let rowHtml = `<tr class="h-10">
+                                                <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_no">${document.document_no}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">${barCodes[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="${j}">${qtys[j]}</span>
+                                                    <input type="hidden" class="pd_unit" value="${Unit[j]}">
+                                                    <input type="hidden" class="pd_name" value="${supplierNames[j]}">
+                                                    <input type="hidden" class="pd_id" value="${searchpdId[j]}">
+                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 22)}</div>
+                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  scanned_qty">
+                                                    <div class="main_scan">
+                                                        ${scannedQtys[j]}
+                                                        ${additionalIconHtml}
+                                                    </div>
+                                                    <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
+                                            </tr>`;
+                                            $('.search_main_body').append(rowHtml);
+                                        }
+                                    });
+                                }
+
+                                function generateBarcodeHTML(barcode, height) {
+                                    let barcodeHTML = `
+                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
+                                        </div>
+                                    `;
+                                    return barcodeHTML;
+                                }
+                                if (!isEmptyScanDocuments) {
+                                    scanDocuments.forEach((scanDocument, i) => {
+                                        let sanbarCodes = scanDocument.bar_code;
+                                        let sansupplierNames = scanDocument.supplier_name;
+                                        let sanqtys = scanDocument.qty;
+                                        let sanscannedQtys = scanDocument.scanned_qty;
+                                        let scanColor = scanDocument.scan_color;
+                                        let allScanned = scanDocument.all_scanned;
+
+                                        for (let j = 0; j < sanbarCodes.length; j++) {
+                                            // Convert to integers
+                                            let qty = parseInt(sanqtys[j], 10);
+                                            let scannedQty = parseInt(sanscannedQtys[j], 10);
+
+                                            let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">${scanDocument.document_no}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sanbarCodes[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sansupplierNames[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
+                                                    ${scannedQty > qty ? qty : scannedQty}
+                                                </td>
+                                            </tr>`;
+                                            $('.search_scan_body').append(rowHtmltwo);
+                                        }
+                                    });
+                                }
+                                if (!isEmptyExcessDocuments) {
+                                    excessDocuments.forEach((excessDocument, i) => {
+                                        let excessBarCodes = excessDocument.bar_code;
+                                        let excessSupplierNames = excessDocument.supplier_name;
+                                        let excessQtys = excessDocument.qty;
+                                        let excessScannedQtys = excessDocument.scanned_qty;
+                                        let excessRemarks = excessDocument.remark || [];
+                                        for (let j = 0; j < excessBarCodes.length; j++) {
+                                            let remainingQty = excessScannedQtys[j] - excessQtys[j];
+                                            let quantityClass = remainingQty < 0 ? 'text-red-500' : '';
+                                            let remarkClass = excessRemarks[j] === undefined ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600';
+                                            let buttonHtml = '';
+                                            if (canAdjustExcess && mainStatus === 'complete' && excessQtys[j] < excessScannedQtys[j]) {
+                                            buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="${excessDocument.id}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let rowHtmlthree = `<tr class="h-10">
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0"}">${excessDocument.document_no}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="ps-2 border border-slate-400 border-t-0">${excessBarCodes[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ">${excessSupplierNames[j]}
+                                                    <i class="bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white ${remarkClass}" data-pd="${excessBarCodes[j]}" data-id="${excessDocument.id}" data-eq="${j}"></i>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ${quantityClass}">${remainingQty} </td>
+                                            </tr>`;
+                                            $('.excess_scan_body').append(rowHtmlthree);
+                                        }
+                                    });
+                                }
+
+                                function generateBarcodeHTML(barcode, height) {
+                                    let barcodeHTML = `
+                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
+                                        </div>
+                                    `;
+                                    return barcodeHTML;
+                                }
+
+                            } else {
+
+                                $('.main_body').show();
+                                $('.scan_body').show();
+                                $('.excess_body').show();
+                                $('.search_main_body').empty();
+                                $('.search_scan_body').empty();
+                                $('.excess_scan_body').empty();
+                                $('#resultCount').show();
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            // console.error(error);
+                        }
+                    });
+                });
+            });
+
+            $(document).ready(function(e){
                 var token = $("meta[name='__token']").attr('content');
                 $finish = $('#finished').val();
                 $status = $('#view_').val();
@@ -1402,6 +1780,7 @@
                             }
                         })
                 })
+
                 var key = '';
 
                     $(document).on('keypress',function(e){
@@ -1594,16 +1973,12 @@
                         $('#alert_model').show();
 
                     });
-
                 }
-
 
                 if(!$finish && ($role == 2 || $role == 3) && ($all_begin != '')){
                     setInterval(() => {
                         time_count();
                     }, 1000);
-
-
 
                     function time_count(){
                         let time = new Date($('#started_time').val()).getTime();
@@ -1617,10 +1992,6 @@
 
                         $('#time_count').text(hour.toString().padStart(2, '0') + ':' + min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0'));
                     }
-
-
-
-
             }
 
             $(document).on('blur','#all_remark',function(e){

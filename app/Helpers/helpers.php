@@ -43,6 +43,24 @@ use Illuminate\Support\Facades\DB;
         return [];
     }
 
+    function search_pd_barcode($id)
+    {
+        $doc = Document::find($id);
+        if (!$doc) {
+            return [];
+        }
+
+        $main = GoodsReceive::find($doc->received_goods_id);
+        // if ($main && $main->status != 'complete') {
+            return Product::where('document_id', $id)
+                // ->whereColumn('scanned_qty', '<', 'qty')
+                ->orderBy('id', 'asc')
+                ->pluck('bar_code')
+                ->toArray();
+        // }
+        return [];
+    }
+
     function search_scanned_pd($id)
     {
         return Product::where('document_id',$id)
@@ -101,6 +119,20 @@ use Illuminate\Support\Facades\DB;
            $msg = "bg-rose-200 text-rose-600";
         }
         return $msg;
+    }
+
+    function check_all_scan($id)
+    {
+      $finish = true;
+         $pds = Product::where('document_id',$id)->get();
+         foreach($pds as $item)
+         {
+             if($item->qty != $item->scanned_qty){
+                    $finish    = false;
+                    break;
+            }
+         }
+         return $finish;
     }
 
     function get_total_qty($id)
