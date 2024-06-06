@@ -1052,8 +1052,8 @@
                             var excessDocuments = response.excess_documents;
                             var need_document_inform  = response.need_document_inform;
 
-                            var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
-                            var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
+                             var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
+                           var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
                             var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
                             if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
                                 $('#resultCount').hide();
