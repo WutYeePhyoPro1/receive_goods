@@ -1116,36 +1116,84 @@
                     documentNo = buttonId.replace('excess-btn-copy-bar-', '');
                     textId = 'excess-bar-code-' + documentNo;
                 }
-                console.log(documentNo, textId);
 
                 copyText(textId, buttonId);
             });
 
+            // async function copyText(textId, buttonId) {
+            //     try {
+            //         const element = document.getElementById(textId);
+            //         if (!element) {
+            //             return;
+            //         }
+            //         const text = element.innerText;
+            //         await navigator.clipboard.writeText(text);
+            //         const button = document.getElementById(buttonId);
+            //         if (!button) {
+            //             return;
+            //         }
+            //         button.innerHTML = '<i class="fas fa-check"></i>';
+            //         setTimeout(() => {
+            //             button.innerHTML = '<i class="fas fa-copy"></i>';
+            //         }, 1000);
+            //     } catch (err) {
+            //         console.log('Failed to copy: ', err);
+            //     }
+            // }
+
             async function copyText(textId, buttonId) {
-            try {
-                const element = document.getElementById(textId);
-                if (!element) {
-                    return;
+                try {
+                    const element = document.getElementById(textId);
+                    if (!element) {
+                        console.log(`Element with id ${textId} not found`);
+                        return;
+                    }
+                    const text = element.innerText;
+
+                    // Check if navigator.clipboard is supported
+                    if (navigator.clipboard) {
+                        await navigator.clipboard.writeText(text);
+                        console.log('Text copied to clipboard');
+                    } else {
+                        // Fallback method using textarea
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        textArea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge
+                        textArea.style.opacity = '0';  // Hide the textarea element
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+
+                        try {
+                            document.execCommand('copy');
+                            console.log('Fallback: Text copied to clipboard');
+                        } catch (err) {
+                            console.error('Fallback: Oops, unable to copy', err);
+                        }
+
+                        document.body.removeChild(textArea);
+                    }
+
+                    const button = document.getElementById(buttonId);
+                            if (!button) {
+                                console.log(`Button with id ${buttonId} not found`);
+                                return;
+                            }
+
+                            button.innerHTML = '<i class="fas fa-check"></i>';
+                            setTimeout(() => {
+                                button.innerHTML = '<i class="fa-solid fa-copy"></i>';
+                            }, 1000);
+                } catch (err) {
+                                console.log('Failed to copy: ', err);
+
                 }
-                const text = element.innerText;
-                console.log(text);
-                await navigator.clipboard.writeText(text);
-                // await navigator.clipboard.writeText(document.getElementById(textId).innerText);
-                const button = document.getElementById(buttonId);
-                if (!button) {
-                    return;
-                }
-                button.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => {
-                    button.innerHTML = '<i class="fas fa-copy"></i>';
-                }, 1000);
-            } catch (err) {
-                console.log('Failed to copy: ', err);
             }
-        }
+
 
 
             $(document).ready(function() {
+                $('#back').hide();
                 new TomSelect("#documentNoselect",{
                     selectOnTab	: true
                 });
@@ -1186,11 +1234,12 @@
                             var excessDocuments = response.excess_documents;
                             var need_document_inform  = response.need_document_inform;
 
-                             var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
-                           var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
+                            var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
+                            var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
                             var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
                             if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
                                 $('#resultCount').hide();
+                                $('#back').show();
                                 $('.main_body').hide();
                                 $('.scan_body').hide();
                                 $('.excess_body').hide();
@@ -1231,7 +1280,6 @@
                                                             <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
                                                                 <i class="fas fa-copy"></i>
                                                             </button>
-                                                 
                                                     </td>` 
                                                 : 
                                                 '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
@@ -1440,6 +1488,7 @@
                                 $('.search_scan_body').empty();
                                 $('.excess_scan_body').empty();
                                 $('#resultCount').show();
+                                $('#back').hide();
                             }
                         },
                         error: function(xhr, status, error) {
