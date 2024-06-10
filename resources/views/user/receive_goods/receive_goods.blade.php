@@ -1128,7 +1128,9 @@
                     return;
                 }
                 const text = element.innerText;
+                console.log(text);
                 await navigator.clipboard.writeText(text);
+                // await navigator.clipboard.writeText(document.getElementById(textId).innerText);
                 const button = document.getElementById(buttonId);
                 if (!button) {
                     return;
