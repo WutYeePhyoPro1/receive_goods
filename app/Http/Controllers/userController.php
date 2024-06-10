@@ -521,10 +521,6 @@ class userController extends Controller
         // dd($driver);
     }
 
-    
-
-    
-
     public function del_doc(Request $request)
     {
         $doc = Document::where(['document_no'=>$request->data , 'received_goods_id' => $request->id])->first();
@@ -768,4 +764,5 @@ class userController extends Controller
         return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
         
     }
+
 }

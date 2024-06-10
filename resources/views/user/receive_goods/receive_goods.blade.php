@@ -8,12 +8,27 @@
         display: none;
     }
 
-    
+    .td-container, .td-barcode-container{
+        position: relative; 
+        height: 100%; 
+    }
 
-    /* .highlight {
-        background-color: yellow;
-    } */
-    
+
+    .copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode{
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+
+    }
+
+    .copy-button, .scan-copy-button, .excess-copy-button .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode, i {
+        font-size: 10px; 
+        color: black;
+    }
 </style>
 
 @section('content')
@@ -118,9 +133,21 @@
                 <button id="document_no_search" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Search
                 </button>
+                <button id="back" onclick="javascript:window.location.href = '/view_goods/'+{{$id}}" class="bg-blue-500 bg-big hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back</button>
             </div>
             <p id="resultCount" class="mt-2">Not result found</p>
         </div>
+        {{-- <div class="w-1/2 px-2 mt-4">
+            <div class="form-group flex items-center space-x-4">
+                <input type="text" id="searchInput" class="form-input block w-full mt-1 border border-gray-300 rounded p-2" placeholder="Search document no or bar code">
+                <input id="idInput" type="hidden" name="id" value="{{ $id }}">
+                <button id="searchButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Search
+                </button>
+            </div>
+            <div id="suggestions" class="bg-white border border-gray-300 rounded shadow-lg"></div>
+            <div id="searchResults" class="mt-4"></div>
+        </div> --}}
     </div>
     
     <div class="grid grid-cols-2 gap-2">
@@ -233,14 +260,36 @@
                                                     @endif
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 doc_times">{{ $i+1 }}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
+                                                {{-- <td class="ps-2 border border-slate-400 border-t-0 doc_no">
+                                                    <div class="container">
+                                                        <span id="doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                        <button id="btn-copy-doc-{{ $item->document_no }}" class="copy-button" onclick="copyText('doc-no-{{ $item->document_no }}', 'btn-copy-doc-{{ $item->document_no }}')">
+                                                            <i class="fa-solid fa-copy"></i>
+                                                        </button>
+                                                    </div>                                                   
+                                                </td> --}}
+                                                <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+                                      
+                                                        <span id="doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                        <button id="btn-copy-doc-{{ $item->document_no }}" class="copy-button">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                                                    
+                                                </td>
                                             @else
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
                                             @endif
 
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
+                                            <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">
+                                           
+                                                    <span id="bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
+                                                    <button id="btn-copy-bar-{{ $tem->bar_code }}" class="copy-button-barcode" >
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                            
+                                            </td>
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
                                                 <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{$tem->qty }}</span>
@@ -336,13 +385,37 @@
                                             <tr class="h-10 scanned_pd_div">
                                                 @if ($index == 0)
                                                     <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
-                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0 {{ check_all_scan($item->id) ? 'bg-green-200 text-green-600' : '' }}">{{ $item->document_no }}</td>
+
+                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 {{ check_all_scan($item->id) ? 'bg-green-200 text-green-600' : '' }}">
+                                                        {{-- {{ $item->document_no }} --}}
+                                                  
+                                                            <span id="scan-doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                            <button id="scan-btn-copy-doc-{{ $item->document_no }}" class="scan-copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                                   
+                                                        {{-- <div class="container">
+                                                            <span id="doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                            <button id="btn-copy-doc-{{ $item->document_no }}" class="copy-button" onclick="copyText('scan-doc-no-{{ $item->document_no }}', 'btn-copy-doc-{{ $item->document_no }}')">
+                                                                <i class="fa-solid fa-copy"></i>
+                                                            </button>
+                                                        </div> --}}
+                                                    </td>
+
+                
                                                 @else
                                                     <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
                                                     <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
                                                 @endif
                                                 
-                                                <td class="ps-2 border border-slate-400 border-t-0  {{ $color }}">{{ $tem->bar_code }}</td>
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0  {{ $color }}">
+                                                
+                                                        <span id="scan-bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
+                                                        <button id="scan-btn-copy-bar-{{ $tem->bar_code }}" class="scan-copy-button-barcode" >
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                               
+                                                </td>
 
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
 
@@ -400,12 +473,22 @@
                                         </td>
                                         @if ($index == 0)
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $item->document_no }}</td>
+                                                <td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0">
+                                                        <span id="excess-doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                        <button id="excess-btn-copy-doc-{{ $item->document_no }}" class="excess-copy-button">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                </td>
                                         @else
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
                                         @endif
-                                                <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->bar_code }}</td>
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
+                                                        <span id="excess-bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
+                                                        <button id="excess-btn-copy-bar-{{ $tem->bar_code }}" class="excess-copy-button-barcode">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
                                                     <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic' data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}" data-eq="{{ $index }}"></i>
                                                 </td>
@@ -1008,11 +1091,59 @@
 
 
     @push('js')
-        <script >
+        <script>
+
+            $(document).on('click', '.copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode', function() {
+                const buttonId = $(this).attr('id');
+                let documentNo, textId;
+
+                if (buttonId.startsWith('btn-copy-doc-')) {
+                    documentNo = buttonId.replace('btn-copy-doc-', '');
+                    textId = 'doc-no-' + documentNo;
+                } else if (buttonId.startsWith('scan-btn-copy-doc-')) {
+                    documentNo = buttonId.replace('scan-btn-copy-doc-', '');
+                    textId = 'scan-doc-no-' + documentNo;
+                } else if (buttonId.startsWith('excess-btn-copy-doc-')) {
+                    documentNo = buttonId.replace('excess-btn-copy-doc-', '');
+                    textId = 'excess-doc-no-' + documentNo;
+                } else if (buttonId.startsWith('btn-copy-bar-')) {
+                    documentNo = buttonId.replace('btn-copy-bar-', '');
+                    textId = 'bar-code-' + documentNo;
+                } else if (buttonId.startsWith('scan-btn-copy-bar-')) {
+                    documentNo = buttonId.replace('scan-btn-copy-bar-', '');
+                    textId = 'scan-bar-code-' + documentNo;
+                } else if (buttonId.startsWith('excess-btn-copy-bar-')) {
+                    documentNo = buttonId.replace('excess-btn-copy-bar-', '');
+                    textId = 'excess-bar-code-' + documentNo;
+                }
+                console.log(documentNo, textId);
+
+                copyText(textId, buttonId);
+            });
+
+            async function copyText(textId, buttonId) {
+            try {
+                const element = document.getElementById(textId);
+                if (!element) {
+                    return;
+                }
+                const text = element.innerText;
+                await navigator.clipboard.writeText(text);
+                const button = document.getElementById(buttonId);
+                if (!button) {
+                    return;
+                }
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy"></i>';
+                }, 1000);
+            } catch (err) {
+                console.log('Failed to copy: ', err);
+            }
+        }
 
 
             $(document).ready(function() {
-
                 new TomSelect("#documentNoselect",{
                     selectOnTab	: true
                 });
@@ -1024,12 +1155,25 @@
                 var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
                 var mainStatus = @json($main->status);
 
+                $('#back').on('click', function() {
+                    $.ajax({
+                        url: window.location.href, // URL to send the request to (current page)
+                        type: 'GET',
+                        success: function(data) {
+                            // Replace the content of the #content div with the new content
+                            console.log("hello");
+                            $('#content').html($(data).find('#content').html());
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error refreshing the page content:", status, error);
+                        }
+                    });
+                });
+
                 $('#document_no_search').click(function() {
                     var id = $('#idInput').val();
                     var documentNo = $('#documentNoSelect').val();
                     var barcodeNo = $('#barcodeSelect').val();
-
-                    console.log(id, documentNo, barcodeNo)
                     $.ajax({
                         url: '/search_document_no',
                         type: 'GET',
@@ -1076,10 +1220,25 @@
                                                 additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="${j}" title="add quantity"></i>`;
                                             }
                                             let rowHtml = `<tr class="h-10">
-                                                <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>
+                                                ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
-                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_no">${document.document_no}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">${barCodes[j]}</td>
+                                                ${j === 0 ? `
+                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+                                                  
+                                                            <span id="doc-no- ${document.document_no}"> ${document.document_no}</span>
+                                                            <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                 
+                                                    </td>` 
+                                                : 
+                                                '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
+                                                        <span id="bar-code- ${barCodes[j]}"> ${barCodes[j]}</span>
+                                                        <button id="btn-copy-bar- ${barCodes[j]}" class="copy-button-barcode" >
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
                                                     <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="${j}">${qtys[j]}</span>
@@ -1106,7 +1265,6 @@
                                         }
                                     });
                                 }
-
                                 function generateBarcodeHTML(barcode, height) {
                                     let barcodeHTML = `
                                         <div style="font-size:0;position:relative;width:246px;height:${height}px;">
@@ -1163,9 +1321,24 @@
                                             let scannedQty = parseInt(sanscannedQtys[j], 10);
 
                                             let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
-                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
-                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">${scanDocument.document_no}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
-                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sanbarCodes[j]}</td>
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}                     
+                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
+                                         
+                                                            <span id="scan-doc-no- ${scanDocument.document_no}">${scanDocument.document_no}</span>
+                                                            <button id="scan-btn-copy-doc- ${scanDocument.document_no}" class="scan-copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                                
+                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">  
+                                            
+                                                    
+                                                    <span id="scan-bar-code-  ${sanbarCodes[j]}">${sanbarCodes[j]}</span>
+                                                    <button id="scan-btn-copy-bar-  ${sanbarCodes[j]}" class="scan-copy-button-barcode" >
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                             
+                                                </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sansupplierNames[j]}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
                                                     ${scannedQty > qty ? qty : scannedQty}
@@ -1193,8 +1366,18 @@
                                             let rowHtmlthree = `<tr class="h-10">
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
-                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0"}">${excessDocument.document_no}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
-                                                <td class="ps-2 border border-slate-400 border-t-0">${excessBarCodes[j]}</td>
+                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
+                                                            <span id="excess-doc-no- ${excessDocument.document_no}">$${excessDocument.document_no}</span>
+                                                            <button id="excess-btn-copy-doc- ${excessDocument.document_no}" class="excess-copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
+                                                    <span id="excess-bar-code- ${excessBarCodes[j]}">${excessBarCodes[j]}</span>
+                                                    <button id="excess-btn-copy-bar- ${excessBarCodes[j]}" class="excess-copy-button-barcode" >
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                    </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 ">${excessSupplierNames[j]}
                                                     <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white remark_ic ${remarkClass} remark_ic' data-pd="${excessBarCodes[j]}" data-id="${excessDocument.id}" data-eq="${j}"></i>
                                                 </td>
@@ -1204,7 +1387,6 @@
                                         }
                                     });
                                 }
-
                                 function generateBarcodeHTML(barcode, height) {
                                     let barcodeHTML = `
                                         <div style="font-size:0;position:relative;width:246px;height:${height}px;">
@@ -1259,10 +1441,43 @@
                             }
                         },
                         error: function(xhr, status, error) {
-                            // console.error(error);
+                
                         }
                     });
                 });
+                // $('#suggestions').hide();
+                // $('#searchInput').on('input', function() {
+                //     let query = $(this).val();
+                //     if (query.length >= 1) {
+                //         $.ajax({
+                //             url: '/search_suggestions',
+                //             type: 'GET',
+                //             data: {
+                //                 query: query
+                //             },
+                //             success: function(response) {
+                //                 if (response.length > 0) {
+                //                     $('#suggestions').show();
+                //                     response.forEach(item => {
+                //                         $('#suggestions').append(`<div class="p-2 cursor-pointer hover:bg-gray-200" data-value="${item}">${item}</div>`);
+                //                     });
+                //                 }
+                //             }
+                //         });
+                //     } else {
+                //         console.log('no');
+                //         $('#suggestions').empty();
+                //         $('#suggestions').hide();
+                //     }
+                // });
+
+                $(document).on('click', '#suggestions div', function() {
+                    let value = $(this).data('value');
+                    $('#searchInput').val(value);
+                    $('#suggestions').empty();
+                });
+
+
             });
 
             $(document).ready(function(e){
