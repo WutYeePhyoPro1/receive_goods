@@ -765,7 +765,7 @@
 @endif
 
    {{-- Decision Modal --}}
-   {{-- <div class="hidden" id="alert_model">
+   <div class="hidden" id="alert_model">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
         <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
             <!-- Modal content -->
@@ -791,7 +791,7 @@
 
             </div>
         </div>
-</div> --}}
+</div>
 </div>
 {{-- End Modal --}}
 
@@ -1151,7 +1151,7 @@
 
                     if (navigator.clipboard) {
                         await navigator.clipboard.writeText(text);
-                        console.log('Text copied to clipboard');
+    
                     } else {
                         // Fallback method using textarea
                         const textArea = document.createElement('textarea');
@@ -1164,9 +1164,9 @@
 
                         try {
                             document.execCommand('copy');
-                            console.log('Fallback: Text copied to clipboard');
+                    
                         } catch (err) {
-                            console.error('Fallback: Oops, unable to copy', err);
+                        
                         }
 
                         document.body.removeChild(textArea);
@@ -1189,7 +1189,7 @@
             }
 
             $(document).ready(function() {
-                $('#back').hide();
+  
                 new TomSelect("#documentNoselect",{
                     selectOnTab	: true
                 });
@@ -1200,7 +1200,6 @@
 
                 var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
                 var mainStatus = @json($main->status);
-                console.log(canAdjustExcess,mainStatus);
 
                 $('#back').on('click', function() {
                     $.ajax({
@@ -1208,7 +1207,7 @@
                         type: 'GET',
                         success: function(data) {
                             // Replace the content of the #content div with the new content
-                            console.log("hello");
+        
                             $('#content').html($(data).find('#content').html());
                         },
                         error: function(xhr, status, error) {
@@ -1863,7 +1862,7 @@
 
                     $(document).on('click','#auth_con',function(e){
                         $index  = $('#index').val();
-                        console.log($index);
+            
                         $data = $('#auth_con_form').serialize();
 
                         $notempty = false;
