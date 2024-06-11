@@ -766,7 +766,7 @@
 @endif
 
    {{-- Decision Modal --}}
-   <div class="hidden" id="alert_model">
+   {{-- <div class="hidden" id="alert_model">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
         <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
             <!-- Modal content -->
@@ -792,7 +792,7 @@
 
             </div>
         </div>
-</div>
+</div> --}}
 </div>
 {{-- End Modal --}}
 
@@ -1150,7 +1150,6 @@
                     }
                     const text = element.innerText;
 
-                    // Check if navigator.clipboard is supported
                     if (navigator.clipboard) {
                         await navigator.clipboard.writeText(text);
                         console.log('Text copied to clipboard');
@@ -1203,6 +1202,7 @@
 
                 var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
                 var mainStatus = @json($main->status);
+                console.log(canAdjustExcess,mainStatus);
 
                 $('#back').on('click', function() {
                     $.ajax({
@@ -1267,14 +1267,14 @@
                                             }
                                             let additionalIconHtml = '';
                                             if (curDriverStartDate) {
-                                                additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="${j}" title="add quantity"></i>`;
+                                                additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
                                             }
                                             let rowHtml = `<tr class="h-10">
                                                 ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `
                                                     <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-                                                  
+      
                                                             <span id="doc-no- ${document.document_no}"> ${document.document_no}</span>
                                                             <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
                                                                 <i class="fas fa-copy"></i>
@@ -1363,21 +1363,16 @@
                                         let sanscannedQtys = scanDocument.scanned_qty;
                                         let scanColor = scanDocument.scan_color;
                                         let allScanned = scanDocument.all_scanned;
-
                                         for (let j = 0; j < sanbarCodes.length; j++) {
-                                            // Convert to integers
-                                            let qty = parseInt(sanqtys[j], 10);
-                                            let scannedQty = parseInt(sanscannedQtys[j], 10);
-
+                                            let qty = Number(sanqtys[j]);
+                                            let scannedQty = Number(sanscannedQtys[j]);
                                             let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}                     
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
-                                         
                                                             <span id="scan-doc-no- ${scanDocument.document_no}">${scanDocument.document_no}</span>
                                                             <button id="scan-btn-copy-doc- ${scanDocument.document_no}" class="scan-copy-button">
                                                                 <i class="fas fa-copy"></i>
-                                                            </button>
-                                                                
+                                                            </button> 
                                                     </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">  
                                             
@@ -1406,17 +1401,20 @@
                                         let excessRemarks = excessDocument.remark || [];
                                         for (let j = 0; j < excessBarCodes.length; j++) {
                                             let remainingQty = excessScannedQtys[j] - excessQtys[j];
-                                            let quantityClass = remainingQty < 0 ? 'text-red-500' : '';
+                                            let excessQty = Number(excessQtys[j]);
+                                            let excessScannedQty = Number(excessScannedQtys[j]);
+                                            let quantityClass = remainingQty < 0 ? 'text-rose-600' : 'text-emerald-600';
                                             let remarkClass = excessRemarks[j] === undefined ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600';
                                             let buttonHtml = '';
-                                            if (canAdjustExcess && mainStatus === 'complete' && excessQtys[j] < excessScannedQtys[j]) {
-                                            buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="${excessDocument.id}"><i class='bx bx-minus'></i></button>`;
+                                            if ( canAdjustExcess && mainStatus === 'complete' &&  excessQty < excessScannedQty ) {
+                                            buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="${excessDocument.excess_id}"><i class='bx bx-minus'></i></button>`;
                                             }
+    
                                             let rowHtmlthree = `<tr class="h-10">
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
-                                                            <span id="excess-doc-no- ${excessDocument.document_no}">$${excessDocument.document_no}</span>
+                                                            <span id="excess-doc-no- ${excessDocument.document_no}">${excessDocument.document_no}</span>
                                                             <button id="excess-btn-copy-doc- ${excessDocument.document_no}" class="excess-copy-button">
                                                                 <i class="fas fa-copy"></i>
                                                             </button>
@@ -1427,8 +1425,8 @@
                                                         <i class="fas fa-copy"></i>
                                                     </button>
                                                     </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 ">${excessSupplierNames[j]}
-                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white remark_ic ${remarkClass} remark_ic' data-pd="${excessBarCodes[j]}" data-id="${excessDocument.id}" data-eq="${j}"></i>
+                                                <td class="ps-2 border border-slate-400 border-t-0">${excessSupplierNames[j]}
+                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white ${remarkClass} remark_ic' data-pd="${excessBarCodes[j]}" data-id="${excessDocument.excess_id}" data-eq="${j}"></i>
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ${quantityClass}">${remainingQty} </td>
                                             </tr>`;
@@ -1490,8 +1488,7 @@
                                 $('#back').hide();
                             }
                         },
-                        error: function(xhr, status, error) {
-                
+                        error: function(xhr, status, error) { 
                         }
                     });
                 });
@@ -1861,7 +1858,8 @@
 
                     $(document).on('click','#auth_con',function(e){
                         $index  = $('#index').val();
-                        console.log($index);
+                        console.log($index, 'hi');
+            
                         $data = $('#auth_con_form').serialize();
 
                         $notempty = false;
@@ -2386,6 +2384,7 @@
             }
             if(!$finish && $role !=2){
                         $(document).on('click','.del_exceed',function(e){
+                            $('#back').hide();
                             $id = $(this).data('id');
                             $.ajax({
                                 url: "{{ route('del_exceed') }}",

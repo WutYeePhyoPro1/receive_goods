@@ -716,6 +716,7 @@ class userController extends Controller
                 }
 
                 if($search_excess_pd->isNotEmpty()) {
+                    $excess_id = [];
                     $excess_bar_codes = [];
                     $excess_supplier_names = [];
                     $excess_qtys = [];
@@ -724,12 +725,14 @@ class userController extends Controller
                     foreach($search_excess_pd as $excess_pd_data) {
                         if($input_barcode_no) {
                             if($excess_pd_data->bar_code == $input_barcode_no) {
+                                $excess_id = $excess_pd_data->id;
                                 $excess_bar_codes[] = $excess_pd_data->bar_code;
                                 $excess_supplier_names[] = $excess_pd_data->supplier_name;
                                 $excess_qtys[] = $excess_pd_data->qty;
                                 $excess_scanned_qtys[] = $excess_pd_data->scanned_qty;
                             }
                         } else {
+                            $excess_id = $excess_pd_data->id;
                             $excess_bar_codes[] = $excess_pd_data->bar_code;
                             $excess_supplier_names[] = $excess_pd_data->supplier_name;
                             $excess_qtys[] = $excess_pd_data->qty;
@@ -746,6 +749,7 @@ class userController extends Controller
                         'supplier_name' => $excess_supplier_names,
                         'qty' => $excess_qtys,
                         'scanned_qty' => $excess_scanned_qtys,
+                        'excess_id' => $excess_id
                     ];
                     $excess_response[] = $excess_merged_data;
                 }
