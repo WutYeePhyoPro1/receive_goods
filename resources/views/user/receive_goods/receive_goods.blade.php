@@ -1862,7 +1862,7 @@
 
                     $(document).on('click','#auth_con',function(e){
                         $index  = $('#index').val();
-                        console.log($index);
+                        
                         $data = $('#auth_con_form').serialize();
 
                         $notempty = false;
@@ -1887,12 +1887,15 @@
                                     $('.error_msg').text('');
                                 },
                                 success:function(res){
+                                   
                                     $('#pass_con').hide();
+                                    console.log($index);
                                     $('.main_scan').eq($index).attr('hidden',true);
                                     $('.real_scan').eq($index).attr('type','number');
                                     $('.real_scan').eq($index).attr('data-auth',res.id);
                                 },
                                 error:function(){
+                                    console.log('error')
                                     $('.error_msg').eq(0).text('Credential Does Not Match!!');
                                     $('.error_msg').eq(0).parent().addClass('bg-rose-200 pb-1');
                                     $('#employee_code').val('');
@@ -2224,7 +2227,7 @@
                     });
 
                     window.addEventListener('blur', function() {
-                        $('#alert_model').show();
+                        //$('#alert_model').show();
 
                     });
                 }
