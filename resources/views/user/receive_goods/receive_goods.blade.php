@@ -8,6 +8,10 @@
         display: none;
     }
 
+    #back {
+        display: none;
+    }
+
     .td-container, .td-barcode-container{
         position: relative; 
         height: 100%; 
@@ -1119,27 +1123,6 @@
                 copyText(textId, buttonId);
             });
 
-            // async function copyText(textId, buttonId) {
-            //     try {
-            //         const element = document.getElementById(textId);
-            //         if (!element) {
-            //             return;
-            //         }
-            //         const text = element.innerText;
-            //         await navigator.clipboard.writeText(text);
-            //         const button = document.getElementById(buttonId);
-            //         if (!button) {
-            //             return;
-            //         }
-            //         button.innerHTML = '<i class="fas fa-check"></i>';
-            //         setTimeout(() => {
-            //             button.innerHTML = '<i class="fas fa-copy"></i>';
-            //         }, 1000);
-            //     } catch (err) {
-            //         console.log('Failed to copy: ', err);
-            //     }
-            // }
-
             async function copyText(textId, buttonId) {
                 try {
                     const element = document.getElementById(textId);
@@ -1189,7 +1172,7 @@
             }
 
             $(document).ready(function() {
-  
+     
                 new TomSelect("#documentNoselect",{
                     selectOnTab	: true
                 });
@@ -1234,7 +1217,7 @@
                                 window.location.href = `/receive_goods/${id}`;
                             } else {
                                 $('#resultCount').show();
-                                $('#back').show();
+                                // $('#back').show();
                             }
 
                             var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
@@ -2229,7 +2212,7 @@
                     });
 
                     window.addEventListener('blur', function() {
-                        //$('#alert_model').show();
+                        $('#alert_model').show();
 
                     });
                 }
