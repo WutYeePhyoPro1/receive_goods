@@ -32,7 +32,6 @@
 </style>
 
 @section('content')
-    {{-- <span>this is received_good</span> --}}
     @if($errors->any())
         <script>
             $(document).ready(function(e){
@@ -133,7 +132,7 @@
                 <button id="document_no_search" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Search
                 </button>
-                <button id="back" onclick="javascript:window.location.href = '/view_goods/'+{{$id}}" class="bg-blue-500 bg-big hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back</button>
+                <button id="back" onclick="javascript:window.location.href = '/receive_goods/'+{{$id}}" class="bg-blue-500 bg-big hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back</button>
             </div>
             <p id="resultCount" class="mt-2">Not result found</p>
         </div>
@@ -508,7 +507,7 @@
 
 
     {{-- Decision Modal --}}
- {{-- <div class="hidden" id="decision">
+ <div class="hidden" id="decision">
     <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
         <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
             <!-- Modal content -->
@@ -545,7 +544,7 @@
             </div>
         </div>
 </div>
-</div> --}}
+</div>
 {{-- End Modal --}}
  {{-- Car info Modal --}}
 <div class="hidden" id="car_info">
@@ -843,7 +842,7 @@
 
                                     </div>
                                 </div>
-                                <input type="text" id="index">
+                                <input type="hidden" type="text" id="index">
                             <div class="grid grid-cols-2 gap-5 my-5">
 
                                 <div class="">
@@ -1189,8 +1188,6 @@
                 }
             }
 
-
-
             $(document).ready(function() {
                 $('#back').hide();
                 new TomSelect("#documentNoselect",{
@@ -1234,15 +1231,23 @@
                             var excessDocuments = response.excess_documents;
                             var need_document_inform  = response.need_document_inform;
 
+                            if (documents.length === 0  && scanDocuments.length === 0 && excessDocuments.length === 0) {
+                                window.location.href = `/receive_goods/${id}`;
+                            } else {
+                                $('#resultCount').show();
+                                $('#back').show();
+                            }
+
                             var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
                             var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
                             var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
+
                             if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
                                 $('#resultCount').hide();
                                 $('#back').show();
                                 $('.main_body').empty();
-                                $('.scan_body').hide();
-                                $('.excess_body').hide();
+                                $('.scan_body').empty();
+                                $('.excess_body').empty();
                                 $('.search_main_body').empty();
                                 $('.search_scan_body').empty();
                                 $('.excess_scan_body').empty();
@@ -1410,7 +1415,6 @@
                                             if ( canAdjustExcess && mainStatus === 'complete' &&  excessQty < excessScannedQty ) {
                                             buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="${excessDocument.excess_id}"><i class='bx bx-minus'></i></button>`;
                                             }
-    
                                             let rowHtmlthree = `<tr class="h-10">
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
@@ -1479,14 +1483,14 @@
 
                             } else {
 
-                                $('.main_body').show();
-                                $('.scan_body').show();
-                                $('.excess_body').show();
+                                // $('.main_body').show();
+                                // $('.scan_body').show();
+                                // $('.excess_body').show();
                                 $('.search_main_body').empty();
                                 $('.search_scan_body').empty();
                                 $('.excess_scan_body').empty();
-                                $('#resultCount').show();
-                                $('#back').hide();
+                    
+                                // $('#back').hide();
                             }
                         },
                         error: function(xhr, status, error) { 
@@ -1673,8 +1677,7 @@
                 if(!$finish)
                 {
                     $(document).on('click','.change_scan',function(e){
-                        $id     = $(this).data('index');
-                        console.log($id,'index_id');
+                        $id = $(this).data('index');
                         $('#index').val($id);
                         $('#employee_code').val('');
                         $('#pass').val('');
@@ -1887,7 +1890,7 @@
                                 success:function(res){
                                    
                                     $('#pass_con').hide();
-                                    console.log($('.main_scan').eq($index));
+                        
                                    
                                     $('.main_scan').eq($index).attr('hidden',true);
                                     $('.real_scan').eq($index).attr('type','number');
