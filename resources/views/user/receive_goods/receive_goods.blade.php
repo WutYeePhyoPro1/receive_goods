@@ -136,7 +136,9 @@
                 <button id="document_no_search" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Search
                 </button>
-                <button id="back" onclick="javascript:window.location.href = '/receive_goods/'+{{$id}}" class="bg-blue-500 bg-big hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back</button>
+
+                <span>{{ $page }}</span>
+                <button id="back" onclick="javascript:window.location.href = '{{ $page == 'receive' ? '/receive_goods/' : '/view_goods/' }}{{$id}}'" class="bg-blue-500 bg-big hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back</button>
             </div>
             <p id="resultCount" class="mt-2">Not result found</p>
         </div>
@@ -272,12 +274,10 @@
                                                     </div>
                                                 </td> --}}
                                                 <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-
                                                         <span id="doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
                                                         <button id="btn-copy-doc-{{ $item->document_no }}" class="copy-button">
                                                             <i class="fas fa-copy"></i>
                                                         </button>
-
                                                 </td>
                                             @else
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
@@ -286,12 +286,10 @@
                                             @endif
 
                                             <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">
-
                                                     <span id="bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
                                                     <button id="btn-copy-bar-{{ $tem->bar_code }}" class="copy-button-barcode" >
                                                         <i class="fas fa-copy"></i>
                                                     </button>
-
                                             </td>
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
@@ -307,6 +305,7 @@
                                                 <div class="main_scan">
                                                     {{ $tem->scanned_qty }}
                                                     @if (isset($cur_driver->start_date))
+                                                        {{ $cur_driver->start_date }}
                                                         <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                     @endif
                                                 </div>
@@ -1186,16 +1185,7 @@
 
                 $('#back').on('click', function() {
                     $.ajax({
-                        url: window.location.href, // URL to send the request to (current page)
-                        type: 'GET',
-                        success: function(data) {
-                            // Replace the content of the #content div with the new content
-
-                            $('#content').html($(data).find('#content').html());
-                        },
-                        error: function(xhr, status, error) {
-                            console.error("Error refreshing the page content:", status, error);
-                        }
+                        url: window.location.href,
                     });
                 });
 
@@ -1203,6 +1193,7 @@
                     var id = $('#idInput').val();
                     var documentNo = $('#documentNoSelect').val();
                     var barcodeNo = $('#barcodeSelect').val();
+                    var pageUrl = '{{ $page == 'receive' ? '/receive_goods/' : '/view_goods/' }}';
                     $.ajax({
                         url: '/search_document_no',
                         type: 'GET',
@@ -1214,12 +1205,10 @@
                             var need_document_inform  = response.need_document_inform;
 
                             if (documents.length === 0  && scanDocuments.length === 0 && excessDocuments.length === 0) {
-                                window.location.href = `/receive_goods/${id}`;
+                                window.location.href = pageUrl + id;
                             } else {
                                 $('#resultCount').show();
-                                // $('#back').show();
                             }
-
                             var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
                             var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
                             var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
@@ -1254,7 +1243,7 @@
                                                 buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
                                             }
                                             let additionalIconHtml = '';
-                                            if (curDriverStartDate) {
+                                            if (curDriverStartDate.length != 0) {
                                                 additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
                                             }
                                             let rowHtml = `<tr class="h-10">
@@ -1363,8 +1352,6 @@
                                                             </button>
                                                     </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
-
-
                                                     <span id="scan-bar-code-  ${sanbarCodes[j]}">${sanbarCodes[j]}</span>
                                                     <button id="scan-btn-copy-bar-  ${sanbarCodes[j]}" class="scan-copy-button-barcode" >
                                                         <i class="fas fa-copy"></i>
@@ -1462,16 +1449,10 @@
                                     `;
                                     return barcodeHTML;
                                 }
-
                             } else {
-
-                                // $('.main_body').show();
-                                // $('.scan_body').show();
-                                // $('.excess_body').show();
                                 $('.search_main_body').empty();
                                 $('.search_scan_body').empty();
                                 $('.excess_scan_body').empty();
-
                                 $('#back').hide();
                             }
                         },
@@ -1872,7 +1853,7 @@
                                 success:function(res){
 
                                     $('#pass_con').hide();
-                                    $('#back').hide();
+                    
 
                                     $('.main_scan').eq($index).attr('hidden',true);
                                     $('.real_scan').eq($index).attr('type','number');
@@ -1917,6 +1898,7 @@
                                         data: {_token:token,data:$add_val,car_id:$cur_id,product:$pd_id,auth:$auth},
                                         success:function(res)
                                         {
+                                            $('#back').hide();
                                             reload_page();
                                         }
                                     })

@@ -121,8 +121,9 @@ class userController extends Controller
         $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
         $reason         = PrintReason::get();
         $status = 'view';
+        $page = 'view';
 
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document','reason','id','scan_document_no'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document','reason','id','scan_document_no','page'));
     }
 
     public function car_info()
@@ -211,10 +212,10 @@ class userController extends Controller
                         ->when($loc == 'other',function($q) use($user_branch_code){
                             $q->where('branch',$user_branch_code);
                         })->get();
-
         $reason     = PrintReason::get();
+        $page = 'receive';
         view()->share(['status'=>'scan','reason'=>$reason]);
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document','id','scan_document_no'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document','id','scan_document_no', 'page'));
     }
 
     public function join_receive($id,$car)
@@ -624,7 +625,6 @@ class userController extends Controller
                 $search_pd = collect(search_pd($document_id));
                 $search_scaned_pd = collect(search_scanned_pd($document_id));
                 $search_excess_pd = collect(search_excess_pd($document_id));
-                
                 if ($search_pd->isNotEmpty()) {
                     $bar_codes = [];
                     $supplier_names = [];
@@ -674,7 +674,6 @@ class userController extends Controller
                     
                     $response[] = $merged_data;
                 }
-
                 if($search_scaned_pd->isNotEmpty()) {
                     $scan_bar_codes = [];
                     $scan_supplier_names = [];
@@ -715,7 +714,6 @@ class userController extends Controller
                     ];
                     $scan_response[] = $scan_merged_data;
                 }
-
                 if($search_excess_pd->isNotEmpty()) {
                     $excess_id = [];
                     $excess_bar_codes = [];
