@@ -136,8 +136,6 @@
                 <button id="document_no_search" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Search
                 </button>
-
-                <span>{{ $page }}</span>
                 <button id="back" onclick="javascript:window.location.href = '{{ $page == 'receive' ? '/receive_goods/' : '/view_goods/' }}{{$id}}'" class="bg-blue-500 bg-big hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back</button>
             </div>
             <p id="resultCount" class="mt-2">Not result found</p>
@@ -305,7 +303,7 @@
                                                 <div class="main_scan">
                                                     {{ $tem->scanned_qty }}
                                                     @if (isset($cur_driver->start_date))
-                                                        {{ $cur_driver->start_date }}
+                                                    
                                                         <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                     @endif
                                                 </div>
