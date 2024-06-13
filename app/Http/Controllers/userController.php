@@ -587,6 +587,8 @@ class userController extends Controller
         $input_document_no = $request->input('document_no');
         $input_barcode_no = $request->input('barcode_no');
         $isDcStaff = dc_staff();
+
+
         
         $curDriverFirst = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         if($curDriverFirst) {

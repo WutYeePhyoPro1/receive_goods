@@ -1235,13 +1235,16 @@
                                         let curDriver = need_document_inform.curDriver;
                                         let authId = need_document_inform.authId;
                                         let curDriverStartDate = need_document_inform.cur_driver_start_date;
+                    
                                         for (let j = 0; j < barCodes.length; j++) {
                                             let buttonHtml = '';
                                             if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
                                                 buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
                                             }
                                             let additionalIconHtml = '';
-                                            if (curDriverStartDate.length != 0) {
+                                            if( curDriverStartDate == null){
+                                                
+                                            } else if (curDriverStartDate.length != 0) {
                                                 additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
                                             }
                                             let rowHtml = `<tr class="h-10">
