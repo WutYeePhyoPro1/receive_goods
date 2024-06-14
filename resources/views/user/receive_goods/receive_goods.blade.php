@@ -303,7 +303,7 @@
                                                 <div class="main_scan">
                                                     {{ $tem->scanned_qty }}
                                                     @if (isset($cur_driver->start_date))
-                                                    
+
                                                         <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                     @endif
                                                 </div>
@@ -1235,7 +1235,7 @@
                                         let curDriver = need_document_inform.curDriver;
                                         let authId = need_document_inform.authId;
                                         let curDriverStartDate = need_document_inform.cur_driver_start_date;
-                    
+
                                         for (let j = 0; j < barCodes.length; j++) {
                                             let buttonHtml = '';
                                             if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
@@ -1243,7 +1243,7 @@
                                             }
                                             let additionalIconHtml = '';
                                             if( curDriverStartDate == null){
-                                                
+
                                             } else if (curDriverStartDate.length != 0) {
                                                 additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
                                             }
@@ -1854,7 +1854,7 @@
                                 success:function(res){
 
                                     $('#pass_con').hide();
-                    
+
 
                                     $('.main_scan').eq($index).attr('hidden',true);
                                     $('.real_scan').eq($index).attr('type','number');

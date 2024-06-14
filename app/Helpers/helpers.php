@@ -170,6 +170,7 @@ use Illuminate\Support\Facades\DB;
         $min    = (int)(($combine % 3600) / 60);
         $sec    = (int)(($combine % 3600) % 60);
         $sec_pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+        // dd($finish_driver,$pending_driver);
         return $sec_pass;
     }
 
@@ -206,6 +207,7 @@ use Illuminate\Support\Facades\DB;
         $cur_sec = strtotime($cur->start_date.' '.$cur->start_time);
         $now     = Carbon::now()->timestamp;
         $diff = $now - $cur_sec;
+
         return $diff;
     }
 

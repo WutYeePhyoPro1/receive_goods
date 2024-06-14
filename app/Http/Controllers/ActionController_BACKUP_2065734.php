@@ -403,7 +403,7 @@ class ActionController extends Controller
             $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
             $this_scanned = get_scanned_qty($driver->id);
             // dd(get_all_duration($request->id));
-            
+
             // if(cur_truck_sec($driver->id) < 86401)
             // {
             //     $receive->update([
@@ -465,22 +465,22 @@ class ActionController extends Controller
                 'status'                => 'complete'
             ]);
 
-        // if(cur_truck_sec($driver->id) < 86401)
-        // {
-        //     $receive->update([
-        //         'total_duration'        => get_all_duration($id),
-        //         'remaining_qty'         => $data['remaining'],
-        //         'exceed_qty'            => $data['exceed'],
-        //         'status'                => 'complete'
-        //     ]);
+        if(cur_truck_sec($driver->id) < 86401)
+        {
+            $receive->update([
+                'total_duration'        => get_all_duration($id),
+                'remaining_qty'         => $data['remaining'],
+                'exceed_qty'            => $data['exceed'],
+                'status'                => 'complete'
+            ]);
 
-        //     $driver->update([
-        //         'scanned_goods' => $this_scanned,
-        //         'duration'      => $time
-        //     ]);
+            $driver->update([
+                'scanned_goods' => $this_scanned,
+                'duration'      => $time
+            ]);
 
-        //     return response()->json(200);
-        // }
+            return response()->json(200);
+        }
         return response()->json(500);
         }
     }
@@ -490,7 +490,7 @@ class ActionController extends Controller
     {
         $product = Product::where('id',$request->id)->first();
         $remove_qty = $product->scanned_qty - $product->qty;
-        // dd($product,$remove_qty);    
+        // dd($product,$remove_qty);
         $product->update([
             'scanned_qty' => $product->qty
         ]);
