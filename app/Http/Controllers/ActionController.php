@@ -333,8 +333,15 @@ class ActionController extends Controller
             }
 
             session_start();
-            if (!isset($_SESSION['response_counter']) || $_SESSION['last_barcode'] !== $product->bar_code) {
-                if ($_SESSION['last_barcode'] !== $product->bar_code) {
+
+            if (!isset($_SESSION['last_barcode'])) {
+                $_SESSION['last_barcode'] = null; 
+            }
+            
+            $barcode = $product->bar_code;
+            
+            if (!isset($_SESSION['response_counter']) || $_SESSION['last_barcode'] !== $barcode) {
+                if ($_SESSION['last_barcode'] !== $barcode) {
                     $_SESSION['response_counter'] = $product->scann_count !== null ? $product->scann_count + 1 : 1;
                 } else if ($product->scann_count !== null) {
                     $_SESSION['response_counter'] = $product->scann_count + 1;
@@ -345,25 +352,24 @@ class ActionController extends Controller
                 $_SESSION['response_counter']++;
             }
             
+            
+            $_SESSION['last_barcode'] = $barcode;
+            
+            
             $product->update([
-                'response_counter' => $_SESSION['response_counter']
-            ]);
-
-            $_SESSION['last_barcode'] = $product->bar_code;
-
-            $product->update([
+                'response_counter' => $_SESSION['response_counter'],
                 'scann_count' => $_SESSION['response_counter']
             ]);
-
+            
             return response()->json([
                 'doc_no' => $doc_no,
-                'bar_code' => $product->bar_code,
+                'bar_code' => $barcode,
                 'data' => $product,
                 'scanned_qty' => $qty,
                 'pd_code' => $pd_code,
                 'scann_count' => $_SESSION['response_counter']
             ], 200);
-
+            
             // return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty,'pd_code'=>$pd_code],200);
             } catch (\Exception $e) {
                 logger($e);

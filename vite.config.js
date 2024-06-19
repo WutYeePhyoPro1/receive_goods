@@ -13,12 +13,12 @@ export default defineConfig({
     // server: {
     //     host: true,
     // },
-    // server: {
-    //     host: '192.168.200.107',
-    //     port: 3000,
-    //     hmr: {
-    //         host: '192.168.200.107',
-    //         port: 3000,
-    //     },
-    // },
+    server: {
+        host: '192.168.200.107',
+        port: 3000,
+        hmr: {
+            host: '192.168.200.107',
+            port: 3000,
+        },
+    },
 });
