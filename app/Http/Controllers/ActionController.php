@@ -332,7 +332,39 @@ class ActionController extends Controller
                 Session::put('first_time_search_'.$request->id,$pd_code);
             }
 
-            return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty,'pd_code'=>$pd_code],200);
+            session_start();
+            if (!isset($_SESSION['response_counter']) || $_SESSION['last_barcode'] !== $product->bar_code) {
+                if ($_SESSION['last_barcode'] !== $product->bar_code) {
+                    $_SESSION['response_counter'] = $product->scann_count !== null ? $product->scann_count + 1 : 1;
+                } else if ($product->scann_count !== null) {
+                    $_SESSION['response_counter'] = $product->scann_count + 1;
+                } else {
+                    $_SESSION['response_counter'] = 1;
+                }
+            } else {
+                $_SESSION['response_counter']++;
+            }
+            
+            $product->update([
+                'response_counter' => $_SESSION['response_counter']
+            ]);
+
+            $_SESSION['last_barcode'] = $product->bar_code;
+
+            $product->update([
+                'scann_count' => $_SESSION['response_counter']
+            ]);
+
+            return response()->json([
+                'doc_no' => $doc_no,
+                'bar_code' => $product->bar_code,
+                'data' => $product,
+                'scanned_qty' => $qty,
+                'pd_code' => $pd_code,
+                'scann_count' => $_SESSION['response_counter']
+            ], 200);
+
+            // return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty,'pd_code'=>$pd_code],200);
             } catch (\Exception $e) {
                 logger($e);
                 return response()->json(['message'=>'Server Time Out Please Try Again'],500);

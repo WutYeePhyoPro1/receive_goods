@@ -341,6 +341,7 @@
                                 <th class="border border-slate-400 border-t-0">Box Barcode</th>
                                 <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
                                 <th class="border border-slate-400 border-t-0 border-r-0">Quantity</th>
+                                <th class="border border-slate-400 border-t-0 border-r-0">Scann Quantity</th>
                             </tr>
                         </thead>
                             <?php $i=0 ?>
@@ -413,13 +414,13 @@
                                                         <span id="scan-bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
                                                         <button id="scan-btn-copy-bar-{{ $tem->bar_code }}" class="scan-copy-button-barcode" >
                                                             <i class="fas fa-copy"></i>
-                                                        </button>
-
+                                                        </button>   
                                                 </td>
 
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
 
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0 no">{{ $tem->scann_count }}</td>
                                             </tr>
                                             {{-- @endif --}}
                                             @endforeach
@@ -2055,6 +2056,9 @@
                                 type: 'POST',
                                 data: {_token:token , data:$val,id:$recieve_id,car : $cur_id},
                                 success:function(res){
+                                    let no = res.no;
+                                    $('.no').text(no);
+                                    //$('.scanned_pd_div').eq(0).find('td').addClass('latest');
                                     // if(res.msg == 'decision')
 
                                     // {
