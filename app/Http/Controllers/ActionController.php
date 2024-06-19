@@ -352,9 +352,7 @@ class ActionController extends Controller
                 $_SESSION['response_counter']++;
             }
             
-            
             $_SESSION['last_barcode'] = $barcode;
-            
             
             $product->update([
                 'response_counter' => $_SESSION['response_counter'],
@@ -370,7 +368,6 @@ class ActionController extends Controller
                 'scann_count' => $_SESSION['response_counter']
             ], 200);
             
-            // return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty,'pd_code'=>$pd_code],200);
             } catch (\Exception $e) {
                 logger($e);
                 return response()->json(['message'=>'Server Time Out Please Try Again'],500);

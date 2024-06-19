@@ -303,7 +303,6 @@
                                                 <div class="main_scan">
                                                     {{ $tem->scanned_qty }}
                                                     @if (isset($cur_driver->start_date))
-                                                    
                                                         <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                     @endif
                                                 </div>
@@ -1269,13 +1268,10 @@
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
-                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="${j}">${qtys[j]}</span>
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold select-none" data-index="${j}">${qtys[j]}</span>
                                                     <input type="hidden" class="pd_unit" value="${Unit[j]}">
                                                     <input type="hidden" class="pd_name" value="${supplierNames[j]}">
                                                     <input type="hidden" class="pd_id" value="${searchpdId[j]}">
-                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'></div>
                                                     <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
                                                     <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 22)}</div>
                                                     <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
