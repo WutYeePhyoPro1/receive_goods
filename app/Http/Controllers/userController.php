@@ -112,7 +112,8 @@ class userController extends Controller
     {
         // dd($id);
         Common::Log(route('view_goods',['id'=>$id]),"View REG Page");
-        $main = GoodsReceive::where('id',$id)->first();
+        $main = GoodsReceive::where('id',$id)->whereNull('deleted_at')->first();
+        // dd($main);
         $truck = Truck::get();
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
@@ -142,11 +143,12 @@ class userController extends Controller
         $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
                         ->leftJoin('goods_receives', 'driver_infos.received_goods_id', 'goods_receives.id')
                         ->where('driver_infos.user_id', getAuth()->id)
+                        ->whereNull('goods_receives.deleted_at')
                         ->whereNull('driver_infos.duration')
                         ->first();
                         
         $emp = GoodsReceive::where('user_id',getAuth()->id)
-                            ->whereNull('total_duration')
+                            ->whereNull('total_duration')->whereNull('deleted_at')
                             ->first();
         $type = Truck::get();
         $gate   = CarGate::when($loc == 'dc',function($q) {
@@ -157,12 +159,13 @@ class userController extends Controller
                         })->get();
 
         if($data || $emp){
+            // dd($data,$emp);
             $log            = new Log();
             $log->user_id   = getAuth()->id;
             $log->history   = route('receive_goods',['id' => $data->received_goods_id ?? $emp->id]);
             $log->action    = 'Go To Receive Goods Page';
             $log->save();
-
+           
             view()->share(['truck'=>$type,'gate'=>$gate]);
             return redirect()->route('receive_goods', ['id' => $data->received_goods_id ?? $emp->id]);
         }else{
@@ -191,7 +194,7 @@ class userController extends Controller
 
     public function receive_goods($id)
     {
-        // dd('yes');
+        // dd($id);
 
         $data = get_branch_truck();
         $truck_id   = $data[0];
@@ -199,7 +202,8 @@ class userController extends Controller
         $reg        = $data[2];
         $user_branch    = getAuth()->branch_id;
         $user_branch_code    = getAuth()->branch->branch_code;
-        $main = GoodsReceive::where('id',$id)->first();
+        $main = GoodsReceive::where('id',$id)->whereNull('deleted_at')->first();
+        // dd($main);
         $truck = Truck::get();
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where(['received_goods_id'=>$id,'user_id'=>getAuth()->id])->whereNull('duration')->first();

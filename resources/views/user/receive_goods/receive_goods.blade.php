@@ -47,7 +47,7 @@
         <div class="flex">
 
             {{-- <div class="flex {{ $main->duration ? 'invisible pointer-events-none' : '' }}"> --}}
-
+            
             @if (($main->status != 'complete') && $status != 'view')
             <input type="text" id="docu_ipt" class="w-80 h-1/2 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none" placeholder="PO/POI/TO Document...">
             <button  class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500" id="search_btn" hidden>Search</button>
@@ -1268,7 +1268,7 @@
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
-                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="${j}">${qtys[j]}</span>
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold  select-none" data-index="${j}">${qtys[j]}</span>
                                                     <input type="hidden" class="pd_unit" value="${Unit[j]}">
                                                     <input type="hidden" class="pd_name" value="${supplierNames[j]}">
                                                     <input type="hidden" class="pd_id" value="${searchpdId[j]}">
