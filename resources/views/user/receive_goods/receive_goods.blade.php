@@ -1220,116 +1220,86 @@
                                 $('.search_main_body').empty();
                                 $('.search_scan_body').empty();
                                 $('.excess_scan_body').empty();
+
                                 if (!isEmptyDocuments) {
-                                    documents.forEach((document, i) => {
-                                        let barCodes = document.bar_code;
-                                        let supplierNames = document.supplier_name;
-                                        let qtys = document.qty;
-                                        let scannedQtys = document.scanned_qty;
-                                        let checkColor = document.check_color;
-                                        let scanZero = document.scan_zero;
-                                        let searchpdId = document.search_pd_id;
-                                        let Unit = document.unit;
-                                        let documentno = document.document_no;
-                                        let isDcStaff = need_document_inform.isDcStaff;
-                                        let curDriver = need_document_inform.curDriver;
-                                        let authId = need_document_inform.authId;
-                                        let curDriverStartDate = need_document_inform.cur_driver_start_date;
-                    
-                                        for (let j = 0; j < barCodes.length; j++) {
-                                            let buttonHtml = '';
+                                    for (var i = 0; i < documents.length; i++) {
+                                        var document = documents[i];
+                                        var barCodes = document.bar_code;
+                                        var supplierNames = document.supplier_name;
+                                        var qtys = document.qty;
+                                        var scannedQtys = document.scanned_qty;
+                                        var checkColor = document.check_color;
+                                        var scanZero = document.scan_zero;
+                                        var searchpdId = document.search_pd_id;
+                                        var Unit = document.unit;
+                                        var documentno = document.document_no;
+                                        var barcodeHtmls = document.barcode_htmls; // New line to get barcode HTMLs
+                                        var isDcStaff = need_document_inform.isDcStaff;
+                                        var curDriver = need_document_inform.curDriver;
+                                        var authId = need_document_inform.authId;
+                                       
+                                        var curDriverStartDate = need_document_inform.cur_driver_start_date;
+
+                                        for (var j = 0; j < barCodes.length; j++) {
+                                            var buttonHtml = '';
                                             if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
                                                 buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
                                             }
-                                            let additionalIconHtml = '';
-                                            if( curDriverStartDate == null){
-                                                
+                                            var additionalIconHtml = '';
+                                            if (curDriverStartDate == null) {
                                             } else if (curDriverStartDate.length != 0) {
                                                 additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
                                             }
-                                            let rowHtml = `<tr class="h-10">
+
+                                            var barcodeHtml = barcodeHtmls[j] || {
+                                                bar_stick1: '',
+                                                bar_stick2: '',
+                                                bar_stick3: ''
+                                            }; // Get the barcode HTML for the current index
+
+                                            var rowHtml = `<tr class="h-10">
                                                 ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `
                                                     <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-
-                                                            <span id="doc-no- ${document.document_no}"> ${document.document_no}</span>
-                                                            <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
-                                                                <i class="fas fa-copy"></i>
-                                                            </button>
-                                                    </td>`
-                                                :
-                                                '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
-                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
-                                                        <span id="bar-code- ${barCodes[j]}"> ${barCodes[j]}</span>
-                                                        <button id="btn-copy-bar- ${barCodes[j]}" class="copy-button-barcode" >
+                                                        <span id="doc-no-${document.document_no}">${document.document_no}</span>
+                                                        <button id="btn-copy-doc-${document.document_no}" class="copy-button">
                                                             <i class="fas fa-copy"></i>
                                                         </button>
+                                                    </td>`
+                                                : '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
+                                                    <span id="bar-code-${barCodes[j]}">${barCodes[j]}</span>
+                                                    <button id="btn-copy-bar-${barCodes[j]}" class="copy-button-barcode">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
-                                                    <span class="cursor-pointer hover:underline hover:font-semibold select-none" data-index="${j}">${qtys[j]}</span>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} qty">
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="${j}">${qtys[j]}</span>
                                                     <input type="hidden" class="pd_unit" value="${Unit[j]}">
                                                     <input type="hidden" class="pd_name" value="${supplierNames[j]}">
                                                     <input type="hidden" class="pd_id" value="${searchpdId[j]}">
-                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
-                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 22)}</div>
-                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                    <div class='px-5 bar_stick1 hidden'>${barcodeHtml.bar_stick1}</div>
+                                                    <div class='px-5 bar_stick2 hidden'>${barcodeHtml.bar_stick2}</div>
+                                                    <div class='px-5 bar_stick3 hidden'>${barcodeHtml.bar_stick3}</div>
                                                 </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  scanned_qty">
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} scanned_qty">
                                                     <div class="main_scan">
                                                         ${scannedQtys[j]}
                                                         ${additionalIconHtml}
                                                     </div>
                                                     <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
                                                 </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
+                                
                                             </tr>`;
                                             $('.search_main_body').append(rowHtml);
                                         }
-                                    });
+                                    }
                                 }
-                                function generateBarcodeHTML(barcode, height) {
-                                    let barcodeHTML = `
-                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
-                                        </div>
-                                    `;
-                                    return barcodeHTML;
-                                }
+
+
                                 if (!isEmptyScanDocuments) {
                                     scanDocuments.forEach((scanDocument, i) => {
                                         let sanbarCodes = scanDocument.bar_code;
@@ -1338,6 +1308,7 @@
                                         let sanscannedQtys = scanDocument.scanned_qty;
                                         let scanColor = scanDocument.scan_color;
                                         let allScanned = scanDocument.all_scanned;
+                                        var scannCount = scanDocument.scann_count;
                                         for (let j = 0; j < sanbarCodes.length; j++) {
                                             let qty = Number(sanqtys[j]);
                                             let scannedQty = Number(sanscannedQtys[j]);
@@ -1360,6 +1331,7 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
                                                     ${scannedQty > qty ? qty : scannedQty}
                                                 </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 no">${scannCount[j]}</td>
                                             </tr>`;
                                             $('.search_scan_body').append(rowHtmltwo);
                                         }
@@ -1405,47 +1377,6 @@
                                             $('.excess_scan_body').append(rowHtmlthree);
                                         }
                                     });
-                                }
-                                function generateBarcodeHTML(barcode, height) {
-                                    let barcodeHTML = `
-                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
-                                        </div>
-                                    `;
-                                    return barcodeHTML;
                                 }
                             } else {
                                 $('.search_main_body').empty();
@@ -2041,6 +1972,7 @@
                     });
 
                     $(document).on('barcode_enter','#bar_code',function(e){
+                        $('#back').hide();
                         $val  = $(this).val();
                         $recieve_id = $('#receive_id').val();
                         $this       = $(this);
@@ -2052,8 +1984,8 @@
                                 type: 'POST',
                                 data: {_token:token , data:$val,id:$recieve_id,car : $cur_id},
                                 success:function(res){
-                                    let no = res.no;
-                                    $('.no').text(no);
+                                  
+                                   
                                     //$('.scanned_pd_div').eq(0).find('td').addClass('latest');
                                     // if(res.msg == 'decision')
 
@@ -2167,6 +2099,7 @@
 
                             })
                         }
+                        
                     })
 
                     $(document).on('click','.decision_doc',function(e)

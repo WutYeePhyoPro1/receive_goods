@@ -571,7 +571,6 @@ class ActionController extends Controller
 
     public  function add_product(Request $request)
     {
-        // dd($request->all());
         Common::Log(route('add_product'),"manually add product qty");
 
         $product = Product::find($request->product);

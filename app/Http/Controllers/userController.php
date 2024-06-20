@@ -588,8 +588,6 @@ class userController extends Controller
         $input_barcode_no = $request->input('barcode_no');
         $isDcStaff = dc_staff();
 
-
-        
         $curDriverFirst = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         if($curDriverFirst) {
             $curDriver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
@@ -621,7 +619,7 @@ class userController extends Controller
             if ($documents->isEmpty()) {
                 return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
             }
-        
+            $d = new DNS1D();
             foreach ($documents as $doc) {
                 $document_id = $doc->id;
                 $search_pd = collect(search_pd($document_id));
@@ -635,6 +633,7 @@ class userController extends Controller
                     $color = [];
                     $search_pd_id = [];
                     $unit = [];
+                    $barcode_htmls = [];
         
                     foreach ($search_pd as $pd_data) {
                         if($input_barcode_no) {
@@ -646,6 +645,12 @@ class userController extends Controller
                                 $color[] = check_color($pd_data->id);
                                 $search_pd_id[] = $pd_data->id; 
                                 $unit[] = $pd_data->unit;
+
+                                $barcode_htmls[] = [
+                                    'bar_stick1' => $d->getBarcodeHTML($pd_data->bar_code ?? '1', 'C128', 2, 50),
+                                    'bar_stick2' => $d->getBarcodeHTML($pd_data->bar_code ?? '1', 'C128', 2, 22),
+                                    'bar_stick3' => $d->getBarcodeHTML($pd_data->bar_code ?? '1', 'C128', 2, 50)
+                                ];
                             }
                         } else {
                             $bar_codes[] = $pd_data->bar_code;
@@ -655,7 +660,14 @@ class userController extends Controller
                             $color[] = check_color($pd_data->id);
                             $search_pd_id[] = $pd_data->id;
                             $unit[] = $pd_data->unit;
+
+                            $barcode_htmls[] = [
+                                'bar_stick1' => $d->getBarcodeHTML($pd_data->bar_code ?? '1', 'C128', 2, 50),
+                                'bar_stick2' => $d->getBarcodeHTML($pd_data->bar_code ?? '1', 'C128', 2, 22),
+                                'bar_stick3' => $d->getBarcodeHTML($pd_data->bar_code ?? '1', 'C128', 2, 50)
+                            ];
                         }
+
                     }
         
                     $merged_data = [
@@ -672,6 +684,7 @@ class userController extends Controller
                         'scan_zero' => scan_zero($document_id),
                         'search_pd_id' => $search_pd_id,
                         'unit' => $unit,
+                        'barcode_htmls' => $barcode_htmls,
                     ];
                     
                     $response[] = $merged_data;
@@ -682,6 +695,7 @@ class userController extends Controller
                     $scan_qtys = [];
                     $scan_scanned_qtys = [];
                     $scan_colors = [];
+                    $scann_count = [];
 
                     foreach ($search_scaned_pd as $scan_pd_data) {
                         if($input_barcode_no) {
@@ -691,6 +705,7 @@ class userController extends Controller
                                 $scan_qtys[] = $scan_pd_data->qty;
                                 $scan_scanned_qtys[] = $scan_pd_data->scanned_qty;
                                 $scan_colors[] = check_scanned_color($scan_pd_data->id);
+                                $scann_count[] = $scan_pd_data->scann_count;
                             }
                         } else {
                             $scan_bar_codes[] = $scan_pd_data->bar_code;
@@ -698,6 +713,7 @@ class userController extends Controller
                             $scan_qtys[] = $scan_pd_data->qty;
                             $scan_scanned_qtys[] = $scan_pd_data->scanned_qty;
                             $scan_colors[] = check_scanned_color($scan_pd_data->id);
+                            $scann_count[] = $scan_pd_data->scann_count;
                         }
                     }
 
@@ -713,6 +729,7 @@ class userController extends Controller
                         'scanned_qty' => $scan_scanned_qtys,
                         'scan_color' => $scan_colors,
                         'all_scanned' => check_all_scan($document_id),
+                        'scann_count' => $scann_count,
                     ];
                     $scan_response[] = $scan_merged_data;
                 }
