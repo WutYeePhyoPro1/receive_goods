@@ -384,7 +384,7 @@ class ActionController extends Controller
                 'data' => $product,
                 'scanned_qty' => $qty,
                 'pd_code' => $pd_code,
-                'scann_count' => $_SESSION['response_counter']
+                'scann_count' => $scann_count
             ], 200);
             
             } catch (\Exception $e) {
