@@ -340,36 +340,6 @@ class ActionController extends Controller
                 Session::put('first_time_search_'.$request->id,$pd_code);
             }
 
-            session_start();
-
-            if (!isset($_SESSION['last_barcode'])) {
-                $_SESSION['last_barcode'] = null; 
-            }
-            
-            // $barcode = $product->bar_code;
-            
-            // if (!isset($_SESSION['response_counter']) || $_SESSION['last_barcode'] !== $barcode) {
-            //     if ($_SESSION['last_barcode'] !== $barcode) {
-            //         $_SESSION['response_counter'] = $product->scann_count !== null ? $product->scann_count + 1 : 1;
-            //     } else if ($product->scann_count !== null) {
-            //         $_SESSION['response_counter'] = $product->scann_count + 1;
-            //     } else {
-            //         $_SESSION['response_counter'] = 1;
-            //     }
-            // } else {
-            //     $_SESSION['response_counter']++;
-            // }
-            
-            // $_SESSION['last_barcode'] = $barcode;
-            
-            // $product->update([
-            //     'response_counter' => $_SESSION['response_counter'],
-            //     'scann_count' => $_SESSION['response_counter']
-            // ]);
-
-            // $product_id = $product->id;
-
-            
             $scann_count = 1;
             if ($product->scann_count !== null) {
                 $scann_count = $product->scann_count + 1;
