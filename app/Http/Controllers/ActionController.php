@@ -212,8 +212,10 @@ class ActionController extends Controller
             {
 
                 $scanned = $product->scanned_qty + $qty;
+                $scann_count = $product->scann_count + $qty;
                 $product->update([
-                    'scanned_qty' => $scanned
+                    'scanned_qty' => $scanned,
+                    'scann_count' => $scann_count,
                 ]);
                 // product code တခုထက်ပို
             }elseif(count($all_product) > 1)
@@ -340,22 +342,23 @@ class ActionController extends Controller
                 Session::put('first_time_search_'.$request->id,$pd_code);
             }
 
-            $scann_count = 1;
-            if ($product->scann_count !== null) {
-                $scann_count = $product->scann_count + 1;
-            }
-            $product->update([
-                'scann_count' => $scann_count
-            ]);
+            // $scann_count = 1;
+            // if ($product->scann_count !== null) {
+            //     $scann_count = $product->scann_count + 1;
+            // }
 
-            return response()->json([
-                'doc_no' => $doc_no,
-                'bar_code' => $barcode,
-                'data' => $product,
-                'scanned_qty' => $qty,
-                'pd_code' => $pd_code,
-                'scann_count' => $scann_count
-            ], 200);
+            // $product->update([
+            //     'scann_count' => $scann_count
+            // ]);
+
+            // return response()->json([
+            //     'doc_no' => $doc_no,
+            //     'bar_code' => $barcode,
+            //     'data' => $product,
+            //     'scanned_qty' => $qty,
+            //     'pd_code' => $pd_code,
+            //     'scann_count' => $scann_count
+            // ], 200);
             
             } catch (\Exception $e) {
                 logger($e);
