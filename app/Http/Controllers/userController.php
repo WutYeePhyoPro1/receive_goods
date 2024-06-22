@@ -232,10 +232,20 @@ class userController extends Controller
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where('id',$car)->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
-        $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();;
+        $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $reason        = PrintReason::get();
         $status = 'join';
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','scan_document','status','reason'));
+        return redirect()->route('receive_goods', ['id' => $id]);
+        // ->with([
+        //     'main' => $main,
+        //     'truck' => $truck,
+        //     'driver' => $driver,
+        //     'cur_driver' => $cur_driver,
+        //     'document' => $document,
+        //     'scan_document' => $scan_document,
+        //     'reason' => $reason,
+        //     'status' => $status,
+        // ]);
     }
 
 
@@ -778,6 +788,7 @@ class userController extends Controller
                     'cur_driver_start_date' => $cur_driver_start_date
                 ];
             }
+            //dd($response, $scan_response, $excess_response);
             return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
         }else {
             return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
