@@ -156,7 +156,15 @@ class ActionController extends Controller
                             ->where('bar_code',$item)
                             ->first();
         if($product){
+            // $scann_count = 1;
 
+            // if ($product->scann_count !== null) {
+            //     $scann_count = $product->scann_count + 1;
+            // }
+        
+            // $product->update([
+            //     'scann_count' => $scann_count
+            // ]);
             $all_product =Product::whereIn('document_id',$doc_ids)
                                 ->where('bar_code',$item)
                                 ->orderBy('id','asc')
@@ -338,27 +346,38 @@ class ActionController extends Controller
                 $_SESSION['last_barcode'] = null; 
             }
             
-            $barcode = $product->bar_code;
+            // $barcode = $product->bar_code;
             
-            if (!isset($_SESSION['response_counter']) || $_SESSION['last_barcode'] !== $barcode) {
-                if ($_SESSION['last_barcode'] !== $barcode) {
-                    $_SESSION['response_counter'] = $product->scann_count !== null ? $product->scann_count + 1 : 1;
-                } else if ($product->scann_count !== null) {
-                    $_SESSION['response_counter'] = $product->scann_count + 1;
-                } else {
-                    $_SESSION['response_counter'] = 1;
-                }
-            } else {
-                $_SESSION['response_counter']++;
+            // if (!isset($_SESSION['response_counter']) || $_SESSION['last_barcode'] !== $barcode) {
+            //     if ($_SESSION['last_barcode'] !== $barcode) {
+            //         $_SESSION['response_counter'] = $product->scann_count !== null ? $product->scann_count + 1 : 1;
+            //     } else if ($product->scann_count !== null) {
+            //         $_SESSION['response_counter'] = $product->scann_count + 1;
+            //     } else {
+            //         $_SESSION['response_counter'] = 1;
+            //     }
+            // } else {
+            //     $_SESSION['response_counter']++;
+            // }
+            
+            // $_SESSION['last_barcode'] = $barcode;
+            
+            // $product->update([
+            //     'response_counter' => $_SESSION['response_counter'],
+            //     'scann_count' => $_SESSION['response_counter']
+            // ]);
+
+            // $product_id = $product->id;
+
+            
+            $scann_count = 1;
+            if ($product->scann_count !== null) {
+                $scann_count = $product->scann_count + 1;
             }
-            
-            $_SESSION['last_barcode'] = $barcode;
-            
             $product->update([
-                'response_counter' => $_SESSION['response_counter'],
-                'scann_count' => $_SESSION['response_counter']
+                'scann_count' => $scann_count
             ]);
-            
+
             return response()->json([
                 'doc_no' => $doc_no,
                 'bar_code' => $barcode,
