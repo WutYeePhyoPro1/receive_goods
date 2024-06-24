@@ -172,7 +172,7 @@ class ActionController extends Controller
             $doc_no = $product->doc->document_no;
             $conn = DB::connection('master_product');
             try {
-            if(in_array(getAuth()->branch_id,[17,19,20]))
+            if(in_array(getAuth()->branch_id,[17,19,20,9]))
             {
                 $data = $conn->select("
                     select * from
