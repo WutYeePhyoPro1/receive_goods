@@ -1596,8 +1596,8 @@
                     $(document).on('click','.sticker',function(e){
                         $('#print_eq').val('');
                         $('#print_count').val('');
-                       $('#print_no').show();
-                       $('#print_eq').val($(this).data('index'));
+                        $('#print_no').show();
+                        $('#print_eq').val($(this).data('index'));
                     })
 
                     $(document).on("input",'#print_count',function(e){
@@ -1616,7 +1616,6 @@
                    $(document).on('click','#final_print',function(e){
 
                         $index = $('#print_eq').val();
-
                         $pd_code= $('.bar_code').eq($index).text();
                         $qty    = $('#print_count').val();
                         $unit   = $('.pd_unit').eq($index).val();
@@ -1659,10 +1658,10 @@
 
                                 new_pr.document.write(`
                                     <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
-
-                                            <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
-
-                                        <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
+                                        <div style="padding-left: 20px; padding-right: 20px;">            
+                                            <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
+                                        </div>
+                                        <div style="margin-top:${ $margin }px; margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
                                         <div style="padding:5px 0;display:flex;flex-direction:column">
                                              <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
                                              >
@@ -1748,7 +1747,6 @@
                             new_pr.close();
                             };
                             $('#print_no').hide();
-
                         }
 
                     })

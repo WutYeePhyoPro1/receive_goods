@@ -10,15 +10,15 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-    // server: {
-    //     host: true,
-    // },
     server: {
-        host: '192.168.201.90',
-        port: 3000,
-        hmr: {
-            host: '192.168.201.90',
-            port: 3000,
-        },
+        host: true,
     },
+    //     server: {
+    //         host: '192.168.201.90',
+    //         port: 3000,
+    //         hmr: {
+    //             host: '192.168.201.90',
+    //             port: 3000,
+    //         },
+    //     },
 });
