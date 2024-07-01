@@ -1,708 +1,3827 @@
-<?php
+@extends('layout.layout')
 
-namespace App\Http\Controllers;
-
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Product;
-use App\Models\Document;
-use App\Models\Tracking;
-use App\Customize\Common;
-use App\Models\ScanTrack;
-use App\Models\DriverInfo;
-use App\Models\RemoveTrack;
-use App\Models\UploadImage;
-use App\Models\GoodsReceive;
-use Illuminate\Http\Request;
-use App\Models\AddProductTrack;
-use App\Models\changeTruckProduct;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use App\Repositories\ActionRepository;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Storage;
-use App\Interfaces\ActionRepositoryInterface;
-use App\Models\printTrack;
-use App\Models\UserBranch;
-
-class ActionController extends Controller
-{
-    private ActionRepositoryInterface $repository;
-
-    public function __construct(ActionRepository $repository)
-    {
-        $this->repository = $repository;
+<style>
+     #resultCount {
+        margin-top: 10px;
+        font-weight: bold;
+        color: rgb(214, 42, 11);
+        display: none;
     }
 
-    //search doc
-    public function search_doc(Request $request)
-    {
-
-        $val = trim(strtoupper($request->data),' ');
-        $type = substr($val,0,2);
-        $reg = get_branch_truck()[2];
-
-        $docs = Document::where('document_no',$val)
-                        ->whereIn('received_goods_id',$reg)->first();
-        if($docs){
-            return response()->json(['message'=>'dublicate'],400);
-        }
-        // dd($type);
-        $conn = DB::connection('master_product');
-
-        if($type == "PO")
-        {
-            $brch_con = '';
-            if(!dc_staff())
-            {
-                $user_brch = getAuth()->branch->branch_code;
-                $brch_con = "and brchcode = '$user_brch'";
-            }
-
-            $data = $conn->select("
-                select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
-                from  purchaseorder.po_purchaseorderhd aa
-                inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
-                left join master_data.master_branch br on aa.brchcode= br.branch_code
-                where statusflag <> 'C'
-                --and statusflag in ('P','Y')
-                --$brch_con
-                and purchaseno= '$val'
-            ");
-        }else{
-            $data = $conn->select("
-                select tohd.transferdocno as to_docno
-                ,(select branch_name_eng from master_data.master_branch br where tohd.desbrchcode = br.branch_code) as to_branch
-                ,todt.productcode as product_code,todt.productname as product_name,todt.unitcount as unit
-                ,todt.transferoutqty as qty
-                from inventory.trs_transferouthd tohd
-                left join inventory.trs_transferoutdt todt on tohd.transferid= todt.transferid
-                where tohd.transferdocno in ('$val')
-                and tohd.statusid <> 'C'
-            ");
-        }
-        $conn = null;
-        if($data){
-            $this->repository->add_doc($data,$request->id);
-            return response()->json($data,200);
-        }else{
-            return response()->json(['message','not found'],404);
-        }
+    #back {
+        display: none;
     }
 
-    //barcode scan
-    public function barcode_scan(Request $request)
-    {
-        Session::forget('first_time_search_'.$request->id);
-        $all    = $request->data;
-        $id     = $request->id;
-        $item   = preg_replace('/\D/','',$all);
-        $unit   = preg_replace("/[^A-Za-z].*/", '', $all);
-        $unit   = $unit == '' ? 'S' : $unit;
-        $poi    = false;
-        if(strtoupper(substr($all,0,2)) == 'PO' || strtoupper(substr($all,0,2)) == 'IC' || strtoupper(substr($all,0,2)) == 'AT')
-        {
-            $reg = get_branch_truck()[2];
-            $all = strtoupper($all);
-            $docs = Document::where('document_no',$all)
-                            ->whereIn('received_goods_id',$reg)->first();
-            if($docs)
-            {
-                return response()->json(['message'=>'dublicate'],409);
-            }
-            $conn = DB::connection('master_product');
-            $brch_con = '';
-            if(!dc_staff())
-            {
-                $user_brch = getAuth()->branch->branch_code;
-                $brch_con = "and brchcode = '.$user_brch.'";
-            }
-            if(strtoupper(substr($all,0,2)) == 'PO')
-            {
-                $data = $conn->select("
-                select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
-                from  purchaseorder.po_purchaseorderhd aa
-                inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
-                left join master_data.master_branch br on aa.brchcode= br.branch_code
-                where statusflag <> 'C'
-                and statusflag in ('P','Y')
-                $brch_con
-                and purchaseno= '$all'
-            ");
-            }else{
-                $data = $conn->select("
-                    select tohd.transferdocno as to_docno
-                    ,(select branch_name_eng from master_data.master_branch br where tohd.desbrchcode = br.branch_code) as to_branch
-                    ,todt.productcode as product_code,todt.productname as product_name,todt.unitcount as unit
-                    ,todt.transferoutqty as qty
-                    from inventory.trs_transferouthd tohd
-                    left join inventory.trs_transferoutdt todt on tohd.transferid= todt.transferid
-                    where tohd.transferdocno in ('$all')
-                    and tohd.statusid <> 'C'
-                ");
-            }
-            $conn = null;
-            if($data)
-            {
-                $this->repository->add_doc($data,$id);
-                return response()->json(['message'=>'success'],200);
-            }else{
-                return response()->json(['message'=>'doc not found'],404);
-            }
-        }
-        $doc_ids = Document::where('received_goods_id',$request->id)->pluck('id');
+    .td-container, .td-barcode-container{
+        position: relative;
+        height: 100%;
+    }
 
-        $product = Product::whereIn('document_id',$doc_ids)
-                            ->where('bar_code',$item)
-                            ->first();
-        if($product){
 
-            $all_product =Product::whereIn('document_id',$doc_ids)
-                                ->where('bar_code',$item)
-                                ->orderBy('id','asc')
-                                ->get();
-            $doc_no = $product->doc->document_no;
-            $conn = DB::connection('master_product');
-            try {
-            if(in_array(getAuth()->branch_id,[17,19,20]))
-            {
-                $data = $conn->select("
-                    select * from
-                    (
-                    select	 product_code, qty
-                    from	dblink('dbname=pro1_awms host = 192.168.151.241 port=5432 user=superadmin password=super123',
-                    '
-                    SELECT product_code,qty FROM (
-                    SELECT product_code,product_code as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
-                    SELECT product_code,pack_barcode as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
-                    SELECT product_code,barcode_box as barcode,case when unit_rate_box=''0'' then product_unit_rate else unit_rate_box end as qty FROM public.aw_master_product_rate UNION ALL
-                    SELECT product_code,barcode_pallet as barcode,case when unit_rate_box=''0'' then (product_unit_rate*unit_rate_pallet) else (unit_rate_pallet*unit_rate_box) end as qty FROM public.aw_master_product_rate
-                    )rt
-                    WHERE barcode=''$all''')
-                    as temp(product_code varchar(50),qty varchar(50))
-                    )as erpdb
-                ");
-            $qty = (int)($data[0]->qty) == 0 ? 1 : (int)($data[0]->qty) ;
-            }else{
-                $qty = 1;
-            }
+    .copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode{
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
 
-            $per        = $qty;
-            $total_scan = $qty;
-            $count = 0;
-            if($request->car == '')
-            {
-                $driver_info = DriverInfo::where(['received_goods_id'=>$id , 'user_id'=>getAuth()->id])
-                                        ->whereNull('duration')
-                                        ->first();
-            }else{
-                $driver_info = DriverInfo::where('id',$request->car)
-                                        ->first();
-            }
+    }
 
-            if(count($all_product) == 1)
-            {
+    .copy-button, .scan-copy-button, .excess-copy-button .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode, i {
+        font-size: 10px;
+        color: black;
+    }
+</style>
 
-                $scanned = $product->scanned_qty + $qty;
-                $product->update([
-                    'scanned_qty' => $scanned
-                ]);
-                // product code တခုထက်ပို
-            }elseif(count($all_product) > 1)
-            {
-                $full_pd =Product::whereIn('document_id',$doc_ids)
-                        ->where('bar_code',$item)
-                        ->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))
-                        ->orderBy('id')
-                        ->get();
-                $count      = 0;
-                if(count($full_pd) > 0)
-                {
-                    if($request->car == '')
-                    {
-                        $driver_info = DriverInfo::where(['received_goods_id'=>$request->id , 'user_id'=>getAuth()->id])
-                                                    ->whereNull('duration')
-                                                    ->first();
-                    }else{
-                        $driver_info = DriverInfo::where('id',$request->car)
-                                                ->first();
+@section('content')
+    @if($errors->any())
+        <script>
+            $(document).ready(function(e){
+                $('#add_car').show();
+            })
+        </script>
+    @endif
+    <div class="flex justify-between">
+        <div class="flex">
+
+            {{-- <div class="flex {{ $main->duration ? 'invisible pointer-events-none' : '' }}"> --}}
+
+            @if (($main->status != 'complete') && $status != 'view')
+            <input type="text" id="docu_ipt" class="w-80 h-1/2 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none" placeholder="PO/POI/TO Document...">
+            <button  class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500" id="search_btn" hidden>Search</button>
+            @endif
+            @if (count($driver) > 0)
+                <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="driver_info" title="View Car Info"><i class='bx bx-id-card mt-2'></i></button>
+            @else
+                @if (dc_staff())
+                    <button class="h-12 bg-teal-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-teal-600" id="add_driver" title="Add Car Info"><i class='bx bx-car mt-2'></i></button>
+                @endif
+            @endif
+
+            @if(image_exist($main->id))
+                <button class="h-12 bg-amber-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-amber-600" id="show_image" title="Show Image"><i class='bx bxs-image mt-2'></i></button>
+            @endif
+            @if($status == 'edit')
+                <button class="h-12 bg-sky-400 text-white px-4 rounded-md ml-2 text-2xl hover:bg-sky-600" id="edit_image" title="Edit Image" onclick="$('#car_choose').show()"><i class='bx bxs-image-add mt-2 ms-1'></i></button>
+            @endif
+        </div>
+        <div class="flex">
+            <div class="flex flex-col">
+                <span class=" mt-2 -translate-x-6  mx-3" >Document No : <b class="text-xl" id="doc_no">{{ $main->document_no ?? '' }}</b></span>
+                @if (dc_staff())
+                    <span class=" mt-2 -translate-x-6  ms-3" >Source : <b class="text-xl" id="source">{{ $main->source_good->name ?? '' }}</b></span>
+                @elseif (!dc_staff() && $main->vendor_name)
+                    <span class=" mt-2 -translate-x-6  ms-3" >Vendor : <b class="text-xl" id="vendor">{{ $main->vendor_name ?? '' }}</b></span>
+                @endif
+            </div>
+            @if ($main->status == 'complete')
+                <span class="text-emerald-600 font-bold text-3xl ms-40 underline">Complete</span>
+                <!-- <a href="{{ route('complete_doc_print',['id'=>$main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a> -->
+            @endif
+            @if ($status != 'view' && isset($cur_driver->start_date) && ($main->user_id == getAuth()->id || $cur_driver->user_id == getAuth()->id))
+            <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
+            <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
+            @elseif(!isset($cur_driver->start_date) && !dc_staff() && $status == 'scan' && $main->status != 'complete')
+                <button class="h-12 bg-rose-300 hover:bg-rose-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg" id="start_count_btn">Start Count</button>
+            @endif
+        </div>
+        <?php
+                $total_sec    = get_done_duration($main->id);
+        ?>
+
+        <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count">
+            @if ($main->status == 'complete')
+            {{ $main->total_duration }}
+            @else
+            {{ (isset($status) && $status == 'view') ? ($main->total_duration) : (isset($cur_driver) ? cur_truck_dur($cur_driver->id) : '00:00:00') }}
+            @endif
+        </span>
+
+    </div>
+    <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
+    <input type="hidden" id="wh_remark" value="{{ $main->remark }}">
+    @if($status != 'view')
+        <input type="text" id="bar_code" class="pointer-events-none border mt-1 rounded-lg shadow-lg" value="" >
+        <span class="ms-1">previous scanned barcode : <b id="prev_scan">{{ Session::get('first_time_search_'.$main->id) }}</b></span>
+        <input type="hidden" id="finished" value="{{ $main->status == 'complete' ? true : false }}">
+    @endif
+
+    {{-- @if (isset($status) && $status != 'view') --}}
+        <input type="hidden" id="cur_truck" value="{{ $cur_driver->id ?? '' }}">
+    {{-- @endif --}}
+
+    <div class="flex flex-wrap -mx-2">
+        <div class="w-1/2 px-2 mt-4">
+            <div class="form-group flex items-center space-x-4">
+                <select id="documentNoSelect" class="form-select block w-full mt-1">
+                    <option value="">search document no</option>
+                    @foreach ($scan_document_no as $documentNo)
+                        <option id="documentNoInput" value="{{ $documentNo }}">{{ $documentNo }}</option>
+                    @endforeach
+                </select>
+                <select id="barcodeSelect" class="form-select block w-full mt-1">
+                    <option value="">search bar code</option>
+                    @foreach ($document as $data)
+                    @php
+                        $barcodes = search_pd_barcode($data['id']);
+                    @endphp
+                        @foreach ($barcodes as $barcode)
+                            <option value="{{ $barcode }}">{{ $barcode }}</option>
+                        @endforeach
+                    @endforeach
+                </select>
+                <input id="idInput" type="hidden" name="id" value="{{ $id }}">
+                <button id="document_no_search" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Search
+                </button>
+                <button id="back" onclick="javascript:window.location.href = '{{ $page == 'receive' ? '/receive_goods/' : '/view_goods/' }}{{$id}}'" class="bg-blue-500 bg-big hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back</button>
+            </div>
+            <p id="resultCount" class="mt-2">Not result found</p>
+        </div>
+        {{-- <div class="w-1/2 px-2 mt-4">
+            <div class="form-group flex items-center space-x-4">
+                <input type="text" id="searchInput" class="form-input block w-full mt-1 border border-gray-300 rounded p-2" placeholder="Search document no or bar code">
+                <input id="idInput" type="hidden" name="id" value="{{ $id }}">
+                <button id="searchButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Search
+                </button>
+            </div>
+            <div id="suggestions" class="bg-white border border-gray-300 rounded shadow-lg"></div>
+            <div id="searchResults" class="mt-4"></div>
+        </div> --}}
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+        <div class="mt-5 border border-slate-400 rounded-md main_product_table" style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
+            <div class="border border-b-slate-400 h-10 bg-sky-50">
+                <span class="font-semibold leading-9 ml-3">
+                    List Of Products
+                </span>
+            </div>
+            @if($main->status != 'complete')
+            <input type="hidden" id="started_time" value="{{ isset($cur_driver->start_date) ? ($cur_driver->start_date.' '.$cur_driver->start_time) : ''}}">
+            {{-- <input type="hidden" id="duration" value="{{ $total_sec ?? 0 }}"> --}}
+            <input type="hidden" id="receive_id" value="{{ $main->id }}">
+            @endif
+            <div class="main_table">
+                <table class="w-full" class="main_tb_body">
+                    <thead>
+                        <tr class="h-10">
+                            <th class="border border-slate-400 border-t-0 border-l-0"></th>
+                            <th class="border border-slate-400 border-t-0 w-8"></th>
+                            <th class="border border-slate-400 border-t-0">Document No</th>
+                            <th class="border border-slate-400 border-t-0"><span>Box Barcode</span>
+                                <a href="../product_pdf/{{ $main->id }}" target="_blank"><i class='bx bx-download ms-1 hover:text-amber-500'></i></a>
+                            </th>
+                            <th class="border border-slate-400 border-t-0">Product Name</th>
+                            <th class="border border-slate-400 border-t-0">Quantity</th>
+                            <th class="border border-slate-400 border-t-0">Scanned</th>
+                            <th class="border border-slate-400 border-t-0 border-r-0">Remaining</th>
+                        </tr>
+                    </thead>
+                    {{-- <input type="hidden" id="doc_total" value="{{ count($document) }}">
+                        <?php
+                            $i = 0;
+                            $j = 0;
+                        ?>
+                        @foreach($document as $item)
+                            @if (  count(search_pd($item->id)) > 0)
+                                <tbody class="main_body">
+                                    @foreach (search_pd($item->id) as $key=>$tem)
+                                        <?php
+                                            $color = check_color($tem->id);
+                                            ${'id' . $key} = $key;
+                                        ?>
+                                        <tr class="h-10">
+                                            @if ($key == 0)
+                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
+                                                @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || dc_staff())
+                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
+                                                @endif
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
+                                            @else
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
+                                            @endif
+
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
+                                                <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{$tem->qty }}</span>
+                                                <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
+                                                <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
+                                                <input type="hidden" class="pd_id" value="{{ $tem->id }}">
+                                                <div class='px-5 bar_stick1 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
+                                                <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,22 ) !!}</div>
+                                                <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
+                                            </td>
+
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
+                                                <div class="main_scan">
+                                                    {{ $tem->scanned_qty }}
+                                                    @if (isset($cur_driver->start_date))
+                                                        <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
+                                                    @endif
+                                                </div>
+                                                <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
+                                        </tr>
+                                        <?php
+                                        $j++
+                                        ?>
+                                    @endforeach
+                                </tbody>
+                                <?php $i++ ?>
+                            @endif
+                        @endforeach
+                        <input type="hidden" id="count" value="{{ $i }}"> --}}
+
+                        <input type="hidden" id="doc_total" value="{{ count($document) }}">
+                        <?php
+                            $i = 0;
+                            $j = 0;
+                        ?>
+                        @foreach($document as $item)
+                            @if (  count(search_pd($item->id)) > 0)
+                                <tbody class="main_body">
+                                    @foreach (search_pd($item->id) as $key=>$tem)
+                                        <?php
+                                            $color = check_color($tem->id);
+                                            ${'id' . $key} = $key;
+                                        ?>
+                                        <tr class="h-10">
+                                            @if ($key == 0)
+                                                <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
+                                                    @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || dc_staff())
+                                                        <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
+                                                    @endif
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_times">{{ $i+1 }}</td>
+                                                {{-- <td class="ps-2 border border-slate-400 border-t-0 doc_no">
+                                                    <div class="container">
+                                                        <span id="doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                        <button id="btn-copy-doc-{{ $item->document_no }}" class="copy-button" onclick="copyText('doc-no-{{ $item->document_no }}', 'btn-copy-doc-{{ $item->document_no }}')">
+                                                            <i class="fa-solid fa-copy"></i>
+                                                        </button>
+                                                    </div>
+                                                </td> --}}
+                                                <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+                                                        <span id="doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                        <button id="btn-copy-doc-{{ $item->document_no }}" class="copy-button">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                </td>
+                                            @else
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
+                                            @endif
+
+                                            <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">
+                                                    <span id="bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
+                                                    <button id="btn-copy-bar-{{ $tem->bar_code }}" class="copy-button-barcode" >
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
+                                                <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{$tem->qty }}</span>
+                                                <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
+                                                <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
+                                                <input type="hidden" class="pd_id" value="{{ $tem->id }}">
+                                                <div class='px-5 bar_stick1 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
+                                                <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,22 ) !!}</div>
+                                                <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
+                                                <div class="main_scan">
+                                                    {{ $tem->scanned_qty }}
+                                                    @if (isset($cur_driver->start_date))
+
+                                                        <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
+                                                    @endif
+                                                </div>
+                                                <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
+                                        </tr>
+                                        <?php
+                                        $j++
+                                        ?>
+                                    @endforeach
+                                </tbody>
+                                <?php $i++ ?>
+                            @endif
+                        @endforeach
+                        <input type="hidden" id="count" value="{{ $i }}">
+                        <tbody class="search_main_body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mt-5 grid grid-rows-2 gap-2" style="max-height: 83vh;width:100%; overflow:hidden">
+            <div class="border border-slate-400 rounded-md overflow-y-auto overflow-x-hidden main_product_table" style="max-height: 42.5vh;width:100%;">
+                <div class="border border-b-slate-400 h-10 bg-sky-50">
+                    <span class="font-semibold leading-9 ml-3">
+                        List Of Scanned Products
+                    </span>
+                </div >
+                <div class="scan_parent">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="h-10">
+                                <th class="border border-slate-400 border-t-0 w-8 border-l-0"></th>
+                                <th class="border border-slate-400 border-t-0">Document No</th>
+                                <th class="border border-slate-400 border-t-0">Box Barcode</th>
+                                <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
+                                <th class="border border-slate-400 border-t-0 border-r-0">Quantity</th>
+                            </tr>
+                        </thead>
+                            <?php $i=0 ?>
+                            @if(count($scan_document) > 0)
+                                @foreach ($scan_document as $item)
+                                    @if (count(search_scanned_pd($item->id))>0)
+                                    <?php
+                                        $i++;
+                                    ?>
+                                    <tbody class="scan_body" >
+                                            @foreach (search_scanned_pd($item->id) as $index=>$tem)
+                                            <?php
+                                                $color = check_scanned_color($tem->id);
+                                                $scanned[]  = $tem->bar_code;
+                                            ?>
+                                                    {{-- @if ($tem->id == get_latest_scan_pd($main->id))
+                                                    <tr class="h-10">
+                                                        @if ($index == 0)
+                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest">{{ $i }}</td>
+                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest">{{ $item->document_no }}</td>
+                                                        @else
+                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest"></td>
+                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest"></td>
+                                                        @endif
+                                                                <td class="ps-2 border border-slate-400 border-t-0  {{ $color }} latest" >{{ $tem->bar_code }}</td>
+                                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} latest">{{ $tem->supplier_name }}</td>
+                                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} latest border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
+                                                    </tr>
+                                                    @else --}}
+                                            {{-- <tr class="h-10 scanned_pd_div">
+                                                @if ($index == 0)
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 {{ check_all_scan($item->id) ? 'bg-green-200 text-green-600' : '' }}">{{ $item->document_no }}</td>
+                                                @else
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                @endif
+                                                <td class="ps-2 border border-slate-400 border-t-0  {{ $color }}">{{ $tem->bar_code }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
+                                            </tr> --}}
+                                            <tr class="h-10 scanned_pd_div">
+                                                @if ($index == 0)
+                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+
+                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 {{ check_all_scan($item->id) ? 'bg-green-200 text-green-600' : '' }}">
+                                                        {{-- {{ $item->document_no }} --}}
+
+                                                            <span id="scan-doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                            <button id="scan-btn-copy-doc-{{ $item->document_no }}" class="scan-copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+
+                                                        {{-- <div class="container">
+                                                            <span id="doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                            <button id="btn-copy-doc-{{ $item->document_no }}" class="copy-button" onclick="copyText('scan-doc-no-{{ $item->document_no }}', 'btn-copy-doc-{{ $item->document_no }}')">
+                                                                <i class="fa-solid fa-copy"></i>
+                                                            </button>
+                                                        </div> --}}
+                                                    </td>
+
+
+                                                @else
+                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                @endif
+
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0  {{ $color }}">
+
+                                                        <span id="scan-bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
+                                                        <button id="scan-btn-copy-bar-{{ $tem->bar_code }}" class="scan-copy-button-barcode" >
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+
+                                                </td>
+
+                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
+
+                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty }}</td>
+                                            </tr>
+                                            {{-- @endif --}}
+                                            @endforeach
+                                    </tbody>
+                                    @endif
+                                @endforeach
+                            @endif
+
+                            <tbody class="search_scan_body"></tbody>
+
+                    </table>
+                </div>
+            </div>
+            <input type="hidden" id="user_role" value="{{ getAuth()->role }}">
+            <div class="border border-slate-400 rounded-md overflow-x-hidden overflow-y-auto main_product_table" style="max-height: 42.5vh;width:100%">
+                <div class="border border-b-slate-400 h-10 bg-sky-50">
+                    <span class="font-semibold leading-9 ml-3">
+                        List Of Scanned Products (excess / shortage)
+                    </span>
+                </div>
+                <div class="excess_div">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="h-10">
+                                <th class="border border-slate-400 border-t-0 w-8 border-l-0"></th>
+                                <th class="border border-slate-400 border-t-0 w-8"></th>
+                                <th class="border border-slate-400 border-t-0">Document No</th>
+                                <th class="border border-slate-400 border-t-0">Box Barcode</th>
+                                <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
+                                <th class="border border-slate-400 border-t-0 border-r-0">Quantity</th>
+                            </tr>
+                        </thead>
+
+                            <?php $i=0 ?>
+                            @foreach ($document as $item)
+                                @if (count(search_excess_pd($item->id))>0)
+                                <?php
+                                    $i++;
+                                ?>
+                                    <tbody class="excess_body">
+                                    @foreach (search_excess_pd($item->id) as $index=>$tem)
+                                    <?php
+                                    ?>
+                                    <tr class="h-10">
+                                        <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
+                                            @can('adjust-excess')
+                                                @if ($main->status == 'complete'  && ($tem->qty < $tem->scanned_qty))
+                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
+                                                @endif
+                                            @endcan
+                                        </td>
+                                        @if ($index == 0)
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+                                                <td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0">
+                                                        <span id="excess-doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                        <button id="excess-btn-copy-doc-{{ $item->document_no }}" class="excess-copy-button">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                </td>
+                                        @else
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                        @endif
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
+                                                        <span id="excess-bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
+                                                        <button id="excess-btn-copy-bar-{{ $tem->bar_code }}" class="excess-copy-button-barcode">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
+                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic' data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}" data-eq="{{ $index }}"></i>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
+                                    </tr>
+                                    @endforeach
+                                    </tbody>
+
+                                @endif
+                            @endforeach
+                            <tbody class="excess_scan_body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {{-- Decision Modal --}}
+ <div class="hidden" id="decision">
+    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                <div
+                    class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Choose Document No &nbsp;<span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold"
+                            onclick="$('#decision').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="mb-4">
+                        <span class="">Product Code á€á€° Document á€á€»á€¬á€¸á€á€¾á€­á€á€«á€á€á€ºá á€á€á€ºá€á€á€ºá€· Document á€á€½á€á€º á€á€±á€«á€á€ºá€¸á€á€á€ºá€·á€á€»á€á€ºá€á€² á€á€½á€±á€¸á€á€«</span>
+                    </div>
+                    <div class="decision_model">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+{{-- End Modal --}}
+ {{-- Car info Modal --}}
+<div class="hidden" id="car_info">
+    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                <div
+                    class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Car Info &nbsp;<span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold"
+                            onclick="$('#car_info').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="grid grid-cols-2 gap-5 border-b-2 border-slate-600">
+                        <div class="flex flex-col">
+                            <span class="mb-4 text-xl">Vendor Name      </span>
+                            <span class="mb-4 text-xl ">Branch      </span>
+                            @if ($main->status == 'incomplete' || ($main->status == 'complete' && isset($main->remark)))
+                                <span class="mb-4 text-xl ">Remark      </span>
+                            @endif
+
+                        </div>
+                        <div class="flex flex-col mb-3">
+                            <b class="mb-4 text-xl">:&nbsp;{{ $main->vendor_name ?? '' }}</b>
+                            <b class="mb-4 text-xl">:&nbsp;{{ $main->user->branch->branch_name }}</b>
+                            @if ($main->remark && $main->status == 'complete')
+                                <b class="mb-4 text-xl">:&nbsp;{{ $main->remark }}</b>
+                            @elseif($main->status == 'incomplete')
+                                <textarea class="ps-1 rounded-lg border border-slate-600" id="all_remark" cols="30" rows="3" placeholder="remark...">{{ $main->remark }}</textarea>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-7  mt-2">
+                        @foreach ($driver as $index=>$item)
+
+                        <div class="grid grid-cols-2 gap-5">
+                            <div class="flex flex-col ps-4">
+                                <span class="mb-4 text-xl">Driver's No     </span>
+                                <span class="mb-4 text-xl">Driver's Name     </span>
+                                <span class="mb-4 text-xl">Driver's Phone No </span>
+                                <span class="mb-4 text-xl">Driver's NRC No </span>
+                                <span class="mb-4 text-xl">Truck's No        </span>
+                                <span class="mb-4 text-xl">Truck's Type      </span>
+                                <span class="mb-4 text-xl">Gate      </span>
+                                <span class="mb-4 text-xl">Scanned Qty     </span>
+                            </div>
+                            <div class="flex flex-col">
+                                <b class="mb-4 text-xl">:&nbsp;{{ $index+1 }}</b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->driver_name }}</b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->ph_no }} </b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->nrc_no }}</b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->truck_no }}</b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->truck->truck_name ?? '' }}</b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->gate == 0 ? getAuth()->branch->branch_name.' Gate' : $item->gates->name }}</b>
+                                <b class="mb-4 text-xl">:&nbsp;{{ $item->scanned_goods ?? 0 }}</b>
+                            </div>
+                    </div>
+                    @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+{{-- End Modal --}}
+
+{{-- Add Car Modal --}}
+@if (dc_staff() && $status != 'view')
+<div class="hidden" id="add_car">
+    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                <div
+                    class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Car Info &nbsp;<span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold"
+                            onclick="$('#add_car').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pt-4">
+                    <form action="{{ route('store_car_info') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                            <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
+                            <div class="grid grid-cols-2 gap-5 my-5">
+                                <div class="flex flex-col px-10 relative ">
+                                    <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
+                                    <input type="text" name="truck_no" id="truck_no" class=" truck_div mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck..." autocomplete="off">
+                                        <ul class="truck_div w-[77%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto" style="top: 100%">
+                                        </ul>
+                                    @error('truck_no')
+                                        <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <div class="flex flex-col px-10">
+                                    <label for="driver_phone">Driver Phone<span class="text-rose-600">*</span> :</label>
+                                    <input type="number" name="driver_phone" id="driver_phone" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('driver_phone') }}" placeholder="09*********">
+                                    @error('driver_phone')
+                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                @enderror
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-5 my-5">
+                                <div class="flex flex-col px-10">
+                                    <label for="driver_nrc">Driver NRC<span class="text-rose-600">*</span> :</label>
+                                    <input type="text" name="driver_nrc" id="driver_nrc" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('driver_nrc') }}" placeholder="nrc...">
+                                    @error('driver_nrc')
+                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                @enderror
+                                </div>
+
+                                <div class="flex flex-col px-10">
+                                    <label for="driver_name">Driver Name<span class="text-rose-600">*</span> :</label>
+                                    <input type="text" name="driver_name" id="driver_name" class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" placeholder="name..." value="{{ old('driver_name') }}">
+                                    @error('driver_name')
+                                        <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-5 my-5">
+                                <div class="flex flex-col px-10">
+                                    <label for="truck_type">Type of Truck<span class="text-rose-600">*</span> :</label>
+                                    <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                        <option value="">Choose Type of Truck</option>
+                                        @foreach ($truck as $item)
+                                            <option value="{{ $item->id }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option>
+                                        @endforeach
+                                    </Select>
+                                    @error('truck_type')
+                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                @enderror
+                                </div>
+
+                                <?php
+                                    $dc = [17,19,20];
+                                ?>
+                                @if (dc_staff() && $main->user_id == getAuth()->id)
+                                    <div class="flex flex-col px-10">
+                                        <label for="gate">Gate<span class="text-rose-600">*</span> :</label>
+                                        <Select name="gate" id="gate" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                            <option value="">Choose Gate</option>
+                                            @foreach ($gate as $item)
+                                                <option value="{{ $item->id }}" {{ old('gate') == $item->id ? 'selected' : '' }}>{{ $item->name.'('.$item->branches->branch_name.')' }}</option>
+                                            @endforeach
+                                        </Select>
+                                        @error('gate')
+                                        <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                    @enderror
+                                    </div>
+                                @endif
+
+                            </div>
+                        <div class="grid grid-cols-2 gap-5 my-5">
+
+                            <div class="grid grid-cols-3 gap-10  mx-10">
+                                <div class="flex flex-col">
+                                   <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img1').click()" title="image 1"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">1</span></div>
+
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img2').click()" title="image 2"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">2</span></div>
+
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex" onclick="$('#img3').click()" title="image 3"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">3</span></div>
+                                </div>
+
+                                @error('atLeastOne')
+                                    <small class="text-rose-400 -translate-y-7 ms-12 col-span-3">{{ $message }}</small>
+                                @enderror
+                            </div>
+                                <input type="file" class="car_img" accept="image/*" name="image_1" hidden id="img1">
+                                <input type="file" class="car_img" accept="image/*" name="image_2" hidden id="img2">
+                                <input type="file" class="car_img" accept="image/*" name="image_3" hidden id="img3">
+                            <div class="">
+                                <button type="submit" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+@endif
+
+   {{-- Decision Modal --}}
+   <div class="hidden" id="alert_model">
+    <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80 ">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Cursor á€á€½á€€á€ºá€á€±á€á€«á€á€á€¼á€á€ºá€· scan á€á€á€ºá€á€­á€¯á€·á€á€á€á€º á€á€á€¯á€á€ºá€á€« &nbsp;<span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                            onclick="$('#alert_model').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+            </div>
+        </div>
+</div>
+</div>
+{{-- End Modal --}}
+
+    {{-- Auth Modal --}}
+    <div class="hidden" id="pass_con">
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+                    <div
+                        class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                        <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Authorize Confirmation &nbsp;<span
+                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-6 h-6 hidden svgclass">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                            <button type="button" class="text-rose-600 font-extrabold"
+                                onclick="$('#pass_con').hide()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4">
+                        <form id="auth_con_form">
+                                <div class=" my-1">
+                                    <div class="text-center">
+                                        <small class="text-rose-500 w-full ms-1 error_msg underline"></small>
+                                    </div>
+                                    <div class="flex flex-col px-10 relative ">
+                                        <label for="employee_code">Employee Id<span class="text-rose-600">*</span> :</label>
+                                        <input type="text" name="employee_code" id="employee_code" class=" mt-2 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('employee_code') }}" placeholder="employee code" autocomplete="off">
+                                            <small class="text-rose-500 ms-1 error_msg"></small>
+
+                                    </div>
+
+                                    <div class="flex flex-col px-10 mt-4">
+                                        <label for="pass">Password<span class="text-rose-600">*</span> :</label>
+                                        <input type="password" name="pass" id="pass" class="mt-2 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('pass') }}" placeholder="">
+                                        <small class="text-rose-500 ms-1 error_msg"></small>
+
+                                    </div>
+                                </div>
+                                <input type="hidden" type="text" id="index">
+                            <div class="grid grid-cols-2 gap-5 my-5">
+
+                                <div class="">
+
+                                </div>
+                                <div class="">
+                                    <button type="button" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10" id="auth_con">Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </div>
+    {{-- End Modal --}}
+
+
+    {{--- Modal Start ---}}
+    <div class="hidden" id="remark_model">
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+                    <div
+                        class="card-header border-2 rounded min-w-full sticky inset-x-0 top-0 backdrop-blur backdrop-filter">
+                        <div class="flex px-4 py-2 justify-between items-center min-w-80">
+                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Remark for &nbsp;<b id="remark_item"></b>&nbsp;<span
+                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-6 h-6 hidden svgclass">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                            <button type="button" class="text-rose-600 font-extrabold"
+                                onclick="$('#remark_model').hide()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4 flex flex-col" id="remark_card_body">
+                        {{-- <textarea cols="50" class="ps-1" id="ipt_remark" rows="5"></textarea>
+                        <small class="ml-2" id="op_count">0/500</small> --}}
+                    </div>
+                </div>
+            </div>
+    </div>
+    </div>
+    {{--- Modal Start ---}}
+
+    <div class="hidden" id="print_no">
+        <div class="flex items-center  fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+
+                    <div class="flex px-4 py-2 justify-between items-center max-w-50 ">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">print á€á€¯á€á€ºá€á€»á€á€ºá€á€±á€¬ á€¡á€á€±á€¡á€á€½á€€á€º á€€á€­á€¯ á€á€­á€¯á€€á€ºá€á€á€ºá€·á€á€« (<b class="text-rose-600"> 500 á€á€€á€ºá€á€­á€¯á á€á€á€á€«</b>)<span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+
+
+                        <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                            onclick="$('#print_no').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="">
+                        <input type="hidden" id="print_eq">
+                        <Select class="w-full border border-slate-300 py-3 ps-2 bg-white rounded-lg appearance-none" id="bar_type">
+                            <option value="1">Bar 1</option>
+                            <option value="2">Bar 2</option>
+                            <option value="3">Bar 3</option>
+                        </Select>
+                        <Select class="w-full border border-slate-300 py-3 ps-2 bg-white rounded-lg appearance-none mt-2" id="reason">
+                            @foreach ($reason as $item)
+                                <option value="{{ $item->id }}">{{ $item->reason }}</option>
+                            @endforeach
+                        </Select>
+                        <input type="number" id="print_count" class="appearance-none w-full border-2 border-slate-300 rounded-lg min-h-12 mt-4 ps-2 focus:outline-none focus:border-sky-200 focus:border-3" placeholder="500 á€á€€á€ºá€á€á€­á€¯á€á€«á€á€²á€·">
+                        <button type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </div>
+    {{--- Modal End ---}}
+
+       {{-- Image Modal --}}
+   <div class="hidden" id="image_model">
+    <div class="flex items-center fixed inset-0 justify-center z-100 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80 ">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                            onclick="$('#image_model').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+            </div>
+            <div class="" id="image_container">
+                {{-- <div class="">
+                    <span class="underline mb-4 text-xl font-serif tracking-wider">R4-0989</span>
+                    <img src="{{ asset('image/background_img/finallogo.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                    <img src="{{ asset('image/background_img/forklift.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                    <img src="{{ asset('image/background_img/handshake.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                </div> --}}
+            </div>
+        </div>
+</div>
+</div>
+{{-- End Modal --}}
+
+{{-- start modal --}}
+
+    <div class="hidden" id="prew_img" >
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+                        <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-6 h-6 hidden svgclass">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                            <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                onclick="$('#prew_img').hide()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                </div>
+                <div class="card-body">
+                    <img src="" id="pr_im" alt="" style="width: 800px">
+                </div>
+            </div>
+        </div>
+    </div>
+{{-- end modal --}}
+
+    @if($status == 'edit')
+        {{-- start modal --}}
+        {{-- choose car modal --}}
+        <div class="hidden" id="car_choose" >
+            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                    <!-- Modal content -->
+                    <div class="card rounded">
+                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                        id="show_doc_no"></span>Please Choose Your Car No&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="w-6 h-6 hidden svgclass">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                    onclick="$('#car_choose').hide()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                    </div>
+                    <div class="card-body car_choose_body">
+                        @foreach ($driver as $item)
+                            <div class="text-center bg-slate-100 py-1 font-semibold font-serif cursor-pointer hover:bg-slate-300 rounded border mb-2 car_no" data-id="{{ $item->id }}" style="box-shadow: 4px 4px 4px rgb(0,0,0,0.2)">{{ $item->truck_no }}</div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- end modal --}}
+
+        {{-- start modal --}}
+        {{-- edit img & car no modal --}}
+        <div class="hidden" id="change_img" >
+            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="">
+                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                    <!-- Modal content -->
+                    <div class="card rounded">
+                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                        id="show_doc_no"></span>Edit Your Car No And Images&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="w-6 h-6 hidden svgclass">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                    onclick="$('#change_img').hide()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                    </div>
+                    <div class="card-body change_img_body">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- end modal --}}
+    @endif
+
+
+    @push('js')
+        <script>
+
+            $(document).on('click', '.copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode', function() {
+                const buttonId = $(this).attr('id');
+                let documentNo, textId;
+
+                if (buttonId.startsWith('btn-copy-doc-')) {
+                    documentNo = buttonId.replace('btn-copy-doc-', '');
+                    textId = 'doc-no-' + documentNo;
+                } else if (buttonId.startsWith('scan-btn-copy-doc-')) {
+                    documentNo = buttonId.replace('scan-btn-copy-doc-', '');
+                    textId = 'scan-doc-no-' + documentNo;
+                } else if (buttonId.startsWith('excess-btn-copy-doc-')) {
+                    documentNo = buttonId.replace('excess-btn-copy-doc-', '');
+                    textId = 'excess-doc-no-' + documentNo;
+                } else if (buttonId.startsWith('btn-copy-bar-')) {
+                    documentNo = buttonId.replace('btn-copy-bar-', '');
+                    textId = 'bar-code-' + documentNo;
+                } else if (buttonId.startsWith('scan-btn-copy-bar-')) {
+                    documentNo = buttonId.replace('scan-btn-copy-bar-', '');
+                    textId = 'scan-bar-code-' + documentNo;
+                } else if (buttonId.startsWith('excess-btn-copy-bar-')) {
+                    documentNo = buttonId.replace('excess-btn-copy-bar-', '');
+                    textId = 'excess-bar-code-' + documentNo;
+                }
+
+                copyText(textId, buttonId);
+            });
+
+            async function copyText(textId, buttonId) {
+                try {
+                    const element = document.getElementById(textId);
+                    if (!element) {
+                        console.log(`Element with id ${textId} not found`);
+                        return;
+                    }
+                    const text = element.innerText;
+
+                    if (navigator.clipboard) {
+                        await navigator.clipboard.writeText(text);
+
+                    } else {
+                        // Fallback method using textarea
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        textArea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge
+                        textArea.style.opacity = '0';  // Hide the textarea element
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+
+                        try {
+                            document.execCommand('copy');
+
+                        } catch (err) {
+
+                        }
+
+                        document.body.removeChild(textArea);
                     }
 
-                    foreach($all_product as $index=>$item)
-                    {
-
-                        if($total_scan < 1)
-                        {
-                            break;
-                        }
-                        $sub = $item->qty - $item->scanned_qty;
-
-                        if($item->qty > $item->scanned_qty && $sub >= $total_scan)
-                        {
-                            if($count > 0)
-                            {
-                                $update_time = Carbon::now()->addSecond();
-                            }else{
-                                $update_time = Carbon::now();
+                    const button = document.getElementById(buttonId);
+                            if (!button) {
+                                console.log(`Button with id ${buttonId} not found`);
+                                return;
                             }
 
-                            $scanned = $item->scanned_qty + $total_scan;
-                            Product::where('id',$item->id)->update([
-                                'scanned_qty'   => $scanned,
-                                'updated_at'    => $update_time
-                            ]);
-                            $pd_code = $this->repository->add_track($driver_info->id,$item->id,$total_scan,$item->document_id,$update_time,$unit,$per);
-                            $count ++;
-                            break;
-                        }else if($item->qty > $item->scanned_qty && $sub < $total_scan && $index != count($all_product)-1){
-                            if($sub < $total_scan)
-                            {
-                                $scanned    = $item->qty;
-                                $total_scan = $total_scan - $sub;
-                                $added      = $sub;
-                            }else{
-                                $scanned    = $item->scanned_qty + $total_scan;
-                                $total_scan = 0;
-                                $added      = $total_scan;
+                            button.innerHTML = '<i class="fas fa-check"></i>';
+                            setTimeout(() => {
+                                button.innerHTML = '<i class="fa-solid fa-copy"></i>';
+                            }, 1000);
+                } catch (err) {
+                                console.log('Failed to copy: ', err);
+
+                }
+            }
+
+            $(document).ready(function() {
+
+                new TomSelect("#documentNoselect",{
+                    selectOnTab	: true
+                });
+
+                new TomSelect("#barcodeSelect",{
+                    selectOnTab	: true
+                });
+
+                var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
+                var mainStatus = @json($main->status);
+
+                $('#back').on('click', function() {
+                    $.ajax({
+                        url: window.location.href,
+                    });
+                });
+
+                $('#document_no_search').click(function() {
+                    var id = $('#idInput').val();
+                    var documentNo = $('#documentNoSelect').val();
+                    var barcodeNo = $('#barcodeSelect').val();
+                    var pageUrl = '{{ $page == 'receive' ? '/receive_goods/' : '/view_goods/' }}';
+                    $.ajax({
+                        url: '/search_document_no',
+                        type: 'GET',
+                        data: { id: id, document_no: documentNo, barcode_no : barcodeNo },
+                        success: function(response) {
+                            var documents = response.documents;
+                            var scanDocuments = response.scan_documents;
+                            var excessDocuments = response.excess_documents;
+                            var need_document_inform  = response.need_document_inform;
+
+                            if (documents.length === 0  && scanDocuments.length === 0 && excessDocuments.length === 0) {
+                                window.location.href = pageUrl + id;
+                            } else {
+                                $('#resultCount').show();
                             }
+                            var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
+                            var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
+                            var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
 
-                            if($count > 0)
-                            {
-                                $update_time = Carbon::now()->addSecond();
-                            }else{
-                                $update_time = Carbon::now();
-                            }
+                            if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
+                                $('#resultCount').hide();
+                                $('#back').show();
+                                $('.main_body').empty();
+                                $('.scan_body').empty();
+                                $('.excess_body').empty();
+                                $('.search_main_body').empty();
+                                $('.search_scan_body').empty();
+                                $('.excess_scan_body').empty();
+                                if (!isEmptyDocuments) {
+                                    documents.forEach((document, i) => {
+                                        let barCodes = document.bar_code;
+                                        let supplierNames = document.supplier_name;
+                                        let qtys = document.qty;
+                                        let scannedQtys = document.scanned_qty;
+                                        let checkColor = document.check_color;
+                                        let scanZero = document.scan_zero;
+                                        let searchpdId = document.search_pd_id;
+                                        let Unit = document.unit;
+                                        let documentno = document.document_no;
+                                        let isDcStaff = need_document_inform.isDcStaff;
+                                        let curDriver = need_document_inform.curDriver;
+                                        let authId = need_document_inform.authId;
+                                        let curDriverStartDate = need_document_inform.cur_driver_start_date;
 
-                            Product::where('id',$item->id)->update([
-                                'scanned_qty'   => $scanned,
-                                'updated_at'    => $update_time
-                            ]);
+                                        for (let j = 0; j < barCodes.length; j++) {
+                                            let buttonHtml = '';
+                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
+                                                buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let additionalIconHtml = '';
+                                            if( curDriverStartDate == null){
 
-                            $pd_code = $this->repository->add_track($driver_info->id,$item->id,$added,$item->document_id,$update_time,$unit,$per);
-                        }elseif($index == count($all_product)-1)
-                        {
-                                $scanned = $item->scanned_qty+$total_scan;
-                                if($count > 0)
-                                {
-                                    $update_time = Carbon::now()->addSecond();
-                                }else{
-                                    $update_time = Carbon::now();
+                                            } else if (curDriverStartDate.length != 0) {
+                                                additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
+                                            }
+                                            let rowHtml = `<tr class="h-10">
+                                                ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
+                                                ${j === 0 ? `
+                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+
+                                                            <span id="doc-no- ${document.document_no}"> ${document.document_no}</span>
+                                                            <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                    </td>`
+                                                :
+                                                '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
+                                                        <span id="bar-code- ${barCodes[j]}"> ${barCodes[j]}</span>
+                                                        <button id="btn-copy-bar- ${barCodes[j]}" class="copy-button-barcode" >
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold  select-none" data-index="${j}">${qtys[j]}</span>
+                                                    <input type="hidden" class="pd_unit" value="${Unit[j]}">
+                                                    <input type="hidden" class="pd_name" value="${supplierNames[j]}">
+                                                    <input type="hidden" class="pd_id" value="${searchpdId[j]}">
+                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 22)}</div>
+                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  scanned_qty">
+                                                    <div class="main_scan">
+                                                        ${scannedQtys[j]}
+                                                        ${additionalIconHtml}
+                                                    </div>
+                                                    <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
+                                            </tr>`;
+                                            $('.search_main_body').append(rowHtml);
+                                        }
+                                    });
                                 }
-                                Product::where('id',$item->id)->update([
-                                    'scanned_qty'   => $scanned,
-                                    'updated_at'    => $update_time
-                                ]);
-                            $pd_code = $this->repository->add_track($driver_info->id,$item->id,$total_scan,$item->document_id,$update_time,$unit,$per);
+                                function generateBarcodeHTML(barcode, height) {
+                                    let barcodeHTML = `
+                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
+                                        </div>
+                                    `;
+                                    return barcodeHTML;
+                                }
+                                if (!isEmptyScanDocuments) {
+                                    scanDocuments.forEach((scanDocument, i) => {
+                                        let sanbarCodes = scanDocument.bar_code;
+                                        let sansupplierNames = scanDocument.supplier_name;
+                                        let sanqtys = scanDocument.qty;
+                                        let sanscannedQtys = scanDocument.scanned_qty;
+                                        let scanColor = scanDocument.scan_color;
+                                        let allScanned = scanDocument.all_scanned;
+                                        for (let j = 0; j < sanbarCodes.length; j++) {
+                                            let qty = Number(sanqtys[j]);
+                                            let scannedQty = Number(sanscannedQtys[j]);
+                                            let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
+                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
+                                                            <span id="scan-doc-no- ${scanDocument.document_no}">${scanDocument.document_no}</span>
+                                                            <button id="scan-btn-copy-doc- ${scanDocument.document_no}" class="scan-copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
+                                                    <span id="scan-bar-code-  ${sanbarCodes[j]}">${sanbarCodes[j]}</span>
+                                                    <button id="scan-btn-copy-bar-  ${sanbarCodes[j]}" class="scan-copy-button-barcode" >
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sansupplierNames[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
+                                                    ${scannedQty > qty ? qty : scannedQty}
+                                                </td>
+                                            </tr>`;
+                                            $('.search_scan_body').append(rowHtmltwo);
+                                        }
+                                    });
+                                }
+                                if (!isEmptyExcessDocuments) {
+                                    excessDocuments.forEach((excessDocument, i) => {
+                                        let excessBarCodes = excessDocument.bar_code;
+                                        let excessSupplierNames = excessDocument.supplier_name;
+                                        let excessQtys = excessDocument.qty;
+                                        let excessScannedQtys = excessDocument.scanned_qty;
+                                        let excessRemarks = excessDocument.remark || [];
+                                        for (let j = 0; j < excessBarCodes.length; j++) {
+                                            let remainingQty = excessScannedQtys[j] - excessQtys[j];
+                                            let excessQty = Number(excessQtys[j]);
+                                            let excessScannedQty = Number(excessScannedQtys[j]);
+                                            let quantityClass = remainingQty < 0 ? 'text-rose-600' : 'text-emerald-600';
+                                            let remarkClass = excessRemarks[j] === undefined ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600';
+                                            let buttonHtml = '';
+                                            if ( canAdjustExcess && mainStatus === 'complete' &&  excessQty < excessScannedQty ) {
+                                            buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="${excessDocument.excess_id}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let rowHtmlthree = `<tr class="h-10">
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
+                                                            <span id="excess-doc-no- ${excessDocument.document_no}">${excessDocument.document_no}</span>
+                                                            <button id="excess-btn-copy-doc- ${excessDocument.document_no}" class="excess-copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
+                                                    <span id="excess-bar-code- ${excessBarCodes[j]}">${excessBarCodes[j]}</span>
+                                                    <button id="excess-btn-copy-bar- ${excessBarCodes[j]}" class="excess-copy-button-barcode" >
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                    </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0">${excessSupplierNames[j]}
+                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white ${remarkClass} remark_ic' data-pd="${excessBarCodes[j]}" data-id="${excessDocument.excess_id}" data-eq="${j}"></i>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ${quantityClass}">${remainingQty} </td>
+                                            </tr>`;
+                                            $('.excess_scan_body').append(rowHtmlthree);
+                                        }
+                                    });
+                                }
+                                function generateBarcodeHTML(barcode, height) {
+                                    let barcodeHTML = `
+                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
+                                        </div>
+                                    `;
+                                    return barcodeHTML;
+                                }
+                            } else {
+                                $('.search_main_body').empty();
+                                $('.search_scan_body').empty();
+                                $('.excess_scan_body').empty();
+                                $('#back').hide();
+                            }
+                        },
+                        error: function(xhr, status, error) {
                         }
-                        $count ++;
-                    }
-                }else{
-                    $exceed_pd =Product::whereIn('document_id',$doc_ids)
-                                        ->where('bar_code',$item)
-                                        ->orderBy('id','desc')
-                                        ->first();
+                    });
+                });
+                // $('#suggestions').hide();
+                // $('#searchInput').on('input', function() {
+                //     let query = $(this).val();
+                //     if (query.length >= 1) {
+                //         $.ajax({
+                //             url: '/search_suggestions',
+                //             type: 'GET',
+                //             data: {
+                //                 query: query
+                //             },
+                //             success: function(response) {
+                //                 if (response.length > 0) {
+                //                     $('#suggestions').show();
+                //                     response.forEach(item => {
+                //                         $('#suggestions').append(`<div class="p-2 cursor-pointer hover:bg-gray-200" data-value="${item}">${item}</div>`);
+                //                     });
+                //                 }
+                //             }
+                //         });
+                //     } else {
+                //         console.log('no');
+                //         $('#suggestions').empty();
+                //         $('#suggestions').hide();
+                //     }
+                // });
 
-                    if($exceed_pd){
-                        $exceed_qty = $exceed_pd->scanned_qty + $total_scan;
-                        Product::where('id',$exceed_pd->id)->update([
-                            'scanned_qty'   => $exceed_qty
-                        ]);
-                    }
+                $(document).on('click', '#suggestions div', function() {
+                    let value = $(this).data('value');
+                    $('#searchInput').val(value);
+                    $('#suggestions').empty();
+                });
+
+
+            });
+
+            $(document).ready(function(e){
+                var token = $("meta[name='__token']").attr('content');
+                $finish = $('#finished').val();
+                $status = $('#view_').val();
+                $role = $('#user_role').val();
+                $all_begin = $('#started_time').val();
+                $count = parseInt($('#count').val()) || 0;
+                $cur_id = $('#cur_truck').val() ?? '';
+                $dc_staff = "{{ getAuth()->branch_id}}";
+                $dc_staff = $dc_staff.includes([17,19,20]) ? true: false;
+
+                function reload_page(){
+                    $('.main_table').load(location.href + ' .main_table');
+                    $('.scan_parent').load(location.href + ' .scan_parent', function() {
+                        $('.excess_div').load(location.href + ' .excess_div', function() {
+                            $('.scanned_pd_div').eq(0).find('td').addClass('latest');
+                        });
+                    });
                 }
-            }
-            if(isset($driver_info) && $count == 0)
-            {
-                $pd_code = $this->repository->add_track($driver_info->id,$product->id,$total_scan,$product->document_id,null,$unit,$per);
-            }
-            $receive_good = GoodsReceive::find($request->id);
-            if($receive_good->start_date == '')
-            {
-                $receive_good->update([
-                    'start_date' => Carbon::now()->format('Y-m-d'),
-                    'start_time' => Carbon::now()->format('H:i:s')
-                ]);
-            }
-            $cur_car = DriverInfo::find($request->car);
-            if(!isset($cur_car->start_date))
-            {
-                $cur_car->update([
-                    'start_date' => Carbon::now()->format('Y-m-d'),
-                    'start_time' => Carbon::now()->format('H:i:s')
-                ]);
-                Session::put('first_time_search_'.$request->id,$pd_code);
-            }
+                // $('.real_scan').eq(0).attr('type','text');
 
-            return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty,'pd_code'=>$pd_code],200);
-            } catch (\Exception $e) {
-                logger($e);
-                return response()->json(['message'=>'Server Time Out Please Try Again'],500);
-            }
+                $(document).on('click','#driver_info',function(e){
+                    $('#car_info').toggle();
+                })
 
-        }else{
-            return response()->json(['message'=>'Not found'],404);
-        }
-    }
+                $(document).on('click','#show_image',function(e){
+                    $doc_id = '{{ $main->id }}';
+                    $.ajax({
+                        url : "{{ route('show_image') }}",
+                        type: 'POST',
+                        data: {_token:token,id:$doc_id},
+                        success:function(res){
+                            $list = '';
+                            for($i = 0 ; $i < res.truck.length ; $i++)
+                            {
+                                $list += `
+                                <div class="">
+                                    <span class="underline mb-4 text-xl font-serif tracking-wider">${res.truck[$i].truck_no}</span>
+                                `;
+                                for($j = 0; $j < res.image.length ; $j++)
+                                {
+                                    if(res.truck[$i].id == res.image[$j].driver_info_id)
+                                    {
+                                        $list += `
+                                            <img src="{{ asset('storage/${res.image[$j].file}') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                                        `;
+                                    }
+                                }
+                                $list += '</div>';
+                            }
+                            $('#image_container').html('');
+                            $('#image_container').append($list);
+                            $('#image_model').show();
+                        }
+                    })
 
-    //edit scan
-    public function edit_scan(Request $request)
-    {
-        $track  = Tracking::where(['product_id'=>$request->product,'driver_info_id'=>$request->driver])->get();
-        $qty    = $request->val;
-        $old    = $request->old;
-        $change = $old - $qty;
-        // dd($track);
-        foreach($track as $item)
-        {
-            if($change >= $item->scanned_qty)
-            {
-                $sub_qty    = $item->scanned_qty-1;
-                Tracking::where('id',$item->id)->update([
-                    'scanned_qty'   => 1
-                ]);
-                $change = $change - $sub_qty;
-            }else{
-                $final      = $item->scanned_qty-$change;
-                Tracking::where('id',$item->id)->update([
-                    'scanned_qty'   => $final
-                ]);
-                break;
-            }
-        }
-        $pd = Product::where('id',$request->product)->first();
-        $product_scan = $pd->scanned_qty - ($old - $qty);
-        Product::where('id',$request->product)->update([
-            'scanned_qty'   => $product_scan
-        ]);
+                })
 
-
-        return response()->json(200);
-    }
-
-    //confirm/continue Button click
-    public function confirm(Request $request)
-    {
-        $receive = GoodsReceive::where('id',$request->id)->first();
-        $doc    = Document::where('received_goods_id',$request->id)->get();
-        $driver =  DriverInfo::where('received_goods_id',$request->id)
-                            ->where('user_id',getAuth()->id)
-                            ->whereNull('duration')->first();
-
-        $finish_driver = DriverInfo::where('received_goods_id',$request->id)
-                            ->whereNotNull('duration')->get();
-        if($driver)
-        {
-            $start = strtotime($driver->start_date.' '.$driver->start_time);
-            $now    = Carbon::now()->timestamp;
-            $diff = $now - $start;
-
-            $data =  $this->repository->get_remain($request->id);
-
-            $hour   = (int)($diff / 3600);
-            $min    = (int)(($diff % 3600) / 60);
-            $sec    = (int)(($diff % 3600) % 60);
-            $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
-            $this_scanned = get_scanned_qty($driver->id);
-
-
-            if(cur_truck_sec($driver->id) < 86401)
-            {
-                $receive->update([
-                    'total_duration'        => get_all_duration($request->id),
-                    'remaining_qty'         => $data['remaining'],
-                    'exceed_qty'            => $data['exceed'],
-                    'status'                => 'incomplete'
-                ]);
-
-                $driver->update([
-                    'scanned_goods' => $this_scanned,
-                    'duration'      => $pass
-                ]);
-            }else{
-                return response()->json(500);
-            }
-
-
-        }else{
-            $receive->update([
-                'total_duration' => '00:00:00',
-                'status'         => 'incomplete'
-            ]);
-        }
-        return response()->json(200);
-    }
-
-    //click complete btn
-    public function finish_goods($id)
-    {
-
-        $receive = GoodsReceive::where('id',$id)->first();
-        $driver = DriverInfo::where('received_goods_id',$id)
-                            ->where('user_id',getAuth()->id)
-                            ->whereNull('duration')
-                            ->first();
-
-        $finish_driver = DriverInfo::where('received_goods_id',$id)
-                                    ->whereNotNull('duration')->get();
-
-        $start_time = strtotime($driver->start_date.' '.$driver->start_time);
-        $now        = strtotime(Carbon::now()->format('Y-m-d H:i:s'));
-
-        $data =  $this->repository->get_remain($id);
-
-        $diff = $now - $start_time;
-        $hour   = (int)($diff / 3600);
-        $min    = (int)(($diff % 3600) / 60);
-        $sec    = (int)(($diff % 3600) % 60);
-        $time   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
-
-        $this_scanned = get_scanned_qty($id);
-        if($driver)
-        {
-            $receive->update([
-                'total_duration'        => get_all_duration($id),
-                'remaining_qty'         => $data['remaining'],
-                'exceed_qty'            => $data['exceed'],
-                'status'                => 'complete'
-            ]);
-
-        if(cur_truck_sec($driver->id) < 86401)
-        {
-
-            $receive->update([
-                'total_duration'        => get_all_duration($id),
-                'remaining_qty'         => $data['remaining'],
-                'exceed_qty'            => $data['exceed'],
-                'status'                => 'complete'
-            ]);
-
-            $driver->update([
-                'scanned_goods' => $this_scanned,
-                'duration'      => $time
-            ]);
-
-            return response()->json(200);
-        }
-
-        return response()->json(500);
-        }
-    }
-
-    //click delete excess btn
-    public function del_exceed(Request $request)
-    {
-        $product = Product::where('id',$request->id)->first();
-        $remove_qty = $product->scanned_qty - $product->qty;
-        // dd($product,$remove_qty);
-        $product->update([
-            'scanned_qty' => $product->qty
-        ]);
-
-        $del                        = new RemoveTrack();
-        $del->received_goods_id      = $product->doc->received_goods_id;
-        $del->user_id               = getAuth()->id;
-        $del->product_id            = $request->id;
-        $del->remove_qty            = $remove_qty;
-        $del->save();
-
-        return response()->json(200);
-    }
-
-    public function pass_vali(Request $request)
-    {
-        $emplyee    = explode('&',$request->data)[0];
-        $emplyee    = explode('=',$emplyee)[1];
-        $password    = explode('&',$request->data)[1];
-        $password    = explode('=',$password)[1];
-        $user = User::where('employee_code', $emplyee)->first();
-        $user_branch    = getAuth()->branch_id;
-        $same_br        = false;
-        if(isset($user))
-        {
-            $branch_exst = UserBranch::where(['user_id'=>$user->id,'branch_id'=>$user_branch])->first();
-            if($branch_exst || $user_branch==$user->branch_id)
-            {
-                $same_br = true;
-            }
-            if($same_br && Hash::check($password, $user->password) && ($user->role == 4 || $user->role==3))
-            if($same_br && Hash::check($password, $user->password) && ($user->role == 3 || $user->role ==4))
-
-            {
-                return response()->json($user,200);
-            }else{
-                return response()->json(['message'=>'Credential Does Not Match'],404);
-            }
-        }else{
-            return response()->json(['message'=>'Not found'],404);
-        }
-    }
-
-    public  function add_product(Request $request)
-    {
-        // dd($request->all());
-        Common::Log(route('add_product'),"manually add product qty");
-
-        $product = Product::find($request->product);
-        $track   = Tracking::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id])->first();
-        $scan_track = ScanTrack::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id,'unit'=>'S'])->first();
-        $product->update([
-            'scanned_qty'   => $product->scanned_qty + $request->data,
-            'updated_at'    => Carbon::now()
-        ]);
-
-        Document::where('id',$product->document_id)->update([
-            'updated_at'    => Carbon::now()
-        ]);
-
-        if($track)
-        {
-            $track->update([
-                'scanned_qty'   => $track->scanned_qty + $request->data
-            ]);
-        }else{
-            $track                  = new Tracking();
-            $track->driver_info_id  = $request->car_id;
-            $track->product_id      = $request->product;
-            $track->scanned_qty     = $request->data;
-            $track->user_id         = getAuth()->id;
-            $track->save();
-        }
-
-        if($scan_track)
-        {
-            $scan_track->update([
-                'count' => $scan_track->count + $request->data
-            ]);
-        }else{
-            $scan_track             = new ScanTrack();
-            $scan_track->driver_info_id  = $request->car_id;
-            $scan_track->product_id      = $request->product;
-            $scan_track->user_id         = getAuth()->id;
-            $scan_track->unit            = 'S';
-            $scan_track->per            = 1;
-            $scan_track->count            = $request->data;
-            $scan_track->save();
-        }
-
-        $product_track = new AddProductTrack();
-        $product_track->authorize_user  =   $request->auth;
-        $product_track->by_user         =   getAuth()->id;
-        $product_track->truck_id        =   $request->car_id;
-        $product_track->product_id      =   $request->product;
-        $product_track->added_qty       =   $request->data;
-        $product_track->save();
-
-        return response()->json(200);
-    }
-
-    public function  show_remark($id)
-    {
-        $pd = Product::find($id);
-        $remark = $pd->remark == null ? '' : $pd->remark;
-        return response()->json($remark,200);
-    }
-
-    public function store_remark(Request $request)
-    {
-        // $request->validate([
-        // ]);
-        if($request->type == 'all')
-        {
-            $receive = GoodsReceive::find($request->id);
-            if($receive)
-            {
-                $receive->update([
-                    'remark' => $request->data
-                ]);
-                return response(200);
-            }
-
-        }else{
-            $product = Product::find($request->id);
-            if(!isset($product->remark))
-            {
-                $product->update([
-                    'remark' => $request->data
-                ]);
-                return response(200);
-            }
-        }
-    }
-
-    public function show_image(Request $request)
-    {
-        $image = UploadImage::where('received_goods_id',$request->id)->get();
-        $truck = DriverInfo::where('received_goods_id',$request->id)->get();
-
-        if($image)
-        {
-            foreach($image as $item){
-                if(!Storage::exists('public/'.$item->file))
+                if(!$finish)
                 {
-                    $ftp_file = Storage::disk('ftp')->get($item->file);
+                    $(document).on('click','.del_doc',function(e){
+                    $val = $(this).data('doc');
+                    $id = $('#receive_id').val();
+                    $this = $(this);
+                    Swal.fire({
+                        icon : 'info',
+                        title: 'Are You Sure?',
+                        showCancelButton:true,
+                        confirmButtonText:'Yes',
+                        cancelButtonText: "No",
+                    }).then((result)=>{
+                        if(result.isConfirmed)
+                        {
+                            $.ajax({
+                                url : "{{ route('del_doc') }}",
+                                type: 'POST',
+                                data: {_token:token , data:$val , id : $id},
+                                success: function(res){
+                                    $this.parent().parent().parent().remove();
+                                    if(res.count == 1)
+                                    {
+                                        $('#vendor').parent().remove();
+                                    }
+                                },
+                                error: function(xhr,status,error)
+                                {
+                                    $msg = xhr.responseJSON.message;
+                                    if($msg == 'You Cannot Remove')
+                                    {
+                                        Swal.fire({
+                                            icon : 'info',
+                                            title: 'Scan á€á€á€ºá€á€¬á€¸á€á€¬á€á€¾á€­á€á€²á€· á€¡á€á€½á€€á€ºá€€á€¼á€±á€¬á€á€ºá€· Remove á€á€¯á€á€ºá€á€½á€á€ºá€·á€á€á€±á€¸á€á€«',
+                                        })
+                                    }
+                                }
+                            })
+                        }
+                    })
 
-                    Storage::disk('public')->put($item->file,$ftp_file);
-                    $item->update([
-                        'public' => 1
-                    ]);
+
+                })
+                }
+
+                if($status != 'view')
+                {
+
+                $(document).on('click','#add_driver',function(e){
+                    $('#add_car').toggle();
+                })
+
+                $(document).on('click','#start_count_btn',function(e){
+                    $id = '{{ $main->id }}';
+                    $.ajax({
+                        url : '/start_count/'+$id,
+                        success: function(res){
+                            window.location.reload();
+                        }
+                    })
+                })
+
+                $(document).on('change','.car_img',function(e){
+                        $index = $('.car_img').index($(this));
+                        $('#pree_'+$index).remove();
+                        $('.img_btn').eq($index).addClass('bg-emerald-200').after(`
+                            <span class="hover:underline cursor-pointer mt-3 -translate-x-4 img_preview" id="pree_${$index}" data-index="${$index}" style="margin-left:35%">preivew</span>
+                        `);
+                    })
+
+                $(document).on('click','.img_preview',function(e){
+                    $index = $(this).data('index');
+                    $file  =  $('.car_img').eq($index).get(0);
+                    if ($file && $file.files && $file.files[0]) {
+                        var file = $file.files[0];
+                        var imageUrl = URL.createObjectURL(file);
+                        $('#pr_im').attr('src', imageUrl);
+                    }
+                    $('#prew_img').show();
+                    return;
+                    $("#pr_im").src(URL.createObjectURL($('.car_img').eq($index).target.files[0]))
+
+                })
+
+                if(!$finish)
+                {
+                    $(document).on('click','.change_scan',function(e){
+                        $id = $(this).data('index');
+                        $('#index').val($id);
+                        $('#employee_code').val('');
+                        $('#pass').val('');
+                        $('.error_msg').text('');
+                        $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
+                        $('#pass_con').show();
+                    })
+
+
+
+                    // $(document).on('click','.sticker',function(e){
+                    //     $('.bar_stick').remove();
+                    //     $qty    = $(this).text();
+                    //     $index  = $(this).data('index');
+                    //     $pd_code= $(this).data('pd').toString();
+                    //     $(this).parent().append(`
+                    //     `);
+                    //     $('.sticker').eq($index).trigger('show_stick');
+
+
+
+                    // })
+
+                    $(document).on('click','.sticker',function(e){
+                        $('#print_eq').val('');
+                        $('#print_count').val('');
+                       $('#print_no').show();
+                       $('#print_eq').val($(this).data('index'));
+                    })
+
+                    $(document).on("input",'#print_count',function(e){
+                        $val = $(this).val();
+                        $eq = $('#print_eq').val();
+                        $qty = $('.sticker').eq($eq).text();
+                        if($val > 500)
+                        {
+                            $(this).val(500);
+                        }else if($val > parseInt($qty))
+                        {
+                            $(this).val($qty);
+                        }
+                    })
+
+                   $(document).on('click','#final_print',function(e){
+
+                        $index = $('#print_eq').val();
+
+                        $pd_code= $('.bar_code').eq($index).text();
+                        $qty    = $('#print_count').val();
+                        $unit   = $('.pd_unit').eq($index).val();
+                        $name   = $('.pd_name').eq($index).val();
+                        $id     = $('.pd_id').eq($index).val();
+                        $type   = $('#bar_type').val();
+                        $reason = $('#reason').val();
+                        if($qty > 0 && $qty != ''){
+                            $td  = new Date();
+                            $date = [ String($td.getDate()).padStart(2, '0'),String($td.getMonth() + 1).padStart(2, '0'),$td.getFullYear()].join('/');
+                            $period = $td.getHours() > 12 ? 'PM' : 'AM';
+                            $time = [(String($td.getHours()).padStart(2, '0')%12 || 12), String($td.getMinutes()).padStart(2, '0'), String($td.getSeconds()).padStart(2, '0')].join(':');
+                            $full_date = $date+' '+$time+' '+$period;
+
+                            $.ajax({
+                                url : "{{ route('print_track') }}",
+                                type: 'POST',
+                                data: {_token:token,id:$id,qty:$qty,type:$type,reason:$reason},
+                                success: function(res){
+                                }
+                            })
+
+                            const new_pr = window.open("","","width=900,height=600");
+                             $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
+                             $mar_top = $name.length > 50 ? 3 : ($name.length > 35 ? 10 : 30);
+                            if($type == 1)
+                            {
+                                $bar = $('.bar_stick1').eq($index).html();
+                                new_pr.document.write(
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:12px;padding-right:25px;gap:20px}"
+                            );
+
+                            new_pr.document.write(
+                               "</style></head><body><div id='per_div'>"
+                            )
+                            $color = 100;
+                            $margin = $pd_code.length > 11 ? 10 : 40;
+                            for($i = 0 ; $i < $qty ; $i++)
+                            {
+
+                                new_pr.document.write(`
+                                    <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
+
+                                            <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+
+                                        <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
+                                        <div style="padding:5px 0;display:flex;flex-direction:column">
+                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
+                                             >
+                                             <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
+                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
+                                        </div>
+                                    </div>
+                                `);
+                                $color = $color+10;
+                            }
+                                new_pr.document.write("</div></body></html>");
+                            }else if($type == 2)
+                            {
+                                $bar = $('.bar_stick2').eq($index).html();
+                                $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
+                                $mar_top = $name.length > 50 ? 0 : 10;
+                                new_pr.document.write(
+
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:35px;gap:10px}"
+                                );
+
+                                new_pr.document.write(
+                                   "</style></head><body style='margin:0;padding:0'><div id='per_div'>"
+                                )
+                                for($i = 0 ; $i < $qty ; $i++)
+                                {
+                      new_pr.document.write(`
+                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
+                                             <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                           <div style="position:absolute;right:70px;top:70px">
+                                                <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
+                                            </div>
+                                            <div style="margin-left:10px;margin-top:2px;padding:0">${$bar}</div>
+                                            <div style="padding:5px 0;display:flex;flex-direction:column">
+                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.7rem;font-weight:900;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
+                                                <small class="" style="margin: 0 0 0 20px;font-size:0.7rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$full_date}</small>
+                                            </div>
+                                        </div>
+                                `);
+                                }
+                                new_pr.document.write("</div></body></html>");
+                            }else if($type == 3)
+                            {
+                                $bar = $('.bar_stick3').eq($index).html();
+
+                                new_pr.document.write(
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:30px;gap:10px}"
+                                );
+
+                                new_pr.document.write(
+                                "</style></head><body style='margin:0;padding:5px 0'><div id='per_div'>"
+                                )
+
+                                for($i = 0 ; $i < $qty ; $i++)
+                                {
+                                    new_pr.document.write(`
+                                    <div class="" style="padding: 20px 10px 5px 5px;position:relative;">
+
+                                    <small class="" style="font-size:0.8rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                    <div style="position:absolute;right:50px;top:120px">
+                                        <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
+                                    </div>
+                                    <div style="padding-left:5px;margin-top:15">${$bar}</div>
+                                    <div style="padding:5px 0;display:flex;flex-direction:column">
+                                        <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
+                                        <div style="display:flex">
+                                            <div style="width:100px;height:30px;border:solid 3px black"></div>
+                                            <div style="width:20px;height:20px;border:solid 3px black;margin:10px 0 0 4px"></div>
+                                            <div style="margin:15px 0 0 4px;font-weight:800">.............</div>
+                                        </div>
+                                        <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
+                                    </div>
+                                    </div>
+                                    `);
+                                }
+                                new_pr.document.write("</div></body></html>");
+                            }
+
+                            new_pr.document.close();
+                            new_pr.focus();
+                            new_pr.onload = function () {
+                            new_pr.print();
+                            new_pr.close();
+                            };
+                            $('#print_no').hide();
+
+                        }
+
+                    })
+
+                    $(document).on('click','#auth_con',function(e){
+                        $index  = $('#index').val();
+
+                        $data = $('#auth_con_form').serialize();
+
+                        $notempty = false;
+                        if($('#employee_code').val() == '')
+                        {
+                            $notempty = true;
+                            $('.error_msg').eq(1).text('Please Fill Employee Code');
+                        }
+                        if($('#pass').val() == '')
+                        {
+                            $notempty = true;
+                            $('.error_msg').eq(2).text('Please Fill Password');
+                        }
+                        if(!$notempty)
+                        {
+                            $.ajax({
+                                url : "{{route('pass_vali')}}",
+                                type: 'POST',
+                                data:{_token:token,data:$data},
+                                beforeSend:function(res){
+                                    $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
+                                    $('.error_msg').text('');
+                                },
+                                success:function(res){
+
+                                    $('#pass_con').hide();
+
+
+                                    $('.main_scan').eq($index).attr('hidden',true);
+                                    $('.real_scan').eq($index).attr('type','number');
+                                    $('.real_scan').eq($index).attr('data-auth',res.id);
+                                },
+                                error:function(){
+                                    console.log('error')
+                                    $('.error_msg').eq(0).text('Credential Does Not Match!!');
+                                    $('.error_msg').eq(0).parent().addClass('bg-rose-200 pb-1');
+                                    $('#employee_code').val('');
+                                    $('#pass').val('');
+                                }
+                            })
+                        }
+                    })
+
+                    $(document).on('blur','.real_scan',function(e){
+                        $val    = $(this).val();
+                        $old    = $(this).data('old');
+                        $pd_id  = $(this).data('id');
+                        $auth   = $(this).data('auth');
+                        console.log($val,$old,$pd_id,$auth);
+                        if($old >= $val)
+                        {
+                            $(this).val($old);
+                            $('.main_scan').eq($index).attr('hidden',false);
+                            $('.real_scan').eq($index).attr('type','hidden');
+                        }else{
+                            $add_val = $val - $old ;
+                            Swal.fire({
+                                icon : 'question',
+                                text : `${$add_val}á€á€¯ á€á€±á€«á€á€ºá€¸á€á€á€ºá€·á€á€¾á€¬ á€á€±á€á€»á€¬á€á€«á€á€á€¬á€¸`,
+                            showCancelButton:true,
+                                confirmButtonText: 'Yes',
+                                cancelButtonText : 'No',
+                            }).then((result)=>{
+                                if(result.isConfirmed)
+                                {
+                                    $.ajax({
+                                        url : "{{ route('add_product') }}",
+                                        type: 'POST',
+                                        data: {_token:token,data:$add_val,car_id:$cur_id,product:$pd_id,auth:$auth},
+                                        success:function(res)
+                                        {
+                                            $('#back').hide();
+                                            reload_page( type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </div>
+    {{--- Modal End ---}}
+
+       {{-- Image Modal --}}
+   <div class="hidden" id="image_model">
+    <div class="flex items-center fixed inset-0 justify-center z-100 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80 ">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                            onclick="$('#image_model').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+            </div>
+            <div class="" id="image_container">
+                {{-- <div class="">
+                    <span class="underline mb-4 text-xl font-serif tracking-wider">R4-0989</span>
+                    <img src="{{ asset('image/background_img/finallogo.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                    <img src="{{ asset('image/background_img/forklift.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                    <img src="{{ asset('image/background_img/handshake.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                </div> --}}
+            </div>
+        </div>
+</div>
+</div>
+{{-- End Modal --}}
+
+{{-- start modal --}}
+
+    <div class="hidden" id="prew_img" >
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+                        <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-6 h-6 hidden svgclass">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                            <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                onclick="$('#prew_img').hide()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                </div>
+                <div class="card-body">
+                    <img src="" id="pr_im" alt="" style="width: 800px">
+                </div>
+            </div>
+        </div>
+    </div>
+{{-- end modal --}}
+
+    @if($status == 'edit')
+        {{-- start modal --}}
+        {{-- choose car modal --}}
+        <div class="hidden" id="car_choose" >
+            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                    <!-- Modal content -->
+                    <div class="card rounded">
+                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                        id="show_doc_no"></span>Please Choose Your Car No&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="w-6 h-6 hidden svgclass">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                    onclick="$('#car_choose').hide()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                    </div>
+                    <div class="card-body car_choose_body">
+                        @foreach ($driver as $item)
+                            <div class="text-center bg-slate-100 py-1 font-semibold font-serif cursor-pointer hover:bg-slate-300 rounded border mb-2 car_no" data-id="{{ $item->id }}" style="box-shadow: 4px 4px 4px rgb(0,0,0,0.2)">{{ $item->truck_no }}</div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- end modal --}}
+
+        {{-- start modal --}}
+        {{-- edit img & car no modal --}}
+        <div class="hidden" id="change_img" >
+            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="">
+                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                    <!-- Modal content -->
+                    <div class="card rounded">
+                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                        id="show_doc_no"></span>Edit Your Car No And Images&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="w-6 h-6 hidden svgclass">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                    onclick="$('#change_img').hide()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                    </div>
+                    <div class="card-body change_img_body">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- end modal --}}
+    @endif
+
+
+    @push('js')
+        <script>
+
+            $(document).on('click', '.copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode', function() {
+                const buttonId = $(this).attr('id');
+                let documentNo, textId;
+
+                if (buttonId.startsWith('btn-copy-doc-')) {
+                    documentNo = buttonId.replace('btn-copy-doc-', '');
+                    textId = 'doc-no-' + documentNo;
+                } else if (buttonId.startsWith('scan-btn-copy-doc-')) {
+                    documentNo = buttonId.replace('scan-btn-copy-doc-', '');
+                    textId = 'scan-doc-no-' + documentNo;
+                } else if (buttonId.startsWith('excess-btn-copy-doc-')) {
+                    documentNo = buttonId.replace('excess-btn-copy-doc-', '');
+                    textId = 'excess-doc-no-' + documentNo;
+                } else if (buttonId.startsWith('btn-copy-bar-')) {
+                    documentNo = buttonId.replace('btn-copy-bar-', '');
+                    textId = 'bar-code-' + documentNo;
+                } else if (buttonId.startsWith('scan-btn-copy-bar-')) {
+                    documentNo = buttonId.replace('scan-btn-copy-bar-', '');
+                    textId = 'scan-bar-code-' + documentNo;
+                } else if (buttonId.startsWith('excess-btn-copy-bar-')) {
+                    documentNo = buttonId.replace('excess-btn-copy-bar-', '');
+                    textId = 'excess-bar-code-' + documentNo;
+                }
+
+                copyText(textId, buttonId);
+            });
+
+            async function copyText(textId, buttonId) {
+                try {
+                    const element = document.getElementById(textId);
+                    if (!element) {
+                        console.log(`Element with id ${textId} not found`);
+                        return;
+                    }
+                    const text = element.innerText;
+
+                    if (navigator.clipboard) {
+                        await navigator.clipboard.writeText(text);
+
+                    } else {
+                        // Fallback method using textarea
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        textArea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge
+                        textArea.style.opacity = '0';  // Hide the textarea element
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+
+                        try {
+                            document.execCommand('copy');
+
+                        } catch (err) {
+
+                        }
+
+                        document.body.removeChild(textArea);
+                    }
+
+                    const button = document.getElementById(buttonId);
+                            if (!button) {
+                                console.log(`Button with id ${buttonId} not found`);
+                                return;
+                            }
+
+                            button.innerHTML = '<i class="fas fa-check"></i>';
+                            setTimeout(() => {
+                                button.innerHTML = '<i class="fa-solid fa-copy"></i>';
+                            }, 1000);
+                } catch (err) {
+                                console.log('Failed to copy: ', err);
+
                 }
             }
-            return response()->json(['image'=>$image,'truck'=>$truck],200);
-        }
 
-    }
+            $(document).ready(function() {
 
-    public function start_count($id)
-    {
-        $main = GoodsReceive::find($id);
-        $driver = DriverInfo::where('received_goods_id',$id)
-                            ->whereNull('start_time')->first();
+                new TomSelect("#documentNoselect",{
+                    selectOnTab	: true
+                });
 
-        if($driver)
-        {
-            if($main->start_data == null)
-            {
-                $main->update([
-                    'start_date'=>Carbon::now()->format('Y-m-d'),
-                    'start_time'=>Carbon::now()->format('H:i:s')
-                ]);
-                $driver->update([
-                    'start_date'=>Carbon::now()->format('Y-m-d'),
-                    'start_time'=>Carbon::now()->format('H:i:s')
-                ]);
+                new TomSelect("#barcodeSelect",{
+                    selectOnTab	: true
+                });
+
+                var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
+                var mainStatus = @json($main->status);
+
+                $('#back').on('click', function() {
+                    $.ajax({
+                        url: window.location.href,
+                    });
+                });
+
+                $('#document_no_search').click(function() {
+                    var id = $('#idInput').val();
+                    var documentNo = $('#documentNoSelect').val();
+                    var barcodeNo = $('#barcodeSelect').val();
+                    var pageUrl = '{{ $page == 'receive' ? '/receive_goods/' : '/view_goods/' }}';
+                    $.ajax({
+                        url: '/search_document_no',
+                        type: 'GET',
+                        data: { id: id, document_no: documentNo, barcode_no : barcodeNo },
+                        success: function(response) {
+                            var documents = response.documents;
+                            var scanDocuments = response.scan_documents;
+                            var excessDocuments = response.excess_documents;
+                            var need_document_inform  = response.need_document_inform;
+
+                            if (documents.length === 0  && scanDocuments.length === 0 && excessDocuments.length === 0) {
+                                window.location.href = pageUrl + id;
+                            } else {
+                                $('#resultCount').show();
+                            }
+                            var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
+                            var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
+                            var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
+
+                            if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
+                                $('#resultCount').hide();
+                                $('#back').show();
+                                $('.main_body').empty();
+                                $('.scan_body').empty();
+                                $('.excess_body').empty();
+                                $('.search_main_body').empty();
+                                $('.search_scan_body').empty();
+                                $('.excess_scan_body').empty();
+                                if (!isEmptyDocuments) {
+                                    documents.forEach((document, i) => {
+                                        let barCodes = document.bar_code;
+                                        let supplierNames = document.supplier_name;
+                                        let qtys = document.qty;
+                                        let scannedQtys = document.scanned_qty;
+                                        let checkColor = document.check_color;
+                                        let scanZero = document.scan_zero;
+                                        let searchpdId = document.search_pd_id;
+                                        let Unit = document.unit;
+                                        let documentno = document.document_no;
+                                        let isDcStaff = need_document_inform.isDcStaff;
+                                        let curDriver = need_document_inform.curDriver;
+                                        let authId = need_document_inform.authId;
+                                        let curDriverStartDate = need_document_inform.cur_driver_start_date;
+
+                                        for (let j = 0; j < barCodes.length; j++) {
+                                            let buttonHtml = '';
+                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
+                                                buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let additionalIconHtml = '';
+                                            if( curDriverStartDate == null){
+
+                                            } else if (curDriverStartDate.length != 0) {
+                                                additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
+                                            }
+                                            let rowHtml = `<tr class="h-10">
+                                                ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
+                                                ${j === 0 ? `
+                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+
+                                                            <span id="doc-no- ${document.document_no}"> ${document.document_no}</span>
+                                                            <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                    </td>`
+                                                :
+                                                '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
+                                                        <span id="bar-code- ${barCodes[j]}"> ${barCodes[j]}</span>
+                                                        <button id="btn-copy-bar- ${barCodes[j]}" class="copy-button-barcode" >
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold  select-none" data-index="${j}">${qtys[j]}</span>
+                                                    <input type="hidden" class="pd_unit" value="${Unit[j]}">
+                                                    <input type="hidden" class="pd_name" value="${supplierNames[j]}">
+                                                    <input type="hidden" class="pd_id" value="${searchpdId[j]}">
+                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 22)}</div>
+                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  scanned_qty">
+                                                    <div class="main_scan">
+                                                        ${scannedQtys[j]}
+                                                        ${additionalIconHtml}
+                                                    </div>
+                                                    <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
+                                            </tr>`;
+                                            $('.search_main_body').append(rowHtml);
+                                        }
+                                    });
+                                }
+                                function generateBarcodeHTML(barcode, height) {
+                                    let barcodeHTML = `
+                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
+                                        </div>
+                                    `;
+                                    return barcodeHTML;
+                                }
+                                if (!isEmptyScanDocuments) {
+                                    scanDocuments.forEach((scanDocument, i) => {
+                                        let sanbarCodes = scanDocument.bar_code;
+                                        let sansupplierNames = scanDocument.supplier_name;
+                                        let sanqtys = scanDocument.qty;
+                                        let sanscannedQtys = scanDocument.scanned_qty;
+                                        let scanColor = scanDocument.scan_color;
+                                        let allScanned = scanDocument.all_scanned;
+                                        for (let j = 0; j < sanbarCodes.length; j++) {
+                                            let qty = Number(sanqtys[j]);
+                                            let scannedQty = Number(sanscannedQtys[j]);
+                                            let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
+                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
+                                                            <span id="scan-doc-no- ${scanDocument.document_no}">${scanDocument.document_no}</span>
+                                                            <button id="scan-btn-copy-doc- ${scanDocument.document_no}" class="scan-copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
+                                                    <span id="scan-bar-code-  ${sanbarCodes[j]}">${sanbarCodes[j]}</span>
+                                                    <button id="scan-btn-copy-bar-  ${sanbarCodes[j]}" class="scan-copy-button-barcode" >
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sansupplierNames[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
+                                                    ${scannedQty > qty ? qty : scannedQty}
+                                                </td>
+                                            </tr>`;
+                                            $('.search_scan_body').append(rowHtmltwo);
+                                        }
+                                    });
+                                }
+                                if (!isEmptyExcessDocuments) {
+                                    excessDocuments.forEach((excessDocument, i) => {
+                                        let excessBarCodes = excessDocument.bar_code;
+                                        let excessSupplierNames = excessDocument.supplier_name;
+                                        let excessQtys = excessDocument.qty;
+                                        let excessScannedQtys = excessDocument.scanned_qty;
+                                        let excessRemarks = excessDocument.remark || [];
+                                        for (let j = 0; j < excessBarCodes.length; j++) {
+                                            let remainingQty = excessScannedQtys[j] - excessQtys[j];
+                                            let excessQty = Number(excessQtys[j]);
+                                            let excessScannedQty = Number(excessScannedQtys[j]);
+                                            let quantityClass = remainingQty < 0 ? 'text-rose-600' : 'text-emerald-600';
+                                            let remarkClass = excessRemarks[j] === undefined ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600';
+                                            let buttonHtml = '';
+                                            if ( canAdjustExcess && mainStatus === 'complete' &&  excessQty < excessScannedQty ) {
+                                            buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="${excessDocument.excess_id}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let rowHtmlthree = `<tr class="h-10">
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
+                                                            <span id="excess-doc-no- ${excessDocument.document_no}">${excessDocument.document_no}</span>
+                                                            <button id="excess-btn-copy-doc- ${excessDocument.document_no}" class="excess-copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
+                                                    <span id="excess-bar-code- ${excessBarCodes[j]}">${excessBarCodes[j]}</span>
+                                                    <button id="excess-btn-copy-bar- ${excessBarCodes[j]}" class="excess-copy-button-barcode" >
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                    </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0">${excessSupplierNames[j]}
+                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white ${remarkClass} remark_ic' data-pd="${excessBarCodes[j]}" data-id="${excessDocument.excess_id}" data-eq="${j}"></i>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ${quantityClass}">${remainingQty} </td>
+                                            </tr>`;
+                                            $('.excess_scan_body').append(rowHtmlthree);
+                                        }
+                                    });
+                                }
+                                function generateBarcodeHTML(barcode, height) {
+                                    let barcodeHTML = `
+                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
+                                        </div>
+                                    `;
+                                    return barcodeHTML;
+                                }
+                            } else {
+                                $('.search_main_body').empty();
+                                $('.search_scan_body').empty();
+                                $('.excess_scan_body').empty();
+                                $('#back').hide();
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                        }
+                    });
+                });
+                // $('#suggestions').hide();
+                // $('#searchInput').on('input', function() {
+                //     let query = $(this).val();
+                //     if (query.length >= 1) {
+                //         $.ajax({
+                //             url: '/search_suggestions',
+                //             type: 'GET',
+                //             data: {
+                //                 query: query
+                //             },
+                //             success: function(response) {
+                //                 if (response.length > 0) {
+                //                     $('#suggestions').show();
+                //                     response.forEach(item => {
+                //                         $('#suggestions').append(`<div class="p-2 cursor-pointer hover:bg-gray-200" data-value="${item}">${item}</div>`);
+                //                     });
+                //                 }
+                //             }
+                //         });
+                //     } else {
+                //         console.log('no');
+                //         $('#suggestions').empty();
+                //         $('#suggestions').hide();
+                //     }
+                // });
+
+                $(document).on('click', '#suggestions div', function() {
+                    let value = $(this).data('value');
+                    $('#searchInput').val(value);
+                    $('#suggestions').empty();
+                });
+
+
+            });
+
+            $(document).ready(function(e){
+                var token = $("meta[name='__token']").attr('content');
+                $finish = $('#finished').val();
+                $status = $('#view_').val();
+                $role = $('#user_role').val();
+                $all_begin = $('#started_time').val();
+                $count = parseInt($('#count').val()) || 0;
+                $cur_id = $('#cur_truck').val() ?? '';
+                $dc_staff = "{{ getAuth()->branch_id}}";
+                $dc_staff = $dc_staff.includes([17,19,20]) ? true: false;
+
+                function reload_page(){
+                    $('.main_table').load(location.href + ' .main_table');
+                    $('.scan_parent').load(location.href + ' .scan_parent', function() {
+                        $('.excess_div').load(location.href + ' .excess_div', function() {
+                            $('.scanned_pd_div').eq(0).find('td').addClass('latest');
+                        });
+                    });
+                }
+                // $('.real_scan').eq(0).attr('type','text');
+
+                $(document).on('click','#driver_info',function(e){
+                    $('#car_info').toggle();
+                })
+
+                $(document).on('click','#show_image',function(e){
+                    $doc_id = '{{ $main->id }}';
+                    $.ajax({
+                        url : "{{ route('show_image') }}",
+                        type: 'POST',
+                        data: {_token:token,id:$doc_id},
+                        success:function(res){
+                            $list = '';
+                            for($i = 0 ; $i < res.truck.length ; $i++)
+                            {
+                                $list += `
+                                <div class="">
+                                    <span class="underline mb-4 text-xl font-serif tracking-wider">${res.truck[$i].truck_no}</span>
+                                `;
+                                for($j = 0; $j < res.image.length ; $j++)
+                                {
+                                    if(res.truck[$i].id == res.image[$j].driver_info_id)
+                                    {
+                                        $list += `
+                                            <img src="{{ asset('storage/${res.image[$j].file}') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                                        `;
+                                    }
+                                }
+                                $list += '</div>';
+                            }
+                            $('#image_container').html('');
+                            $('#image_container').append($list);
+                            $('#image_model').show();
+                        }
+                    })
+
+                })
+
+                if(!$finish)
+                {
+                    $(document).on('click','.del_doc',function(e){
+                    $val = $(this).data('doc');
+                    $id = $('#receive_id').val();
+                    $this = $(this);
+                    Swal.fire({
+                        icon : 'info',
+                        title: 'Are You Sure?',
+                        showCancelButton:true,
+                        confirmButtonText:'Yes',
+                        cancelButtonText: "No",
+                    }).then((result)=>{
+                        if(result.isConfirmed)
+                        {
+                            $.ajax({
+                                url : "{{ route('del_doc') }}",
+                                type: 'POST',
+                                data: {_token:token , data:$val , id : $id},
+                                success: function(res){
+                                    $this.parent().parent().parent().remove();
+                                    if(res.count == 1)
+                                    {
+                                        $('#vendor').parent().remove();
+                                    }
+                                },
+                                error: function(xhr,status,error)
+                                {
+                                    $msg = xhr.responseJSON.message;
+                                    if($msg == 'You Cannot Remove')
+                                    {
+                                        Swal.fire({
+                                            icon : 'info',
+                                            title: 'Scan á€á€á€ºá€á€¬á€¸á€á€¬á€á€¾á€­á€á€²á€· á€¡á€á€½á€€á€ºá€€á€¼á€±á€¬á€á€ºá€· Remove á€á€¯á€á€ºá€á€½á€á€ºá€·á€á€á€±á€¸á€á€«',
+                                        })
+                                    }
+                                }
+                            })
+                        }
+                    })
+
+
+                })
+                }
+
+                if($status != 'view')
+                {
+
+                $(document).on('click','#add_driver',function(e){
+                    $('#add_car').toggle();
+                })
+
+                $(document).on('click','#start_count_btn',function(e){
+                    $id = '{{ $main->id }}';
+                    $.ajax({
+                        url : '/start_count/'+$id,
+                        success: function(res){
+                            window.location.reload();
+                        }
+                    })
+                })
+
+                $(document).on('change','.car_img',function(e){
+                        $index = $('.car_img').index($(this));
+                        $('#pree_'+$index).remove();
+                        $('.img_btn').eq($index).addClass('bg-emerald-200').after(`
+                            <span class="hover:underline cursor-pointer mt-3 -translate-x-4 img_preview" id="pree_${$index}" data-index="${$index}" style="margin-left:35%">preivew</span>
+                        `);
+                    })
+
+                $(document).on('click','.img_preview',function(e){
+                    $index = $(this).data('index');
+                    $file  =  $('.car_img').eq($index).get(0);
+                    if ($file && $file.files && $file.files[0]) {
+                        var file = $file.files[0];
+                        var imageUrl = URL.createObjectURL(file);
+                        $('#pr_im').attr('src', imageUrl);
+                    }
+                    $('#prew_img').show();
+                    return;
+                    $("#pr_im").src(URL.createObjectURL($('.car_img').eq($index).target.files[0]))
+
+                })
+
+                if(!$finish)
+                {
+                    $(document).on('click','.change_scan',function(e){
+                        $id = $(this).data('index');
+                        $('#index').val($id);
+                        $('#employee_code').val('');
+                        $('#pass').val('');
+                        $('.error_msg').text('');
+                        $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
+                        $('#pass_con').show();
+                    })
+
+
+
+                    // $(document).on('click','.sticker',function(e){
+                    //     $('.bar_stick').remove();
+                    //     $qty    = $(this).text();
+                    //     $index  = $(this).data('index');
+                    //     $pd_code= $(this).data('pd').toString();
+                    //     $(this).parent().append(`
+                    //     `);
+                    //     $('.sticker').eq($index).trigger('show_stick');
+
+
+
+                    // })
+
+                    $(document).on('click','.sticker',function(e){
+                        $('#print_eq').val('');
+                        $('#print_count').val('');
+                       $('#print_no').show();
+                       $('#print_eq').val($(this).data('index'));
+                    })
+
+                    $(document).on("input",'#print_count',function(e){
+                        $val = $(this).val();
+                        $eq = $('#print_eq').val();
+                        $qty = $('.sticker').eq($eq).text();
+                        if($val > 500)
+                        {
+                            $(this).val(500);
+                        }else if($val > parseInt($qty))
+                        {
+                            $(this).val($qty);
+                        }
+                    })
+
+                   $(document).on('click','#final_print',function(e){
+
+                        $index = $('#print_eq').val();
+
+                        $pd_code= $('.bar_code').eq($index).text();
+                        $qty    = $('#print_count').val();
+                        $unit   = $('.pd_unit').eq($index).val();
+                        $name   = $('.pd_name').eq($index).val();
+                        $id     = $('.pd_id').eq($index).val();
+                        $type   = $('#bar_type').val();
+                        $reason = $('#reason').val();
+                        if($qty > 0 && $qty != ''){
+                            $td  = new Date();
+                            $date = [ String($td.getDate()).padStart(2, '0'),String($td.getMonth() + 1).padStart(2, '0'),$td.getFullYear()].join('/');
+                            $period = $td.getHours() > 12 ? 'PM' : 'AM';
+                            $time = [(String($td.getHours()).padStart(2, '0')%12 || 12), String($td.getMinutes()).padStart(2, '0'), String($td.getSeconds()).padStart(2, '0')].join(':');
+                            $full_date = $date+' '+$time+' '+$period;
+
+                            $.ajax({
+                                url : "{{ route('print_track') }}",
+                                type: 'POST',
+                                data: {_token:token,id:$id,qty:$qty,type:$type,reason:$reason},
+                                success: function(res){
+                                }
+                            })
+
+                            const new_pr = window.open("","","width=900,height=600");
+                             $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
+                             $mar_top = $name.length > 50 ? 3 : ($name.length > 35 ? 10 : 30);
+                            if($type == 1)
+                            {
+                                $bar = $('.bar_stick1').eq($index).html();
+                                new_pr.document.write(
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:12px;padding-right:25px;gap:20px}"
+                            );
+
+                            new_pr.document.write(
+                               "</style></head><body><div id='per_div'>"
+                            )
+                            $color = 100;
+                            $margin = $pd_code.length > 11 ? 10 : 40;
+                            for($i = 0 ; $i < $qty ; $i++)
+                            {
+
+                                new_pr.document.write(`
+                                    <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
+
+                                            <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+
+                                        <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
+                                        <div style="padding:5px 0;display:flex;flex-direction:column">
+                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
+                                             >
+                                             <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
+                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
+                                        </div>
+                                    </div>
+                                `);
+                                $color = $color+10;
+                            }
+                                new_pr.document.write("</div></body></html>");
+                            }else if($type == 2)
+                            {
+                                $bar = $('.bar_stick2').eq($index).html();
+                                $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
+                                $mar_top = $name.length > 50 ? 0 : 10;
+                                new_pr.document.write(
+
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:35px;gap:10px}"
+                                );
+
+                                new_pr.document.write(
+                                   "</style></head><body style='margin:0;padding:0'><div id='per_div'>"
+                                )
+                                for($i = 0 ; $i < $qty ; $i++)
+                                {
+                      new_pr.document.write(`
+                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
+                                             <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                           <div style="position:absolute;right:70px;top:70px">
+                                                <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
+                                            </div>
+                                            <div style="margin-left:10px;margin-top:2px;padding:0">${$bar}</div>
+                                            <div style="padding:5px 0;display:flex;flex-direction:column">
+                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.7rem;font-weight:900;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
+                                                <small class="" style="margin: 0 0 0 20px;font-size:0.7rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$full_date}</small>
+                                            </div>
+                                        </div>
+                                `);
+                                }
+                                new_pr.document.write("</div></body></html>");
+                            }else if($type == 3)
+                            {
+                                $bar = $('.bar_stick3').eq($index).html();
+
+                                new_pr.document.write(
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:30px;gap:10px}"
+                                );
+
+                                new_pr.document.write(
+                                "</style></head><body style='margin:0;padding:5px 0'><div id='per_div'>"
+                                )
+
+                                for($i = 0 ; $i < $qty ; $i++)
+                                {
+                                    new_pr.document.write(`
+                                    <div class="" style="padding: 20px 10px 5px 5px;position:relative;">
+
+                                    <small class="" style="font-size:0.8rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                    <div style="position:absolute;right:50px;top:120px">
+                                        <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
+                                    </div>
+                                    <div style="padding-left:5px;margin-top:15">${$bar}</div>
+                                    <div style="padding:5px 0;display:flex;flex-direction:column">
+                                        <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
+                                        <div style="display:flex">
+                                            <div style="width:100px;height:30px;border:solid 3px black"></div>
+                                            <div style="width:20px;height:20px;border:solid 3px black;margin:10px 0 0 4px"></div>
+                                            <div style="margin:15px 0 0 4px;font-weight:800">.............</div>
+                                        </div>
+                                        <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
+                                    </div>
+                                    </div>
+                                    `);
+                                }
+                                new_pr.document.write("</div></body></html>");
+                            }
+
+                            new_pr.document.close();
+                            new_pr.focus();
+                            new_pr.onload = function () {
+                            new_pr.print();
+                            new_pr.close();
+                            };
+                            $('#print_no').hide();
+
+                        }
+
+                    })
+
+                    $(document).on('click','#auth_con',function(e){
+                        $index  = $('#index').val();
+
+                        $data = $('#auth_con_form').serialize();
+
+                        $notempty = false;
+                        if($('#employee_code').val() == '')
+                        {
+                            $notempty = true;
+                            $('.error_msg').eq(1).text('Please Fill Employee Code');
+                        }
+                        if($('#pass').val() == '')
+                        {
+                            $notempty = true;
+                            $('.error_msg').eq(2).text('Please Fill Password');
+                        }
+                        if(!$notempty)
+                        {
+                            $.ajax({
+                                url : "{{route('pass_vali')}}",
+                                type: 'POST',
+                                data:{_token:token,data:$data},
+                                beforeSend:function(res){
+                                    $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
+                                    $('.error_msg').text('');
+                                },
+                                success:function(res){
+
+                                    $('#pass_con').hide();
+
+
+                                    $('.main_scan').eq($index).attr('hidden',true);
+                                    $('.real_scan').eq($index).attr('type','number');
+                                    $('.real_scan').eq($index).attr('data-auth',res.id);
+                                },
+                                error:function(){
+                                    console.log('error')
+                                    $('.error_msg').eq(0).text('Credential Does Not Match!!');
+                                    $('.error_msg').eq(0).parent().addClass('bg-rose-200 pb-1');
+                                    $('#employee_code').val('');
+                                    $('#pass').val('');
+                                }
+                            })
+                        }
+                    })
+
+                    $(document).on('blur','.real_scan',function(e){
+                        $val    = $(this).val();
+                        $old    = $(this).data('old');
+                        $pd_id  = $(this).data('id');
+                        $auth   = $(this).data('auth');
+                        console.log($val,$old,$pd_id,$auth);
+                        if($old >= $val)
+                        {
+                            $(this).val($old);
+                            $('.main_scan').eq($index).attr('hidden',false);
+                            $('.real_scan').eq($index).attr('type','hidden');
+                        }else{
+                            $add_val = $val - $old ;
+                            Swal.fire({
+                                icon : 'question',
+                                text : `${$add_val}á€á€¯ á€á€±á€«á€á€ºá€¸á€á€á€ºá€·á€á€¾á€¬ á€á€±á€á€»á€¬á€á€«á€á€á€¬á€¸`,
+                            showCancelButton:true,
+                                confirmButtonText: 'Yes',
+                                cancelButtonText : 'No',
+                            }).then((result)=>{
+                                if(result.isConfirmed)
+                                {
+                                    $.ajax({
+                                        url : "{{ route('add_product') }}",
+                                        type: 'POST',
+                                        data: {_token:token,data:$add_val,car_id:$cur_id,product:$pd_id,auth:$auth},
+                                        success:function(res)
+                                        {
+                                            $('#back').hide();
+                                            reload_page( type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </div>
+    {{--- Modal End ---}}
+
+       {{-- Image Modal --}}
+   <div class="hidden" id="image_model">
+    <div class="flex items-center fixed inset-0 justify-center z-100 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+            <!-- Modal content -->
+            <div class="card rounded">
+                    <div class="flex px-4 py-2 justify-between items-center min-w-80 ">
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                class="w-6 h-6 hidden svgclass">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                        <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                            onclick="$('#image_model').hide()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+            </div>
+            <div class="" id="image_container">
+                {{-- <div class="">
+                    <span class="underline mb-4 text-xl font-serif tracking-wider">R4-0989</span>
+                    <img src="{{ asset('image/background_img/finallogo.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                    <img src="{{ asset('image/background_img/forklift.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                    <img src="{{ asset('image/background_img/handshake.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                </div> --}}
+            </div>
+        </div>
+</div>
+</div>
+{{-- End Modal --}}
+
+{{-- start modal --}}
+
+    <div class="hidden" id="prew_img" >
+        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                <!-- Modal content -->
+                <div class="card rounded">
+                        <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    class="w-6 h-6 hidden svgclass">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                            <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                onclick="$('#prew_img').hide()">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                </div>
+                <div class="card-body">
+                    <img src="" id="pr_im" alt="" style="width: 800px">
+                </div>
+            </div>
+        </div>
+    </div>
+{{-- end modal --}}
+
+    @if($status == 'edit')
+        {{-- start modal --}}
+        {{-- choose car modal --}}
+        <div class="hidden" id="car_choose" >
+            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
+                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                    <!-- Modal content -->
+                    <div class="card rounded">
+                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                        id="show_doc_no"></span>Please Choose Your Car No&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="w-6 h-6 hidden svgclass">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                    onclick="$('#car_choose').hide()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                    </div>
+                    <div class="card-body car_choose_body">
+                        @foreach ($driver as $item)
+                            <div class="text-center bg-slate-100 py-1 font-semibold font-serif cursor-pointer hover:bg-slate-300 rounded border mb-2 car_no" data-id="{{ $item->id }}" style="box-shadow: 4px 4px 4px rgb(0,0,0,0.2)">{{ $item->truck_no }}</div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- end modal --}}
+
+        {{-- start modal --}}
+        {{-- edit img & car no modal --}}
+        <div class="hidden" id="change_img" >
+            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="">
+                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+                    <!-- Modal content -->
+                    <div class="card rounded">
+                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
+                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                                        id="show_doc_no"></span>Edit Your Car No And Images&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                        class="w-6 h-6 hidden svgclass">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
+
+                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
+                                    onclick="$('#change_img').hide()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                    </div>
+                    <div class="card-body change_img_body">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- end modal --}}
+    @endif
+
+
+    @push('js')
+        <script>
+
+            $(document).on('click', '.copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode', function() {
+                const buttonId = $(this).attr('id');
+                let documentNo, textId;
+
+                if (buttonId.startsWith('btn-copy-doc-')) {
+                    documentNo = buttonId.replace('btn-copy-doc-', '');
+                    textId = 'doc-no-' + documentNo;
+                } else if (buttonId.startsWith('scan-btn-copy-doc-')) {
+                    documentNo = buttonId.replace('scan-btn-copy-doc-', '');
+                    textId = 'scan-doc-no-' + documentNo;
+                } else if (buttonId.startsWith('excess-btn-copy-doc-')) {
+                    documentNo = buttonId.replace('excess-btn-copy-doc-', '');
+                    textId = 'excess-doc-no-' + documentNo;
+                } else if (buttonId.startsWith('btn-copy-bar-')) {
+                    documentNo = buttonId.replace('btn-copy-bar-', '');
+                    textId = 'bar-code-' + documentNo;
+                } else if (buttonId.startsWith('scan-btn-copy-bar-')) {
+                    documentNo = buttonId.replace('scan-btn-copy-bar-', '');
+                    textId = 'scan-bar-code-' + documentNo;
+                } else if (buttonId.startsWith('excess-btn-copy-bar-')) {
+                    documentNo = buttonId.replace('excess-btn-copy-bar-', '');
+                    textId = 'excess-bar-code-' + documentNo;
+                }
+
+                copyText(textId, buttonId);
+            });
+
+            async function copyText(textId, buttonId) {
+                try {
+                    const element = document.getElementById(textId);
+                    if (!element) {
+                        console.log(`Element with id ${textId} not found`);
+                        return;
+                    }
+                    const text = element.innerText;
+
+                    if (navigator.clipboard) {
+                        await navigator.clipboard.writeText(text);
+
+                    } else {
+                        // Fallback method using textarea
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        textArea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge
+                        textArea.style.opacity = '0';  // Hide the textarea element
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+
+                        try {
+                            document.execCommand('copy');
+
+                        } catch (err) {
+
+                        }
+
+                        document.body.removeChild(textArea);
+                    }
+
+                    const button = document.getElementById(buttonId);
+                            if (!button) {
+                                console.log(`Button with id ${buttonId} not found`);
+                                return;
+                            }
+
+                            button.innerHTML = '<i class="fas fa-check"></i>';
+                            setTimeout(() => {
+                                button.innerHTML = '<i class="fa-solid fa-copy"></i>';
+                            }, 1000);
+                } catch (err) {
+                                console.log('Failed to copy: ', err);
+
+                }
             }
-        }
-        return response(200);
-    }
 
-    public function print_track(Request $request)
-    {
-        $dub_pr     = printTrack::where(['product_id'=>$request->id,'bar_type'=>$request->type,'reason'=>$request->reason,])->whereDate('created_at',Carbon::today())->first();
-        if($dub_pr)
-        {
+            $(document).ready(function() {
 
-            $dub_pr->update([
-                'quantity'  => $dub_pr->quantity + $request->qty
-            ]);
-        }else{
+                new TomSelect("#documentNoselect",{
+                    selectOnTab	: true
+                });
 
-            $track_pr       = new printTrack();
-            $track_pr->product_id   = $request->id;
-            $track_pr->by_user      = getAuth()->id;
-            $track_pr->quantity     = $request->qty;
-            $track_pr->bar_type     = $request->type;
-            $track_pr->reason       = $request->reason;
-            $track_pr->save();
-        }
+                new TomSelect("#barcodeSelect",{
+                    selectOnTab	: true
+                });
 
-        return response(200);
-    }
+                var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
+                var mainStatus = @json($main->status);
 
-    public function change_branch($id)
-    {
-        $user = User::find(getAuth()->id);
-        $user->branch_id = $id;
-        $user->save();
+                $('#back').on('click', function() {
+                    $.ajax({
+                        url: window.location.href,
+                    });
+                });
 
-        return back();
-    }
-}
+                $('#document_no_search').click(function() {
+                    var id = $('#idInput').val();
+                    var documentNo = $('#documentNoSelect').val();
+                    var barcodeNo = $('#barcodeSelect').val();
+                    var pageUrl = '{{ $page == 'receive' ? '/receive_goods/' : '/view_goods/' }}';
+                    $.ajax({
+                        url: '/search_document_no',
+                        type: 'GET',
+                        data: { id: id, document_no: documentNo, barcode_no : barcodeNo },
+                        success: function(response) {
+                            var documents = response.documents;
+                            var scanDocuments = response.scan_documents;
+                            var excessDocuments = response.excess_documents;
+                            var need_document_inform  = response.need_document_inform;
+
+                            if (documents.length === 0  && scanDocuments.length === 0 && excessDocuments.length === 0) {
+                                window.location.href = pageUrl + id;
+                            } else {
+                                $('#resultCount').show();
+                            }
+                            var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
+                            var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
+                            var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
+
+                            if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
+                                $('#resultCount').hide();
+                                $('#back').show();
+                                $('.main_body').empty();
+                                $('.scan_body').empty();
+                                $('.excess_body').empty();
+                                $('.search_main_body').empty();
+                                $('.search_scan_body').empty();
+                                $('.excess_scan_body').empty();
+                                if (!isEmptyDocuments) {
+                                    documents.forEach((document, i) => {
+                                        let barCodes = document.bar_code;
+                                        let supplierNames = document.supplier_name;
+                                        let qtys = document.qty;
+                                        let scannedQtys = document.scanned_qty;
+                                        let checkColor = document.check_color;
+                                        let scanZero = document.scan_zero;
+                                        let searchpdId = document.search_pd_id;
+                                        let Unit = document.unit;
+                                        let documentno = document.document_no;
+                                        let isDcStaff = need_document_inform.isDcStaff;
+                                        let curDriver = need_document_inform.curDriver;
+                                        let authId = need_document_inform.authId;
+                                        let curDriverStartDate = need_document_inform.cur_driver_start_date;
+
+                                        for (let j = 0; j < barCodes.length; j++) {
+                                            let buttonHtml = '';
+                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
+                                                buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let additionalIconHtml = '';
+                                            if( curDriverStartDate == null){
+
+                                            } else if (curDriverStartDate.length != 0) {
+                                                additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
+                                            }
+                                            let rowHtml = `<tr class="h-10">
+                                                ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
+                                                ${j === 0 ? `
+                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+
+                                                            <span id="doc-no- ${document.document_no}"> ${document.document_no}</span>
+                                                            <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                    </td>`
+                                                :
+                                                '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
+                                                        <span id="bar-code- ${barCodes[j]}"> ${barCodes[j]}</span>
+                                                        <button id="btn-copy-bar- ${barCodes[j]}" class="copy-button-barcode" >
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold  select-none" data-index="${j}">${qtys[j]}</span>
+                                                    <input type="hidden" class="pd_unit" value="${Unit[j]}">
+                                                    <input type="hidden" class="pd_name" value="${supplierNames[j]}">
+                                                    <input type="hidden" class="pd_id" value="${searchpdId[j]}">
+                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'></div>
+                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 22)}</div>
+                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  scanned_qty">
+                                                    <div class="main_scan">
+                                                        ${scannedQtys[j]}
+                                                        ${additionalIconHtml}
+                                                    </div>
+                                                    <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
+                                            </tr>`;
+                                            $('.search_main_body').append(rowHtml);
+                                        }
+                                    });
+                                }
+                                function generateBarcodeHTML(barcode, height) {
+                                    let barcodeHTML = `
+                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
+                                        </div>
+                                    `;
+                                    return barcodeHTML;
+                                }
+                                if (!isEmptyScanDocuments) {
+                                    scanDocuments.forEach((scanDocument, i) => {
+                                        let sanbarCodes = scanDocument.bar_code;
+                                        let sansupplierNames = scanDocument.supplier_name;
+                                        let sanqtys = scanDocument.qty;
+                                        let sanscannedQtys = scanDocument.scanned_qty;
+                                        let scanColor = scanDocument.scan_color;
+                                        let allScanned = scanDocument.all_scanned;
+                                        for (let j = 0; j < sanbarCodes.length; j++) {
+                                            let qty = Number(sanqtys[j]);
+                                            let scannedQty = Number(sanscannedQtys[j]);
+                                            let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
+                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
+                                                            <span id="scan-doc-no- ${scanDocument.document_no}">${scanDocument.document_no}</span>
+                                                            <button id="scan-btn-copy-doc- ${scanDocument.document_no}" class="scan-copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
+                                                    <span id="scan-bar-code-  ${sanbarCodes[j]}">${sanbarCodes[j]}</span>
+                                                    <button id="scan-btn-copy-bar-  ${sanbarCodes[j]}" class="scan-copy-button-barcode" >
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sansupplierNames[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
+                                                    ${scannedQty > qty ? qty : scannedQty}
+                                                </td>
+                                            </tr>`;
+                                            $('.search_scan_body').append(rowHtmltwo);
+                                        }
+                                    });
+                                }
+                                if (!isEmptyExcessDocuments) {
+                                    excessDocuments.forEach((excessDocument, i) => {
+                                        let excessBarCodes = excessDocument.bar_code;
+                                        let excessSupplierNames = excessDocument.supplier_name;
+                                        let excessQtys = excessDocument.qty;
+                                        let excessScannedQtys = excessDocument.scanned_qty;
+                                        let excessRemarks = excessDocument.remark || [];
+                                        for (let j = 0; j < excessBarCodes.length; j++) {
+                                            let remainingQty = excessScannedQtys[j] - excessQtys[j];
+                                            let excessQty = Number(excessQtys[j]);
+                                            let excessScannedQty = Number(excessScannedQtys[j]);
+                                            let quantityClass = remainingQty < 0 ? 'text-rose-600' : 'text-emerald-600';
+                                            let remarkClass = excessRemarks[j] === undefined ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600';
+                                            let buttonHtml = '';
+                                            if ( canAdjustExcess && mainStatus === 'complete' &&  excessQty < excessScannedQty ) {
+                                            buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="${excessDocument.excess_id}"><i class='bx bx-minus'></i></button>`;
+                                            }
+                                            let rowHtmlthree = `<tr class="h-10">
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
+                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
+                                                            <span id="excess-doc-no- ${excessDocument.document_no}">${excessDocument.document_no}</span>
+                                                            <button id="excess-btn-copy-doc- ${excessDocument.document_no}" class="excess-copy-button">
+                                                                <i class="fas fa-copy"></i>
+                                                            </button>
+                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
+                                                    <span id="excess-bar-code- ${excessBarCodes[j]}">${excessBarCodes[j]}</span>
+                                                    <button id="excess-btn-copy-bar- ${excessBarCodes[j]}" class="excess-copy-button-barcode" >
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                    </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0">${excessSupplierNames[j]}
+                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white ${remarkClass} remark_ic' data-pd="${excessBarCodes[j]}" data-id="${excessDocument.excess_id}" data-eq="${j}"></i>
+                                                </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ${quantityClass}">${remainingQty} </td>
+                                            </tr>`;
+                                            $('.excess_scan_body').append(rowHtmlthree);
+                                        }
+                                    });
+                                }
+                                function generateBarcodeHTML(barcode, height) {
+                                    let barcodeHTML = `
+                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
+                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
+                                        </div>
+                                    `;
+                                    return barcodeHTML;
+                                }
+                            } else {
+                                $('.search_main_body').empty();
+                                $('.search_scan_body').empty();
+                                $('.excess_scan_body').empty();
+                                $('#back').hide();
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                        }
+                    });
+                });
+                // $('#suggestions').hide();
+                // $('#searchInput').on('input', function() {
+                //     let query = $(this).val();
+                //     if (query.length >= 1) {
+                //         $.ajax({
+                //             url: '/search_suggestions',
+                //             type: 'GET',
+                //             data: {
+                //                 query: query
+                //             },
+                //             success: function(response) {
+                //                 if (response.length > 0) {
+                //                     $('#suggestions').show();
+                //                     response.forEach(item => {
+                //                         $('#suggestions').append(`<div class="p-2 cursor-pointer hover:bg-gray-200" data-value="${item}">${item}</div>`);
+                //                     });
+                //                 }
+                //             }
+                //         });
+                //     } else {
+                //         console.log('no');
+                //         $('#suggestions').empty();
+                //         $('#suggestions').hide();
+                //     }
+                // });
+
+                $(document).on('click', '#suggestions div', function() {
+                    let value = $(this).data('value');
+                    $('#searchInput').val(value);
+                    $('#suggestions').empty();
+                });
+
+
+            });
+
+            $(document).ready(function(e){
+                var token = $("meta[name='__token']").attr('content');
+                $finish = $('#finished').val();
+                $status = $('#view_').val();
+                $role = $('#user_role').val();
+                $all_begin = $('#started_time').val();
+                $count = parseInt($('#count').val()) || 0;
+                $cur_id = $('#cur_truck').val() ?? '';
+                $dc_staff = "{{ getAuth()->branch_id}}";
+                $dc_staff = $dc_staff.includes([17,19,20]) ? true: false;
+
+                function reload_page(){
+                    $('.main_table').load(location.href + ' .main_table');
+                    $('.scan_parent').load(location.href + ' .scan_parent', function() {
+                        $('.excess_div').load(location.href + ' .excess_div', function() {
+                            $('.scanned_pd_div').eq(0).find('td').addClass('latest');
+                        });
+                    });
+                }
+                // $('.real_scan').eq(0).attr('type','text');
+
+                $(document).on('click','#driver_info',function(e){
+                    $('#car_info').toggle();
+                })
+
+                $(document).on('click','#show_image',function(e){
+                    $doc_id = '{{ $main->id }}';
+                    $.ajax({
+                        url : "{{ route('show_image') }}",
+                        type: 'POST',
+                        data: {_token:token,id:$doc_id},
+                        success:function(res){
+                            $list = '';
+                            for($i = 0 ; $i < res.truck.length ; $i++)
+                            {
+                                $list += `
+                                <div class="">
+                                    <span class="underline mb-4 text-xl font-serif tracking-wider">${res.truck[$i].truck_no}</span>
+                                `;
+                                for($j = 0; $j < res.image.length ; $j++)
+                                {
+                                    if(res.truck[$i].id == res.image[$j].driver_info_id)
+                                    {
+                                        $list += `
+                                            <img src="{{ asset('storage/${res.image[$j].file}') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                                        `;
+                                    }
+                                }
+                                $list += '</div>';
+                            }
+                            $('#image_container').html('');
+                            $('#image_container').append($list);
+                            $('#image_model').show();
+                        }
+                    })
+
+                })
+
+                if(!$finish)
+                {
+                    $(document).on('click','.del_doc',function(e){
+                    $val = $(this).data('doc');
+                    $id = $('#receive_id').val();
+                    $this = $(this);
+                    Swal.fire({
+                        icon : 'info',
+                        title: 'Are You Sure?',
+                        showCancelButton:true,
+                        confirmButtonText:'Yes',
+                        cancelButtonText: "No",
+                    }).then((result)=>{
+                        if(result.isConfirmed)
+                        {
+                            $.ajax({
+                                url : "{{ route('del_doc') }}",
+                                type: 'POST',
+                                data: {_token:token , data:$val , id : $id},
+                                success: function(res){
+                                    $this.parent().parent().parent().remove();
+                                    if(res.count == 1)
+                                    {
+                                        $('#vendor').parent().remove();
+                                    }
+                                },
+                                error: function(xhr,status,error)
+                                {
+                                    $msg = xhr.responseJSON.message;
+                                    if($msg == 'You Cannot Remove')
+                                    {
+                                        Swal.fire({
+                                            icon : 'info',
+                                            title: 'Scan á€á€á€ºá€á€¬á€¸á€á€¬á€á€¾á€­á€á€²á€· á€¡á€á€½á€€á€ºá€€á€¼á€±á€¬á€á€ºá€· Remove á€á€¯á€á€ºá€á€½á€á€ºá€·á€á€á€±á€¸á€á€«',
+                                        })
+                                    }
+                                }
+                            })
+                        }
+                    })
+
+
+                })
+                }
+
+                if($status != 'view')
+                {
+
+                $(document).on('click','#add_driver',function(e){
+                    $('#add_car').toggle();
+                })
+
+                $(document).on('click','#start_count_btn',function(e){
+                    $id = '{{ $main->id }}';
+                    $.ajax({
+                        url : '/start_count/'+$id,
+                        success: function(res){
+                            window.location.reload();
+                        }
+                    })
+                })
+
+                $(document).on('change','.car_img',function(e){
+                        $index = $('.car_img').index($(this));
+                        $('#pree_'+$index).remove();
+                        $('.img_btn').eq($index).addClass('bg-emerald-200').after(`
+                            <span class="hover:underline cursor-pointer mt-3 -translate-x-4 img_preview" id="pree_${$index}" data-index="${$index}" style="margin-left:35%">preivew</span>
+                        `);
+                    })
+
+                $(document).on('click','.img_preview',function(e){
+                    $index = $(this).data('index');
+                    $file  =  $('.car_img').eq($index).get(0);
+                    if ($file && $file.files && $file.files[0]) {
+                        var file = $file.files[0];
+                        var imageUrl = URL.createObjectURL(file);
+                        $('#pr_im').attr('src', imageUrl);
+                    }
+                    $('#prew_img').show();
+                    return;
+                    $("#pr_im").src(URL.createObjectURL($('.car_img').eq($index).target.files[0]))
+
+                })
+
+                if(!$finish)
+                {
+                    $(document).on('click','.change_scan',function(e){
+                        $id = $(this).data('index');
+                        $('#index').val($id);
+                        $('#employee_code').val('');
+                        $('#pass').val('');
+                        $('.error_msg').text('');
+                        $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
+                        $('#pass_con').show();
+                    })
+
+
+
+                    // $(document).on('click','.sticker',function(e){
+                    //     $('.bar_stick').remove();
+                    //     $qty    = $(this).text();
+                    //     $index  = $(this).data('index');
+                    //     $pd_code= $(this).data('pd').toString();
+                    //     $(this).parent().append(`
+                    //     `);
+                    //     $('.sticker').eq($index).trigger('show_stick');
+
+
+
+                    // })
+
+                    $(document).on('click','.sticker',function(e){
+                        $('#print_eq').val('');
+                        $('#print_count').val('');
+                       $('#print_no').show();
+                       $('#print_eq').val($(this).data('index'));
+                    })
+
+                    $(document).on("input",'#print_count',function(e){
+                        $val = $(this).val();
+                        $eq = $('#print_eq').val();
+                        $qty = $('.sticker').eq($eq).text();
+                        if($val > 500)
+                        {
+                            $(this).val(500);
+                        }else if($val > parseInt($qty))
+                        {
+                            $(this).val($qty);
+                        }
+                    })
+
+                   $(document).on('click','#final_print',function(e){
+
+                        $index = $('#print_eq').val();
+
+                        $pd_code= $('.bar_code').eq($index).text();
+                        $qty    = $('#print_count').val();
+                        $unit   = $('.pd_unit').eq($index).val();
+                        $name   = $('.pd_name').eq($index).val();
+                        $id     = $('.pd_id').eq($index).val();
+                        $type   = $('#bar_type').val();
+                        $reason = $('#reason').val();
+                        if($qty > 0 && $qty != ''){
+                            $td  = new Date();
+                            $date = [ String($td.getDate()).padStart(2, '0'),String($td.getMonth() + 1).padStart(2, '0'),$td.getFullYear()].join('/');
+                            $period = $td.getHours() > 12 ? 'PM' : 'AM';
+                            $time = [(String($td.getHours()).padStart(2, '0')%12 || 12), String($td.getMinutes()).padStart(2, '0'), String($td.getSeconds()).padStart(2, '0')].join(':');
+                            $full_date = $date+' '+$time+' '+$period;
+
+                            $.ajax({
+                                url : "{{ route('print_track') }}",
+                                type: 'POST',
+                                data: {_token:token,id:$id,qty:$qty,type:$type,reason:$reason},
+                                success: function(res){
+                                }
+                            })
+
+                            const new_pr = window.open("","","width=900,height=600");
+                             $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
+                             $mar_top = $name.length > 50 ? 3 : ($name.length > 35 ? 10 : 30);
+                            if($type == 1)
+                            {
+                                $bar = $('.bar_stick1').eq($index).html();
+                                new_pr.document.write(
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:12px;padding-right:25px;gap:20px}"
+                            );
+
+                            new_pr.document.write(
+                               "</style></head><body><div id='per_div'>"
+                            )
+                            $color = 100;
+                            $margin = $pd_code.length > 11 ? 10 : 40;
+                            for($i = 0 ; $i < $qty ; $i++)
+                            {
+
+                                new_pr.document.write(`
+                                    <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
+
+                                            <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+
+                                        <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
+                                        <div style="padding:5px 0;display:flex;flex-direction:column">
+                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
+                                             >
+                                             <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
+                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
+                                        </div>
+                                    </div>
+                                `);
+                                $color = $color+10;
+                            }
+                                new_pr.document.write("</div></body></html>");
+                            }else if($type == 2)
+                            {
+                                $bar = $('.bar_stick2').eq($index).html();
+                                $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
+                                $mar_top = $name.length > 50 ? 0 : 10;
+                                new_pr.document.write(
+
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:35px;gap:10px}"
+                                );
+
+                                new_pr.document.write(
+                                   "</style></head><body style='margin:0;padding:0'><div id='per_div'>"
+                                )
+                                for($i = 0 ; $i < $qty ; $i++)
+                                {
+                      new_pr.document.write(`
+                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
+                                             <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                           <div style="position:absolute;right:70px;top:70px">
+                                                <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
+                                            </div>
+                                            <div style="margin-left:10px;margin-top:2px;padding:0">${$bar}</div>
+                                            <div style="padding:5px 0;display:flex;flex-direction:column">
+                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.7rem;font-weight:900;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
+                                                <small class="" style="margin: 0 0 0 20px;font-size:0.7rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$full_date}</small>
+                                            </div>
+                                        </div>
+                                `);
+                                }
+                                new_pr.document.write("</div></body></html>");
+                            }else if($type == 3)
+                            {
+                                $bar = $('.bar_stick3').eq($index).html();
+
+                                new_pr.document.write(
+                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:30px;gap:10px}"
+                                );
+
+                                new_pr.document.write(
+                                "</style></head><body style='margin:0;padding:5px 0'><div id='per_div'>"
+                                )
+
+                                for($i = 0 ; $i < $qty ; $i++)
+                                {
+                                    new_pr.document.write(`
+                                    <div class="" style="padding: 20px 10px 5px 5px;position:relative;">
+
+                                    <small class="" style="font-size:0.8rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                    <div style="position:absolute;right:50px;top:120px">
+                                        <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
+                                    </div>
+                                    <div style="padding-left:5px;margin-top:15">${$bar}</div>
+                                    <div style="padding:5px 0;display:flex;flex-direction:column">
+                                        <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
+                                        <div style="display:flex">
+                                            <div style="width:100px;height:30px;border:solid 3px black"></div>
+                                            <div style="width:20px;height:20px;border:solid 3px black;margin:10px 0 0 4px"></div>
+                                            <div style="margin:15px 0 0 4px;font-weight:800">.............</div>
+                                        </div>
+                                        <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
+                                    </div>
+                                    </div>
+                                    `);
+                                }
+                                new_pr.document.write("</div></body></html>");
+                            }
+
+                            new_pr.document.close();
+                            new_pr.focus();
+                            new_pr.onload = function () {
+                            new_pr.print();
+                            new_pr.close();
+                            };
+                            $('#print_no').hide();
+
+                        }
+
+                    })
+
+                    $(document).on('click','#auth_con',function(e){
+                        $index  = $('#index').val();
+
+                        $data = $('#auth_con_form').serialize();
+
+                        $notempty = false;
+                        if($('#employee_code').val() == '')
+                        {
+                            $notempty = true;
+                            $('.error_msg').eq(1).text('Please Fill Employee Code');
+                        }
+                        if($('#pass').val() == '')
+                        {
+                            $notempty = true;
+                            $('.error_msg').eq(2).text('Please Fill Password');
+                        }
+                        if(!$notempty)
+                        {
+                            $.ajax({
+                                url : "{{route('pass_vali')}}",
+                                type: 'POST',
+                                data:{_token:token,data:$data},
+                                beforeSend:function(res){
+                                    $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
+                                    $('.error_msg').text('');
+                                },
+                                success:function(res){
+
+                                    $('#pass_con').hide();
+
+
+                                    $('.main_scan').eq($index).attr('hidden',true);
+                                    $('.real_scan').eq($index).attr('type','number');
+                                    $('.real_scan').eq($index).attr('data-auth',res.id);
+                                },
+                                error:function(){
+                                    console.log('error')
+                                    $('.error_msg').eq(0).text('Credential Does Not Match!!');
+                                    $('.error_msg').eq(0).parent().addClass('bg-rose-200 pb-1');
+                                    $('#employee_code').val('');
+                                    $('#pass').val('');
+                                }
+                            })
+                        }
+                    })
+
+                    $(document).on('blur','.real_scan',function(e){
+                        $val    = $(this).val();
+                        $old    = $(this).data('old');
+                        $pd_id  = $(this).data('id');
+                        $auth   = $(this).data('auth');
+                        console.log($val,$old,$pd_id,$auth);
+                        if($old >= $val)
+                        {
+                            $(this).val($old);
+                            $('.main_scan').eq($index).attr('hidden',false);
+                            $('.real_scan').eq($index).attr('type','hidden');
+                        }else{
+                            $add_val = $val - $old ;
+                            Swal.fire({
+                                icon : 'question',
+                                text : `${$add_val}á€á€¯ á€á€±á€«á€á€ºá€¸á€á€á€ºá€·á€á€¾á€¬ á€á€±á€á€»á€¬á€á€«á€á€á€¬á€¸`,
+                            showCancelButton:true,
+                                confirmButtonText: 'Yes',
+                                cancelButtonText : 'No',
+                            }).then((result)=>{
+                                if(result.isConfirmed)
+                                {
+                                    $.ajax({
+                                        url : "{{ route('add_product') }}",
+                                        type: 'POST',
+                                        data: {_token:token,data:$add_val,car_id:$cur_id,product:$pd_id,auth:$auth},
+                                        success:function(res)
+                                        {
+                                            $('#back').hide();
+                                            reload_page(
