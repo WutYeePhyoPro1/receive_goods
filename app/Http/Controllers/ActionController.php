@@ -65,8 +65,8 @@ class ActionController extends Controller
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
                 where statusflag <> 'C'
-                --and statusflag in ('P','Y')
-                --$brch_con
+                and statusflag in ('P','Y')
+                $brch_con
                 and purchaseno= '$val'
             ");
         }else{
@@ -161,7 +161,7 @@ class ActionController extends Controller
             // if ($product->scann_count !== null) {
             //     $scann_count = $product->scann_count + 1;
             // }
-        
+
             // $product->update([
             //     'scann_count' => $scann_count
             // ]);
@@ -359,7 +359,7 @@ class ActionController extends Controller
             //     'pd_code' => $pd_code,
             //     'scann_count' => $scann_count
             // ], 200);
-            
+
             } catch (\Exception $e) {
                 logger($e);
                 return response()->json(['message'=>'Server Time Out Please Try Again'],500);
@@ -430,23 +430,23 @@ class ActionController extends Controller
             $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
             $this_scanned = get_scanned_qty($driver->id);
             // dd(get_all_duration($request->id));
-            
-            // if(cur_truck_sec($driver->id) < 86401)
-            // {
-            //     $receive->update([
-            //         'total_duration'        => get_all_duration($request->id),
-            //         'remaining_qty'         => $data['remaining'],
-            //         'exceed_qty'            => $data['exceed'],
-            //         'status'                => 'incomplete'
-            //     ]);
 
-            //     $driver->update([
-            //         'scanned_goods' => $this_scanned,
-            //         'duration'      => $pass
-            //     ]);
-            // }else{
-            //     return response()->json(500);
-            // }
+            if(cur_truck_sec($driver->id) < 86401)
+            {
+                $receive->update([
+                    'total_duration'        => get_all_duration($request->id),
+                    'remaining_qty'         => $data['remaining'],
+                    'exceed_qty'            => $data['exceed'],
+                    'status'                => 'incomplete'
+                ]);
+
+                $driver->update([
+                    'scanned_goods' => $this_scanned,
+                    'duration'      => $pass
+                ]);
+            }else{
+                return response()->json(500);
+            }
 
 
         }else{
@@ -492,22 +492,22 @@ class ActionController extends Controller
                 'status'                => 'complete'
             ]);
 
-        // if(cur_truck_sec($driver->id) < 86401)
-        // {
-        //     $receive->update([
-        //         'total_duration'        => get_all_duration($id),
-        //         'remaining_qty'         => $data['remaining'],
-        //         'exceed_qty'            => $data['exceed'],
-        //         'status'                => 'complete'
-        //     ]);
+        if(cur_truck_sec($driver->id) < 86401)
+        {
+            $receive->update([
+                'total_duration'        => get_all_duration($id),
+                'remaining_qty'         => $data['remaining'],
+                'exceed_qty'            => $data['exceed'],
+                'status'                => 'complete'
+            ]);
 
-        //     $driver->update([
-        //         'scanned_goods' => $this_scanned,
-        //         'duration'      => $time
-        //     ]);
+            $driver->update([
+                'scanned_goods' => $this_scanned,
+                'duration'      => $time
+            ]);
 
-        //     return response()->json(200);
-        // }
+            return response()->json(200);
+        }
         return response()->json(500);
         }
     }
@@ -517,7 +517,7 @@ class ActionController extends Controller
     {
         $product = Product::where('id',$request->id)->first();
         $remove_qty = $product->scanned_qty - $product->qty;
-        // dd($product,$remove_qty);    
+        // dd($product,$remove_qty);
         $product->update([
             'scanned_qty' => $product->qty
         ]);
