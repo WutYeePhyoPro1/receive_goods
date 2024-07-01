@@ -536,7 +536,7 @@
                 </div>
                 <div class="card-body pt-4">
                     <div class="mb-4">
-                        <span class="">Product Code á€á€° Document á€á€»á€¬á€¸á€á€¾á€­á€á€«á€á€á€ºá á€á€á€ºá€á€á€ºá€· Document á€á€½á€á€º á€á€±á€«á€á€ºá€¸á€á€á€ºá€·á€á€»á€á€ºá€á€² á€á€½á€±á€¸á€á€«</span>
+                        <span class="">Product Code တူ Document များရှိပါသည်။ မည်သည့် Document တွင် ပေါင်းထည့်ချင်လဲ ရွေးပါ</span>
                     </div>
                     <div class="decision_model">
 
@@ -772,7 +772,7 @@
             <!-- Modal content -->
             <div class="card rounded">
                     <div class="flex px-4 py-2 justify-between items-center min-w-80 ">
-                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Cursor á€á€½á€€á€ºá€á€±á€á€«á€á€á€¼á€á€ºá€· scan á€á€á€ºá€á€­á€¯á€·á€á€á€á€º á€á€á€¯á€á€ºá€á€« &nbsp;<span
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Cursor ထွက်နေပါသဖြင့် scan ဖတ်လို့ရမည် မဟုတ်ပါ &nbsp;<span
                                 id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                 class="w-6 h-6 hidden svgclass">
@@ -906,7 +906,7 @@
                 <div class="card rounded">
 
                     <div class="flex px-4 py-2 justify-between items-center max-w-50 ">
-                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">print á€á€¯á€á€ºá€á€»á€á€ºá€á€±á€¬ á€¡á€á€±á€¡á€á€½á€€á€º á€€á€­á€¯ á€á€­á€¯á€€á€ºá€á€á€ºá€·á€á€« (<b class="text-rose-600"> 500 á€á€€á€ºá€á€­á€¯á á€á€á€á€«</b>)<span
+                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">print ထုတ်ချင်သော အရေအတွက် ကို ရိုက်ထည့်ပါ (<b class="text-rose-600"> 500 ထက်ပို၍ မရပါ</b>)<span
                                 id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                 class="w-6 h-6 hidden svgclass">
@@ -937,7 +937,7 @@
                                 <option value="{{ $item->id }}">{{ $item->reason }}</option>
                             @endforeach
                         </Select>
-                        <input type="number" id="print_count" class="appearance-none w-full border-2 border-slate-300 rounded-lg min-h-12 mt-4 ps-2 focus:outline-none focus:border-sky-200 focus:border-3" placeholder="500 á€á€€á€ºá€á€á€­á€¯á€á€«á€á€²á€·">
+                        <input type="number" id="print_count" class="appearance-none w-full border-2 border-slate-300 rounded-lg min-h-12 mt-4 ps-2 focus:outline-none focus:border-sky-200 focus:border-3" placeholder="500 ထက်မပိုပါနဲ့">
                         <button type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
                     </div>
                 </div>
@@ -1587,7 +1587,7 @@
                                     {
                                         Swal.fire({
                                             icon : 'info',
-                                            title: 'Scan á€á€á€ºá€á€¬á€¸á€á€¬á€á€¾á€­á€á€²á€· á€¡á€á€½á€€á€ºá€€á€¼á€±á€¬á€á€ºá€· Remove á€á€¯á€á€ºá€á€½á€á€ºá€·á€á€á€±á€¸á€á€«',
+                                            title: 'Scan ဖတ်ထားတာရှိတဲ့ အတွက်ကြောင့် Remove လုပ်ခွင့်မပေးပါ',
                                         })
                                     }
                                 }
@@ -1886,7 +1886,7 @@
                             $add_val = $val - $old ;
                             Swal.fire({
                                 icon : 'question',
-                                text : `${$add_val}á€á€¯ á€á€±á€«á€á€ºá€¸á€á€á€ºá€·á€á€¾á€¬ á€á€±á€á€»á€¬á€á€«á€á€á€¬á€¸`,
+                                text : `${$add_val}ခု ပေါင်းထည့်မှာ သေချာပါသလား`,
                             showCancelButton:true,
                                 confirmButtonText: 'Yes',
                                 cancelButtonText : 'No',
@@ -1900,1928 +1900,735 @@
                                         success:function(res)
                                         {
                                             $('#back').hide();
-                                            reload_page( type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
-                    </div>
-                </div>
-            </div>
-    </div>
-    </div>
-    {{--- Modal End ---}}
-
-       {{-- Image Modal --}}
-   <div class="hidden" id="image_model">
-    <div class="flex items-center fixed inset-0 justify-center z-100 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
-        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
-            <!-- Modal content -->
-            <div class="card rounded">
-                    <div class="flex px-4 py-2 justify-between items-center min-w-80 ">
-                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
-                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                class="w-6 h-6 hidden svgclass">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
-
-                        <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
-                            onclick="$('#image_model').hide()">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-            </div>
-            <div class="" id="image_container">
-                {{-- <div class="">
-                    <span class="underline mb-4 text-xl font-serif tracking-wider">R4-0989</span>
-                    <img src="{{ asset('image/background_img/finallogo.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
-                    <img src="{{ asset('image/background_img/forklift.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
-                    <img src="{{ asset('image/background_img/handshake.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
-                </div> --}}
-            </div>
-        </div>
-</div>
-</div>
-{{-- End Modal --}}
-
-{{-- start modal --}}
-
-    <div class="hidden" id="prew_img" >
-        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
-            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
-                <!-- Modal content -->
-                <div class="card rounded">
-                        <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
-                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
-                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
-                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                    class="w-6 h-6 hidden svgclass">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
-
-                            <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
-                                onclick="$('#prew_img').hide()">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                </div>
-                <div class="card-body">
-                    <img src="" id="pr_im" alt="" style="width: 800px">
-                </div>
-            </div>
-        </div>
-    </div>
-{{-- end modal --}}
-
-    @if($status == 'edit')
-        {{-- start modal --}}
-        {{-- choose car modal --}}
-        <div class="hidden" id="car_choose" >
-            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
-                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
-                    <!-- Modal content -->
-                    <div class="card rounded">
-                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
-                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
-                                        id="show_doc_no"></span>Please Choose Your Car No&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
-                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                        class="w-6 h-6 hidden svgclass">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
-
-                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
-                                    onclick="$('#car_choose').hide()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                    </div>
-                    <div class="card-body car_choose_body">
-                        @foreach ($driver as $item)
-                            <div class="text-center bg-slate-100 py-1 font-semibold font-serif cursor-pointer hover:bg-slate-300 rounded border mb-2 car_no" data-id="{{ $item->id }}" style="box-shadow: 4px 4px 4px rgb(0,0,0,0.2)">{{ $item->truck_no }}</div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- end modal --}}
-
-        {{-- start modal --}}
-        {{-- edit img & car no modal --}}
-        <div class="hidden" id="change_img" >
-            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="">
-                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
-                    <!-- Modal content -->
-                    <div class="card rounded">
-                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
-                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
-                                        id="show_doc_no"></span>Edit Your Car No And Images&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
-                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                        class="w-6 h-6 hidden svgclass">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
-
-                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
-                                    onclick="$('#change_img').hide()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                    </div>
-                    <div class="card-body change_img_body">
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- end modal --}}
-    @endif
-
-
-    @push('js')
-        <script>
-
-            $(document).on('click', '.copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode', function() {
-                const buttonId = $(this).attr('id');
-                let documentNo, textId;
-
-                if (buttonId.startsWith('btn-copy-doc-')) {
-                    documentNo = buttonId.replace('btn-copy-doc-', '');
-                    textId = 'doc-no-' + documentNo;
-                } else if (buttonId.startsWith('scan-btn-copy-doc-')) {
-                    documentNo = buttonId.replace('scan-btn-copy-doc-', '');
-                    textId = 'scan-doc-no-' + documentNo;
-                } else if (buttonId.startsWith('excess-btn-copy-doc-')) {
-                    documentNo = buttonId.replace('excess-btn-copy-doc-', '');
-                    textId = 'excess-doc-no-' + documentNo;
-                } else if (buttonId.startsWith('btn-copy-bar-')) {
-                    documentNo = buttonId.replace('btn-copy-bar-', '');
-                    textId = 'bar-code-' + documentNo;
-                } else if (buttonId.startsWith('scan-btn-copy-bar-')) {
-                    documentNo = buttonId.replace('scan-btn-copy-bar-', '');
-                    textId = 'scan-bar-code-' + documentNo;
-                } else if (buttonId.startsWith('excess-btn-copy-bar-')) {
-                    documentNo = buttonId.replace('excess-btn-copy-bar-', '');
-                    textId = 'excess-bar-code-' + documentNo;
-                }
-
-                copyText(textId, buttonId);
-            });
-
-            async function copyText(textId, buttonId) {
-                try {
-                    const element = document.getElementById(textId);
-                    if (!element) {
-                        console.log(`Element with id ${textId} not found`);
-                        return;
-                    }
-                    const text = element.innerText;
-
-                    if (navigator.clipboard) {
-                        await navigator.clipboard.writeText(text);
-
-                    } else {
-                        // Fallback method using textarea
-                        const textArea = document.createElement('textarea');
-                        textArea.value = text;
-                        textArea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge
-                        textArea.style.opacity = '0';  // Hide the textarea element
-                        document.body.appendChild(textArea);
-                        textArea.focus();
-                        textArea.select();
-
-                        try {
-                            document.execCommand('copy');
-
-                        } catch (err) {
-
+                                            reload_page();
+                                        }
+                                    })
+                                }
+                            })
                         }
+                    })
 
-                        document.body.removeChild(textArea);
-                    }
-
-                    const button = document.getElementById(buttonId);
-                            if (!button) {
-                                console.log(`Button with id ${buttonId} not found`);
-                                return;
-                            }
-
-                            button.innerHTML = '<i class="fas fa-check"></i>';
-                            setTimeout(() => {
-                                button.innerHTML = '<i class="fa-solid fa-copy"></i>';
-                            }, 1000);
-                } catch (err) {
-                                console.log('Failed to copy: ', err);
-
-                }
-            }
-
-            $(document).ready(function() {
-
-                new TomSelect("#documentNoselect",{
-                    selectOnTab	: true
-                });
-
-                new TomSelect("#barcodeSelect",{
-                    selectOnTab	: true
-                });
-
-                var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
-                var mainStatus = @json($main->status);
-
-                $('#back').on('click', function() {
-                    $.ajax({
-                        url: window.location.href,
-                    });
-                });
-
-                $('#document_no_search').click(function() {
-                    var id = $('#idInput').val();
-                    var documentNo = $('#documentNoSelect').val();
-                    var barcodeNo = $('#barcodeSelect').val();
-                    var pageUrl = '{{ $page == 'receive' ? '/receive_goods/' : '/view_goods/' }}';
-                    $.ajax({
-                        url: '/search_document_no',
-                        type: 'GET',
-                        data: { id: id, document_no: documentNo, barcode_no : barcodeNo },
-                        success: function(response) {
-                            var documents = response.documents;
-                            var scanDocuments = response.scan_documents;
-                            var excessDocuments = response.excess_documents;
-                            var need_document_inform  = response.need_document_inform;
-
-                            if (documents.length === 0  && scanDocuments.length === 0 && excessDocuments.length === 0) {
-                                window.location.href = pageUrl + id;
-                            } else {
-                                $('#resultCount').show();
-                            }
-                            var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
-                            var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
-                            var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
-
-                            if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
-                                $('#resultCount').hide();
-                                $('#back').show();
-                                $('.main_body').empty();
-                                $('.scan_body').empty();
-                                $('.excess_body').empty();
-                                $('.search_main_body').empty();
-                                $('.search_scan_body').empty();
-                                $('.excess_scan_body').empty();
-                                if (!isEmptyDocuments) {
-                                    documents.forEach((document, i) => {
-                                        let barCodes = document.bar_code;
-                                        let supplierNames = document.supplier_name;
-                                        let qtys = document.qty;
-                                        let scannedQtys = document.scanned_qty;
-                                        let checkColor = document.check_color;
-                                        let scanZero = document.scan_zero;
-                                        let searchpdId = document.search_pd_id;
-                                        let Unit = document.unit;
-                                        let documentno = document.document_no;
-                                        let isDcStaff = need_document_inform.isDcStaff;
-                                        let curDriver = need_document_inform.curDriver;
-                                        let authId = need_document_inform.authId;
-                                        let curDriverStartDate = need_document_inform.cur_driver_start_date;
-
-                                        for (let j = 0; j < barCodes.length; j++) {
-                                            let buttonHtml = '';
-                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
-                                                buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
-                                            }
-                                            let additionalIconHtml = '';
-                                            if( curDriverStartDate == null){
-
-                                            } else if (curDriverStartDate.length != 0) {
-                                                additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
-                                            }
-                                            let rowHtml = `<tr class="h-10">
-                                                ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
-                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
-                                                ${j === 0 ? `
-                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-
-                                                            <span id="doc-no- ${document.document_no}"> ${document.document_no}</span>
-                                                            <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
-                                                                <i class="fas fa-copy"></i>
-                                                            </button>
-                                                    </td>`
-                                                :
-                                                '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
-                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
-                                                        <span id="bar-code- ${barCodes[j]}"> ${barCodes[j]}</span>
-                                                        <button id="btn-copy-bar- ${barCodes[j]}" class="copy-button-barcode" >
-                                                            <i class="fas fa-copy"></i>
-                                                        </button>
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
-                                                    <span class="cursor-pointer hover:underline hover:font-semibold  select-none" data-index="${j}">${qtys[j]}</span>
-                                                    <input type="hidden" class="pd_unit" value="${Unit[j]}">
-                                                    <input type="hidden" class="pd_name" value="${supplierNames[j]}">
-                                                    <input type="hidden" class="pd_id" value="${searchpdId[j]}">
-                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
-                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 22)}</div>
-                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  scanned_qty">
-                                                    <div class="main_scan">
-                                                        ${scannedQtys[j]}
-                                                        ${additionalIconHtml}
-                                                    </div>
-                                                    <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
-                                            </tr>`;
-                                            $('.search_main_body').append(rowHtml);
-                                        }
-                                    });
-                                }
-                                function generateBarcodeHTML(barcode, height) {
-                                    let barcodeHTML = `
-                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
-                                        </div>
-                                    `;
-                                    return barcodeHTML;
-                                }
-                                if (!isEmptyScanDocuments) {
-                                    scanDocuments.forEach((scanDocument, i) => {
-                                        let sanbarCodes = scanDocument.bar_code;
-                                        let sansupplierNames = scanDocument.supplier_name;
-                                        let sanqtys = scanDocument.qty;
-                                        let sanscannedQtys = scanDocument.scanned_qty;
-                                        let scanColor = scanDocument.scan_color;
-                                        let allScanned = scanDocument.all_scanned;
-                                        for (let j = 0; j < sanbarCodes.length; j++) {
-                                            let qty = Number(sanqtys[j]);
-                                            let scannedQty = Number(sanscannedQtys[j]);
-                                            let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
-                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
-                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
-                                                            <span id="scan-doc-no- ${scanDocument.document_no}">${scanDocument.document_no}</span>
-                                                            <button id="scan-btn-copy-doc- ${scanDocument.document_no}" class="scan-copy-button">
-                                                                <i class="fas fa-copy"></i>
-                                                            </button>
-                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
-                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
-                                                    <span id="scan-bar-code-  ${sanbarCodes[j]}">${sanbarCodes[j]}</span>
-                                                    <button id="scan-btn-copy-bar-  ${sanbarCodes[j]}" class="scan-copy-button-barcode" >
-                                                        <i class="fas fa-copy"></i>
-                                                    </button>
-
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sansupplierNames[j]}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
-                                                    ${scannedQty > qty ? qty : scannedQty}
-                                                </td>
-                                            </tr>`;
-                                            $('.search_scan_body').append(rowHtmltwo);
-                                        }
-                                    });
-                                }
-                                if (!isEmptyExcessDocuments) {
-                                    excessDocuments.forEach((excessDocument, i) => {
-                                        let excessBarCodes = excessDocument.bar_code;
-                                        let excessSupplierNames = excessDocument.supplier_name;
-                                        let excessQtys = excessDocument.qty;
-                                        let excessScannedQtys = excessDocument.scanned_qty;
-                                        let excessRemarks = excessDocument.remark || [];
-                                        for (let j = 0; j < excessBarCodes.length; j++) {
-                                            let remainingQty = excessScannedQtys[j] - excessQtys[j];
-                                            let excessQty = Number(excessQtys[j]);
-                                            let excessScannedQty = Number(excessScannedQtys[j]);
-                                            let quantityClass = remainingQty < 0 ? 'text-rose-600' : 'text-emerald-600';
-                                            let remarkClass = excessRemarks[j] === undefined ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600';
-                                            let buttonHtml = '';
-                                            if ( canAdjustExcess && mainStatus === 'complete' &&  excessQty < excessScannedQty ) {
-                                            buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="${excessDocument.excess_id}"><i class='bx bx-minus'></i></button>`;
-                                            }
-                                            let rowHtmlthree = `<tr class="h-10">
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
-                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
-                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
-                                                            <span id="excess-doc-no- ${excessDocument.document_no}">${excessDocument.document_no}</span>
-                                                            <button id="excess-btn-copy-doc- ${excessDocument.document_no}" class="excess-copy-button">
-                                                                <i class="fas fa-copy"></i>
-                                                            </button>
-                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
-                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
-                                                    <span id="excess-bar-code- ${excessBarCodes[j]}">${excessBarCodes[j]}</span>
-                                                    <button id="excess-btn-copy-bar- ${excessBarCodes[j]}" class="excess-copy-button-barcode" >
-                                                        <i class="fas fa-copy"></i>
-                                                    </button>
-                                                    </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0">${excessSupplierNames[j]}
-                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white ${remarkClass} remark_ic' data-pd="${excessBarCodes[j]}" data-id="${excessDocument.excess_id}" data-eq="${j}"></i>
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ${quantityClass}">${remainingQty} </td>
-                                            </tr>`;
-                                            $('.excess_scan_body').append(rowHtmlthree);
-                                        }
-                                    });
-                                }
-                                function generateBarcodeHTML(barcode, height) {
-                                    let barcodeHTML = `
-                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
-                                        </div>
-                                    `;
-                                    return barcodeHTML;
-                                }
-                            } else {
-                                $('.search_main_body').empty();
-                                $('.search_scan_body').empty();
-                                $('.excess_scan_body').empty();
-                                $('#back').hide();
-                            }
-                        },
-                        error: function(xhr, status, error) {
+                    $(document).on('keyup','.real_scan',function(e){
+                        if(e.keyCode === 13 || e.keyCode === 27)
+                        {
+                            this.blur();
                         }
-                    });
-                });
-                // $('#suggestions').hide();
-                // $('#searchInput').on('input', function() {
-                //     let query = $(this).val();
-                //     if (query.length >= 1) {
-                //         $.ajax({
-                //             url: '/search_suggestions',
-                //             type: 'GET',
-                //             data: {
-                //                 query: query
-                //             },
-                //             success: function(response) {
-                //                 if (response.length > 0) {
-                //                     $('#suggestions').show();
-                //                     response.forEach(item => {
-                //                         $('#suggestions').append(`<div class="p-2 cursor-pointer hover:bg-gray-200" data-value="${item}">${item}</div>`);
-                //                     });
-                //                 }
-                //             }
-                //         });
-                //     } else {
-                //         console.log('no');
-                //         $('#suggestions').empty();
-                //         $('#suggestions').hide();
-                //     }
-                // });
-
-                $(document).on('click', '#suggestions div', function() {
-                    let value = $(this).data('value');
-                    $('#searchInput').val(value);
-                    $('#suggestions').empty();
-                });
-
-
-            });
-
-            $(document).ready(function(e){
-                var token = $("meta[name='__token']").attr('content');
-                $finish = $('#finished').val();
-                $status = $('#view_').val();
-                $role = $('#user_role').val();
-                $all_begin = $('#started_time').val();
-                $count = parseInt($('#count').val()) || 0;
-                $cur_id = $('#cur_truck').val() ?? '';
-                $dc_staff = "{{ getAuth()->branch_id}}";
-                $dc_staff = $dc_staff.includes([17,19,20]) ? true: false;
-
-                function reload_page(){
-                    $('.main_table').load(location.href + ' .main_table');
-                    $('.scan_parent').load(location.href + ' .scan_parent', function() {
-                        $('.excess_div').load(location.href + ' .excess_div', function() {
-                            $('.scanned_pd_div').eq(0).find('td').addClass('latest');
-                        });
-                    });
+                    })
                 }
-                // $('.real_scan').eq(0).attr('type','text');
 
-                $(document).on('click','#driver_info',function(e){
-                    $('#car_info').toggle();
-                })
+                if(!$finish && ($role == 2 || $role == 3))
+                {
+                    $(document).on('keypress', '#docu_ipt', function(e) {
+                    if (e.keyCode === 13) {
+                        e.preventDefault();
+                        $('#search_btn').click();
+                        $(this).val('');
+                    }
+                });
 
-                $(document).on('click','#show_image',function(e){
-                    $doc_id = '{{ $main->id }}';
-                    $.ajax({
-                        url : "{{ route('show_image') }}",
-                        type: 'POST',
-                        data: {_token:token,id:$doc_id},
-                        success:function(res){
-                            $list = '';
-                            for($i = 0 ; $i < res.truck.length ; $i++)
-                            {
-                                $list += `
-                                <div class="">
-                                    <span class="underline mb-4 text-xl font-serif tracking-wider">${res.truck[$i].truck_no}</span>
-                                `;
-                                for($j = 0; $j < res.image.length ; $j++)
+                $(document).on('click','#search_btn',function(e){
+                    let id = $('#receive_id').val();
+                        let val = $('#docu_ipt').val();
+                        $this = $('#docu_ipt');
+                        $vendor = $('#vendor_name').text();
+                        $.ajax({
+                            url     : "{{ route('search_doc') }}",
+                            type    : 'POST',
+                            data    :  {_token:token,data:val,id:id},
+                            success : function(res){
+                                if($vendor == ''){
+                                    $('#vendor_name').text(res[0].vendorname);
+                                }
+                                $list = '<tbody class="main_body">';
+                                for($i = 0 ; $i < res.length ; $i++)
                                 {
-                                    if(res.truck[$i].id == res.image[$j].driver_info_id)
-                                    {
+                                    if($i == 0){
                                         $list += `
-                                            <img src="{{ asset('storage/${res.image[$j].file}') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                                        <tr class="h-10">
+                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
+                                                        <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc"  data-doc="${res[$i].purchaseno}"><i class='bx bx-minus'></i></button>
+                                            </td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${Math.floor($count+1)}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0">${res[$i].purchaseno}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0  px-2 bar_code">${res[$i].productcode}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0">${res[$i].productname}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 qty">${parseInt(res[$i].goodqty)}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 scanned_qty">0</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-r-0 remain_qty">${parseInt(res[$i].goodqty)}</td>
+                                        </tr>
+                                    `;
+                                    $count++;
+                                    }else{
+                                        $list += `
+                                        <tr class="h-10">
+                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 "></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0  px-2 bar_code">${res[$i].productcode}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 ">${res[$i].productname}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 qty">${parseInt(res[$i].goodqty)}</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 scanned_qty">0</td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-r-0 remain_qty">${parseInt(res[$i].goodqty)}</td>
+                                        </tr>
                                         `;
                                     }
-                                }
-                                $list += '</div>';
-                            }
-                            $('#image_container').html('');
-                            $('#image_container').append($list);
-                            $('#image_model').show();
-                        }
-                    })
 
+                                }
+                                $list += `</tbody>`;
+                                $length = $('.main_body').length;
+                                window.location.reload();
+                                // if($length > 0){
+                                //     $('.main_body').eq($length-1).after($list);
+                                // }else{
+                                //     $('.main_table').load(location.href + ' .main_table');
+
+                                // }
+                            },
+                            error   : function(xhr,status,error){
+                                if(xhr.status == 400){
+                                    Swal.fire({
+                                    icon:'error',
+                                    title: 'Warning',
+                                    text: 'Doucment တခုကို နှစ်ကြိမ်ထည့်ခွင့်မရှိပါ'
+                                })
+                                }else if(xhr.status == 404){
+                                    Swal.fire({
+                                    icon:'error',
+                                    title: 'Warning',
+                                    text: 'Document မတွေ့ပါ'
+                                })
+                                }
+
+                            },
+                            complete:function(){
+                                $this.val('');
+                            }
+                        })
                 })
 
-                if(!$finish)
-                {
-                    $(document).on('click','.del_doc',function(e){
-                    $val = $(this).data('doc');
-                    $id = $('#receive_id').val();
-                    $this = $(this);
-                    Swal.fire({
-                        icon : 'info',
-                        title: 'Are You Sure?',
-                        showCancelButton:true,
-                        confirmButtonText:'Yes',
-                        cancelButtonText: "No",
-                    }).then((result)=>{
-                        if(result.isConfirmed)
+                var key = '';
+
+                    $(document).on('keypress',function(e){
+
+                        $doc_ipt = e.target.matches('input') || e.target.matches('textarea');
+
+                        $bar_ipt = $('#bar_code').val();
+                        if(!$doc_ipt)
                         {
-                            $.ajax({
-                                url : "{{ route('del_doc') }}",
-                                type: 'POST',
-                                data: {_token:token , data:$val , id : $id},
-                                success: function(res){
-                                    $this.parent().parent().parent().remove();
-                                    if(res.count == 1)
-                                    {
-                                        $('#vendor').parent().remove();
-                                    }
-                                },
-                                error: function(xhr,status,error)
+                            if (e.key === 'Enter' && $bar_ipt != '') {
+                                if($all_begin != ''  || !$dc_staff )
                                 {
+                                    $('#bar_code').val(key);
+                                    $('#bar_code').trigger('barcode_enter');
+                                }else{
+                                    Swal.fire({
+                                        icon : 'error',
+                                        title: 'Warning',
+                                        text : 'ကားအချက်အလက် ဖြည့်ပြီးမှ scan ဖတ်နိုင်ပါမည်',
+                                        // showConfirmButton:false
+                                    })
+                                    setTimeout(() => {
+                                        Swal.close();
+                                    }, 2000);
+                                }
+                                $('#bar_code').val('');
+                                key = '';
+                            } else {
+                                if(e.key != 'Enter')
+                                {
+                                    key += e.key;
+                                    $('#bar_code').val(key);
+                                }
+                            }
+                        }
+                    });
+
+                    $(document).on('barcode_enter','#bar_code',function(e){
+                        $val  = $(this).val();
+                        $recieve_id = $('#receive_id').val();
+                        $this       = $(this);
+                        $cur_id     = $('#cur_truck').val() ?? '';
+                        $code       =  $val.replace(/\D/g, '');
+                        if($val){
+                            $.ajax({
+                                url : "{{ route('barcode_scan') }}",
+                                type: 'POST',
+                                data: {_token:token , data:$val,id:$recieve_id,car : $cur_id},
+                                success:function(res){
+                                    // if(res.msg == 'decision')
+
+                                    // {
+                                    //     $('.decision_model').html('');
+                                    //     $list = `<input type="hidden" id="scan_qty" value="${res.qty}">`;
+                                    //     for($i = 0 ; $i < res.doc.length ; $i++)
+                                    //     {
+                                    //         $list +=`
+                                    //         <div data-id="${res.ids[$i]}" class="text-center mb-4 shadow-lg rounded-md border border-slate-200 py-3 cursor-pointer hover:bg-slate-200 decision_doc">
+                                    //             <span>${res.doc[$i]}</span>
+                                    //         </div>
+                                    //         `;
+                                    //     }
+                                    //     $('.decision_model').append($list);
+                                    //     $('#decision').show();
+                                    // }else{
+
+                                        // $('.bar_code').each((i,v)=>{
+                                            // if($(v).text() == $code){
+                                                // $scan   = parseInt($(v).parent().find('.scanned_qty').text());
+                                                // $real_scan = parseInt($(v).parent().find('.real_scan').val());
+                                                // $remain = parseInt($(v).parent().find('.remain_qty').text());
+                                                // $qty    = parseInt($(v).parent().find('.qty').text());
+                                                // $(v).parent().find('.scanned_qty').text($scan+1 >= $qty ? $qty : Math.floor($scan + res.scanned_qty));
+                                                // $(v).parent().find('.remain_qty').text($remain-res.scanned_qty <= 0 ? 0 : Math.floor($remain - res.scanned_qty));
+                                                // $(v).parent().find('.real_scan').val(Math.floor($real_scan+1));
+                                                // if($scan+res.scanned_qty > 0 && $scan+res.scanned_qty < $qty){
+                                                //     console.log('yes');
+                                                //     $(v).parent().find('.color_add').each((i,v)=>{
+                                                //         $(v).removeClass('bg-amber-200 text-amber-600');
+                                                //         $(v).addClass('bg-amber-200 text-amber-600');
+                                                //     })
+
+                                                // }else if($scan+res.scanned_qty == $qty){
+                                                //     $no = 0;
+                                                //     $doc= '';
+                                                //     $parent = $(v).parent().parent();
+                                                //     $(v).parent().parent().find('tr').each((i,v)=>{
+                                                //         if(i == 0){
+                                                //             $no = $(v).find('.doc_times').text();
+                                                //             $doc = $(v).find('.doc_no').text();
+                                                //         }
+                                                //         return false;
+                                                //     })
+                                                //     $(v).parent().remove();
+                                                //     $parent.find('tr').each((i,v)=>{
+                                                //         if(i == 0){
+                                                //             $(v).find('.doc_times').text($no);
+                                                //             $(v).find('.doc_no').text($doc);
+                                                //         }
+                                                //         return false;
+                                                //     })
+                                                //     if($parent.find('tr').length == 0){
+                                                //         $parent.remove()
+                                                //     }
+                                                //     $('.main_body').each((i,v)=>{
+                                                //         $(v).find('tr').eq(0).find('td').eq(0).text(i+1);
+                                                //     })
+                                                // }
+                                                // return false;
+                                            // }
+                                        // })
+
+                                        if($all_begin == '')
+                                        {
+                                            window.location.reload();
+                                        }
+                                        $('#prev_scan').text(res.pd_code);
+                                        reload_page();
+                                    // }
+                                },
+                                error : function(xhr,status,error){
                                     $msg = xhr.responseJSON.message;
-                                    if($msg == 'You Cannot Remove')
+                                    if($msg == 'Server Time Out Please Try Again')
                                     {
                                         Swal.fire({
-                                            icon : 'info',
-                                            title: 'Scan á€á€á€ºá€á€¬á€¸á€á€¬á€á€¾á€­á€á€²á€· á€¡á€á€½á€€á€ºá€€á€¼á€±á€¬á€á€ºá€· Remove á€á€¯á€á€ºá€á€½á€á€ºá€·á€á€á€±á€¸á€á€«',
-                                        })
+                                            icon : 'error',
+                                            title: 'Warning',
+                                            text : 'Server Time Out Please Try Again'
+                                        });
+                                    }else if($msg == 'Not found'){
+                                        Swal.fire({
+                                            icon : 'error',
+                                            title: 'Warning',
+                                            text : 'Bar Code Not found'
+                                        });
+                                    }else if($msg == 'dublicate')
+                                    {
+                                        Swal.fire({
+                                            icon : 'error',
+                                            title: 'Warning',
+                                            text : 'Doucment တခုကို နှစ်ကြိမ်ထည့်ခွင့်မရှိပါ'
+                                        });
+                                    }else if($msg == 'doc not found')
+                                    {
+                                        Swal.fire({
+                                            icon : 'error',
+                                            title: 'Warning',
+                                            text : 'Doucment မရှိပါ'
+                                        });
                                     }
-                                }
-                            })
-                        }
-                    })
 
-
-                })
-                }
-
-                if($status != 'view')
-                {
-
-                $(document).on('click','#add_driver',function(e){
-                    $('#add_car').toggle();
-                })
-
-                $(document).on('click','#start_count_btn',function(e){
-                    $id = '{{ $main->id }}';
-                    $.ajax({
-                        url : '/start_count/'+$id,
-                        success: function(res){
-                            window.location.reload();
-                        }
-                    })
-                })
-
-                $(document).on('change','.car_img',function(e){
-                        $index = $('.car_img').index($(this));
-                        $('#pree_'+$index).remove();
-                        $('.img_btn').eq($index).addClass('bg-emerald-200').after(`
-                            <span class="hover:underline cursor-pointer mt-3 -translate-x-4 img_preview" id="pree_${$index}" data-index="${$index}" style="margin-left:35%">preivew</span>
-                        `);
-                    })
-
-                $(document).on('click','.img_preview',function(e){
-                    $index = $(this).data('index');
-                    $file  =  $('.car_img').eq($index).get(0);
-                    if ($file && $file.files && $file.files[0]) {
-                        var file = $file.files[0];
-                        var imageUrl = URL.createObjectURL(file);
-                        $('#pr_im').attr('src', imageUrl);
-                    }
-                    $('#prew_img').show();
-                    return;
-                    $("#pr_im").src(URL.createObjectURL($('.car_img').eq($index).target.files[0]))
-
-                })
-
-                if(!$finish)
-                {
-                    $(document).on('click','.change_scan',function(e){
-                        $id = $(this).data('index');
-                        $('#index').val($id);
-                        $('#employee_code').val('');
-                        $('#pass').val('');
-                        $('.error_msg').text('');
-                        $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
-                        $('#pass_con').show();
-                    })
-
-
-
-                    // $(document).on('click','.sticker',function(e){
-                    //     $('.bar_stick').remove();
-                    //     $qty    = $(this).text();
-                    //     $index  = $(this).data('index');
-                    //     $pd_code= $(this).data('pd').toString();
-                    //     $(this).parent().append(`
-                    //     `);
-                    //     $('.sticker').eq($index).trigger('show_stick');
-
-
-
-                    // })
-
-                    $(document).on('click','.sticker',function(e){
-                        $('#print_eq').val('');
-                        $('#print_count').val('');
-                       $('#print_no').show();
-                       $('#print_eq').val($(this).data('index'));
-                    })
-
-                    $(document).on("input",'#print_count',function(e){
-                        $val = $(this).val();
-                        $eq = $('#print_eq').val();
-                        $qty = $('.sticker').eq($eq).text();
-                        if($val > 500)
-                        {
-                            $(this).val(500);
-                        }else if($val > parseInt($qty))
-                        {
-                            $(this).val($qty);
-                        }
-                    })
-
-                   $(document).on('click','#final_print',function(e){
-
-                        $index = $('#print_eq').val();
-
-                        $pd_code= $('.bar_code').eq($index).text();
-                        $qty    = $('#print_count').val();
-                        $unit   = $('.pd_unit').eq($index).val();
-                        $name   = $('.pd_name').eq($index).val();
-                        $id     = $('.pd_id').eq($index).val();
-                        $type   = $('#bar_type').val();
-                        $reason = $('#reason').val();
-                        if($qty > 0 && $qty != ''){
-                            $td  = new Date();
-                            $date = [ String($td.getDate()).padStart(2, '0'),String($td.getMonth() + 1).padStart(2, '0'),$td.getFullYear()].join('/');
-                            $period = $td.getHours() > 12 ? 'PM' : 'AM';
-                            $time = [(String($td.getHours()).padStart(2, '0')%12 || 12), String($td.getMinutes()).padStart(2, '0'), String($td.getSeconds()).padStart(2, '0')].join(':');
-                            $full_date = $date+' '+$time+' '+$period;
-
-                            $.ajax({
-                                url : "{{ route('print_track') }}",
-                                type: 'POST',
-                                data: {_token:token,id:$id,qty:$qty,type:$type,reason:$reason},
-                                success: function(res){
-                                }
-                            })
-
-                            const new_pr = window.open("","","width=900,height=600");
-                             $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
-                             $mar_top = $name.length > 50 ? 3 : ($name.length > 35 ? 10 : 30);
-                            if($type == 1)
-                            {
-                                $bar = $('.bar_stick1').eq($index).html();
-                                new_pr.document.write(
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:12px;padding-right:25px;gap:20px}"
-                            );
-
-                            new_pr.document.write(
-                               "</style></head><body><div id='per_div'>"
-                            )
-                            $color = 100;
-                            $margin = $pd_code.length > 11 ? 10 : 40;
-                            for($i = 0 ; $i < $qty ; $i++)
-                            {
-
-                                new_pr.document.write(`
-                                    <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
-
-                                            <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
-
-                                        <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
-                                        <div style="padding:5px 0;display:flex;flex-direction:column">
-                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
-                                             >
-                                             <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
-                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
-                                        </div>
-                                    </div>
-                                `);
-                                $color = $color+10;
-                            }
-                                new_pr.document.write("</div></body></html>");
-                            }else if($type == 2)
-                            {
-                                $bar = $('.bar_stick2').eq($index).html();
-                                $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
-                                $mar_top = $name.length > 50 ? 0 : 10;
-                                new_pr.document.write(
-
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:35px;gap:10px}"
-                                );
-
-                                new_pr.document.write(
-                                   "</style></head><body style='margin:0;padding:0'><div id='per_div'>"
-                                )
-                                for($i = 0 ; $i < $qty ; $i++)
-                                {
-                      new_pr.document.write(`
-                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
-                                             <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
-                                           <div style="position:absolute;right:70px;top:70px">
-                                                <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
-                                            </div>
-                                            <div style="margin-left:10px;margin-top:2px;padding:0">${$bar}</div>
-                                            <div style="padding:5px 0;display:flex;flex-direction:column">
-                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.7rem;font-weight:900;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
-                                                <small class="" style="margin: 0 0 0 20px;font-size:0.7rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$full_date}</small>
-                                            </div>
-                                        </div>
-                                `);
-                                }
-                                new_pr.document.write("</div></body></html>");
-                            }else if($type == 3)
-                            {
-                                $bar = $('.bar_stick3').eq($index).html();
-
-                                new_pr.document.write(
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:30px;gap:10px}"
-                                );
-
-                                new_pr.document.write(
-                                "</style></head><body style='margin:0;padding:5px 0'><div id='per_div'>"
-                                )
-
-                                for($i = 0 ; $i < $qty ; $i++)
-                                {
-                                    new_pr.document.write(`
-                                    <div class="" style="padding: 20px 10px 5px 5px;position:relative;">
-
-                                    <small class="" style="font-size:0.8rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
-                                    <div style="position:absolute;right:50px;top:120px">
-                                        <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
-                                    </div>
-                                    <div style="padding-left:5px;margin-top:15">${$bar}</div>
-                                    <div style="padding:5px 0;display:flex;flex-direction:column">
-                                        <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
-                                        <div style="display:flex">
-                                            <div style="width:100px;height:30px;border:solid 3px black"></div>
-                                            <div style="width:20px;height:20px;border:solid 3px black;margin:10px 0 0 4px"></div>
-                                            <div style="margin:15px 0 0 4px;font-weight:800">.............</div>
-                                        </div>
-                                        <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
-                                    </div>
-                                    </div>
-                                    `);
-                                }
-                                new_pr.document.write("</div></body></html>");
-                            }
-
-                            new_pr.document.close();
-                            new_pr.focus();
-                            new_pr.onload = function () {
-                            new_pr.print();
-                            new_pr.close();
-                            };
-                            $('#print_no').hide();
-
-                        }
-
-                    })
-
-                    $(document).on('click','#auth_con',function(e){
-                        $index  = $('#index').val();
-
-                        $data = $('#auth_con_form').serialize();
-
-                        $notempty = false;
-                        if($('#employee_code').val() == '')
-                        {
-                            $notempty = true;
-                            $('.error_msg').eq(1).text('Please Fill Employee Code');
-                        }
-                        if($('#pass').val() == '')
-                        {
-                            $notempty = true;
-                            $('.error_msg').eq(2).text('Please Fill Password');
-                        }
-                        if(!$notempty)
-                        {
-                            $.ajax({
-                                url : "{{route('pass_vali')}}",
-                                type: 'POST',
-                                data:{_token:token,data:$data},
-                                beforeSend:function(res){
-                                    $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
-                                    $('.error_msg').text('');
+                                    setTimeout(() => {
+                                        Swal.close();
+                                        }, 3000);
                                 },
-                                success:function(res){
-
-                                    $('#pass_con').hide();
-
-
-                                    $('.main_scan').eq($index).attr('hidden',true);
-                                    $('.real_scan').eq($index).attr('type','number');
-                                    $('.real_scan').eq($index).attr('data-auth',res.id);
-                                },
-                                error:function(){
-                                    console.log('error')
-                                    $('.error_msg').eq(0).text('Credential Does Not Match!!');
-                                    $('.error_msg').eq(0).parent().addClass('bg-rose-200 pb-1');
-                                    $('#employee_code').val('');
-                                    $('#pass').val('');
+                                complete:function(){
+                                    $this.val('');
                                 }
+
                             })
                         }
                     })
 
-                    $(document).on('blur','.real_scan',function(e){
-                        $val    = $(this).val();
-                        $old    = $(this).data('old');
-                        $pd_id  = $(this).data('id');
-                        $auth   = $(this).data('auth');
-                        console.log($val,$old,$pd_id,$auth);
-                        if($old >= $val)
-                        {
-                            $(this).val($old);
-                            $('.main_scan').eq($index).attr('hidden',false);
-                            $('.real_scan').eq($index).attr('type','hidden');
-                        }else{
-                            $add_val = $val - $old ;
-                            Swal.fire({
-                                icon : 'question',
-                                text : `${$add_val}á€á€¯ á€á€±á€«á€á€ºá€¸á€á€á€ºá€·á€á€¾á€¬ á€á€±á€á€»á€¬á€á€«á€á€á€¬á€¸`,
-                            showCancelButton:true,
-                                confirmButtonText: 'Yes',
-                                cancelButtonText : 'No',
-                            }).then((result)=>{
-                                if(result.isConfirmed)
-                                {
-                                    $.ajax({
-                                        url : "{{ route('add_product') }}",
-                                        type: 'POST',
-                                        data: {_token:token,data:$add_val,car_id:$cur_id,product:$pd_id,auth:$auth},
-                                        success:function(res)
-                                        {
-                                            $('#back').hide();
-                                            reload_page( type="button" id="final_print" class="bg-emerald-400 font-semibold text-slate-600 px-6 py-1 rounded-md duration-500 float-end mt-2 hover:bg-emerald-600 hover:text-white ">Print</button>
-                    </div>
-                </div>
-            </div>
-    </div>
-    </div>
-    {{--- Modal End ---}}
+                    $(document).on('click','.decision_doc',function(e)
+                    {
+                        $id = $(this).data('id');
+                        $qty= $('#scan_qty').val();
 
-       {{-- Image Modal --}}
-   <div class="hidden" id="image_model">
-    <div class="flex items-center fixed inset-0 justify-center z-100 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
-        <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
-            <!-- Modal content -->
-            <div class="card rounded">
-                    <div class="flex px-4 py-2 justify-between items-center min-w-80 ">
-                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
-                                id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                class="w-6 h-6 hidden svgclass">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                            </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
-
-                        <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
-                            onclick="$('#image_model').hide()">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-            </div>
-            <div class="" id="image_container">
-                {{-- <div class="">
-                    <span class="underline mb-4 text-xl font-serif tracking-wider">R4-0989</span>
-                    <img src="{{ asset('image/background_img/finallogo.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
-                    <img src="{{ asset('image/background_img/forklift.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
-                    <img src="{{ asset('image/background_img/handshake.png') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
-                </div> --}}
-            </div>
-        </div>
-</div>
-</div>
-{{-- End Modal --}}
-
-{{-- start modal --}}
-
-    <div class="hidden" id="prew_img" >
-        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
-            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
-                <!-- Modal content -->
-                <div class="card rounded">
-                        <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
-                            <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
-                                    id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
-                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                    class="w-6 h-6 hidden svgclass">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
-
-                            <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
-                                onclick="$('#prew_img').hide()">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                </div>
-                <div class="card-body">
-                    <img src="" id="pr_im" alt="" style="width: 800px">
-                </div>
-            </div>
-        </div>
-    </div>
-{{-- end modal --}}
-
-    @if($status == 'edit')
-        {{-- start modal --}}
-        {{-- choose car modal --}}
-        <div class="hidden" id="car_choose" >
-            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="z-index:99999 !important">
-                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
-                    <!-- Modal content -->
-                    <div class="card rounded">
-                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
-                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
-                                        id="show_doc_no"></span>Please Choose Your Car No&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
-                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                        class="w-6 h-6 hidden svgclass">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
-
-                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
-                                    onclick="$('#car_choose').hide()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                    </div>
-                    <div class="card-body car_choose_body">
-                        @foreach ($driver as $item)
-                            <div class="text-center bg-slate-100 py-1 font-semibold font-serif cursor-pointer hover:bg-slate-300 rounded border mb-2 car_no" data-id="{{ $item->id }}" style="box-shadow: 4px 4px 4px rgb(0,0,0,0.2)">{{ $item->truck_no }}</div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- end modal --}}
-
-        {{-- start modal --}}
-        {{-- edit img & car no modal --}}
-        <div class="hidden" id="change_img" >
-            <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 " style="">
-                <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
-                    <!-- Modal content -->
-                    <div class="card rounded">
-                            <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
-                                <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
-                                        id="show_doc_no"></span>Edit Your Car No And Images&nbsp;<svg xmlns="http://www.w3.org/2000/svg"
-                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                        class="w-6 h-6 hidden svgclass">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                    </svg>&nbsp;<span id="show_adjust_doc_no"></span></h3>
-
-                                <button type="button" class="text-rose-600 font-extrabold absolute top-0 right-0"
-                                    onclick="$('#change_img').hide()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
-                    </div>
-                    <div class="card-body change_img_body">
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- end modal --}}
-    @endif
-
-
-    @push('js')
-        <script>
-
-            $(document).on('click', '.copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode', function() {
-                const buttonId = $(this).attr('id');
-                let documentNo, textId;
-
-                if (buttonId.startsWith('btn-copy-doc-')) {
-                    documentNo = buttonId.replace('btn-copy-doc-', '');
-                    textId = 'doc-no-' + documentNo;
-                } else if (buttonId.startsWith('scan-btn-copy-doc-')) {
-                    documentNo = buttonId.replace('scan-btn-copy-doc-', '');
-                    textId = 'scan-doc-no-' + documentNo;
-                } else if (buttonId.startsWith('excess-btn-copy-doc-')) {
-                    documentNo = buttonId.replace('excess-btn-copy-doc-', '');
-                    textId = 'excess-doc-no-' + documentNo;
-                } else if (buttonId.startsWith('btn-copy-bar-')) {
-                    documentNo = buttonId.replace('btn-copy-bar-', '');
-                    textId = 'bar-code-' + documentNo;
-                } else if (buttonId.startsWith('scan-btn-copy-bar-')) {
-                    documentNo = buttonId.replace('scan-btn-copy-bar-', '');
-                    textId = 'scan-bar-code-' + documentNo;
-                } else if (buttonId.startsWith('excess-btn-copy-bar-')) {
-                    documentNo = buttonId.replace('excess-btn-copy-bar-', '');
-                    textId = 'excess-bar-code-' + documentNo;
-                }
-
-                copyText(textId, buttonId);
-            });
-
-            async function copyText(textId, buttonId) {
-                try {
-                    const element = document.getElementById(textId);
-                    if (!element) {
-                        console.log(`Element with id ${textId} not found`);
-                        return;
-                    }
-                    const text = element.innerText;
-
-                    if (navigator.clipboard) {
-                        await navigator.clipboard.writeText(text);
-
-                    } else {
-                        // Fallback method using textarea
-                        const textArea = document.createElement('textarea');
-                        textArea.value = text;
-                        textArea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge
-                        textArea.style.opacity = '0';  // Hide the textarea element
-                        document.body.appendChild(textArea);
-                        textArea.focus();
-                        textArea.select();
-
-                        try {
-                            document.execCommand('copy');
-
-                        } catch (err) {
-
-                        }
-
-                        document.body.removeChild(textArea);
-                    }
-
-                    const button = document.getElementById(buttonId);
-                            if (!button) {
-                                console.log(`Button with id ${buttonId} not found`);
-                                return;
+                        $.ajax({
+                            url : "{{ route('add_product_qty') }}",
+                            type: "POST",
+                            data: {_token:token,id:$id,qty:$qty},
+                            success: function(res){
+                                $('.scan_parent').load(location.href + ' .scan_parent');
+                                $('.excess_div').load(location.href + ' .excess_div');
+                            },
+                            complete: function(){
+                                $('#decision').hide();
                             }
-
-                            button.innerHTML = '<i class="fas fa-check"></i>';
-                            setTimeout(() => {
-                                button.innerHTML = '<i class="fa-solid fa-copy"></i>';
-                            }, 1000);
-                } catch (err) {
-                                console.log('Failed to copy: ', err);
-
+                        })
+                    })
                 }
+
+                if(!$finish && ($role == 2 || $role == 3) && ($all_begin != '' || !$dc_staff)){
+                    window.addEventListener('focus', function() {
+                        $('#alert_model').hide();
+                    });
+
+                    window.addEventListener('blur', function() {
+                        $('#alert_model').show();
+
+                    });
+                }
+
+                if(!$finish && ($role == 2 || $role == 3) && ($all_begin != '')){
+                    setInterval(() => {
+                        time_count();
+                    }, 1000);
+
+                    function time_count(){
+                        let time = new Date($('#started_time').val()).getTime();
+                        // let duration = ($('#duration').val() * 1000);
+                        let duration = 0;
+                        let now  = new Date().getTime();
+                        let diff = Math.floor(now - time + duration);
+                        let hour = Math.floor(diff / (60*60*1000));
+                        let min = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+                        let sec = Math.floor((diff % (60 * 60 * 1000)) % (60 * 1000) / (1000));
+
+                        $('#time_count').text(hour.toString().padStart(2, '0') + ':' + min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0'));
+                    }
             }
 
-            $(document).ready(function() {
+            $(document).on('blur','#all_remark',function(e){
+                $val = $(this).val();
+                $id  = $('#receive_id').val();
+                $type= 'all';
+                $this = $(this);
+                $.ajax({
+                    url : "{{ route('store_remark') }}",
+                    type: "POST",
+                    data: {_token : token , data : $val , id : $id , type : $type},
+                    success: function(res){
+                        $this.addClass(' border-2 border-emerald-400');
+                        $('#wh_remark').val($val);
+                    }
+                })
+            })
 
-                new TomSelect("#documentNoselect",{
-                    selectOnTab	: true
-                });
-
-                new TomSelect("#barcodeSelect",{
-                    selectOnTab	: true
-                });
-
-                var canAdjustExcess = @json(auth()->user()->can('adjust-excess'));
-                var mainStatus = @json($main->status);
-
-                $('#back').on('click', function() {
-                    $.ajax({
-                        url: window.location.href,
-                    });
-                });
-
-                $('#document_no_search').click(function() {
-                    var id = $('#idInput').val();
-                    var documentNo = $('#documentNoSelect').val();
-                    var barcodeNo = $('#barcodeSelect').val();
-                    var pageUrl = '{{ $page == 'receive' ? '/receive_goods/' : '/view_goods/' }}';
-                    $.ajax({
-                        url: '/search_document_no',
-                        type: 'GET',
-                        data: { id: id, document_no: documentNo, barcode_no : barcodeNo },
-                        success: function(response) {
-                            var documents = response.documents;
-                            var scanDocuments = response.scan_documents;
-                            var excessDocuments = response.excess_documents;
-                            var need_document_inform  = response.need_document_inform;
-
-                            if (documents.length === 0  && scanDocuments.length === 0 && excessDocuments.length === 0) {
-                                window.location.href = pageUrl + id;
-                            } else {
-                                $('#resultCount').show();
-                            }
-                            var isEmptyDocuments = documents.length === 0 || documents.some(doc => doc.bar_code.length === 0);
-                            var isEmptyScanDocuments = scanDocuments.length === 0 || scanDocuments.some(doc => doc.bar_code.length === 0);
-                            var isEmptyExcessDocuments = excessDocuments.length === 0 || excessDocuments.some(doc => doc.bar_code.length === 0);
-
-                            if (!isEmptyDocuments || !isEmptyScanDocuments || !isEmptyExcessDocuments) {
-                                $('#resultCount').hide();
-                                $('#back').show();
-                                $('.main_body').empty();
-                                $('.scan_body').empty();
-                                $('.excess_body').empty();
-                                $('.search_main_body').empty();
-                                $('.search_scan_body').empty();
-                                $('.excess_scan_body').empty();
-                                if (!isEmptyDocuments) {
-                                    documents.forEach((document, i) => {
-                                        let barCodes = document.bar_code;
-                                        let supplierNames = document.supplier_name;
-                                        let qtys = document.qty;
-                                        let scannedQtys = document.scanned_qty;
-                                        let checkColor = document.check_color;
-                                        let scanZero = document.scan_zero;
-                                        let searchpdId = document.search_pd_id;
-                                        let Unit = document.unit;
-                                        let documentno = document.document_no;
-                                        let isDcStaff = need_document_inform.isDcStaff;
-                                        let curDriver = need_document_inform.curDriver;
-                                        let authId = need_document_inform.authId;
-                                        let curDriverStartDate = need_document_inform.cur_driver_start_date;
-
-                                        for (let j = 0; j < barCodes.length; j++) {
-                                            let buttonHtml = '';
-                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
-                                                buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
-                                            }
-                                            let additionalIconHtml = '';
-                                            if( curDriverStartDate == null){
-
-                                            } else if (curDriverStartDate.length != 0) {
-                                                additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
-                                            }
-                                            let rowHtml = `<tr class="h-10">
-                                                ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
-                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
-                                                ${j === 0 ? `
-                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-
-                                                            <span id="doc-no- ${document.document_no}"> ${document.document_no}</span>
-                                                            <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
-                                                                <i class="fas fa-copy"></i>
-                                                            </button>
-                                                    </td>`
-                                                :
-                                                '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
-                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
-                                                        <span id="bar-code- ${barCodes[j]}"> ${barCodes[j]}</span>
-                                                        <button id="btn-copy-bar- ${barCodes[j]}" class="copy-button-barcode" >
-                                                            <i class="fas fa-copy"></i>
-                                                        </button>
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
-                                                    <span class="cursor-pointer hover:underline hover:font-semibold  select-none" data-index="${j}">${qtys[j]}</span>
-                                                    <input type="hidden" class="pd_unit" value="${Unit[j]}">
-                                                    <input type="hidden" class="pd_name" value="${supplierNames[j]}">
-                                                    <input type="hidden" class="pd_id" value="${searchpdId[j]}">
-                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
-                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 22)}</div>
-                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  scanned_qty">
-                                                    <div class="main_scan">
-                                                        ${scannedQtys[j]}
-                                                        ${additionalIconHtml}
-                                                    </div>
-                                                    <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
-                                            </tr>`;
-                                            $('.search_main_body').append(rowHtml);
-                                        }
-                                    });
-                                }
-                                function generateBarcodeHTML(barcode, height) {
-                                    let barcodeHTML = `
-                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
-                                        </div>
-                                    `;
-                                    return barcodeHTML;
-                                }
-                                if (!isEmptyScanDocuments) {
-                                    scanDocuments.forEach((scanDocument, i) => {
-                                        let sanbarCodes = scanDocument.bar_code;
-                                        let sansupplierNames = scanDocument.supplier_name;
-                                        let sanqtys = scanDocument.qty;
-                                        let sanscannedQtys = scanDocument.scanned_qty;
-                                        let scanColor = scanDocument.scan_color;
-                                        let allScanned = scanDocument.all_scanned;
-                                        for (let j = 0; j < sanbarCodes.length; j++) {
-                                            let qty = Number(sanqtys[j]);
-                                            let scannedQty = Number(sanscannedQtys[j]);
-                                            let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
-                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
-                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
-                                                            <span id="scan-doc-no- ${scanDocument.document_no}">${scanDocument.document_no}</span>
-                                                            <button id="scan-btn-copy-doc- ${scanDocument.document_no}" class="scan-copy-button">
-                                                                <i class="fas fa-copy"></i>
-                                                            </button>
-                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
-                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
-                                                    <span id="scan-bar-code-  ${sanbarCodes[j]}">${sanbarCodes[j]}</span>
-                                                    <button id="scan-btn-copy-bar-  ${sanbarCodes[j]}" class="scan-copy-button-barcode" >
-                                                        <i class="fas fa-copy"></i>
-                                                    </button>
-
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sansupplierNames[j]}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
-                                                    ${scannedQty > qty ? qty : scannedQty}
-                                                </td>
-                                            </tr>`;
-                                            $('.search_scan_body').append(rowHtmltwo);
-                                        }
-                                    });
-                                }
-                                if (!isEmptyExcessDocuments) {
-                                    excessDocuments.forEach((excessDocument, i) => {
-                                        let excessBarCodes = excessDocument.bar_code;
-                                        let excessSupplierNames = excessDocument.supplier_name;
-                                        let excessQtys = excessDocument.qty;
-                                        let excessScannedQtys = excessDocument.scanned_qty;
-                                        let excessRemarks = excessDocument.remark || [];
-                                        for (let j = 0; j < excessBarCodes.length; j++) {
-                                            let remainingQty = excessScannedQtys[j] - excessQtys[j];
-                                            let excessQty = Number(excessQtys[j]);
-                                            let excessScannedQty = Number(excessScannedQtys[j]);
-                                            let quantityClass = remainingQty < 0 ? 'text-rose-600' : 'text-emerald-600';
-                                            let remarkClass = excessRemarks[j] === undefined ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600';
-                                            let buttonHtml = '';
-                                            if ( canAdjustExcess && mainStatus === 'complete' &&  excessQty < excessScannedQty ) {
-                                            buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="${excessDocument.excess_id}"><i class='bx bx-minus'></i></button>`;
-                                            }
-                                            let rowHtmlthree = `<tr class="h-10">
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
-                                                ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
-                                                ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
-                                                            <span id="excess-doc-no- ${excessDocument.document_no}">${excessDocument.document_no}</span>
-                                                            <button id="excess-btn-copy-doc- ${excessDocument.document_no}" class="excess-copy-button">
-                                                                <i class="fas fa-copy"></i>
-                                                            </button>
-                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
-                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
-                                                    <span id="excess-bar-code- ${excessBarCodes[j]}">${excessBarCodes[j]}</span>
-                                                    <button id="excess-btn-copy-bar- ${excessBarCodes[j]}" class="excess-copy-button-barcode" >
-                                                        <i class="fas fa-copy"></i>
-                                                    </button>
-                                                    </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0">${excessSupplierNames[j]}
-                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white ${remarkClass} remark_ic' data-pd="${excessBarCodes[j]}" data-id="${excessDocument.excess_id}" data-eq="${j}"></i>
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 ${quantityClass}">${remainingQty} </td>
-                                            </tr>`;
-                                            $('.excess_scan_body').append(rowHtmlthree);
-                                        }
-                                    });
-                                }
-                                function generateBarcodeHTML(barcode, height) {
-                                    let barcodeHTML = `
-                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
-                                        </div>
-                                    `;
-                                    return barcodeHTML;
-                                }
-                            } else {
-                                $('.search_main_body').empty();
-                                $('.search_scan_body').empty();
-                                $('.excess_scan_body').empty();
-                                $('#back').hide();
-                            }
+            function not_finish($id) {
+                $.ajax({
+                        url : "{{ route('confirm') }}",
+                        type: 'POST',
+                        data:{_token : token , id :$id},
+                        success:function(res){
+                            location.href = '/list';
                         },
-                        error: function(xhr, status, error) {
+                        error:function(xhr,status,error){
+                            Swal.fire({
+                                    icon : 'error',
+                                    title: 'truck duration မှာ 24 hr ကျော်သွားပါသဖြင့် save မရပါ။'
+                                })
                         }
-                    });
-                });
-                // $('#suggestions').hide();
-                // $('#searchInput').on('input', function() {
-                //     let query = $(this).val();
-                //     if (query.length >= 1) {
-                //         $.ajax({
-                //             url: '/search_suggestions',
-                //             type: 'GET',
-                //             data: {
-                //                 query: query
-                //             },
-                //             success: function(response) {
-                //                 if (response.length > 0) {
-                //                     $('#suggestions').show();
-                //                     response.forEach(item => {
-                //                         $('#suggestions').append(`<div class="p-2 cursor-pointer hover:bg-gray-200" data-value="${item}">${item}</div>`);
-                //                     });
-                //                 }
-                //             }
-                //         });
-                //     } else {
-                //         console.log('no');
-                //         $('#suggestions').empty();
-                //         $('#suggestions').hide();
-                //     }
-                // });
+                    })
+             }
 
-                $(document).on('click', '#suggestions div', function() {
-                    let value = $(this).data('value');
-                    $('#searchInput').val(value);
-                    $('#suggestions').empty();
-                });
+            $(document).on('click','#confirm_btn',function(e){
+                    $id = $('#receive_id').val();
+                    $remark = $('#wh_remark').val();
+                    if($remark == '')
+                    {
+                        Swal.fire({
+                            icon : 'question',
+                            title: 'Remark မထည့်ရသေးပါ continue လုပ်ဖို့သေချာပါသလား',
+                            showCancelButton: true,
+                            cancelButtonText: 'No',
+                            confirmButtonText: 'Yes'
+                        }).then((res)=>{
+                            if(res.isConfirmed)
+                            {
+                                not_finish($id)
+                            }
+                        })
+                    }else{
+                        not_finish($id);
+                    }
 
+                })
 
+                function all_finish($finish,$id){
+
+                    if(!$finish)
+                    {
+
+                            Swal.fire({
+                                'icon'      : 'info',
+                                'title'     : 'Are You Sure?',
+                                'text'      : 'Remaining QTY ကျန်နေပါသေးသည်?Complete လုပ်ဖို့သေချာပါသလား?',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes',
+                                cancelButtonText:  'No'
+                            }).then((result)=>{
+                                if(result.isConfirmed){
+                                    finish($id);
+                                }
+                            })
+                    }else if($doc_count < 1){
+                        Swal.fire({
+                                'icon'      : 'error',
+                                'title'     : 'Warning',
+                                'text'      : 'Document မရှိလျှင် Complete လုပ်ခွင့်မပေးပါ',
+                            })
+                    }else{
+                        finish($id);
+                    }
+                }
+
+                $(document).on('click','#finish_btn',function(e){
+                    // console.log('yes');
+                    // return;
+                    $finish = true;
+                    $id = $('#receive_id').val();
+                    $doc_count = $('#doc_total').val();
+                    $remark = $('#wh_remark').val();
+                   $('.remain_qty').each((i,v)=>{
+
+                    if(parseInt($(v).text()) > 0){
+                        $finish = false;
+                        return false;
+                    }
+                   })
+
+                   if($remark == '')
+                    {
+                        Swal.fire({
+                            icon : 'question',
+                            title: 'Remark မထည့်ရသေးပါ finish လုပ်ဖို့သေချာပါသလား',
+                            showCancelButton: true,
+                            cancelButtonText: 'No',
+                            confirmButtonText: 'Yes'
+                        }).then((res)=>{
+                            if(res.isConfirmed)
+                            {
+                                all_finish($finish,$id);
+                            }
+                        })
+                    }else{
+                        all_finish($finish,$id);
+                    }
+
+                })
+
+                function finish($id)
+                {
+                    $.ajax({
+                            url : "/finish_goods/"+$id,
+                            type: 'get',
+                            success: function(res){
+                                location.href = '/list';
+                            },
+                            error : function(xhr,status,error){
+                                Swal.fire({
+                                    icon : 'error',
+                                    title: 'truck duration မှာ 24 hr ကျော်သွားပါသဖြင့် save မရပါ။'
+                                })
+                            }
+                        })
+                }
+
+            }
+            if(!$finish && $role !=2){
+                        $(document).on('click','.del_exceed',function(e){
+                            $('#back').hide();
+                            $id = $(this).data('id');
+                            $.ajax({
+                                url: "{{ route('del_exceed') }}",
+                                type: 'POST',
+                                data: {_token : token , id : $id},
+                                success: function(res){
+                                    console.log('success');
+                                    $('.scan_parent').load(location.href + ' .scan_parent');
+                                    $('.excess_div').load(location.href + ' .excess_div');
+                                }
+                            })
+                        })
+                    }
+
+            $(document).on('click','.remark_ic',function(e)
+            {
+                $pd_code = $(this).data('pd');
+                $id      = $(this).data('id');
+                $eq     = $(this).data('eq');
+                $('#remark_item').text(' "'+$pd_code+' "');
+
+                $.ajax({
+                    url : "/ajax/show_remark/"+$id,
+                    beforeSend:function(){
+                        $('#remark_card_body').html('');
+                    },
+                    success:function(res){
+                        $list = '';
+                        if(res == '')
+                        {
+                            $list = `
+                            <textarea cols="50" class="ps-1" id="ipt_remark" rows="5" data-id="${ $id }" data-eq="${ $eq }"></textarea>
+                            <small class="ml-2" id="op_count">0/500</small>
+                            `;
+                        }else{
+                            $list = `
+                            <div class="" style="width: 500px;hyphens:auto;word-break:normal">
+                            <span>${res}</span>
+                        </div>
+                            `;
+                        }
+
+                        $('#remark_card_body').append($list);
+                    }
+                })
+                $('#remark_model').show();
+            })
+
+            $max = 500;
+            $(document).on('input', '#ipt_remark', function(e) {
+                e.preventDefault();
+
+                $len = $(this).val().length;
+
+                if ($len <= $max) {
+                    if (e.ctrlKey && e.shiftKey && e.keyCode === 8) {
+                        $('#op_count').html('0/500');
+                    } else {
+                        $list = `${$len}/500`;
+                        $('#op_count').html($list);
+                    }
+                    $('#op_count').css('color','black');
+                } else {
+                    if (e.keyCode !== 8 && !(e.ctrlKey && e.shiftKey && e.keyCode === 8)) {
+                        $(this).val($(this).val().substring(0,$max));
+                        $('#op_count').html($list);
+                        $('#op_count').css('color','red');
+                    } else {
+                        var $list = `${$len}/500`;
+                        $('#op_count').css('color','black');
+                    }
+                }
             });
 
-            $(document).ready(function(e){
-                var token = $("meta[name='__token']").attr('content');
-                $finish = $('#finished').val();
-                $status = $('#view_').val();
-                $role = $('#user_role').val();
-                $all_begin = $('#started_time').val();
-                $count = parseInt($('#count').val()) || 0;
-                $cur_id = $('#cur_truck').val() ?? '';
-                $dc_staff = "{{ getAuth()->branch_id}}";
-                $dc_staff = $dc_staff.includes([17,19,20]) ? true: false;
+                $(document).on('paste','#ipt_remark',function(e){
+                    $copyData = e.originalEvent.clipboardData || window.clipboardData;
+                    $pastedData = $copyData.getData('text/plain');
+                    $ava_len    = $max - $('#ipt_remark').val().length;
 
-                function reload_page(){
-                    $('.main_table').load(location.href + ' .main_table');
-                    $('.scan_parent').load(location.href + ' .scan_parent', function() {
-                        $('.excess_div').load(location.href + ' .excess_div', function() {
-                            $('.scanned_pd_div').eq(0).find('td').addClass('latest');
-                        });
-                    });
-                }
-                // $('.real_scan').eq(0).attr('type','text');
-
-                $(document).on('click','#driver_info',function(e){
-                    $('#car_info').toggle();
+                    if($ava_len < $pastedData.length)
+                    {
+                        $ins_txt    = $pastedData.substring(0,$ava_len);
+                        $val        = $('#ipt_remark').val() + $ins_txt;
+                        Swal.fire({
+                            icon : 'question',
+                            title: 'Copiedထားသော စာလုံး အရေအတွက် များနေပါတယ်',
+                            // text: `Your Copied Text Length is ${$pastedData.length} and avaliable Length is ${$ava_len} your can only paste '${$ins_txt}'`,
+                            text : `သင် copy ယူထားသော စာလုံးအရေအတွက်မှာ လိုအပ်သော စာလုံး အရေအတွက် ထက်မျာနေပါသဖြင့် "${$ins_txt}" အနေနဲ့ ဖြတ်တောက်မည်ကိုလက်ခံပါသလား? `,
+                            showCancelButton:true,
+                            cancelButtonText: 'No',
+                            confirmButtonText: 'Yes',
+                        }).then((result)=>{
+                            if(result.isConfirmed){
+                                $('#ipt_remark').val($val);
+                                $('#op_count').html('500/500');
+                                $('#op_count').css('color','red');
+                            }
+                        })
+                    }
+                    // console.log($pastedData.length);
                 })
 
-                $(document).on('click','#show_image',function(e){
-                    $doc_id = '{{ $main->id }}';
-                    $.ajax({
-                        url : "{{ route('show_image') }}",
-                        type: 'POST',
-                        data: {_token:token,id:$doc_id},
-                        success:function(res){
-                            $list = '';
-                            for($i = 0 ; $i < res.truck.length ; $i++)
+                $(document).on('blur','#ipt_remark',function(e){
+                    $val = $(this).val();
+                    $id  = $(this).data('id');
+                    $eq  = $(this).data('eq');
+                    $type= 'pd';
+                    if($val.length > 0)
+                    {
+                        Swal.fire({
+                            icon : 'question',
+                            title: 'Save မှာသေချာပါသလား?',
+                            showCancelButton:true,
+                            cancelButtonText: 'No',
+                            confirmButtonText:'Yes',
+                        }).then((v)=>{
+                            if(v.isConfirmed)
                             {
+                                $.ajax({
+                                    url : "{{ route('store_remark') }}",
+                                    type: "POST",
+                                    data: {_token : token , data : $val , id : $id , type : $type},
+                                    success: function(res){
+                                        $('#remark_card_body').html('');
+                                        $('#remark_card_body').append(`
+                                        <div class="" style="width: 500px;hyphens:auto;word-break:normal">
+                                            <span>${$val}</span>
+                                        </div>
+                                        `);
+                                        $('.remark_ic').eq($eq).removeClass('bg-emerald-400 hover:bg-emerald-600');
+                                        $('.remark_ic').eq($eq).addClass('bg-sky-400 hover:bg-sky-600');
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+
+                if($status == 'edit')
+                {
+                    $(document).on('click','.car_no',function(){
+                        $index = $('.car_no').index(this);
+                        $id     = $(this).data('id');
+
+                        $.ajax({
+                            url : '/get_img/'+$id,
+                            success: function(res)
+                            {
+                                $length     = res.image.length;
+                                // console.log($length);
+                                $color1      = $length>0 ? 'bg-emerald-200' : 'hover:bg-slate-100'
+                                $color2      = $length>1 ? 'bg-emerald-200' : 'hover:bg-slate-100'
+                                $color3      = $length>2 ? 'bg-emerald-200' : 'hover:bg-slate-100'
+                                $list   = `
+                                <div class="edit_con">
+                                <form action="{{ route('update_image') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                    <div class="text-center">
+                                        <input type="text" name="truck_no" class="ps-2 py-2 w-[80%] rounded border" value="${res.driver.truck_no}">
+                                        <input type='hidden' name="driver_id" value="${res.driver.id}">
+                                        <input type='hidden' name='reg_id' value="${res.driver.received_goods_id}">
+                                    </div>
+                                    <div class=" my-5">
+
+                                        <div class="grid grid-cols-3 gap-10 col-span-2 mx-10">
+                                            <div class="flex flex-col relative">
+                                            <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer ${$color1} rounded-lg shadow-xl img_btn flex" onclick="$('#img1').click()" title="image 1"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">1</span></div>
+                                `;
+                                if($length > 0)
+                                {
+                                    $list +=`
+                                    <button type="button" class="bg-rose-500 hover:bg-rose-800 text-white w-6 rounded del_img" data-id="${res.image[0].id}" style="position:absolute;margin-left:73px;z-index:100000 !important">-</button>
+                                    <div class="flex justify-center">
+                                        <small class="cursor-pointer hover:underline view_image" data-id="${res.image[0].id}">view</small>
+                                        <input type="hidden" name="image1" value="ok">
+                                    </div>
+                                    `;
+                                    // <small class="cursor-pointer">preview</small>
+                                }
+
+                                $list += `
+                                        </div>
+                                        <div class="flex flex-col relative">
+                                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer ${$color2} rounded-lg shadow-xl img_btn flex" onclick="$('#img2').click()" title="image 2"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">2</span></div>
+                                `;
+
+                                if($length > 1)
+                                {
+                                    $list +=`
+                                    <button type="button" class="bg-rose-500 hover:bg-rose-800 text-white w-6 rounded del_img" data-id="${res.image[1].id}" style="position:absolute;margin-left:73px;z-index:100000 !important">-</button>
+                                    <div class="flex justify-center">
+                                        <small class="cursor-pointer hover:underline view_image" data-id="${res.image[1].id}">view</small>
+                                        <input type="hidden" name="image2" value="ok">
+                                    </div>
+                                    `;
+                                }
+
+                                $list += `
+                                        </div>
+                                        <div class="flex flex-col relative">
+                                            <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer ${$color3} rounded-lg shadow-xl img_btn flex" onclick="$('#img3').click()" title="image 3"><small class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">3</span></div>
+
+                                `;
+
+                                if($length > 2)
+                                {
+                                    $list += `
+                                    <button type="button" class="bg-rose-500 hover:bg-rose-800 text-white w-6 rounded del_img" data-id="${res.image[2].id}" style="position:absolute;margin-left:73px;z-index:100000 !important">-</button>
+                                    <div class="flex justify-center">
+                                        <small class="cursor-pointer hover:underline view_image" data-id="${res.image[2].id}">view</small>
+                                        <input type="hidden" name="image3" value="ok">
+                                    </div>
+                                    `;
+                                }
+                                $list += `
+                                        </div>
+                                            <input type="file" class="car_img" accept="image/*" name="image_1" hidden id="img1">
+                                            <input type="file" class="car_img" accept="image/*" name="image_2" hidden id="img2">
+                                            <input type="file" class="car_img" accept="image/*" name="image_3" hidden id="img3">
+                                        <div class="col-span-3">
+                                            <button type="submit" class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                                `;
+
+                                $(".change_img_body").html('');
+                                $(".change_img_body").append($list);
+                                $('#change_img').show();
+                                $('#car_choose').hide();
+                            }
+                        })
+
+                    })
+
+                    $(document).on('click','.view_image',function(e){
+                        $id     = $(this).data('id');
+
+                        $.ajax({
+                            url : "{{route('show_one')}}",
+                            type: "POST",
+                            data: {_token:token,id:$id},
+                            success: function(res){
+                                $list = '';
                                 $list += `
                                 <div class="">
-                                    <span class="underline mb-4 text-xl font-serif tracking-wider">${res.truck[$i].truck_no}</span>
+                                    <img src="{{ asset('storage/${res}') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
+                                </div>
                                 `;
-                                for($j = 0; $j < res.image.length ; $j++)
-                                {
-                                    if(res.truck[$i].id == res.image[$j].driver_info_id)
-                                    {
-                                        $list += `
-                                            <img src="{{ asset('storage/${res.image[$j].file}') }}" class="mb-5 shadow-xl" alt="" style="width:700px">
-                                        `;
-                                    }
-                                }
-                                $list += '</div>';
+                                $('#image_container').html('');
+                                $('#image_container').append($list);
+                                // $('#change_img').hide();
+                                $('#image_model').show();
                             }
-                            $('#image_container').html('');
-                            $('#image_container').append($list);
-                            $('#image_model').show();
-                        }
+                        })
                     })
 
-                })
+                    $(document).on('click','.del_img',function(){
+                        $id     = $(this).data('id');
 
-                if(!$finish)
-                {
-                    $(document).on('click','.del_doc',function(e){
-                    $val = $(this).data('doc');
-                    $id = $('#receive_id').val();
-                    $this = $(this);
-                    Swal.fire({
-                        icon : 'info',
-                        title: 'Are You Sure?',
-                        showCancelButton:true,
-                        confirmButtonText:'Yes',
-                        cancelButtonText: "No",
-                    }).then((result)=>{
-                        if(result.isConfirmed)
-                        {
-                            $.ajax({
-                                url : "{{ route('del_doc') }}",
-                                type: 'POST',
-                                data: {_token:token , data:$val , id : $id},
-                                success: function(res){
-                                    $this.parent().parent().parent().remove();
-                                    if(res.count == 1)
-                                    {
-                                        $('#vendor').parent().remove();
-                                    }
-                                },
-                                error: function(xhr,status,error)
-                                {
-                                    $msg = xhr.responseJSON.message;
-                                    if($msg == 'You Cannot Remove')
-                                    {
-                                        Swal.fire({
-                                            icon : 'info',
-                                            title: 'Scan á€á€á€ºá€á€¬á€¸á€á€¬á€á€¾á€­á€á€²á€· á€¡á€á€½á€€á€ºá€€á€¼á€±á€¬á€á€ºá€· Remove á€á€¯á€á€ºá€á€½á€á€ºá€·á€á€á€±á€¸á€á€«',
-                                        })
-                                    }
-                                }
-                            })
-                        }
+                        $.ajax({
+                            url : '/del_one_img/'+$id,
+                            success: function(res){
+                                window.location.reload();
+                            }
+                        })
                     })
-
-
-                })
                 }
-
-                if($status != 'view')
-                {
-
-                $(document).on('click','#add_driver',function(e){
-                    $('#add_car').toggle();
-                })
-
-                $(document).on('click','#start_count_btn',function(e){
-                    $id = '{{ $main->id }}';
-                    $.ajax({
-                        url : '/start_count/'+$id,
-                        success: function(res){
-                            window.location.reload();
-                        }
-                    })
-                })
-
-                $(document).on('change','.car_img',function(e){
-                        $index = $('.car_img').index($(this));
-                        $('#pree_'+$index).remove();
-                        $('.img_btn').eq($index).addClass('bg-emerald-200').after(`
-                            <span class="hover:underline cursor-pointer mt-3 -translate-x-4 img_preview" id="pree_${$index}" data-index="${$index}" style="margin-left:35%">preivew</span>
-                        `);
-                    })
-
-                $(document).on('click','.img_preview',function(e){
-                    $index = $(this).data('index');
-                    $file  =  $('.car_img').eq($index).get(0);
-                    if ($file && $file.files && $file.files[0]) {
-                        var file = $file.files[0];
-                        var imageUrl = URL.createObjectURL(file);
-                        $('#pr_im').attr('src', imageUrl);
-                    }
-                    $('#prew_img').show();
-                    return;
-                    $("#pr_im").src(URL.createObjectURL($('.car_img').eq($index).target.files[0]))
-
-                })
-
-                if(!$finish)
-                {
-                    $(document).on('click','.change_scan',function(e){
-                        $id = $(this).data('index');
-                        $('#index').val($id);
-                        $('#employee_code').val('');
-                        $('#pass').val('');
-                        $('.error_msg').text('');
-                        $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
-                        $('#pass_con').show();
-                    })
-
-
-
-                    // $(document).on('click','.sticker',function(e){
-                    //     $('.bar_stick').remove();
-                    //     $qty    = $(this).text();
-                    //     $index  = $(this).data('index');
-                    //     $pd_code= $(this).data('pd').toString();
-                    //     $(this).parent().append(`
-                    //     `);
-                    //     $('.sticker').eq($index).trigger('show_stick');
-
-
-
-                    // })
-
-                    $(document).on('click','.sticker',function(e){
-                        $('#print_eq').val('');
-                        $('#print_count').val('');
-                       $('#print_no').show();
-                       $('#print_eq').val($(this).data('index'));
-                    })
-
-                    $(document).on("input",'#print_count',function(e){
-                        $val = $(this).val();
-                        $eq = $('#print_eq').val();
-                        $qty = $('.sticker').eq($eq).text();
-                        if($val > 500)
-                        {
-                            $(this).val(500);
-                        }else if($val > parseInt($qty))
-                        {
-                            $(this).val($qty);
-                        }
-                    })
-
-                   $(document).on('click','#final_print',function(e){
-
-                        $index = $('#print_eq').val();
-
-                        $pd_code= $('.bar_code').eq($index).text();
-                        $qty    = $('#print_count').val();
-                        $unit   = $('.pd_unit').eq($index).val();
-                        $name   = $('.pd_name').eq($index).val();
-                        $id     = $('.pd_id').eq($index).val();
-                        $type   = $('#bar_type').val();
-                        $reason = $('#reason').val();
-                        if($qty > 0 && $qty != ''){
-                            $td  = new Date();
-                            $date = [ String($td.getDate()).padStart(2, '0'),String($td.getMonth() + 1).padStart(2, '0'),$td.getFullYear()].join('/');
-                            $period = $td.getHours() > 12 ? 'PM' : 'AM';
-                            $time = [(String($td.getHours()).padStart(2, '0')%12 || 12), String($td.getMinutes()).padStart(2, '0'), String($td.getSeconds()).padStart(2, '0')].join(':');
-                            $full_date = $date+' '+$time+' '+$period;
-
-                            $.ajax({
-                                url : "{{ route('print_track') }}",
-                                type: 'POST',
-                                data: {_token:token,id:$id,qty:$qty,type:$type,reason:$reason},
-                                success: function(res){
-                                }
-                            })
-
-                            const new_pr = window.open("","","width=900,height=600");
-                             $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
-                             $mar_top = $name.length > 50 ? 3 : ($name.length > 35 ? 10 : 30);
-                            if($type == 1)
-                            {
-                                $bar = $('.bar_stick1').eq($index).html();
-                                new_pr.document.write(
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:12px;padding-right:25px;gap:20px}"
-                            );
-
-                            new_pr.document.write(
-                               "</style></head><body><div id='per_div'>"
-                            )
-                            $color = 100;
-                            $margin = $pd_code.length > 11 ? 10 : 40;
-                            for($i = 0 ; $i < $qty ; $i++)
-                            {
-
-                                new_pr.document.write(`
-                                    <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
-
-                                            <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
-
-                                        <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
-                                        <div style="padding:5px 0;display:flex;flex-direction:column">
-                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
-                                             >
-                                             <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
-                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
-                                        </div>
-                                    </div>
-                                `);
-                                $color = $color+10;
-                            }
-                                new_pr.document.write("</div></body></html>");
-                            }else if($type == 2)
-                            {
-                                $bar = $('.bar_stick2').eq($index).html();
-                                $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
-                                $mar_top = $name.length > 50 ? 0 : 10;
-                                new_pr.document.write(
-
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:35px;gap:10px}"
-                                );
-
-                                new_pr.document.write(
-                                   "</style></head><body style='margin:0;padding:0'><div id='per_div'>"
-                                )
-                                for($i = 0 ; $i < $qty ; $i++)
-                                {
-                      new_pr.document.write(`
-                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
-                                             <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
-                                           <div style="position:absolute;right:70px;top:70px">
-                                                <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
-                                            </div>
-                                            <div style="margin-left:10px;margin-top:2px;padding:0">${$bar}</div>
-                                            <div style="padding:5px 0;display:flex;flex-direction:column">
-                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.7rem;font-weight:900;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
-                                                <small class="" style="margin: 0 0 0 20px;font-size:0.7rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$full_date}</small>
-                                            </div>
-                                        </div>
-                                `);
-                                }
-                                new_pr.document.write("</div></body></html>");
-                            }else if($type == 3)
-                            {
-                                $bar = $('.bar_stick3').eq($index).html();
-
-                                new_pr.document.write(
-                                    "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:30px;gap:10px}"
-                                );
-
-                                new_pr.document.write(
-                                "</style></head><body style='margin:0;padding:5px 0'><div id='per_div'>"
-                                )
-
-                                for($i = 0 ; $i < $qty ; $i++)
-                                {
-                                    new_pr.document.write(`
-                                    <div class="" style="padding: 20px 10px 5px 5px;position:relative;">
-
-                                    <small class="" style="font-size:0.8rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
-                                    <div style="position:absolute;right:50px;top:120px">
-                                        <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
-                                    </div>
-                                    <div style="padding-left:5px;margin-top:15">${$bar}</div>
-                                    <div style="padding:5px 0;display:flex;flex-direction:column">
-                                        <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
-                                        <div style="display:flex">
-                                            <div style="width:100px;height:30px;border:solid 3px black"></div>
-                                            <div style="width:20px;height:20px;border:solid 3px black;margin:10px 0 0 4px"></div>
-                                            <div style="margin:15px 0 0 4px;font-weight:800">.............</div>
-                                        </div>
-                                        <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
-                                    </div>
-                                    </div>
-                                    `);
-                                }
-                                new_pr.document.write("</div></body></html>");
-                            }
-
-                            new_pr.document.close();
-                            new_pr.focus();
-                            new_pr.onload = function () {
-                            new_pr.print();
-                            new_pr.close();
-                            };
-                            $('#print_no').hide();
-
-                        }
-
-                    })
-
-                    $(document).on('click','#auth_con',function(e){
-                        $index  = $('#index').val();
-
-                        $data = $('#auth_con_form').serialize();
-
-                        $notempty = false;
-                        if($('#employee_code').val() == '')
-                        {
-                            $notempty = true;
-                            $('.error_msg').eq(1).text('Please Fill Employee Code');
-                        }
-                        if($('#pass').val() == '')
-                        {
-                            $notempty = true;
-                            $('.error_msg').eq(2).text('Please Fill Password');
-                        }
-                        if(!$notempty)
-                        {
-                            $.ajax({
-                                url : "{{route('pass_vali')}}",
-                                type: 'POST',
-                                data:{_token:token,data:$data},
-                                beforeSend:function(res){
-                                    $('.error_msg').eq(0).parent().removeClass('bg-rose-200 pb-1');
-                                    $('.error_msg').text('');
-                                },
-                                success:function(res){
-
-                                    $('#pass_con').hide();
-
-
-                                    $('.main_scan').eq($index).attr('hidden',true);
-                                    $('.real_scan').eq($index).attr('type','number');
-                                    $('.real_scan').eq($index).attr('data-auth',res.id);
-                                },
-                                error:function(){
-                                    console.log('error')
-                                    $('.error_msg').eq(0).text('Credential Does Not Match!!');
-                                    $('.error_msg').eq(0).parent().addClass('bg-rose-200 pb-1');
-                                    $('#employee_code').val('');
-                                    $('#pass').val('');
-                                }
-                            })
-                        }
-                    })
-
-                    $(document).on('blur','.real_scan',function(e){
-                        $val    = $(this).val();
-                        $old    = $(this).data('old');
-                        $pd_id  = $(this).data('id');
-                        $auth   = $(this).data('auth');
-                        console.log($val,$old,$pd_id,$auth);
-                        if($old >= $val)
-                        {
-                            $(this).val($old);
-                            $('.main_scan').eq($index).attr('hidden',false);
-                            $('.real_scan').eq($index).attr('type','hidden');
-                        }else{
-                            $add_val = $val - $old ;
-                            Swal.fire({
-                                icon : 'question',
-                                text : `${$add_val}á€á€¯ á€á€±á€«á€á€ºá€¸á€á€á€ºá€·á€á€¾á€¬ á€á€±á€á€»á€¬á€á€«á€á€á€¬á€¸`,
-                            showCancelButton:true,
-                                confirmButtonText: 'Yes',
-                                cancelButtonText : 'No',
-                            }).then((result)=>{
-                                if(result.isConfirmed)
-                                {
-                                    $.ajax({
-                                        url : "{{ route('add_product') }}",
-                                        type: 'POST',
-                                        data: {_token:token,data:$add_val,car_id:$cur_id,product:$pd_id,auth:$auth},
-                                        success:function(res)
-                                        {
-                                            $('#back').hide();
-                                            reload_page(
+            })
+        </script>
+    @endpush
+@endsection
