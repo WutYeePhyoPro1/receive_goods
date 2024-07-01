@@ -303,10 +303,6 @@
                                                 <div class="main_scan">
                                                     {{ $tem->scanned_qty }}
                                                     @if (isset($cur_driver->start_date))
-<<<<<<< HEAD
-=======
-
->>>>>>> cf6d44fbfba731ff543508e05e433d7552be5fbb
                                                         <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                     @endif
                                                 </div>
