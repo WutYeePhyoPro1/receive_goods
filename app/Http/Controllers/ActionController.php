@@ -156,15 +156,7 @@ class ActionController extends Controller
                             ->where('bar_code',$item)
                             ->first();
         if($product){
-            // $scann_count = 1;
 
-            // if ($product->scann_count !== null) {
-            //     $scann_count = $product->scann_count + 1;
-            // }
-
-            // $product->update([
-            //     'scann_count' => $scann_count
-            // ]);
             $all_product =Product::whereIn('document_id',$doc_ids)
                                 ->where('bar_code',$item)
                                 ->orderBy('id','asc')
@@ -172,7 +164,7 @@ class ActionController extends Controller
             $doc_no = $product->doc->document_no;
             $conn = DB::connection('master_product');
             try {
-            if(in_array(getAuth()->branch_id,[17,19,20,9]))
+            if(in_array(getAuth()->branch_id,[17,19,20]))
             {
                 $data = $conn->select("
                     select * from
@@ -212,10 +204,8 @@ class ActionController extends Controller
             {
 
                 $scanned = $product->scanned_qty + $qty;
-                $scann_count = $product->scann_count + $qty;
                 $product->update([
-                    'scanned_qty' => $scanned,
-                    'scann_count' => $scann_count,
+                    'scanned_qty' => $scanned
                 ]);
                 // product code တခုထက်ပို
             }elseif(count($all_product) > 1)
@@ -342,24 +332,7 @@ class ActionController extends Controller
                 Session::put('first_time_search_'.$request->id,$pd_code);
             }
 
-            // $scann_count = 1;
-            // if ($product->scann_count !== null) {
-            //     $scann_count = $product->scann_count + 1;
-            // }
-
-            // $product->update([
-            //     'scann_count' => $scann_count
-            // ]);
-
-            // return response()->json([
-            //     'doc_no' => $doc_no,
-            //     'bar_code' => $barcode,
-            //     'data' => $product,
-            //     'scanned_qty' => $qty,
-            //     'pd_code' => $pd_code,
-            //     'scann_count' => $scann_count
-            // ], 200);
-
+            return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty,'pd_code'=>$pd_code],200);
             } catch (\Exception $e) {
                 logger($e);
                 return response()->json(['message'=>'Server Time Out Please Try Again'],500);
@@ -429,7 +402,7 @@ class ActionController extends Controller
             $sec    = (int)(($diff % 3600) % 60);
             $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
             $this_scanned = get_scanned_qty($driver->id);
-            // dd(get_all_duration($request->id));
+
 
             if(cur_truck_sec($driver->id) < 86401)
             {
@@ -494,6 +467,7 @@ class ActionController extends Controller
 
         if(cur_truck_sec($driver->id) < 86401)
         {
+
             $receive->update([
                 'total_duration'        => get_all_duration($id),
                 'remaining_qty'         => $data['remaining'],
@@ -508,6 +482,7 @@ class ActionController extends Controller
 
             return response()->json(200);
         }
+
         return response()->json(500);
         }
     }
@@ -563,6 +538,7 @@ class ActionController extends Controller
 
     public  function add_product(Request $request)
     {
+        // dd($request->all());
         Common::Log(route('add_product'),"manually add product qty");
 
         $product = Product::find($request->product);

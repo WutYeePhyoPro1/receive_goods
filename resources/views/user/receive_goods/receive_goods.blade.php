@@ -303,6 +303,10 @@
                                                 <div class="main_scan">
                                                     {{ $tem->scanned_qty }}
                                                     @if (isset($cur_driver->start_date))
+<<<<<<< HEAD
+=======
+
+>>>>>>> cf6d44fbfba731ff543508e05e433d7552be5fbb
                                                         <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                     @endif
                                                 </div>
@@ -413,7 +417,7 @@
                                                         <span id="scan-bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
                                                         <button id="scan-btn-copy-bar-{{ $tem->bar_code }}" class="scan-copy-button-barcode" >
                                                             <i class="fas fa-copy"></i>
-                                                        </button>   
+                                                        </button>
                                                 </td>
 
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
@@ -1222,31 +1226,29 @@
                                 $('.excess_scan_body').empty();
 
                                 if (!isEmptyDocuments) {
-                                    for (var i = 0; i < documents.length; i++) {
-                                        var document = documents[i];
-                                        var barCodes = document.bar_code;
-                                        var supplierNames = document.supplier_name;
-                                        var qtys = document.qty;
-                                        var scannedQtys = document.scanned_qty;
-                                        var checkColor = document.check_color;
-                                        var scanZero = document.scan_zero;
-                                        var searchpdId = document.search_pd_id;
-                                        var Unit = document.unit;
-                                        var documentno = document.document_no;
-                                        var barcodeHtmls = document.barcode_htmls; // New line to get barcode HTMLs
-                                        var isDcStaff = need_document_inform.isDcStaff;
-                                        var curDriver = need_document_inform.curDriver;
-                                        var authId = need_document_inform.authId;
-                                       
-                                        var curDriverStartDate = need_document_inform.cur_driver_start_date;
+                                    documents.forEach((document, i) => {
+                                        let barCodes = document.bar_code;
+                                        let supplierNames = document.supplier_name;
+                                        let qtys = document.qty;
+                                        let scannedQtys = document.scanned_qty;
+                                        let checkColor = document.check_color;
+                                        let scanZero = document.scan_zero;
+                                        let searchpdId = document.search_pd_id;
+                                        let Unit = document.unit;
+                                        let documentno = document.document_no;
+                                        let isDcStaff = need_document_inform.isDcStaff;
+                                        let curDriver = need_document_inform.curDriver;
+                                        let authId = need_document_inform.authId;
+                                        let curDriverStartDate = need_document_inform.cur_driver_start_date;
 
-                                        for (var j = 0; j < barCodes.length; j++) {
-                                            var buttonHtml = '';
+                                        for (let j = 0; j < barCodes.length; j++) {
+                                            let buttonHtml = '';
                                             if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
                                                 buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
                                             }
-                                            var additionalIconHtml = '';
-                                            if (curDriverStartDate == null) {
+                                            let additionalIconHtml = '';
+                                            if( curDriverStartDate == null){
+
                                             } else if (curDriverStartDate.length != 0) {
                                                 additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
                                             }
@@ -1292,7 +1294,7 @@
                                                     <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
-                                
+
                                             </tr>`;
                                             $('.search_main_body').append(rowHtml);
                                         }
@@ -1658,7 +1660,7 @@
 
                                 new_pr.document.write(`
                                     <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
-                                        <div style="padding-left: 20px; padding-right: 20px;">            
+                                        <div style="padding-left: 20px; padding-right: 20px;">
                                             <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
                                         </div>
                                         <div style="margin-top:${ $margin }px; margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
@@ -1780,7 +1782,7 @@
                                 success:function(res){
 
                                     $('#pass_con').hide();
-                    
+
 
                                     $('.main_scan').eq($index).attr('hidden',true);
                                     $('.real_scan').eq($index).attr('type','number');
@@ -1982,8 +1984,8 @@
                                 type: 'POST',
                                 data: {_token:token , data:$val,id:$recieve_id,car : $cur_id},
                                 success:function(res){
-                                  
-                                   
+
+
                                     //$('.scanned_pd_div').eq(0).find('td').addClass('latest');
                                     // if(res.msg == 'decision')
 
@@ -2097,7 +2099,7 @@
 
                             })
                         }
-                        
+
                     })
 
                     $(document).on('click','.decision_doc',function(e)
