@@ -142,10 +142,12 @@ class userController extends Controller
         $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
                         ->leftJoin('goods_receives', 'driver_infos.received_goods_id', 'goods_receives.id')
                         ->where('driver_infos.user_id', getAuth()->id)
+                        ->whereNull('goods_receives.deleted_at')
                         ->whereNull('driver_infos.duration')
                         ->first();
-                        
+
         $emp = GoodsReceive::where('user_id',getAuth()->id)
+                            ->whereNull('deleted_at')
                             ->whereNull('total_duration')
                             ->first();
         $type = Truck::get();
@@ -624,7 +626,7 @@ class userController extends Controller
             } else {
                 return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
             }
-        
+
             $documents = $query->orderBy('id')->get();
             if ($documents->isEmpty()) {
                 return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
@@ -644,7 +646,7 @@ class userController extends Controller
                     $search_pd_id = [];
                     $unit = [];
                     $barcode_htmls = [];
-        
+
                     foreach ($search_pd as $pd_data) {
                         if($input_barcode_no) {
                             if ($pd_data->bar_code == $input_barcode_no) {
@@ -653,7 +655,7 @@ class userController extends Controller
                                 $qtys[] = $pd_data->qty;
                                 $scanned_qtys[] = $pd_data->scanned_qty;
                                 $color[] = check_color($pd_data->id);
-                                $search_pd_id[] = $pd_data->id; 
+                                $search_pd_id[] = $pd_data->id;
                                 $unit[] = $pd_data->unit;
 
                                 $barcode_htmls[] = [
@@ -679,7 +681,7 @@ class userController extends Controller
                         }
 
                     }
-        
+
                     $merged_data = [
                         'id' => $doc->id,
                         'document_no' => $doc->document_no,
@@ -696,7 +698,7 @@ class userController extends Controller
                         'unit' => $unit,
                         'barcode_htmls' => $barcode_htmls,
                     ];
-                    
+
                     $response[] = $merged_data;
                 }
                 if($search_scaned_pd->isNotEmpty()) {
@@ -794,7 +796,7 @@ class userController extends Controller
             return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
         }
         return response()->json(['documents' => $response, 'scan_documents' => $scan_response, 'excess_documents' => $excess_response, 'need_document_inform' => $merged_need_document_inform]);
-        
+
     }
 
 }
