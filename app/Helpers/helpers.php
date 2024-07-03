@@ -234,6 +234,7 @@ use Illuminate\Support\Facades\DB;
     {
         $data = DriverInfo::where('user_id',getAuth()->id)
                             ->whereNull('duration')
+                            ->whereNull('deleted_at')
                             ->first();
         $empty = false;
         if($data){
