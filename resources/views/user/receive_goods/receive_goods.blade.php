@@ -1780,7 +1780,9 @@
                                 {
                       new_pr.document.write(`
                                         <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
-                                             <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                            <div style="padding-left: 20px; padding-right: 30px;">  
+                                                <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                            </div>
                                            <div style="position:absolute;right:70px;top:70px">
                                                 <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
                                             </div>
@@ -1810,7 +1812,9 @@
                                     new_pr.document.write(`
                                     <div class="" style="padding: 20px 10px 5px 5px;position:relative;">
 
-                                    <small class="" style="font-size:0.8rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                    <div style="padding-left: 20px; padding-right: 50px;">  
+                                        <small class="" style="font-size:0.8rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                    </div>  
                                     <div style="position:absolute;right:50px;top:120px">
                                         <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
                                     </div>
