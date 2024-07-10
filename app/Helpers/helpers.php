@@ -429,3 +429,10 @@ use Illuminate\Support\Facades\DB;
         $br = UserBranch::with('branch')->where('user_id',getAuth()->id)->get();
         return $br;
     }
+
+    function get_client_ip()
+    {
+        return request()->ip();
+    }
+
+
