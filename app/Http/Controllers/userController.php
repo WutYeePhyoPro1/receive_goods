@@ -128,8 +128,9 @@ class userController extends Controller
 
     public function car_info()
     {
+        //$ip_address = get_client_ip();
+        //$ip_address = request()->ip();
         $id = getAuth()->id;
-
         $data = get_branch_truck();
         $truck_id   = $data[0];
         $loc        = $data[1];
@@ -163,6 +164,7 @@ class userController extends Controller
             $log->user_id   = getAuth()->id;
             $log->history   = route('receive_goods',['id' => $data->received_goods_id ?? $emp->id]);
             $log->action    = 'Go To Receive Goods Page';
+            $log->ip_address = request()->ip();
             $log->save();
 
             view()->share(['truck'=>$type,'gate'=>$gate]);
@@ -173,6 +175,7 @@ class userController extends Controller
             $log->user_id   = getAuth()->id;
             $log->history   = route('car_info');
             $log->action    = 'Go To Add Car Info Page';
+            $log->ip_address = request()->ip();
             $log->save();
 
             $source = Source::when($loc == 'other',function($q){
@@ -253,6 +256,7 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
+
         Common::Log(route('store_car_info'),"Store Car Infomation");
         $status = 'scan';
         $driver = DriverInfo::where('received_goods_id',$request->main_id)->get();
@@ -362,6 +366,7 @@ class userController extends Controller
 
     public function store_doc_info(Request $request)
     {
+
         Common::Log(route('store_doc_info'),"Store Infomation and Generate REG");
         if(dc_staff())
         {
