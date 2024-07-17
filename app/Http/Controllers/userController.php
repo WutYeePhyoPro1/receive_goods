@@ -256,7 +256,6 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
-
         Common::Log(route('store_car_info'),"Store Car Infomation");
         $status = 'scan';
         $driver = DriverInfo::where('received_goods_id',$request->main_id)->get();

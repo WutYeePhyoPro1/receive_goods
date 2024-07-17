@@ -1,17 +1,17 @@
 <?php
 
+use Carbon\Carbon;
 use App\Models\Branch;
 use App\Models\CarGate;
-use Carbon\Carbon;
 use App\Models\Product;
 use App\Models\Document;
 use App\Models\Tracking;
 use App\Models\ScanTrack;
 use App\Models\DriverInfo;
-use App\Models\RemoveTrack;
-use App\Models\GoodsReceive;
-use App\Models\UploadImage;
 use App\Models\UserBranch;
+use App\Models\RemoveTrack;
+use App\Models\UploadImage;
+use App\Models\GoodsReceive;
 use Illuminate\Support\Facades\DB;
 
     function getAuth()
@@ -38,6 +38,7 @@ use Illuminate\Support\Facades\DB;
             return Product::where('document_id',$id)
                             ->where(DB::raw('scanned_qty'), '<', DB::raw('qty'))
                             ->orderBy('id','asc')
+                            ->WhereNull('not_scan_remark') 
                             ->get();
         }
         return [];
@@ -78,21 +79,52 @@ use Illuminate\Support\Facades\DB;
 
     function search_excess_pd($id)
     {
-        $doc = Document::where('id',$id)->first();
-        $main = GoodsReceive::where('id',$doc->received_goods_id)->first();
-        if($main->status == 'complete')
-        {
-            return Product::where('document_id',$id)
-                            ->where(function($q){
+        // $doc = Document::where('id', $id)->first();
+        // $main = GoodsReceive::where('id', $doc->received_goods_id)->first();
+    
+        // if ($main->status == 'complete') {
+        //     return Product::where('document_id', $id)
+        //                   ->where(function($q) {
+        //                       $q->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
+        //                         ->orWhere(DB::raw('scanned_qty'), '<', DB::raw('qty'));
+        //                   })
+        //                   ->get();
+        // } else {
+            // return Product::where('document_id', $id)
+            //               ->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
+            //               ->orWhereNotNull('not_scan_remark')
+            //               ->get();
+        // }      
+        $doc = Document::where('id', $id)->first();
+        $main = GoodsReceive::where('id', $doc->received_goods_id)->first();
+
+        if ($main->status == 'complete') {
+            return Product::where('document_id', $id)
+                            ->where(function($q) {
                                 $q->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
-                                ->orwhere(DB::raw('scanned_qty') , '<', DB::raw('qty'));
+                                  ->orWhere(DB::raw('scanned_qty'), '<', DB::raw('qty'));
                             })
                             ->get();
-        }else{
-            return Product::where('document_id',$id)
-                            ->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
+        } else {
+            return  Product::where('document_id', $id)
+                            ->where(function($q) {
+                                $q->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
+                                  ->orWhereNotNull('not_scan_remark');
+                            })
                             ->get();
         }
+        
+        
+        // // Detailed logging
+        // Log::debug('search_excess_pd', [
+        //     'id' => $id,
+        //     'status' => $main->status,
+        //     'result_count' => $result->count(),
+        //     'result' => $result
+        // ]);
+
+        // return $result;
+
     }
 
     function check_color($id)
@@ -432,5 +464,7 @@ use Illuminate\Support\Facades\DB;
     {
         return request()->ip();
     }
+
+
 
 

@@ -41,6 +41,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('join_receive/{id}/{car}','join_receive')->name('join_receive');
             route::get('view_goods/{id}','view_goods')->name('view_goods');
 
+
+
             route::post('car_info','store_car_info')->name('store_car_info');
             route::post('doc_info','store_doc_info')->name('store_doc_info');
 
@@ -110,6 +112,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('print_track','print_track')->name('print_track');
 
             route::get('change_branch/{id}','change_branch');
+            Route::post('/barcode_not_scan','barcode_not_scan')->name('barcode_not_scan');
         });
 
         route::group(['controller'=>AdminController::class],function(){
