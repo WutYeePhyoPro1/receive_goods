@@ -284,6 +284,13 @@
                                             @endif
 
                                             <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">
+                                                    @if (!$color)
+                                                        <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_barcode" data-barcode="{{ $tem->bar_code }}" data-id = "{{ $tem->id }}">
+                                                            <i class="bx bx-minus"></i>
+                                                        </button> 
+                                                    @endif
+                                                    
+        
                                                     <span id="bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
                                                     <button id="btn-copy-bar-{{ $tem->bar_code }}" class="copy-button-barcode" >
                                                         <i class="fas fa-copy"></i>
@@ -454,7 +461,8 @@
                         </thead>
 
                             <?php $i=0 ?>
-                            @foreach ($document as $item)
+                            
+                            {{-- @foreach ($document as $item)
                                 @if (count(search_excess_pd($item->id))>0)
                                 <?php
                                     $i++;
@@ -498,7 +506,57 @@
                                     </tbody>
 
                                 @endif
-                            @endforeach
+                            @endforeach --}}
+
+                            @foreach ($document as $item)
+                            @php
+                                $searchResult = search_excess_pd($item->id);
+                            @endphp
+                        
+                            @if (count($searchResult) > 0)
+                                <?php $i++; ?>
+                                <tbody class="excess_body">
+                                @foreach ($searchResult as $index => $tem)
+                                    <tr class="h-10">
+                                        <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
+                                            @can('adjust-excess')
+                                                @if ($main->status == 'complete' && ($tem->qty < $tem->scanned_qty))
+                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}">
+                                                        <i class='bx bx-minus'></i>
+                                                    </button>
+                                                @endif
+                                            @endcan
+                                        </td>
+                                        @if ($index == 0)
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
+                                            <td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0">
+                                                <span id="excess-doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
+                                                <button id="excess-btn-copy-doc-{{ $item->document_no }}" class="excess-copy-button">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </td>
+                                        @else
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
+                                        @endif
+                                        <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
+                                            <span id="excess-bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
+                                            <button id="excess-btn-copy-bar-{{ $tem->bar_code }}" class="excess-copy-button-barcode">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </td>
+                                        <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
+                                            <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic' data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}" data-eq="{{ $index }}"></i>
+                                        </td>
+                                        <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            @endif
+                        @endforeach
+                        
+
+
                             <tbody class="excess_scan_body"></tbody>
                     </table>
                 </div>
@@ -1552,6 +1610,54 @@
                         }
                     })
 
+                })  
+
+                $(document).on('click','.del_barcode',function(e){
+                    let barcode = $(this).data('barcode');
+                    let product_id = $(this).data('id');
+                    
+                    Swal.fire({
+                        icon: 'warning',
+                        text: 'Are Yous Sure do not scan this product code no',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes',
+                        cancelButtoText: 'No',
+                        input: 'text',
+                        inputPlaceholder: 'Enter Your Remark Here',
+                        inputValidator: (value) => {
+                            if (!value) {
+                                return 'You need to write remark!'
+                            }
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            //Swal.fire(`Your name is: ${result.value}`);
+                            $.ajax({
+                                url: '/barcode_not_scan',
+                                method: 'POST',
+                                data: {
+                                    barcode: barcode,
+                                    document_id: product_id, 
+                                    remark: result.value,
+                                    _token:token
+                                    // _token: $('meta[name="csrf-token"]').attr('content')
+                                },
+                                success: function(response) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        // text: `Barcode: ${response.barcode}\nRemark: ${response.remark}\nRemark: ${response.document_id}`,
+                                    }).then(() => {
+                                    location.reload();
+                                });
+                                },
+                                error: function(xhr) {
+                                    Swal.fire('Error', xhr.responseText, 'error');
+                                }
+                            });
+                            
+                        }
+                    })
+                    
                 })
 
                 if(!$finish)
@@ -2396,6 +2502,7 @@
 
             $(document).on('click','.remark_ic',function(e)
             {
+                console.log("hello");
                 $pd_code = $(this).data('pd');
                 $id      = $(this).data('id');
                 $eq     = $(this).data('eq');

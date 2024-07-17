@@ -705,4 +705,33 @@ class ActionController extends Controller
 
         return back();
     }
+
+    public function barcode_not_scan(Request $request)
+    {
+        $barcode = $request->input('barcode');
+        $remark = $request->input('remark');
+        $product_id = $request->input('document_id');
+        $product = Product::where('id',$product_id)->first();
+        
+        if ($product) {
+            $product->not_scan_remark = $remark;
+            $product->save();
+            return response()->json([
+                'message' => 'Product remark updated successfully.',
+                'product' => $product
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Product not found.',
+            ], 404);
+        }
+
+        // return response()->json([
+        //     'message' => 'Barcode marked as not scanned successfully.',
+        //     'barcode' => $barcode,
+        //     'remark' => $remark,
+        //     'document_id' => $document_id
+        // ]);
+
+    }
 }
