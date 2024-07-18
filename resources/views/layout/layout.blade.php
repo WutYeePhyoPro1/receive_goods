@@ -167,11 +167,38 @@
 
                 $(document).on('input','#truck_no',function(e){
                     $val    = $(this).val();
-                    if($val.length == 2 && e.originalEvent.data != null)
-                    {
-                        $val    = $val + '-';
-                        $(this).val($val);
+                    let truckType = $('#truck_type').val();
+                    const alertSpan = document.getElementById('truck_alert');
+
+                    if (!truckType) {
+                            if ($val.length >= 2 && e.originalEvent.data != null) {
+                                alertSpan.classList.remove('hidden');
+                                if ($val.length == 2) {
+                                    $val = $val + '-';
+                                    $(this).val($val);
+                                }
+                            } else {
+                                alertSpan.classList.add('hidden');
+                            }
+                    } else { 
+                        alertSpan.classList.add('hidden');
+                        if (truckType != 4) {
+                            if ($val.length == 2 && e.originalEvent.data != null) { 
+                                $val = $val + '-';
+                                $(this).val($val);
+                            }
+                        }
+                        
                     }
+
+                    // if($val.length == 2 && e.originalEvent.data != null)
+                    // {
+                    //     alertSpan.classList.remove('hidden');
+                    //     $val    = $val + '-';
+                    //     $(this).val($val);
+                    // } else {
+                    //     alertSpan.classList.add('hidden');
+                    // }
 
                     if($val != '')
                     {
@@ -199,16 +226,25 @@
                     }
                 })
 
+                $('#truck_type').on('change', function() {
+                    $('#truck_no').val(''); 
+                    //$('.car_auto').html(''); 
+                });
+
                 $(document).on('keypress','#truck_no',function(e){
                     $val    = $(this).val();
-                    if($val.length > 6)
-                    {
+                    // if($val.length > 6)
+                    // {
+                    //     e.preventDefault();
+                    // }
+                    var truckType = $('#truck_type').find('option:selected').data('name');
+                    if (truckType !== "Motorcycle" && $val.length > 6) {
                         e.preventDefault();
                     }
                 })
 
-                $(document).on('click',document,function (e) {
 
+                $(document).on('click',document,function (e) {
                     $link = e.target.matches('.truck_div');
                     if($link )
                     {
@@ -247,7 +283,7 @@
                 $(document).on('click',function(e){
                     if(!e.target.matches('.ch_br'))
                     {
-                            $('#change_br').hide();
+                        $('#change_br').hide();
                     }
                 })
             })

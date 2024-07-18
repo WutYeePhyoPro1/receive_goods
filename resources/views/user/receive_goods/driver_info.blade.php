@@ -31,33 +31,16 @@
                     <div class="grid grid-cols-2 gap-5 my-5">
 
 
-                        {{-- <div class="flex flex-col px-10 relative truck_div">
+                        <div class="flex flex-col px-10 relative truck_div">
                             <label for="truck_no" >Truck No<span class="text-rose-600" id="tru_imp">*</span> :</label>
                             <input type="text" name="truck_no" id="truck_no" class="mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none truck_div" value="{{ old('truck_no') }}" placeholder="xx-xxxx" autocomplete="off">
                                 <ul class="2xl:w-[89.5%] w-[85%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto truck_div" style="top: 100%">
                                 </ul>
+                            <span id="truck_alert" class="text-rose-500 hidden">Please first choose type of truck</span>
                             @error('truck_no')
                                 <small class="text-rose-500 ms-1">{{ $message }}</small>
                             @enderror
-                        </div> --}}
-
-                        <div class="flex flex-col px-10">
-                            <label for="truck_type">Type of Truck<span class="text-rose-600">{{ dc_staff() ? '*' : '' }}</span> :</label>
-                            <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
-                            <?php
-                                $name = ['Other','Bicycle'];
-                            ?>
-                                <option value="">Choose Type of Truck</option>
-                                @foreach ($truck as $item)
-                                    <option value="{{ $item->id }}" data-re="{{ in_array($item->truck_name,$name) ? 'no_car' : 'car'; }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option>
-                                @endforeach
-                            </Select>
-                            @error('truck_type')
-                            <small class="text-rose-500 ms-1">{{ $message }}</small>
-                        @enderror
                         </div>
-
-                        
 
                         <div class="flex flex-col px-10">
                             <label for="driver_name">Driver Name<span class="text-rose-600">*</span> :</label>
@@ -66,8 +49,6 @@
                                 <small class="text-rose-500 ms-1">{{ $message }}</small>
                             @enderror
                         </div>
-
-
                     </div>
 
                     @if(dc_staff())
@@ -90,7 +71,7 @@
                     </div>
                     @endif
                     <div class="grid grid-cols-2 gap-5 my-5">
-                        {{-- <div class="flex flex-col px-10">
+                        <div class="flex flex-col px-10">
                             <label for="truck_type">Type of Truck<span class="text-rose-600">{{ dc_staff() ? '*' : '' }}</span> :</label>
                             <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
                             <?php
@@ -98,22 +79,12 @@
                             ?>
                                 <option value="">Choose Type of Truck</option>
                                 @foreach ($truck as $item)
-                                    <option value="{{ $item->id }}" data-re="{{ in_array($item->truck_name,$name) ? 'no_car' : 'car'; }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option>
+                                    <option value="{{ $item->id }}" data-name="{{ $item->truck_name }}"  data-re="{{ in_array($item->truck_name,$name) ? 'no_car' : 'car'; }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option>
                                 @endforeach
                             </Select>
                             @error('truck_type')
                             <small class="text-rose-500 ms-1">{{ $message }}</small>
                         @enderror
-                        </div> --}}
-
-                        <div class="flex flex-col px-10 relative truck_div">
-                            <label for="truck_no" >Truck No<span class="text-rose-600" id="tru_imp">*</span> :</label>
-                            <input type="text" name="truck_no" id="truck_no" class="mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none truck_div" value="{{ old('truck_no') }}" placeholder="xx-xxxx" autocomplete="off">
-                                <ul class="2xl:w-[89.5%] w-[85%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto truck_div" style="top: 100%">
-                                </ul>
-                            @error('truck_no')
-                                <small class="text-rose-500 ms-1">{{ $message }}</small>
-                            @enderror
                         </div>
 
                         @if (dc_staff() || gate_exist(getAuth()->branch_id))
@@ -283,6 +254,7 @@
 
         <script>
             $(document).ready(function(e){
+                $('.motocyle_div').hide();
                 $(document).on('change','#old_driver',function(e){
                     $val = $(this).val();
                     // $('#truck_type option').each((i,v)=>{
@@ -319,7 +291,6 @@
 
                 $(document).on('click','.save_btn',function(e){
                     var action = $(this).val();
-
                     $('#driver_form').append('<input type="hidden" name="action" value="'+action+'">')
                     $('#driver_form').submit();
                 })
@@ -347,6 +318,24 @@
                 })
 
                 $(document).on('change','#truck_type',function(e){
+
+                    var selectedOption = $(this).find('option:selected');
+                    var truckName = selectedOption.data('name');
+                    if (truckName === "Motorcycle") {
+                        // $('.truck_div').hide();
+                        // $('.motocyle_div').show();
+                        $('#truck_no').attr('placeholder', '');
+                    } else {
+                        $('#truck_no').attr('placeholder', 'xx-xxxx');
+
+                        // $(document).on('keypress','#truck_no',function(e){
+                        //     $val    = $(this).val();
+                        //     if($val.length > 6)
+                        //     {
+                        //         e.preventDefault();
+                        //     }
+                        // })
+                    }
                     $vali   = $(this).find('option:selected').data('re');
                     if($vali == 'car' && $('#tru_imp').hasClass('hidden'))
                     {
