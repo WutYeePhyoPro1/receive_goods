@@ -12,7 +12,12 @@
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('css')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" /> --}}
+    <link href="https://cdn.jsdelivr.net/npm/selectize@0.12.6/dist/css/selectize.bootstrap3.min.css
+    " rel="stylesheet">
+    <link href="
+    https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/fontawesome.min.css
+    " rel="stylesheet">
 
 </head>
 <body>
@@ -141,8 +146,15 @@
         </div>
 </body>
         {{-- <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script> --}}
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js" integrity="sha512-k2wo/BkbloaRU7gc/RkCekHr4IOVe10kYxJ/Q8dRPl7u3YshAQmg3WfZtIcseEk+nGBdK03fHBeLgXTxRmWCLQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js" integrity="sha512-k2wo/BkbloaRU7gc/RkCekHr4IOVe10kYxJ/Q8dRPl7u3YshAQmg3WfZtIcseEk+nGBdK03fHBeLgXTxRmWCLQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
+        <script src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/js/all.min.js
+        "></script>
+        {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
+        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js
+        "></script>
+        <script src="https://cdn.jsdelivr.net/npm/selectize@0.12.6/dist/js/standalone/selectize.min.js"></script>
+
+
         
         <script>
             $(document).ready(function(e){
@@ -167,11 +179,37 @@
 
                 $(document).on('input','#truck_no',function(e){
                     $val    = $(this).val();
-                    if($val.length == 2 && e.originalEvent.data != null)
-                    {
-                        $val    = $val + '-';
-                        $(this).val($val);
+                    let truckType = $('#truck_type').val();
+                    const alertSpan = document.getElementById('truck_alert');
+
+                    if (!truckType) {
+                            if ($val.length >= 2 && e.originalEvent.data != null) {
+                                alertSpan.classList.remove('hidden');
+                                if ($val.length == 2) {
+                                    $val = $val + '-';
+                                    $(this).val($val);
+                                }
+                            } else {
+                                alertSpan.classList.add('hidden');
+                            }
+                    } else { 
+                        alertSpan.classList.add('hidden');
+                        if (truckType != 4) {
+                            if ($val.length == 2 && e.originalEvent.data != null) { 
+                                $val = $val + '-';
+                                $(this).val($val);
+                            }
+                        }
                     }
+
+                    // if($val.length == 2 && e.originalEvent.data != null)
+                    // {
+                    //     alertSpan.classList.remove('hidden');
+                    //     $val    = $val + '-';
+                    //     $(this).val($val);
+                    // } else {
+                    //     alertSpan.classList.add('hidden');
+                    // }
 
                     if($val != '')
                     {
@@ -199,16 +237,22 @@
                     }
                 })
 
+                $('#truck_type').on('change', function() {
+                    $('#truck_no').val(''); 
+                });
+
                 $(document).on('keypress','#truck_no',function(e){
                     $val    = $(this).val();
-                    if($val.length > 6)
-                    {
+                    var truckType = $('#truck_type').find('option:selected').data('name');
+                    if (truckType !== "Motorcycle" && $val.length > 6) {
+                        e.preventDefault();
+                    } else if (truckType == "Motorcycle" && $val.length > 10) {
                         e.preventDefault();
                     }
                 })
 
-                $(document).on('click',document,function (e) {
 
+                $(document).on('click',document,function (e) {
                     $link = e.target.matches('.truck_div');
                     if($link )
                     {
@@ -247,7 +291,7 @@
                 $(document).on('click',function(e){
                     if(!e.target.matches('.ch_br'))
                     {
-                            $('#change_br').hide();
+                        $('#change_br').hide();
                     }
                 })
             })
