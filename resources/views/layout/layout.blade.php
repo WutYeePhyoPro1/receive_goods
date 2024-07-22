@@ -188,7 +188,6 @@
                                 $(this).val($val);
                             }
                         }
-                        
                     }
 
                     // if($val.length == 2 && e.originalEvent.data != null)
@@ -228,17 +227,14 @@
 
                 $('#truck_type').on('change', function() {
                     $('#truck_no').val(''); 
-                    //$('.car_auto').html(''); 
                 });
 
                 $(document).on('keypress','#truck_no',function(e){
                     $val    = $(this).val();
-                    // if($val.length > 6)
-                    // {
-                    //     e.preventDefault();
-                    // }
                     var truckType = $('#truck_type').find('option:selected').data('name');
                     if (truckType !== "Motorcycle" && $val.length > 6) {
+                        e.preventDefault();
+                    } else if (truckType == "Motorcycle" && $val.length > 10) {
                         e.preventDefault();
                     }
                 })
