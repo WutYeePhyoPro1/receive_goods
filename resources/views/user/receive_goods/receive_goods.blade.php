@@ -725,6 +725,7 @@
                                     <input type="text" name="truck_no" id="truck_no" class=" truck_div mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck..." autocomplete="off">
                                         <ul class="truck_div w-[77%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto" style="top: 100%">
                                         </ul>
+                                    <span id="truck_alert" class="text-rose-500 hidden">Please first choose type of truck</span>
                                     @error('truck_no')
                                         <small class="text-rose-500 ms-1">{{ $message }}</small>
                                     @enderror

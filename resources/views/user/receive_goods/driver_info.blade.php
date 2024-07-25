@@ -37,6 +37,7 @@
                                 <ul class="2xl:w-[89.5%] w-[85%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto truck_div" style="top: 100%">
                                 </ul>
                             <span id="truck_alert" class="text-rose-500 hidden">Please first choose type of truck</span>
+                            
                             @error('truck_no')
                                 <small class="text-rose-500 ms-1">{{ $message }}</small>
                             @enderror

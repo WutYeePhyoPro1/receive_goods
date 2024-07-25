@@ -65,7 +65,7 @@ class ActionController extends Controller
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
                 where statusflag <> 'C'
-                and statusflag in ('P','Y')
+                --and statusflag in ('P','Y')
                 $brch_con
                 and purchaseno= '$val'
             ");
@@ -467,6 +467,12 @@ class ActionController extends Controller
                             ->where('user_id',getAuth()->id)
                             ->whereNull('duration')
                             ->first();
+        $driver_new = DriverInfo::where('received_goods_id',$id)
+                        ->where('user_id',getAuth()->id)
+                        ->whereNull('duration')
+                        ->get();
+        // dd($driver_new);
+        // return;
 
         $finish_driver = DriverInfo::where('received_goods_id',$id)
                                     ->whereNotNull('duration')->get();
