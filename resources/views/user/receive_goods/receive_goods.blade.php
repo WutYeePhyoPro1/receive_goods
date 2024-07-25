@@ -29,7 +29,7 @@
 
     }
 
-    .copy-button, .scan-copy-button, .excess-copy-button .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode, i {
+    .copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode, i {
         font-size: 10px;
         color: black;
     }
@@ -2295,20 +2295,20 @@
 
             function not_finish($id) {
                 $.ajax({
-                        url : "{{ route('confirm') }}",
-                        type: 'POST',
-                        data:{_token : token , id :$id},
-                        success:function(res){
-                            location.href = '/list';
-                        },
-                        error:function(xhr,status,error){
-                            Swal.fire({
-                                    icon : 'error',
-                                    title: 'truck duration မှာ 24 hr ကျော်သွားပါသဖြင့် save မရပါ။'
-                                })
-                        }
-                    })
-             }
+                    url : "{{ route('confirm') }}",
+                    type: 'POST',
+                    data:{_token : token , id :$id},
+                    success:function(res){
+                        location.href = '/list';
+                    },
+                    error:function(xhr,status,error){
+                        Swal.fire({
+                                icon : 'error',
+                                title: 'truck duration မှာ 24 hr ကျော်သွားပါသဖြင့် save မရပါ။'
+                            })
+                    }
+                })
+            }
 
             $(document).on('click','#confirm_btn',function(e){
                     $id = $('#receive_id').val();
