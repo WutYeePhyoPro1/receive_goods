@@ -43,7 +43,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
 
-            //route::post('car_info','store_car_info')->name('store_car_info');
+            route::post('car_info','store_car_info')->name('store_car_info');
             route::post('doc_info','store_doc_info')->name('store_doc_info');
 
             //ajax
