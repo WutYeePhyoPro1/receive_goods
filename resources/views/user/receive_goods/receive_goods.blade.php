@@ -80,23 +80,45 @@
                 <span class="text-emerald-600 font-bold text-3xl ms-40 underline">Complete</span>
                 <!-- <a href="{{ route('complete_doc_print',['id'=>$main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a> -->
             @endif
-            @if ($status != 'view' && isset($cur_driver->start_date) && ($main->user_id == getAuth()->id || $cur_driver->user_id == getAuth()->id))
-            <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
-            <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
+
+            @if(!$cur_driver)
+            {{-- @if ($driver_last) --}}
+                <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
+                <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
+            @else
+                @if ($status != 'view' && isset($cur_driver->start_date) && ($main->user_id == getAuth()->id || $cur_driver->user_id == getAuth()->id))
+                    <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
+                    <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
+                @elseif(!isset($cur_driver->start_date) && !dc_staff() && $status == 'scan' && $main->status != 'complete')
+                    <button class="h-12 bg-rose-300 hover:bg-rose-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg" id="start_count_btn">Start Count</button>
+                @endif
+            @endif
+
+
+            {{-- @if ($status != 'view' && isset($cur_driver->start_date) && ($main->user_id == getAuth()->id || $cur_driver->user_id == getAuth()->id))
+                <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
+                <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
             @elseif(!isset($cur_driver->start_date) && !dc_staff() && $status == 'scan' && $main->status != 'complete')
                 <button class="h-12 bg-rose-300 hover:bg-rose-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg" id="start_count_btn">Start Count</button>
-            @endif
+            @endif --}}
         </div>
         <?php
                 $total_sec    = get_done_duration($main->id);
         ?>
 
         <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count">
-            @if ($main->status == 'complete')
-            {{ $main->total_duration }}
+
+            @if (!$cur_driver)
+                {{ $main->total_duration }}
             @else
-            {{ (isset($status) && $status == 'view') ? ($main->total_duration) : (isset($cur_driver) ? cur_truck_dur($cur_driver->id) : '00:00:00') }}
+                @if ($main->status == 'complete')
+                {{ $main->total_duration }}
+                @else
+                {{ (isset($status) && $status == 'view') ? ($main->total_duration) : (isset($cur_driver) ? cur_truck_dur($cur_driver->id) : '00:00:00') }}
+                @endif
             @endif
+
+
         </span>
 
     </div>
@@ -109,7 +131,10 @@
     @endif
 
     {{-- @if (isset($status) && $status != 'view') --}}
-        <input type="hidden" id="cur_truck" value="{{ $cur_driver->id ?? '' }}">
+        {{-- <input type="hidden" id="cur_truck" value="{{ $cur_driver->id ?? '' }}"> --}}
+        <input type="hidden" id="cur_truck" value="{{ $cur_driver->id ?? ($driver_last->id ?? '') }}">
+
+
     {{-- @endif --}}
 
     <div class="flex flex-wrap -mx-2">
@@ -161,7 +186,14 @@
                 </span>
             </div>
             @if($main->status != 'complete')
-            <input type="hidden" id="started_time" value="{{ isset($cur_driver->start_date) ? ($cur_driver->start_date.' '.$cur_driver->start_time) : ''}}">
+
+            @if (!$cur_driver)
+            {{-- @if ($driver_last) --}}
+                <input type="hidden" id="started_time" value="{{ isset($driver_last->start_date) ? ($driver_last->start_date.' '.$driver_last->start_time) : '' }}">
+            @else
+                <input type="hidden" id="started_time" value="{{ isset($cur_driver->start_date) ? ($cur_driver->start_date.' '.$cur_driver->start_time) : ''}}">
+            @endif
+
             {{-- <input type="hidden" id="duration" value="{{ $total_sec ?? 0 }}"> --}}
             <input type="hidden" id="receive_id" value="{{ $main->id }}">
             @endif
@@ -258,7 +290,7 @@
                                         <tr class="h-10">
                                             @if ($key == 0)
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                    @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || dc_staff())
+                                                    @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || (!dc_staff() && $driver_last && getAuth()->id == $driver_last->user_id) || dc_staff())
                                                         <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
                                                     @endif
                                                 </td>
@@ -309,8 +341,13 @@
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
                                                 <div class="main_scan">
                                                     {{ $tem->scanned_qty }}
-                                                    @if (isset($cur_driver->start_date))
+ 
+                                                    @if (!$cur_driver)
                                                         <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
+                                                    @else 
+                                                        @if (isset($cur_driver->start_date))
+                                                            <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
+                                                        @endif
                                                     @endif
                                                 </div>
                                                 <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
@@ -720,7 +757,7 @@
                         @csrf
                             <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
                             <div class="grid grid-cols-2 gap-5 my-5">
-                                <div class="flex flex-col px-10 relative ">
+                                {{-- <div class="flex flex-col px-10 relative ">
                                     <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
                                     <input type="text" name="truck_no" id="truck_no" class=" truck_div mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck..." autocomplete="off">
                                         <ul class="truck_div w-[77%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto" style="top: 100%">
@@ -729,6 +766,19 @@
                                     @error('truck_no')
                                         <small class="text-rose-500 ms-1">{{ $message }}</small>
                                     @enderror
+                                </div> --}}
+
+                                <div class="flex flex-col px-10">
+                                    <label for="truck_type">Type of Truck<span class="text-rose-600">*</span> :</label>
+                                    <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                                        <option value="">Choose Type of Truck</option>
+                                        @foreach ($truck as $item)
+                                            <option value="{{ $item->id }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option>
+                                        @endforeach
+                                    </Select>
+                                    @error('truck_type')
+                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                @enderror
                                 </div>
 
                                 <div class="flex flex-col px-10">
@@ -758,7 +808,19 @@
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-5 my-5">
-                                <div class="flex flex-col px-10">
+
+                                <div class="flex flex-col px-10 relative ">
+                                    <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
+                                    <input type="text" name="truck_no" id="truck_no" class=" truck_div mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck..." autocomplete="off">
+                                        <ul class="truck_div w-[77%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto" style="top: 100%">
+                                        </ul>
+                                    <span id="truck_alert" class="text-rose-500 hidden">Please first choose type of truck</span>
+                                    @error('truck_no')
+                                        <small class="text-rose-500 ms-1">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                {{-- <div class="flex flex-col px-10">
                                     <label for="truck_type">Type of Truck<span class="text-rose-600">*</span> :</label>
                                     <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
                                         <option value="">Choose Type of Truck</option>
@@ -769,7 +831,7 @@
                                     @error('truck_type')
                                     <small class="text-rose-500 ms-1">{{ $message }}</small>
                                 @enderror
-                                </div>
+                                </div> --}}
 
                                 <?php
                                     $dc = [17,19,20];
@@ -1906,7 +1968,6 @@
                                     $('.error_msg').text('');
                                 },
                                 success:function(res){
-
                                     $('#pass_con').hide();
                     
 
@@ -1928,11 +1989,13 @@
                     $(document).on('blur','.real_scan',function(e){
                         $val    = $(this).val();
                         $old    = $(this).data('old');
+                        
                         $pd_id  = $(this).data('id');
                         $auth   = $(this).data('auth');
                         console.log($val,$old,$pd_id,$auth);
                         if($old >= $val)
                         {
+                            console.log($old, $val);
                             $(this).val($old);
                             $('.main_scan').eq($index).attr('hidden',false);
                             $('.real_scan').eq($index).attr('type','hidden');
@@ -2434,7 +2497,6 @@
 
             $(document).on('click','.remark_ic',function(e)
             {
-                console.log("hello");
                 $pd_code = $(this).data('pd');
                 $id      = $(this).data('id');
                 $eq     = $(this).data('eq');

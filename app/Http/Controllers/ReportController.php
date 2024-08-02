@@ -89,7 +89,7 @@ class ReportController extends Controller
         }else{
             $product = Product::when(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'), function($q){
                 $q->whereDate('created_at',Carbon::today());
-})
+            })
             ->when((request('search') == 'main_no' || request('search') == 'document_no') && request('search_data'),function($q) use($product_id){
                 $q->whereIn('id',$product_id);
             })
@@ -107,9 +107,9 @@ class ReportController extends Controller
             ->orderBy('id','asc')
             ->paginate(15);
 
-$product_sum = Product::when(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'), function($q){
+            $product_sum = Product::when(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'), function($q){
                 $q->whereDate('created_at',Carbon::today());
-})
+            })
             ->when((request('search') == 'main_no' || request('search') == 'document_no') && request('search_data'),function($q) use($product_id){
                 $q->whereIn('id',$product_id);
             })
@@ -127,11 +127,12 @@ $product_sum = Product::when(!request('search')  && !request('search_data') && !
 
             $all_sum['qty_sum']        = $product_sum->Sum('qty');
             $all_sum['scanned_sum']       = $product_sum->Sum('scanned_qty');
+            // $all_sum['not_scan_qty'] = $all_sum['qty_sum'] - $all_sum['scanned_sum'];
         }
 
 
 
-        return view('user.report.report',compact('report','product','url','all_sum'));
+            return view('user.report.report',compact('report','product','url','all_sum'));
     }
 
     public function finished_documents()

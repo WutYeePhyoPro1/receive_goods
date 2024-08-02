@@ -59,6 +59,7 @@ class ActionController extends Controller
                 $brch_con = "and brchcode = '$user_brch'";
             }
 
+   
             $data = $conn->select("
                 select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
                 from  purchaseorder.po_purchaseorderhd aa
@@ -66,7 +67,7 @@ class ActionController extends Controller
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
                 where statusflag <> 'C'
                 --and statusflag in ('P','Y')
-                $brch_con
+                --$brch_con
                 and purchaseno= '$val'
             ");
         }else{
@@ -429,7 +430,6 @@ class ActionController extends Controller
             $sec    = (int)(($diff % 3600) % 60);
             $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
             $this_scanned = get_scanned_qty($driver->id);
-            // dd(get_all_duration($request->id));
 
             if(cur_truck_sec($driver->id) < 86401)
             {
@@ -467,15 +467,12 @@ class ActionController extends Controller
                             ->where('user_id',getAuth()->id)
                             ->whereNull('duration')
                             ->first();
-        $driver_new = DriverInfo::where('received_goods_id',$id)
-                        ->where('user_id',getAuth()->id)
-                        ->whereNull('duration')
-                        ->get();
-        // dd($driver_new);
-        // return;
-
-        $finish_driver = DriverInfo::where('received_goods_id',$id)
-                                    ->whereNotNull('duration')->get();
+        if (!$driver) {
+            $driver = DriverInfo::where('received_goods_id', $id)
+                                ->where('user_id', auth()->id())
+                                ->orderBy('id', 'desc')
+                                ->first();
+        }
 
         $start_time = strtotime($driver->start_date.' '.$driver->start_time);
         $now        = strtotime(Carbon::now()->format('Y-m-d H:i:s'));
@@ -498,23 +495,23 @@ class ActionController extends Controller
                 'status'                => 'complete'
             ]);
 
-        if(cur_truck_sec($driver->id) < 86401)
-        {
-            $receive->update([
-                'total_duration'        => get_all_duration($id),
-                'remaining_qty'         => $data['remaining'],
-                'exceed_qty'            => $data['exceed'],
-                'status'                => 'complete'
-            ]);
+            if(cur_truck_sec($driver->id) < 86401)
+            {
+                $receive->update([
+                    'total_duration'        => get_all_duration($id),
+                    'remaining_qty'         => $data['remaining'],
+                    'exceed_qty'            => $data['exceed'],
+                    'status'                => 'complete'
+                ]);
 
-            $driver->update([
-                'scanned_goods' => $this_scanned,
-                'duration'      => $time
-            ]);
+                $driver->update([
+                    'scanned_goods' => $this_scanned,
+                    'duration'      => $time
+                ]);
 
-            return response()->json(200);
-        }
-        return response()->json(500);
+                return response()->json(200);
+            }
+            return response()->json(500);
         }
     }
 
@@ -547,16 +544,20 @@ class ActionController extends Controller
         $user = User::where('employee_code', $emplyee)->first();
         $user_branch    = getAuth()->branch_id;
         $same_br        = false;
+        //return response()->json($user,200);
+        // dd($user, $user_branch);
         if(isset($user))
         {
+     
             $branch_exst = UserBranch::where(['user_id'=>$user->id,'branch_id'=>$user_branch])->first();
+            // dd($branch_exst);
             if($branch_exst || $user_branch==$user->branch_id)
             {
                 $same_br = true;
             }
             if($same_br && Hash::check($password, $user->password) && ($user->role == 4 || $user->role==3))
             if($same_br && Hash::check($password, $user->password) && ($user->role == 3 || $user->role ==4))
-
+            
             {
                 return response()->json($user,200);
             }else{
@@ -573,6 +574,7 @@ class ActionController extends Controller
 
         $product = Product::find($request->product);
         $track   = Tracking::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id])->first();
+
         $scan_track = ScanTrack::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id,'unit'=>'S'])->first();
         $product->update([
             'scanned_qty'   => $product->scanned_qty + $request->data,
@@ -683,6 +685,7 @@ class ActionController extends Controller
 
     public function start_count($id)
     {
+        //dd('my name is ahrkarkyaw');
         $main = GoodsReceive::find($id);
         $driver = DriverInfo::where('received_goods_id',$id)
                             ->whereNull('start_time')->first();

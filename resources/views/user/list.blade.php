@@ -159,11 +159,30 @@
                             text  : 'Receive Goods မှာ မပြီးပြတ်သေးတဲ့ document ရှိနေပါသည်။ continue/complete အရင်နှိပ်ပါ'
                         })
                     }else{
-                        if($role == 2 || $role == 3){
-                            window.location.href = 'car_info/'+$id;
-                        }else{
-                            window.location.href = 'receive_goods/'+$id;
-                        }
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Warning',
+                            text: 'truck car အသစ် ရိုက်ထည်လိုပါသလား',
+                            showCancelButton:true,
+                            confirmButtonText: 'Yes',
+                            cancelButtonText: 'No',
+                        }).then((result)=>{
+                            if(result.isConfirmed)
+                            {
+                                if($role == 2 || $role == 3){
+                                    window.location.href = 'car_info/'+$id;
+                                }else{
+                                    window.location.href = 'receive_goods/'+$id;
+                                }
+                            } else {
+                                window.location.href = 'receive_goods/'+$id;
+                            }
+                        })
+                        // if($role == 2 || $role == 3){
+                        //     window.location.href = 'car_info/'+$id;
+                        // }else{
+                        //     window.location.href = 'receive_goods/'+$id;
+                        // }
                     }
                 })
 
