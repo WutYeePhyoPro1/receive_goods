@@ -464,16 +464,22 @@ class ActionController extends Controller
     {
 
         $receive = GoodsReceive::where('id',$id)->first();
-        $driver = DriverInfo::where('received_goods_id',$id)
-                            ->where('user_id',getAuth()->id)
-                            ->whereNull('duration')
-                            ->first();
-        if (!$driver) {
-            $driver = DriverInfo::where('received_goods_id', $id)
-                                ->where('user_id', auth()->id())
-                                ->orderBy('id', 'desc')
-                                ->first();
-        }
+        //$driver = DriverInfo::where('received_goods_id',$id)
+        //                     ->where('user_id',getAuth()->id)
+        //                     ->whereNull('duration')
+        //                     ->first();
+        // if (!$driver) {
+        //     $driver = DriverInfo::where('received_goods_id', $id)
+        //                         ->where('user_id', auth()->id())
+        //                         ->orderBy('id', 'desc')
+        //                         ->first();
+        // }
+
+        $driver = DriverInfo::where('received_goods_id', $id)
+                    ->where('user_id', auth()->id())
+                    ->orderByRaw('duration IS NOT NULL') // Prioritize NULL durations
+                    ->orderBy('id', 'desc')             // Then order by ID descending
+                    ->first();
 
         $start_time = strtotime($driver->start_date.' '.$driver->start_time);
         $now        = strtotime(Carbon::now()->format('Y-m-d H:i:s'));
