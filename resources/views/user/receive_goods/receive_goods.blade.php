@@ -349,6 +349,7 @@
                                                             <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                         @endif
                                                     @endif
+                                                    {{-- a --}}
                                                 </div>
                                                 <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
                                             </td>
