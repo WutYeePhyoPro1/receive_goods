@@ -833,7 +833,7 @@
                                     <small class="text-rose-500 ms-1">{{ $message }}</small>
                                 @enderror
                                 </div> --}}
-
+                                
                                 <?php
                                     $dc = [17,19,20];
                                 ?>
@@ -851,6 +851,7 @@
                                     @enderror
                                     </div>
                                 @endif
+                
 
                             </div>
                         <div class="grid grid-cols-2 gap-5 my-5">
