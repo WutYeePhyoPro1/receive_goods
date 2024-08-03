@@ -565,7 +565,7 @@ class ActionController extends Controller
         {
      
             $branch_exst = UserBranch::where(['user_id'=>$user->id,'branch_id'=>$user_branch])->first();
-            // dd($branch_exst);
+
             if($branch_exst || $user_branch==$user->branch_id)
             {
                 $same_br = true;

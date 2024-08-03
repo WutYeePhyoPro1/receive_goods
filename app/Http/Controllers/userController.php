@@ -294,6 +294,7 @@ class userController extends Controller
                 return back()->withErrors($validator)
                             ->withInput();
             }
+
         }else{
             $request->validate([
                 'driver_name'       => 'required',
@@ -302,6 +303,7 @@ class userController extends Controller
                 'gate'              => 'required'
             ]);
         }
+
         if(count($driver) > 0){
             $driver = new DriverInfo();
             $driver->ph_no              = $request->driver_phone ?? null;
