@@ -79,22 +79,6 @@ use Illuminate\Support\Facades\DB;
 
     function search_excess_pd($id)
     {
-        // $doc = Document::where('id', $id)->first();
-        // $main = GoodsReceive::where('id', $doc->received_goods_id)->first();
-    
-        // if ($main->status == 'complete') {
-        //     return Product::where('document_id', $id)
-        //                   ->where(function($q) {
-        //                       $q->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
-        //                         ->orWhere(DB::raw('scanned_qty'), '<', DB::raw('qty'));
-        //                   })
-        //                   ->get();
-        // } else {
-            // return Product::where('document_id', $id)
-            //               ->where(DB::raw('scanned_qty'), '>', DB::raw('qty'))
-            //               ->orWhereNotNull('not_scan_remark')
-            //               ->get();
-        // }      
         $doc = Document::where('id', $id)->first();
         $main = GoodsReceive::where('id', $doc->received_goods_id)->first();
 
@@ -215,7 +199,6 @@ use Illuminate\Support\Facades\DB;
             list($hour, $min, $sec) = explode(':', $item);
             $total_sec    += $hour*3600 + $min*60 + $sec;
         }
-
         return $total_sec;
     }
 
@@ -465,6 +448,29 @@ use Illuminate\Support\Facades\DB;
         return request()->ip();
     }
 
+
+    function barcode_equal(array $product_barcodes, string $barcode): bool
+    {
+        $count = array_count_values($product_barcodes);
+        return isset($count[$barcode]) && $count[$barcode] > 1;
+    }
+
+
+    function pause_cur_truck_dur($id)
+    {
+        $cur = DriverInfo::where('id', $id)->first();
+
+        list($start_hour, $start_min, $start_sec) = sscanf($cur->total_duration, '%d:%d:%d');
+        $cur_sec = $start_hour * 3600 + $start_min * 60 + $start_sec;
+
+        $hour = (int)($cur_sec / 3600);
+        $min = (int)(($cur_sec % 3600) / 60);
+        $sec = (int)(($cur_sec % 3600) % 60);
+        $formatted_duration = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+        return $formatted_duration;
+    }
+
+    
 
 
 
