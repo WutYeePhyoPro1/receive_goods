@@ -167,7 +167,6 @@ use Illuminate\Support\Facades\DB;
         $data = GoodsReceive::where('id',$id)->first();
         $finish_driver  = DriverInfo::where('received_goods_id',$id)->whereNotNull('duration')->pluck('duration');
         $pending_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
-        // dd($pending_driver);
         $diff = (int)0;
         if($pending_driver)
         {
