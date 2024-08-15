@@ -1246,8 +1246,8 @@
 
                 var currentStatus = $icon.data('status');
                 var newStatusText = currentStatus === 1 
-                    ? `Do you want to continue this <b>${$pause_scan_pd}</b> of this <b>${$pause_scan_barcode}</b> barcode scan?` 
-                    : `Do you want to pause this <b>${$pause_scan_pd}</b> of this <b>${$pause_scan_barcode}</b> barcode scan?`;
+                    ? `Do you want to continue <b>${$pause_scan_barcode}</b> barcode from this <b>${$pause_scan_pd}</b> ? `
+                    : `Do you want to pause <b>${$pause_scan_barcode}</b> barcode from this <b>${$pause_scan_pd}</b> ? `;
                 var successText = currentStatus === 1 
                     ? "The barcode scan has been continued." 
                     : "The barcode scan has been paused.";
@@ -1307,7 +1307,7 @@
 
             $(document).ready(function() {
 
-                localStorage.removeItem('startedTimePause');
+                
                 var startedTimePause = localStorage.getItem('startedTimePause') || $('#started_time_pause').val();
                 if (startedTimePause) {
                     var interval = 1000; 
@@ -1332,6 +1332,8 @@
                         $('#time_count_pause').text(updatedTime);
                         localStorage.setItem('startedTimePause', updatedTime);
                     }, interval);
+                } else {
+                    localStorage.removeItem('startedTimePause');
                 }
 
                 new TomSelect("#documentNoselect",{
@@ -1879,8 +1881,6 @@
                             })
                         }
                     })
-
-
                 })
                 }
 
