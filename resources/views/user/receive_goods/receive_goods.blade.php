@@ -1932,8 +1932,9 @@
                             }else if($type == 2)
                             {
                                 $bar = $('.bar_stick2').eq($index).html();
-                                $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
-                                $mar_top = $name.length > 50 ? 0 : 10;
+                                $name = $name.length > 80 ? $name.substring(0,78)+'..' : $name;
+                                $name = $name.length > 40 ? $name.substring(0,40)+"<br/>" +$name.substring(40) : $name;
+                                $mar_top = $name.length > 40 ? 0 : 10;
                                 new_pr.document.write(
 
                                     "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:35px;gap:10px}"
@@ -1944,11 +1945,10 @@
                                 )
                                 for($i = 0 ; $i < $qty ; $i++)
                                 {
-                      new_pr.document.write(`
-                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
-                                            <div style="padding-left: 20px; padding-right: 30px;">  
-                                                <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
-                                            </div>
+                                    new_pr.document.write(`
+
+                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;top:${topvalue}px;">
+                                             <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
                                            <div style="position:absolute;right:70px;top:70px">
                                                 <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
                                             </div>
