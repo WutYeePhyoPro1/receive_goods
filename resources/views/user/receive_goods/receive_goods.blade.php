@@ -2072,8 +2072,9 @@
                                 {
                                     new_pr.document.write(`
 
-                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;top:${topvalue}px;">
+                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
                                              <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+
                                            <div style="position:absolute;right:70px;top:70px">
                                                 <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
                                             </div>
