@@ -84,7 +84,6 @@
                 <!-- <a href="{{ route('complete_doc_print',['id'=>$main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a> -->
             @endif
 
-
             @if ($cur_driver)
                 @if ($status != 'view' && isset($cur_driver->start_date) && ($main->user_id == getAuth()->id || $cur_driver->user_id == getAuth()->id))
                     <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
@@ -98,9 +97,12 @@
                     <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
                 @endif
             @else 
-                <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
-                <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
+                {{-- <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
+                <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button> --}}
             @endif
+
+            {{-- {{ $driver_last }} --}}
+
 
         </div>
         <?php
@@ -120,9 +122,12 @@
                 <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
                     {{$main->total_duration }}
                 </span>
-            @elseif((isset($status) && $status == 'scan'))
+            @elseif((isset($status) && $status == 'scan') && ($main->user_id == getAuth()->id || $driver_last->user_id == getAuth()->id) )
                 <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count_pause">
                 {{ $driver_last->duration }}
+                </span>
+            @else
+                <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
                 </span>
             @endif
         @else 
@@ -1308,7 +1313,6 @@
 
             $(document).ready(function() {
 
-                
                 var startedTimePause = localStorage.getItem('startedTimePause') || $('#started_time_pause').val();
                 if (startedTimePause) {
                     var interval = 1000; 
@@ -1336,6 +1340,8 @@
                 } else {
                     localStorage.removeItem('startedTimePause');
                 }
+
+
 
                 new TomSelect("#documentNoselect",{
                     selectOnTab	: true
