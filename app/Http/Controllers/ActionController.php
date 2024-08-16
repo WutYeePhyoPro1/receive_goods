@@ -449,6 +449,10 @@ class ActionController extends Controller
             $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
             $this_scanned = get_scanned_qty($driver->id);
 
+            $driver->update([
+                'car_scanning' =>  0
+            ]);
+
             if(cur_truck_sec($driver->id) < 86401)
             {
                 $receive->update([
@@ -459,19 +463,21 @@ class ActionController extends Controller
                 ]);
                 $driver->update([
                     'scanned_goods' => $this_scanned,
-                    'duration'      => $pass,
-                    'car_scanning' =>  0
+                    'duration'      => $pass
                 ]);
             }else{
                 return response()->json(500);
             }
         } elseif ($driver_last)
         {
+
+            $driver_last->update([
+                'car_scanning' =>  0
+            ]);
             $data =  $this->repository->get_remain($request->id);
             $last_this_scanned = get_scanned_qty($driver_last->id);
             if(cur_truck_sec($driver_last->id) < 86401)
             {
-
                 $receive->update([
                     'total_duration'        => $request->timecount,
                     'remaining_qty'         => $data['remaining'],
@@ -481,8 +487,7 @@ class ActionController extends Controller
 
                 $driver_last->update([
                     'scanned_goods' => $last_this_scanned,
-                    'duration'      => $request->timecount,
-                    'car_scanning' =>  0
+                    'duration'      => $request->timecount
                 ]);
             }
         }else{
