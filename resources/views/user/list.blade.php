@@ -93,7 +93,6 @@
                             <td class="h-10 text-center border border-slate-400">{{ $item->branches->branch_name }}</td>
                             <td class="h-10 text-center border border-slate-400 {{ $item->status == 'complete' ? 'text-green-600' : 'text-amber-600' }}">{{ $item->status }}</td>
                             <td class="h-10 text-center border border-slate-400">
-                                {{ $item->id }}
                                 <input type="hidden" class="check_empty" value="{{ check_empty($item->id) }}">
                                 <span class="cursor-pointer hover:underline hover:font-semibold {{ $item->status == 'complete' ? 'text-emerald-600' : '' }}" onclick="$(this).parent().find('.view_goods').click();">{{ $item->document_no }}</span> &nbsp;
                                 <i class='bx bxs-show text-amber-400 cursor-pointer ms-3 text-lg view_goods hidden' title="view Document" onclick="javascript:window.location.href = '/view_goods/'+{{$item->id}}"></i>
