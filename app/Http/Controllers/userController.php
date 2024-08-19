@@ -146,16 +146,16 @@ class userController extends Controller
         $user_branch_code    = getAuth()->branch->branch_code;
 
 
-        $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
-                        ->leftJoin('goods_receives', 'driver_infos.received_goods_id', 'goods_receives.id')
-                        ->where('driver_infos.user_id', getAuth()->id)
-                        ->whereNull('goods_receives.deleted_at')
-                        ->whereNull('driver_infos.duration')
-                        ->first();
+        // $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
+        //                 ->leftJoin('goods_receives', 'driver_infos.received_goods_id', 'goods_receives.id')
+        //                 ->where('driver_infos.user_id', getAuth()->id)
+        //                 ->whereNull('goods_receives.deleted_at')
+        //                 ->whereNull('driver_infos.duration')
+        //                 ->first();
 
         $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
                         ->leftJoin('goods_receives', 'driver_infos.received_goods_id', 'goods_receives.id')
-                        ->where('driver_infos.user_id', getAuth()->id)
+                        ->where('driver_infos.scan_user_id', getAuth()->id)
                         ->whereNull('goods_receives.deleted_at')
                         ->where(function ($query) {
                             $query->whereNull('driver_infos.duration')
@@ -163,9 +163,7 @@ class userController extends Controller
                                 ->orWhere('driver_infos.car_scanning',1);
                         })
                         ->first();
-
-
-
+                        
         $emp = GoodsReceive::where('user_id',getAuth()->id)
                             ->whereNull('deleted_at')
                             ->whereNull('total_duration')
@@ -217,7 +215,6 @@ class userController extends Controller
 
     public function receive_goods($id)
     {
-        // dd('yes');
        
 
         $data = get_branch_truck();
@@ -231,17 +228,18 @@ class userController extends Controller
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where(['received_goods_id'=>$id,'user_id'=>getAuth()->id])->whereNull('duration')->first();
         $driver_last = DriverInfo::where('received_goods_id', $id)->orderBy('id', 'desc')->first();
-
-        if ($cur_driver) {
-            $cur_driver->update([
-                'car_scanning' => 1,
-            ]);
-        } elseif ($driver_last) {
-            $driver_last->update([
-                'car_scanning' => 1,
-            ]);
+        if (!request()->has('from_join')) {
+            if ($cur_driver) {
+                $cur_driver->update([
+                    'car_scanning' => 1,
+                ]);
+            } elseif ($driver_last) {
+                $driver_last->update([
+                    'car_scanning' => 1,
+                    'scan_user_id' => getAuth()->id
+                ]);
+            }
         }
-        
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
@@ -276,21 +274,13 @@ class userController extends Controller
         $truck = Truck::get();
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where('id',$car)->first();
+        $join_driver = DriverInfo::where('id',$car)->first();
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $reason        = PrintReason::get();
         $status = 'join';
-        return redirect()->route('receive_goods', ['id' => $id]);
-        // ->with([
-        //     'main' => $main,
-        //     'truck' => $truck,
-        //     'driver' => $driver,
-        //     'cur_driver' => $cur_driver,
-        //     'document' => $document,
-        //     'scan_document' => $scan_document,
-        //     'reason' => $reason,
-        //     'status' => $status,
-        // ]);
+        //return redirect()->route('receive_goods', ['id' => $id]);
+        return redirect()->route('receive_goods', ['id' => $id, 'from_join' => true]);
     }
 
 
@@ -301,7 +291,6 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
-
         Common::Log(route('store_car_info'),"Store Car Infomation");
         $status = 'scan';
         $driver = DriverInfo::where('received_goods_id',$request->main_id)->get();
@@ -350,6 +339,7 @@ class userController extends Controller
             $driver->start_date         = Carbon::now()->format('Y-m-d');
             $driver->start_time         = Carbon::now()->format('H:i:s');
             $driver->user_id            = getAuth()->id;
+            $driver->scan_user_id       = getAuth()->id;
             $driver->gate               = $request->gate ?? 0;
             $driver->save();
 
@@ -375,6 +365,7 @@ class userController extends Controller
                 $driver->start_date         = Carbon::now()->format('Y-m-d');
                 $driver->start_time         = Carbon::now()->format('H:i:s');
                 $driver->user_id            = getAuth()->id;
+                $driver->scan_user_id       = getAuth()->id;
                 $driver->gate               = 0;
 
                 $driver->save();
@@ -491,6 +482,7 @@ class userController extends Controller
                 $driver->driver_name        = $request->driver_name;
                 $driver->truck_no           = $request->truck_no;
                 $driver->user_id            = getAuth()->id;
+                $driver->scan_user_id       = getAuth()->id;
                 $driver->gate               = $request->gate;
                 $driver->start_date         = Carbon::now()->format('Y-m-d');
                 $driver->start_time         = Carbon::now()->format('H:i:s');
@@ -506,6 +498,7 @@ class userController extends Controller
                 $driver->driver_name        = $request->driver_name;
                 $driver->truck_no           = $request->truck_no;
                 $driver->user_id            = getAuth()->id;
+                $driver->scan_user_id       = getAuth()->id;
                 $driver->gate               = $request->gate;
                 $driver->save();
 

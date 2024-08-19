@@ -92,16 +92,13 @@
                     <button class="h-12 bg-rose-300 hover:bg-rose-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg" id="start_count_btn">Start Count</button>
                 @endif
             @elseif($driver_last)
-                @if ($status != 'view' && isset($driver_last->start_date) && ($main->user_id == getAuth()->id || $driver_last->user_id == getAuth()->id))
+            
+                {{-- @if ($status != 'view' && isset($driver_last->start_date) && ($main->scan_user_id == getAuth()->id || $driver_last->scan_user_id == getAuth()->id)) --}}
+                @if ($status != 'view' && isset($driver_last->start_date) && ($driver_last->scan_user_id == getAuth()->id))
                     <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
                     <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
                 @endif
-            @else 
-                {{-- <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
-                <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button> --}}
             @endif
-
-            {{-- {{ $driver_last }} --}}
 
 
         </div>
@@ -122,7 +119,7 @@
                 <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
                     {{$main->total_duration }}
                 </span>
-            @elseif((isset($status) && $status == 'scan') && ($main->user_id == getAuth()->id || $driver_last->user_id == getAuth()->id) )
+            @elseif((isset($status) && $status == 'scan') && ($main->scan_user_id == getAuth()->id || $driver_last->scan_user_id == getAuth()->id) )
                 <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count_pause">
                 {{ $driver_last->duration }}
                 </span>
@@ -1853,7 +1850,6 @@
                     })
 
                    $(document).on('click','#final_print',function(e){
-
                         $index = $('#print_eq').val();
                         $pd_code= $('.bar_code').eq($index).text();
                         $qty    = $('#print_count').val();

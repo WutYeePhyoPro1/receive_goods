@@ -246,7 +246,7 @@ use Illuminate\Support\Facades\DB;
 
     function check_empty($id)
     {
-        $data = DriverInfo::where('user_id',getAuth()->id)
+        $data = DriverInfo::where('scan_user_id',getAuth()->id)
                             //->whereNull('duration')
                             // ->whereNull('car_scanning')
                             ->Where('car_scanning', 1)
@@ -335,20 +335,22 @@ use Illuminate\Support\Facades\DB;
 
     function truck_arrive($id)
     {
-        $own    = DriverInfo::whereNull('duration')
-                            ->where('user_id',getAuth()->id)
+        $own    = DriverInfo::Where('car_scanning', 1)
+                            // ->whereNull('duration')
+                            ->where('scan_user_id',getAuth()->id)
                             ->first();
-
         $truck = [];
-
         if(!$own){
             $truck  = DriverInfo::where('received_goods_id',$id)
-                                ->whereNull('duration')
-                                ->whereNot('user_id',getAuth()->id)
+                                ->Where('car_scanning', 1)
+                                //->whereNull('duration')
+                                //->whereNot('user_id',getAuth()->id)
+                                ->whereNot('scan_user_id',getAuth()->id)
                                 ->get();
         }
         return $truck;
     }
+
 
     function get_remove_pd($id)
     {
