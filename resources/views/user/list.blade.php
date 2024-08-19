@@ -97,16 +97,16 @@
                                 <span class="cursor-pointer hover:underline hover:font-semibold {{ $item->status == 'complete' ? 'text-emerald-600' : '' }}" onclick="$(this).parent().find('.view_goods').click();">{{ $item->document_no }}</span> &nbsp;
                                 <i class='bx bxs-show text-amber-400 cursor-pointer ms-3 text-lg view_goods hidden' title="view Document" onclick="javascript:window.location.href = '/view_goods/'+{{$item->id}}"></i>
                                 @can('add-new-truck')
-                                    @if ($item->status == 'incomplete')
+                                    {{-- @if ($item->status == 'incomplete')
                                         <i class='bx bx-message-square-edit text-sky-600 cursor-pointer ms-3 text-lg edit_view' title="add truck" data-id="{{ $item->id }}" style="transform: translateY(2px)"></i>
-                                    {{-- @else --}}
-                                        {{-- <i class='bx bxs-folder text-emerald-400 cursor-pointer ms-3 text-lg' title="new truck" onclick="javascript:window.location.href = '/receive_goods/'+{{$item->id}}"></i> --}}
-                                    @endif
-
+               
+                                    @endif --}}
                                     @if (count(truck_arrive($item->id)) > 0)
                                         @foreach (truck_arrive($item->id) as $tem)
                                             <i class='bx bxs-group text-rose-400 cursor-pointer ms-3 text-lg' title="{{ $tem->truck_no }}" onclick="javascript:window.location.href = '/join_receive/'+{{$item->id}}+'/'+{{ $tem->id }}"></i>
                                         @endforeach
+                                    @elseif($item->status == 'incomplete')
+                                        <i class='bx bx-message-square-edit text-sky-600 cursor-pointer ms-3 text-lg edit_view' title="add truck" data-id="{{ $item->id }}" style="transform: translateY(2px)"></i>
                                     @endif
                                 @endcan
 

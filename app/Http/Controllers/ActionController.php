@@ -450,14 +450,11 @@ class ActionController extends Controller
             }
         } elseif ($driver_last)
         {
-
-            $driver_last->update([
-                'car_scanning' =>  0
-            ]);
             $data =  $this->repository->get_remain($request->id);
             $last_this_scanned = get_scanned_qty($driver_last->id);
-            if(cur_truck_sec($driver_last->id) < 86401)
-            {
+            // dd(cur_truck_sec_pause($driver_last->id));
+            // if(cur_truck_sec_pause($driver_last->id) < 86401)
+            // {
                 $receive->update([
                     'total_duration'        => $request->timecount,
                     'remaining_qty'         => $data['remaining'],
@@ -467,9 +464,10 @@ class ActionController extends Controller
 
                 $driver_last->update([
                     'scanned_goods' => $last_this_scanned,
-                    'duration'      => $request->timecount
+                    'duration'      => $request->timecount,
+                    'car_scanning' =>  0
                 ]);
-            }
+            // }
         }else{
             $receive->update([
                 'total_duration' => '00:00:00',
