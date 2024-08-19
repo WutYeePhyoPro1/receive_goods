@@ -198,10 +198,12 @@
             </div>
             @if($main->status != 'complete')
 
-            @if ($cur_driver)
-                <input type="hidden" id="started_time" value="{{ isset($cur_driver->start_date) ? ($cur_driver->start_date.' '.$cur_driver->start_time) : ''}}">
-            @elseif($driver_last)
-                <input type="hidden" id="started_time_pause" value="{{$driver_last->duration}}">   
+            @if ($status != 'view')
+                @if ($cur_driver)
+                    <input type="hidden" id="started_time" value="{{ isset($cur_driver->start_date) ? ($cur_driver->start_date.' '.$cur_driver->start_time) : ''}}">
+                @elseif($driver_last)
+                    <input type="hidden" id="started_time_pause" value="{{$driver_last->duration}}">   
+                @endif
             @endif
 
             {{-- <input type="hidden" id="duration" value="{{ $total_sec ?? 0 }}"> --}}
@@ -1308,7 +1310,6 @@
             }
 
             $(document).ready(function() {
-
                 var startedTimePause = localStorage.getItem('startedTimePause') || $('#started_time_pause').val();
                 if (startedTimePause) {
                     var interval = 1000; 
@@ -2566,9 +2567,11 @@
                     url : "{{ route('confirm') }}",
                     type: 'POST',
                     data:{_token : token , id :$id, timecount: timeCountValue},
-                    success:function(res){
-                        localStorage.removeItem('startedTimePause');
+                    success:function(res){    
                         location.href = '/list';
+                        if (localStorage.getItem('startedTimePause') !== null) {
+                            localStorage.removeItem('startedTimePause');
+                        }
                     },
                     error:function(xhr,status,error){
                         Swal.fire({
