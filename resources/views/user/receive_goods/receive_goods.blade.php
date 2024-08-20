@@ -1311,7 +1311,33 @@
             }
 
             $(document).ready(function() {
-
+                var startedTimePause = localStorage.getItem('startedTimePause') || $('#started_time_pause').val();
+                if (startedTimePause) {
+                    var interval = 1000; 
+                    function timeToSeconds(time) {
+                        var parts = time.split(':');
+                        var hours = parseInt(parts[0], 10);
+                        var minutes = parseInt(parts[1], 10);
+                        var seconds = parseInt(parts[2], 10);
+                        return (hours * 3600) + (minutes * 60) + seconds;
+                    }
+                    function secondsToTime(seconds) {
+                        var hours = Math.floor(seconds / 3600);
+                        seconds %= 3600;
+                        var minutes = Math.floor(seconds / 60);
+                        seconds %= 60;
+                        return [hours, minutes, seconds].map(num => String(num).padStart(2, '0')).join(':');
+                    }
+                    var totalSeconds = timeToSeconds(startedTimePause);
+                    setInterval(function() {
+                        totalSeconds += 1;
+                        var updatedTime = secondsToTime(totalSeconds);
+                        $('#time_count_pause').text(updatedTime);
+                        localStorage.setItem('startedTimePause', updatedTime);
+                    }, interval);
+                } else {
+                    localStorage.removeItem('startedTimePause');
+                }
 
 
                 new TomSelect("#documentNoselect",{
@@ -1587,35 +1613,6 @@
             });
 
             $(document).ready(function(e){
-
-                var startedTimePause = localStorage.getItem('startedTimePause') || $('#started_time_pause').val();
-                if (startedTimePause) {
-                    var interval = 1000; 
-                    function timeToSeconds(time) {
-                        var parts = time.split(':');
-                        var hours = parseInt(parts[0], 10);
-                        var minutes = parseInt(parts[1], 10);
-                        var seconds = parseInt(parts[2], 10);
-                        return (hours * 3600) + (minutes * 60) + seconds;
-                    }
-                    function secondsToTime(seconds) {
-                        var hours = Math.floor(seconds / 3600);
-                        seconds %= 3600;
-                        var minutes = Math.floor(seconds / 60);
-                        seconds %= 60;
-                        return [hours, minutes, seconds].map(num => String(num).padStart(2, '0')).join(':');
-                    }
-                    var totalSeconds = timeToSeconds(startedTimePause);
-                    setInterval(function() {
-                        totalSeconds += 1;
-                        var updatedTime = secondsToTime(totalSeconds);
-                        $('#time_count_pause').text(updatedTime);
-                        localStorage.setItem('startedTimePause', updatedTime);
-                    }, interval);
-                } else {
-                    localStorage.removeItem('startedTimePause');
-                }
-                
                 var token = $("meta[name='__token']").attr('content');
                 $finish = $('#finished').val();
                 $status = $('#view_').val();
