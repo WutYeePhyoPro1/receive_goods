@@ -429,7 +429,7 @@ class ActionController extends Controller
     //confirm/continue Button click
     public function confirm(Request $request)
     {
-        
+
         $receive = GoodsReceive::where('id',$request->id)->first();
         $doc    = Document::where('received_goods_id',$request->id)->get();
         $driver =  DriverInfo::where('received_goods_id',$request->id)
@@ -470,11 +470,11 @@ class ActionController extends Controller
             }
         } elseif ($driver_last)
         {
+            $totalSeconds = timeToTotalSeconds($request->timecount);
             $data =  $this->repository->get_remain($request->id);
             $last_this_scanned = get_scanned_qty($driver_last->id);
-            // dd(cur_truck_sec_pause($driver_last->id));
-            // if(cur_truck_sec_pause($driver_last->id) < 86401)
-            // {
+            if($totalSeconds < 86401)
+            {
                 $receive->update([
                     'total_duration'        => $request->timecount,
                     'remaining_qty'         => $data['remaining'],
@@ -487,7 +487,7 @@ class ActionController extends Controller
                     'duration'      => $request->timecount,
                     'car_scanning' =>  0
                 ]);
-            // }
+            }
         }else{
             $receive->update([
                 'total_duration' => '00:00:00',
@@ -498,21 +498,17 @@ class ActionController extends Controller
     }
 
     //click complete btn
-    public function finish_goods($id)
+    public function finish_goods($id,$timeContValue)
     {
-
         $receive = GoodsReceive::where('id',$id)->first();
         $driver = DriverInfo::where('received_goods_id', $id)
-                    ->where('user_id', auth()->id())
+                    ->where('scan_user_id', auth()->id())
                     ->orderByRaw('duration IS NOT NULL') 
                     ->orderBy('id', 'desc')
                     ->first();
-
         $start_time = strtotime($driver->start_date.' '.$driver->start_time);
         $now        = strtotime(Carbon::now()->format('Y-m-d H:i:s'));
-
         $data =  $this->repository->get_remain($id);
-
         $diff = $now - $start_time;
         $hour   = (int)($diff / 3600);
         $min    = (int)(($diff % 3600) / 60);
@@ -529,7 +525,8 @@ class ActionController extends Controller
                 'status'                => 'complete'
             ]);
 
-            if(cur_truck_sec($driver->id) < 86401)
+            // if(cur_truck_sec($driver->id) < 86401)
+            if(timeToTotalSeconds($timeContValue) < 86401);
             {
                 $receive->update([
                     'total_duration'        => get_all_duration($id),

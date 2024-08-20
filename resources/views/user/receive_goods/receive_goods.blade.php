@@ -1311,33 +1311,6 @@
             }
 
             $(document).ready(function() {
-                var startedTimePause = localStorage.getItem('startedTimePause') || $('#started_time_pause').val();
-                if (startedTimePause) {
-                    var interval = 1000; 
-                    function timeToSeconds(time) {
-                        var parts = time.split(':');
-                        var hours = parseInt(parts[0], 10);
-                        var minutes = parseInt(parts[1], 10);
-                        var seconds = parseInt(parts[2], 10);
-                        return (hours * 3600) + (minutes * 60) + seconds;
-                    }
-                    function secondsToTime(seconds) {
-                        var hours = Math.floor(seconds / 3600);
-                        seconds %= 3600;
-                        var minutes = Math.floor(seconds / 60);
-                        seconds %= 60;
-                        return [hours, minutes, seconds].map(num => String(num).padStart(2, '0')).join(':');
-                    }
-                    var totalSeconds = timeToSeconds(startedTimePause);
-                    setInterval(function() {
-                        totalSeconds += 1;
-                        var updatedTime = secondsToTime(totalSeconds);
-                        $('#time_count_pause').text(updatedTime);
-                        localStorage.setItem('startedTimePause', updatedTime);
-                    }, interval);
-                } else {
-                    localStorage.removeItem('startedTimePause');
-                }
 
 
 
@@ -1614,6 +1587,35 @@
             });
 
             $(document).ready(function(e){
+
+                var startedTimePause = localStorage.getItem('startedTimePause') || $('#started_time_pause').val();
+                if (startedTimePause) {
+                    var interval = 1000; 
+                    function timeToSeconds(time) {
+                        var parts = time.split(':');
+                        var hours = parseInt(parts[0], 10);
+                        var minutes = parseInt(parts[1], 10);
+                        var seconds = parseInt(parts[2], 10);
+                        return (hours * 3600) + (minutes * 60) + seconds;
+                    }
+                    function secondsToTime(seconds) {
+                        var hours = Math.floor(seconds / 3600);
+                        seconds %= 3600;
+                        var minutes = Math.floor(seconds / 60);
+                        seconds %= 60;
+                        return [hours, minutes, seconds].map(num => String(num).padStart(2, '0')).join(':');
+                    }
+                    var totalSeconds = timeToSeconds(startedTimePause);
+                    setInterval(function() {
+                        totalSeconds += 1;
+                        var updatedTime = secondsToTime(totalSeconds);
+                        $('#time_count_pause').text(updatedTime);
+                        localStorage.setItem('startedTimePause', updatedTime);
+                    }, interval);
+                } else {
+                    localStorage.removeItem('startedTimePause');
+                }
+                
                 var token = $("meta[name='__token']").attr('content');
                 $finish = $('#finished').val();
                 $status = $('#view_').val();
@@ -2424,16 +2426,23 @@
 
             function not_finish($id) {
                 var timeCountValue = $('#time_count').text() ? $('#time_count').text() : $('#time_count_pause').text();
-
                 console.log(timeCountValue);
                 $.ajax({
                     url : "{{ route('confirm') }}",
                     type: 'POST',
                     data:{_token : token , id :$id, timecount: timeCountValue},
-                    success:function(res){    
-                        location.href = '/list';
+                    success:function(res){ 
                         if (localStorage.getItem('startedTimePause') !== null) {
                             localStorage.removeItem('startedTimePause');
+                            if (localStorage.getItem('startedTimePause') === null) {
+                                location.href = '/list';
+                            } else {
+                                setTimeout(function() {
+                                    location.href = '/list';
+                                }, 100);
+                            }
+                        } else {
+                            location.href = '/list';
                         }
                     },
                     error:function(xhr,status,error){
@@ -2472,7 +2481,6 @@
 
                     if(!$finish)
                     {
-
                             Swal.fire({
                                 'icon'      : 'info',
                                 'title'     : 'Are You Sure?',
@@ -2492,7 +2500,7 @@
                                 'text'      : 'Document မရှိလျှင် Complete လုပ်ခွင့်မပေးပါ',
                             })
                     }else{
-                        finish($id);
+                            ($id);
                     }
                 }
 
@@ -2503,13 +2511,13 @@
                     $id = $('#receive_id').val();
                     $doc_count = $('#doc_total').val();
                     $remark = $('#wh_remark').val();
-                   $('.remain_qty').each((i,v)=>{
+                    $('.remain_qty').each((i,v)=>{
 
-                    if(parseInt($(v).text()) > 0){
-                        $finish = false;
-                        return false;
-                    }
-                   })
+                        if(parseInt($(v).text()) > 0){
+                            $finish = false;
+                            return false;
+                        }
+                    })
 
                    if($remark == '')
                     {
@@ -2533,11 +2541,24 @@
 
                 function finish($id)
                 {
+                    $timeContValue = $('#time_count').text() ? $('#time_count').text() : $('#time_count_pause').text();
                     $.ajax({
-                            url : "/finish_goods/"+$id,
+                            url : "/finish_goods/"+$id+"/"+$timeContValue,
                             type: 'get',
                             success: function(res){
-                                location.href = '/list';
+                                if (localStorage.getItem('startedTimePause') !== null) {
+                                    localStorage.removeItem('startedTimePause');
+                                    if (localStorage.getItem('startedTimePause') === null) {
+                                        location.href = '/list';
+                                    } else {
+                                        setTimeout(function() {
+                                            location.href = '/list';
+                                        }, 100);
+                                    }
+                                } else {
+                                    location.href = '/list';
+                                }
+
                             },
                             error : function(xhr,status,error){
                                 Swal.fire({

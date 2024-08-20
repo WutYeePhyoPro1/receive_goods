@@ -473,6 +473,17 @@ use Illuminate\Support\Facades\DB;
         return $formatted_duration;
     }
 
+    function timeToTotalSeconds($time)
+    {
+        $parts = explode(':', $time);
+        $hours = (int)$parts[0];
+        $minutes = (int)$parts[1];
+        $seconds = (int)$parts[2];
+        
+        // Calculate total seconds
+        return ($hours * 3600) + ($minutes * 60) + $seconds;
+    }
+
     
 
 
