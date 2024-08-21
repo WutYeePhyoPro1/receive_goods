@@ -10,38 +10,12 @@
     @endif
         <fieldset class="mt-3 border border-slate-500 rounded-md p-5">
             <legend class="px-4 text-2xl font-serif"> {{ isset($main) ? 'Driver Info' : 'Document Info' }} </legend>
-
-            {{-- @if (isset($driver))
-                <div class="text-center">
-                    <select id="old_driver" class="px-3 min-w-[20%] h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
-                        <option value="">Choose Previous Car</option>
-                        @foreach($driver as $item)
-                            <option value="{{ $item->id }}">{{ $item->truck_no }}</option>
-                        @endforeach
-
-                    </select>
-                </div>
-            @endif --}}
-
             <form action="{{ isset($main) ? route('store_car_info') : route('store_doc_info') }}" id="driver_form" method="POST" enctype="multipart/form-data">
                 @csrf
                 @if (isset($main) || !dc_staff())
                         <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
                         <input type="hidden" id="no_car" name="{{ !dc_staff() ? 'no_car' : '' }}">
                     <div class="grid grid-cols-2 gap-5 my-5">
-
-
-                        {{-- <div class="flex flex-col px-10 relative truck_div">
-                            <label for="truck_no" >Truck No<span class="text-rose-600" id="tru_imp">*</span> :</label>
-                            <input type="text" name="truck_no" id="truck_no" class="mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none truck_div" value="{{ old('truck_no') }}" placeholder="xx-xxxx" autocomplete="off">
-                                <ul class="2xl:w-[89.5%] w-[85%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto truck_div" style="top: 100%">
-                                </ul>
-                            <span id="truck_alert" class="text-rose-500 hidden">Please first choose type of truck</span>
-                            
-                            @error('truck_no')
-                                <small class="text-rose-500 ms-1">{{ $message }}</small>
-                            @enderror
-                        </div> --}}
 
                         <div class="flex flex-col px-10">
                             <label for="truck_type">Type of Truck<span class="text-rose-600">{{ dc_staff() ? '*' : '' }}</span> :</label>
@@ -352,19 +326,9 @@
                     var selectedOption = $(this).find('option:selected');
                     var truckName = selectedOption.data('name');
                     if (truckName === "Motorcycle") {
-                        // $('.truck_div').hide();
-                        // $('.motocyle_div').show();
                         $('#truck_no').attr('placeholder', '');
                     } else {
                         $('#truck_no').attr('placeholder', 'xx-xxxx');
-
-                        // $(document).on('keypress','#truck_no',function(e){
-                        //     $val    = $(this).val();
-                        //     if($val.length > 6)
-                        //     {
-                        //         e.preventDefault();
-                        //     }
-                        // })
                     }
                     $vali   = $(this).find('option:selected').data('re');
                     if($vali == 'car' && $('#tru_imp').hasClass('hidden'))

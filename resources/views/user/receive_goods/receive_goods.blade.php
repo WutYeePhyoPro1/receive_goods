@@ -776,23 +776,17 @@
                         @csrf
                             <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
                             <div class="grid grid-cols-2 gap-5 my-5">
-                                {{-- <div class="flex flex-col px-10 relative ">
-                                    <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
-                                    <input type="text" name="truck_no" id="truck_no" class=" truck_div mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck..." autocomplete="off">
-                                        <ul class="truck_div w-[77%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto" style="top: 100%">
-                                        </ul>
-                                    <span id="truck_alert" class="text-rose-500 hidden">Please first choose type of truck</span>
-                                    @error('truck_no')
-                                        <small class="text-rose-500 ms-1">{{ $message }}</small>
-                                    @enderror
-                                </div> --}}
-
                                 <div class="flex flex-col px-10">
                                     <label for="truck_type">Type of Truck<span class="text-rose-600">*</span> :</label>
                                     <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
                                         <option value="">Choose Type of Truck</option>
                                         @foreach ($truck as $item)
-                                            <option value="{{ $item->id }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option>
+                                            {{-- <option value="{{ $item->id }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option> --}}
+
+                                            <option value="{{ $item->id }}" data-name="{{ $item->truck_name }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>
+                                                {{ $item->truck_name }}
+                                            </option>
+                                            
                                         @endforeach
                                     </Select>
                                     @error('truck_type')
@@ -828,7 +822,7 @@
                             </div>
                             <div class="grid grid-cols-2 gap-5 my-5">
 
-                                <div class="flex flex-col px-10 relative ">
+                                <div class="flex flex-col px-10 relative truck_div">
                                     <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
                                     <input type="text" name="truck_no" id="truck_no" class=" truck_div mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck..." autocomplete="off">
                                         <ul class="truck_div w-[77%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto" style="top: 100%">
@@ -839,18 +833,6 @@
                                     @enderror
                                 </div>
 
-                                {{-- <div class="flex flex-col px-10">
-                                    <label for="truck_type">Type of Truck<span class="text-rose-600">*</span> :</label>
-                                    <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
-                                        <option value="">Choose Type of Truck</option>
-                                        @foreach ($truck as $item)
-                                            <option value="{{ $item->id }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option>
-                                        @endforeach
-                                    </Select>
-                                    @error('truck_type')
-                                    <small class="text-rose-500 ms-1">{{ $message }}</small>
-                                @enderror
-                                </div> --}}
                                 
                                 <?php
                                     $dc = [17,19,20];
@@ -2555,7 +2537,6 @@
                                 } else {
                                     location.href = '/list';
                                 }
-
                             },
                             error : function(xhr,status,error){
                                 Swal.fire({
@@ -2839,6 +2820,27 @@
                         })
                     })
                 }
+
+                $(document).on('change', '#truck_type', function(e) {
+                    var selectedOption = $(this).find('option:selected');
+                    var truckName = selectedOption.data('name');
+
+                    if (truckName === "Motorcycle") {
+                        $('#truck_no').attr('placeholder', '');
+                    } else {
+                        $('#truck_no').attr('placeholder', 'truck...');
+                    }
+                    // $vali   = $(this).find('option:selected').data('re');
+                    // if($vali == 'car' && $('#tru_imp').hasClass('hidden'))
+                    // {
+                    //     $('#tru_imp').removeClass('hidden');
+                        
+                    // }else if($vali == 'no_car' && !$('#tru_imp').hasClass('hidden'))
+                    // {
+                    //     $('#tru_imp').addClass('hidden');
+                    // }
+                    // $('#no_car').val($vali == 'car' ?  0 : 1);
+                })
             })
         </script>
     @endpush
