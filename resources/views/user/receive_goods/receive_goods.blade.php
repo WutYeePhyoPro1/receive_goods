@@ -1321,7 +1321,6 @@
                     localStorage.removeItem('startedTimePause');
                 }
 
-
                 new TomSelect("#documentNoselect",{
                     selectOnTab	: true
                 });

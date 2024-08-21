@@ -456,7 +456,7 @@ class ActionController extends Controller
             if(cur_truck_sec($driver->id) < 86401)
             {
                 $receive->update([
-                    'total_duration'        => get_all_duration_second($request->id),
+                    'total_duration'        => get_all_duration_second($driver->id),
                     'remaining_qty'         => $data['remaining'],
                     'exceed_qty'            => $data['exceed'],
                     'status'                => 'incomplete'
