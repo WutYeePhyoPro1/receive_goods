@@ -189,6 +189,23 @@ use Illuminate\Support\Facades\DB;
         return $sec_pass;
     }
 
+    function get_all_duration_second($id)
+    {
+        $all_driver_duration = DriverInfo::where('received_goods_id',$id)->pluck('duration');
+        $total_sec =(int)0;
+        foreach($all_driver_duration as $item)
+        {
+            list($hour, $min, $sec) = explode(':', $item);
+            $total_sec    += $hour*3600 + $min*60 + $sec;
+        }
+        $combine = $total_sec;
+        $hour   = (int)($combine / 3600);
+        $min    = (int)(($combine % 3600) / 60);
+        $sec    = (int)(($combine % 3600) % 60);
+        $sec_pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+        return $sec_pass;
+    }
+
     function get_done_duration($id)
     {
         $data = GoodsReceive::where('id',$id)->first();
