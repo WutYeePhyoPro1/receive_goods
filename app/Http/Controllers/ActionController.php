@@ -456,7 +456,7 @@ class ActionController extends Controller
             if(cur_truck_sec($driver->id) < 86401)
             {
                 $receive->update([
-                    'total_duration'        => get_all_duration($request->id),
+                    'total_duration'        => get_all_duration_second($request->id),
                     'remaining_qty'         => $data['remaining'],
                     'exceed_qty'            => $data['exceed'],
                     'status'                => 'incomplete'
@@ -519,7 +519,7 @@ class ActionController extends Controller
         if($driver)
         {
             $receive->update([
-                'total_duration'        => get_all_duration($id),
+                'total_duration'        => get_all_duration_second($id),
                 'remaining_qty'         => $data['remaining'],
                 'exceed_qty'            => $data['exceed'],
                 'status'                => 'complete'
@@ -529,7 +529,7 @@ class ActionController extends Controller
             if(timeToTotalSeconds($timeContValue) < 86401);
             {
                 $receive->update([
-                    'total_duration'        => get_all_duration($id),
+                    'total_duration'        => get_all_duration_second($id),
                     'remaining_qty'         => $data['remaining'],
                     'exceed_qty'            => $data['exceed'],
                     'status'                => 'complete'
@@ -537,7 +537,7 @@ class ActionController extends Controller
 
                 $driver->update([
                     'scanned_goods' => $this_scanned,
-                    'duration'      => $time,
+                    'duration'      => $timeContValue,
                     'car_scanning' =>  0
                 ]);
 
