@@ -244,7 +244,7 @@
                     var truckType = $('#truck_type').find('option:selected').data('name');
                     if (truckType !== "Motorcycle" && $val.length > 6) {
                         e.preventDefault();
-                    } else if (truckType == "Motorcycle" && $val.length > 10) {
+                    } else if (truckType == "Motorcycle" && $val.length > 9) {
                         e.preventDefault();
                     }
                 })

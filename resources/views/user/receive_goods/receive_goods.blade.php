@@ -2411,17 +2411,9 @@
                     data:{_token : token , id :$id, timecount: timeCountValue},
                     success:function(res){ 
                         if (localStorage.getItem('startedTimePause') !== null) {
-                            localStorage.removeItem('startedTimePause');
-                            if (localStorage.getItem('startedTimePause') === null) {
-                                location.href = '/list';
-                            } else {
-                                setTimeout(function() {
-                                    location.href = '/list';
-                                }, 100);
-                            }
-                        } else {
-                            location.href = '/list';
-                        }
+                            localStorage.removeItem('startedTimePause');     
+                        } 
+                        location.href = '/list';
                     },
                     error:function(xhr,status,error){
                         Swal.fire({
@@ -2524,19 +2516,11 @@
                     $.ajax({
                             url : "/finish_goods/"+$id+"/"+$timeContValue,
                             type: 'get',
-                            success: function(res){
+                            success:function(res){ 
                                 if (localStorage.getItem('startedTimePause') !== null) {
-                                    localStorage.removeItem('startedTimePause');
-                                    if (localStorage.getItem('startedTimePause') === null) {
-                                        location.href = '/list';
-                                    } else {
-                                        setTimeout(function() {
-                                            location.href = '/list';
-                                        }, 100);
-                                    }
-                                } else {
-                                    location.href = '/list';
-                                }
+                                    localStorage.removeItem('startedTimePause');     
+                                } 
+                                location.href = '/list';
                             },
                             error : function(xhr,status,error){
                                 Swal.fire({
