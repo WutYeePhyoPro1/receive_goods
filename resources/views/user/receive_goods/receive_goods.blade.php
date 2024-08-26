@@ -1,4 +1,4 @@
-@extends('layout.layout')
+@extends('layout.layout')z
 <style>
      #resultCount {
         margin-top: 10px;
