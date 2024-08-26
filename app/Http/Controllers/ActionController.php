@@ -450,7 +450,8 @@ class ActionController extends Controller
             $this_scanned = get_scanned_qty($driver->id);
 
             $driver->update([
-                'car_scanning' =>  0
+                'car_scanning' =>  0,
+                'duration'      => $pass
             ]);
 
             if(cur_truck_sec($driver->id) < 86401)
@@ -463,20 +464,26 @@ class ActionController extends Controller
                 ]);
                 $driver->update([
                     'scanned_goods' => $this_scanned,
-                    'duration'      => $pass
+                    'duration'      => $pass,
+                    'car_scanning' =>  0
                 ]);
             }else{
                 return response()->json(500);
             }
         } elseif ($driver_last)
         {
+            
             $totalSeconds = timeToTotalSeconds($request->timecount);
             $data =  $this->repository->get_remain($request->id);
             $last_this_scanned = get_scanned_qty($driver_last->id);
+            $driver_last->update([
+                'car_scanning' =>  0,
+                'duration'      => $request->timecount,
+            ]);
             if($totalSeconds < 86401)
             {
                 $receive->update([
-                    'total_duration'        => $request->timecount,
+                    'total_duration'        => get_all_duration_second($driver_last->id),
                     'remaining_qty'         => $data['remaining'],
                     'exceed_qty'            => $data['exceed'],
                     'status'                => 'incomplete'
@@ -487,6 +494,8 @@ class ActionController extends Controller
                     'duration'      => $request->timecount,
                     'car_scanning' =>  0
                 ]);
+            }else{
+                return response()->json(500);
             }
         }else{
             $receive->update([
@@ -503,9 +512,9 @@ class ActionController extends Controller
         $receive = GoodsReceive::where('id',$id)->first();
         $driver = DriverInfo::where('received_goods_id', $id)
                     ->where('scan_user_id', auth()->id())
-                    ->orderByRaw('duration IS NOT NULL') 
                     ->orderBy('id', 'desc')
                     ->first();
+
         $start_time = strtotime($driver->start_date.' '.$driver->start_time);
         $now        = strtotime(Carbon::now()->format('Y-m-d H:i:s'));
         $data =  $this->repository->get_remain($id);
@@ -518,12 +527,19 @@ class ActionController extends Controller
         $this_scanned = get_scanned_qty($id);
         if($driver)
         {
+
             $receive->update([
-                'total_duration'        => get_all_duration_second($id),
+                'total_duration'  => get_all_duration_second($id),  
                 'remaining_qty'         => $data['remaining'],
                 'exceed_qty'            => $data['exceed'],
                 'status'                => 'complete'
             ]);
+
+            $driver->update([
+                'car_scanning' =>  0,
+                'duration'      => $timeContValue,
+            ]);
+
 
             // if(cur_truck_sec($driver->id) < 86401)
             if(timeToTotalSeconds($timeContValue) < 86401);
@@ -537,8 +553,8 @@ class ActionController extends Controller
 
                 $driver->update([
                     'scanned_goods' => $this_scanned,
-                    'duration'      => $timeContValue,
-                    'car_scanning' =>  0
+                    // 'duration'      => $timeContValue,
+                    // 'car_scanning' =>  0
                 ]);
 
                 return response()->json(200);
