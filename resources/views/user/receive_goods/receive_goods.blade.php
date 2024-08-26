@@ -1,5 +1,4 @@
 @extends('layout.layout')
-
 <style>
      #resultCount {
         margin-top: 10px;
@@ -2636,9 +2635,9 @@
                 })
 
                 function all_finish($finish,$id){
-
                     if(!$finish)
                     {
+                        
                             Swal.fire({
                                 'icon'      : 'info',
                                 'title'     : 'Are You Sure?',
@@ -2661,7 +2660,7 @@
                                 'text'      : 'Document မရှိလျှင် Complete လုပ်ခွင့်မပေးပါ',
                             })
                     }else{
-                            ($id);
+                        finish($id);
                     }
                     // aa
                 }
