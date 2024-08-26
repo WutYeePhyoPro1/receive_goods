@@ -648,17 +648,17 @@ class userController extends Controller
         $curDriverFirst = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
         if($curDriverFirst) {
             $curDriver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
-            $cur_driver_start_date = $curDriver->start_date;
         } else {
             $curDriver = [];
-            $cur_driver_start_date = [];
         }
 
         $driver_last_first = DriverInfo::where('received_goods_id', $id)->orderBy('id', 'desc')->first();
-        if($curDriverFirst) {
+        if(!$curDriverFirst) {
             $driver_last = DriverInfo::where('received_goods_id', $id)->orderBy('id', 'desc')->first();
+            $driver_last_start_date = $driver_last->start_date;
         } else {
             $driver_last = [];
+            $driver_last_start_date = [];
         }
 
         $document_id = Document::where('received_goods_id',$request->id)->pluck('id');
@@ -860,7 +860,7 @@ class userController extends Controller
                     'isDcStaff' => $isDcStaff,
                     'curDriver' => $curDriver,
                     'authId' => $authId,
-                    'cur_driver_start_date' => $cur_driver_start_date,
+                    'driver_last_start_date' => $driver_last_start_date,
                     'driver_last' => $driver_last
                 ];
             }

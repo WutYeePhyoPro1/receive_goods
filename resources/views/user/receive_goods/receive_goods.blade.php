@@ -305,7 +305,7 @@
                                         <tr class="h-10">
                                             @if ($key == 0)
                                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                    @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || (!dc_staff() && $driver_last && getAuth()->id == $driver_last->user_id) || dc_staff())
+                                                    @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || (!dc_staff() && $driver_last && getAuth()->id == $driver_last->scan_user_id) || dc_staff())
                                                         <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
                                                     @endif
                                                 </td>
@@ -361,10 +361,10 @@
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
                                                 <div class="main_scan">
                                                     {{ $tem->scanned_qty }}
-                                                    @if (!$cur_driver)
-                                                        <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
+                                                    @if (!$driver_last)
+                                                        {{-- <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i> --}}
                                                     @else 
-                                                        @if (isset($cur_driver->start_date))
+                                                        @if (isset($driver_last->start_date))
                                                             <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                         @endif
                                                     @endif
@@ -1362,20 +1362,19 @@
                                         var barcodeHtmls = document.barcode_htmls; // New line to get barcode HTMLs
                                         var isDcStaff = need_document_inform.isDcStaff;
                                         var curDriver = need_document_inform.curDriver;
-                                        var driverLast = need_document_inform.driverLast;
+                                        var driverLast = need_document_inform.driver_last;
                                         var authId = need_document_inform.authId;
                                         var barcodeId = document.barcode_id
-                                       
-                                        var curDriverStartDate = need_document_inform.cur_driver_start_date;
+                                        var lastDriverStartDate = need_document_inform.driver_last_start_date;
         
                                         for (var j = 0; j < barCodes.length; j++) {
                                             var buttonHtml = '';
-                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || (!isDcStaff && driverLast && authId === driverLast.user_id) || isDcStaff) {
+                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || (!isDcStaff && driverLast && authId === driverLast.scan_user_id) || isDcStaff) {
                                                 buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
                                             }
                                             var additionalIconHtml = '';
-                                            if (curDriverStartDate == null) {
-                                            } else if (curDriverStartDate.length != 0) {
+                                            if (lastDriverStartDate == null) {
+                                            } else if (lastDriverStartDate.length != 0) {
                                                 additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
                                             }
 
