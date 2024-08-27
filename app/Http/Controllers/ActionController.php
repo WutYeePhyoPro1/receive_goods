@@ -533,7 +533,7 @@ class ActionController extends Controller
         $sec    = (int)(($diff % 3600) % 60);
         $time   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
 
-        $this_scanned = get_scanned_qty($id);
+        $this_scanned = get_scanned_qty($driver->id);
         if($driver)
         {
             $driver->update([
@@ -542,7 +542,7 @@ class ActionController extends Controller
             ]);
 
             $receive->update([
-                'total_duration'  => get_all_duration_second($id),  
+                'total_duration'  => get_all_duration_second($driver->id),  
                 'remaining_qty'         => $data['remaining'],
                 'exceed_qty'            => $data['exceed'],
                 'status'                => 'complete'
@@ -573,7 +573,7 @@ class ActionController extends Controller
             if(timeToTotalSeconds($timeContValue) < 86401);
             {
                 $receive->update([
-                    'total_duration'        => get_all_duration_second($id),
+                    'total_duration'        => get_all_duration_second($driver->id),
                     'remaining_qty'         => $data['remaining'],
                     'exceed_qty'            => $data['exceed'],
                     'status'                => 'complete'
@@ -655,7 +655,7 @@ class ActionController extends Controller
 
         $product = Product::find($request->product);
         $track   = Tracking::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id])->first();
-
+ 
         $scan_track = ScanTrack::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id,'unit'=>'S'])->first();
         $product->update([
             'scanned_qty'   => $product->scanned_qty + $request->data,

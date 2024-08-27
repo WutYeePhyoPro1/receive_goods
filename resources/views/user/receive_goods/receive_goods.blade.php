@@ -1,4 +1,4 @@
-@extends('layout.layout')z
+@extends('layout.layout')
 <style>
      #resultCount {
         margin-top: 10px;
@@ -1758,6 +1758,7 @@
                     localStorage.removeItem('startedTimePause');
                     localStorage.removeItem('startTime');
                 }
+
                 
                 var token = $("meta[name='__token']").attr('content');
                 $finish = $('#finished').val();
@@ -2703,6 +2704,7 @@
                 function finish($id)
                 {
                     $timeContValue = $('#time_count').text() ? $('#time_count').text() : $('#time_count_pause').text();
+                    console.log($id);
                     $.ajax({
                             url : "/finish_goods/"+$id+"/"+$timeContValue,
                             type: 'get',
