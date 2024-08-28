@@ -114,7 +114,6 @@
                 @endif
             </span>
         @elseif($driver_last)
-        
             @if ((isset($status) && $status == 'view'))
                 <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
                     {{$main->total_duration }}
@@ -123,11 +122,14 @@
                 <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count_pause">
                 {{ $driver_last->duration }}
                 </span>
+            @elseif(request()->has('from_join'))
+                <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
+                    {{ $driver_last->duration }}
+                </span>
             @else
                 <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
                     {{ $driver_last->duration }}
                 </span>
-                
             @endif
         @else 
             <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
