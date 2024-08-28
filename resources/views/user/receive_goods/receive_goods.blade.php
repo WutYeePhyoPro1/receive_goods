@@ -124,7 +124,6 @@
                 </span>
             @elseif(request()->has('from_join'))
                 <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
-                    {{ $driver_last->duration }}
                 </span>
             @else
                 <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
