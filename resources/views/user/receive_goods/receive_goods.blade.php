@@ -2541,11 +2541,12 @@
                     }, 1000);
 
                     function time_count(){
+                        var timeValue = new Date($('#started_time').val());
                         let time = new Date($('#started_time').val()).getTime();
                         let duration = 0;
                         let now  = new Date().getTime();
                         let diff = Math.floor(now - time + duration);
-                        console.log(diff);
+                        console.log(diff , now , time, timeValue);
                         let hour = Math.floor(diff / (60*60*1000));
                         let min = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
                         let sec = Math.floor((diff % (60 * 60 * 1000)) % (60 * 1000) / (1000));
