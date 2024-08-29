@@ -479,19 +479,6 @@ use Illuminate\Support\Facades\DB;
     }
 
 
-    function pause_cur_truck_dur($id)
-    {
-        $cur = DriverInfo::where('id', $id)->first();
-
-        list($start_hour, $start_min, $start_sec) = sscanf($cur->total_duration, '%d:%d:%d');
-        $cur_sec = $start_hour * 3600 + $start_min * 60 + $start_sec;
-
-        $hour = (int)($cur_sec / 3600);
-        $min = (int)(($cur_sec % 3600) / 60);
-        $sec = (int)(($cur_sec % 3600) % 60);
-        $formatted_duration = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
-        return $formatted_duration;
-    }
 
     function timeToTotalSeconds($time)
     {
