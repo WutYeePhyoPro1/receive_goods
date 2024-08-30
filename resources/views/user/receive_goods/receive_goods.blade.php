@@ -110,7 +110,6 @@
                 @if ($main->status == 'complete')
                 {{ $main->total_duration }}
                 @else
-                <span>ahrkarkyaw</span>
                 {{ (isset($status) && $status == 'view') ? ($main->total_duration) : (isset($cur_driver) ? cur_truck_dur($cur_driver->id) : '00:00:00') }}
                 @endif
             </span>
@@ -132,7 +131,6 @@
                 </span>
             @endif
         @else 
-            <span>ahrkarkyaw two</span>
             <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
             </span>
         @endif
@@ -2396,17 +2394,13 @@
                     }, 1000);
 
                     function time_count(){
-                        var timeValue = new Date($('#started_time').val());
                         let time = new Date($('#started_time').val()).getTime();
                         let duration = 0;
                         let now  = new Date().getTime();
                         let diff = Math.floor(now - time + duration);
-                        console.log(diff , now , time, timeValue);
                         let hour = Math.floor(diff / (60*60*1000));
                         let min = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
                         let sec = Math.floor((diff % (60 * 60 * 1000)) % (60 * 1000) / (1000));
-                        
-
                         $('#time_count').text(hour.toString().padStart(2, '0') + ':' + min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0'));
                     }
                 }
