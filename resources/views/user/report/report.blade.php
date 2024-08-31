@@ -297,8 +297,7 @@
                                         <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'S') }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
-                                        <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
-                                        <td class="h-10 text-center border border-slate-400">{{ $item->qty - $item->scanned_qty }}aa</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->qty - $item->scanned_qty }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
                                     </tr>
                                 @endif
