@@ -1729,21 +1729,38 @@
                             for($i = 0 ; $i < $qty ; $i++)
                             {
 
+                                // new_pr.document.write(`
+                                //     <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
+                                //         <div style="padding-left: 20px; padding-right: 20px;">            
+                                //             <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
+                                //         </div>
+                                //         <div style="margin-top:${ $margin }px; margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
+                                //         <div style="padding:5px 0;display:flex;flex-direction:column">
+                                //              <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
+                                //              >
+                                //              <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
+                                //             <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
+                                //         </div>
+                                //     </div>
+                                // `);
+                                // $color = $color+10;
+
                                 new_pr.document.write(`
                                     <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
-
-                                            <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
-
-                                        <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
+                                        <div style="padding-left: 20px; padding-right: 20px;">            
+                                            <small class="" style="word-break: break-all;font-size:0.9rem;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
+                                        </div>
+                                        <div style="margin-top:${ $margin }px; margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
                                         <div style="padding:5px 0;display:flex;flex-direction:column">
-                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
+                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
                                              >
                                              <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
-                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
+                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
                                         </div>
                                     </div>
                                 `);
                                 $color = $color+10;
+
                             }
                                 new_pr.document.write("</div></body></html>");
                             }else if($type == 2)
