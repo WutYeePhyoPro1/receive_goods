@@ -97,7 +97,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('barcode_scan','barcode_scan')->name('barcode_scan');
             route::post('search_doc','search_doc')->name('search_doc');
             route::post('confirm_btn','confirm')->name('confirm');
-            route::get('finish_goods/{id}','finish_goods')->name('finish_goods');
+            route::get('finish_goods/{id}/{timecountvalue}','finish_goods')->name('finish_goods');
             route::post('del_exceed','del_exceed')->name('del_exceed');
 
             route::post('pass_vali','pass_vali')->name('pass_vali');

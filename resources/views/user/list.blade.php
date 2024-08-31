@@ -145,7 +145,6 @@
         <script>
 
             $(document).ready(function(){
-
                 $token = $('meta[name=__token]').attr('content');
                 $(document).on('click','.edit_view',function(e){
                     $role = $('#user_role').val();
