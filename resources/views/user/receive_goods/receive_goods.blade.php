@@ -45,7 +45,6 @@
     @endif
     <div class="flex justify-between">
         <div class="flex">
-
             {{-- <div class="flex {{ $main->duration ? 'invisible pointer-events-none' : '' }}"> --}}
 
             @if (($main->status != 'complete') && $status != 'view')
@@ -2244,6 +2243,7 @@
                         $recieve_id = $('#receive_id').val();
                         $this       = $(this);
                         $cur_id     = $('#cur_truck').val() ?? '';
+                        console.log($cur_id);
                         $code       =  $val.replace(/\D/g, '');
                         if($val){
                             $.ajax({

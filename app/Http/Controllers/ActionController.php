@@ -185,7 +185,7 @@ class ActionController extends Controller
                     as temp(product_code varchar(50),qty varchar(50))
                     )as erpdb
                 ");
-            $qty = (int)($data[0]->qty) == 0 ? 1 : (int)($data[0]->qty) ;
+                $qty = (int)($data[0]->qty) == 0 ? 1 : (int)($data[0]->qty) ;
             }else{
                 $qty = 1;
             }
@@ -205,8 +205,11 @@ class ActionController extends Controller
 
             if(count($all_product) == 1)
             {
-
+                $scann_qty = 1;
                 $scanned = $product->scanned_qty + $qty;
+
+                $scann_count = $product->scann_count + $scann_qty;
+
                 $product->update([
                     'scanned_qty' => $scanned
                 ]);
@@ -239,7 +242,6 @@ class ActionController extends Controller
                             break;
                         }
                         $sub = $item->qty - $item->scanned_qty;
-
                         if($item->qty > $item->scanned_qty && $sub >= $total_scan)
                         {
                             if($count > 0)
@@ -249,15 +251,19 @@ class ActionController extends Controller
                                 $update_time = Carbon::now();
                             }
 
+                            $scann_qty = 1;
+                            $scann_count = $item->scann_count + $scann_qty;
                             $scanned = $item->scanned_qty + $total_scan;
                             Product::where('id',$item->id)->update([
                                 'scanned_qty'   => $scanned,
-                                'updated_at'    => $update_time
+                                'updated_at'    => $update_time,
+                                'scann_count' => $scann_count,
                             ]);
                             $pd_code = $this->repository->add_track($driver_info->id,$item->id,$total_scan,$item->document_id,$update_time,$unit,$per);
                             $count ++;
                             break;
                         }else if($item->qty > $item->scanned_qty && $sub < $total_scan && $index != count($all_product)-1){
+       
                             if($sub < $total_scan)
                             {
                                 $scanned    = $item->qty;
@@ -275,10 +281,13 @@ class ActionController extends Controller
                             }else{
                                 $update_time = Carbon::now();
                             }
-
+                            $scann_qty = 1;
+                            $scann_count = $item->scann_count + $scann_qty;
+                            $scanned = $item->scanned_qty + $total_scan;
                             Product::where('id',$item->id)->update([
                                 'scanned_qty'   => $scanned,
-                                'updated_at'    => $update_time
+                                'updated_at'    => $update_time,
+                                'scann_count' => $scann_count,
                             ]);
 
                             $pd_code = $this->repository->add_track($driver_info->id,$item->id,$added,$item->document_id,$update_time,$unit,$per);
@@ -291,13 +300,20 @@ class ActionController extends Controller
                                 }else{
                                     $update_time = Carbon::now();
                                 }
+                                $scann_qty = 1;
+                                $scann_count = $item->scann_count + $scann_qty;
+                                $scanned = $item->scanned_qty + $total_scan;
                                 Product::where('id',$item->id)->update([
                                     'scanned_qty'   => $scanned,
-                                    'updated_at'    => $update_time
+                                    'updated_at'    => $update_time,
+                                    'scann_count' => $scann_count,
                                 ]);
                             $pd_code = $this->repository->add_track($driver_info->id,$item->id,$total_scan,$item->document_id,$update_time,$unit,$per);
                         }
+
+
                         $count ++;
+
                     }
                 }else{
                     $exceed_pd =Product::whereIn('document_id',$doc_ids)
@@ -313,6 +329,7 @@ class ActionController extends Controller
                     }
                 }
             }
+
             if(isset($driver_info) && $count == 0)
             {
                 $pd_code = $this->repository->add_track($driver_info->id,$product->id,$total_scan,$product->document_id,null,$unit,$per);
