@@ -157,12 +157,18 @@ class ActionController extends Controller
 
         $product = Product::whereIn('document_id',$doc_ids)
                             ->where('bar_code',$item)
+                            // ->where('scann_pause', '!=', 1)
+                            ->whereNull('scann_pause')
+                            ->WhereNull('not_scan_remark')
                             ->first();
         if($product){
 
             $all_product =Product::whereIn('document_id',$doc_ids)
                                 ->where('bar_code',$item)
                                 ->orderBy('id','asc')
+                                // ->where('scann_pause', '!=', 1)
+                                ->whereNull('scann_pause')
+                                ->WhereNull('not_scan_remark')
                                 ->get();
             $doc_no = $product->doc->document_no;
             $conn = DB::connection('master_product');
@@ -401,15 +407,26 @@ class ActionController extends Controller
     //confirm/continue Button click
     public function confirm(Request $request)
     {
+
         $receive = GoodsReceive::where('id',$request->id)->first();
         $doc    = Document::where('received_goods_id',$request->id)->get();
         $driver =  DriverInfo::where('received_goods_id',$request->id)
                             ->where('user_id',getAuth()->id)
                             ->whereNull('duration')->first();
 
-        $finish_driver = DriverInfo::where('received_goods_id',$request->id)
-                            ->whereNotNull('duration')->get();
-        // update
+        $driver_last = DriverInfo::where('received_goods_id', $request->id)->orderBy('id', 'desc')->first();
+
+        $start = strtotime($driver_last->start_date.' '.$driver_last->start_time);
+        $now    = Carbon::now()->timestamp;
+        $diff = $now - $start;
+
+        if(cur_truck_sec($driver_last->id) < 86401)
+        {
+                $driver_last->update([
+                    'duration'      => $request->timecount
+                ]);
+        }
+
         if($driver)
         {
             $start = strtotime($driver->start_date.' '.$driver->start_time);
@@ -791,13 +808,26 @@ class ActionController extends Controller
                 'message' => 'Product not found.',
             ], 404);
         }
+    }
 
-        // return response()->json([
-        //     'message' => 'Barcode marked as not scanned successfully.',
-        //     'barcode' => $barcode,
-        //     'remark' => $remark,
-        //     'document_id' => $document_id
-        // ]);
-
+    public function barcode_scan_pause($id)
+    {
+        $product = Product::where('id', $id)->first();
+        if ($product) {
+            if ($product->scann_pause === 1) {
+                $product->scann_pause = null;
+            } else {
+                $product->scann_pause = 1;
+            }
+            
+            $product->save();
+            return response()->json([
+                'message' => 'Barcode scan pause status updated successfully',
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Barcode not found',
+            ], 404);
+        }
     }
 }

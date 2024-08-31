@@ -113,6 +113,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             route::get('change_branch/{id}','change_branch');
             Route::post('/barcode_not_scan','barcode_not_scan')->name('barcode_not_scan');
+            Route::get('/barcode_scan_pause/{id}','barcode_scan_pause')->name('barcode_scan_pause');
         });
 
         route::group(['controller'=>AdminController::class],function(){
