@@ -66,8 +66,6 @@ class ActionController extends Controller
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
                 where statusflag <> 'C'
-                and statusflag in ('P','Y')
-
                 --and statusflag in ('P','Y')
                 --$brch_con
                 and purchaseno= '$val'
@@ -162,7 +160,15 @@ class ActionController extends Controller
                             ->WhereNull('not_scan_remark')
                             ->first();
         if($product){
+            // $scann_count = 1;
 
+            // if ($product->scann_count !== null) {
+            //     $scann_count = $product->scann_count + 1;
+            // }
+
+            // $product->update([
+            //     'scann_count' => $scann_count
+            // ]);
             $all_product =Product::whereIn('document_id',$doc_ids)
                                 ->where('bar_code',$item)
                                 ->orderBy('id','asc')
@@ -173,7 +179,7 @@ class ActionController extends Controller
             $doc_no = $product->doc->document_no;
             $conn = DB::connection('master_product');
             try {
-            if(in_array(getAuth()->branch_id,[17,19,20]))
+            if(in_array(getAuth()->branch_id,[17,19,20,9]))
             {
                 $data = $conn->select("
                     select * from
@@ -213,11 +219,10 @@ class ActionController extends Controller
             {
                 $scann_qty = 1;
                 $scanned = $product->scanned_qty + $qty;
-
                 $scann_count = $product->scann_count + $scann_qty;
-
                 $product->update([
-                    'scanned_qty' => $scanned
+                    'scanned_qty' => $scanned,
+                    'scann_count' => $scann_count,
                 ]);
                 // product code တခုထက်ပို
             }elseif(count($all_product) > 1)
@@ -358,7 +363,24 @@ class ActionController extends Controller
                 Session::put('first_time_search_'.$request->id,$pd_code);
             }
 
-            return response()->json(['doc_no'=>$doc_no,'bar_code'=>$product->bar_code,'data'=>$product,'scanned_qty'=>$qty,'pd_code'=>$pd_code],200);
+            // $scann_count = 1;
+            // if ($product->scann_count !== null) {
+            //     $scann_count = $product->scann_count + 1;
+            // }
+
+            // $product->update([
+            //     'scann_count' => $scann_count
+            // ]);
+
+            // return response()->json([
+            //     'doc_no' => $doc_no,
+            //     'bar_code' => $barcode,
+            //     'data' => $product,
+            //     'scanned_qty' => $qty,
+            //     'pd_code' => $pd_code,
+            //     'scann_count' => $scann_count
+            // ], 200);
+
             } catch (\Exception $e) {
                 logger($e);
                 return response()->json(['message'=>'Server Time Out Please Try Again'],500);
@@ -427,12 +449,10 @@ class ActionController extends Controller
             $pass   = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
             $this_scanned = get_scanned_qty($driver->id);
 
-
             $driver->update([
                 'car_scanning' =>  0,
                 'duration'      => $pass
             ]);
-
 
             if(cur_truck_sec($driver->id) < 86401)
             {
@@ -490,35 +510,6 @@ class ActionController extends Controller
     public function finish_goods($id,$timeContValue)
     {
         $receive = GoodsReceive::where('id',$id)->first();
-
-        $driver = DriverInfo::where('received_goods_id',$id)
-                            ->where('user_id',getAuth()->id)
-                            ->whereNull('duration')
-                            ->first();
-
-
-        $finish_driver = DriverInfo::where('received_goods_id',$id)
-                                    ->whereNotNull('duration')->get();
-
-        if (!$driver) {
-            $driver = DriverInfo::where('received_goods_id', $id)
-                                ->where('user_id', auth()->id())
-                                ->orderBy('id', 'desc')
-                                ->first();
-        }
-
-        //$driver = DriverInfo::where('received_goods_id',$id)
-        //                     ->where('user_id',getAuth()->id)
-        //                     ->whereNull('duration')
-        //                     ->first();
-        // if (!$driver) {
-        //     $driver = DriverInfo::where('received_goods_id', $id)
-        //                         ->where('user_id', auth()->id())
-        //                         ->orderBy('id', 'desc')
-        //                         ->first();
-        // }
-
-
         $driver = DriverInfo::where('received_goods_id', $id)
                     ->where('scan_user_id', auth()->id())
                     ->orderBy('id', 'desc')
@@ -555,27 +546,6 @@ class ActionController extends Controller
                 'status'                => 'complete'
             ]);
 
-
-
-
-        if(cur_truck_sec($driver->id) < 86401)
-        {
-
-            $receive->update([
-                'total_duration'        => get_all_duration($id),
-                'remaining_qty'         => $data['remaining'],
-                'exceed_qty'            => $data['exceed'],
-                'status'                => 'complete'
-            ]);
-
-            if(cur_truck_sec($driver->id) < 86401)
-
-            $driver->update([
-                'car_scanning' =>  0,
-                'duration'      => $timeContValue,
-            ]);
-
-
             // if(cur_truck_sec($driver->id) < 86401)
             if(timeToTotalSeconds($timeContValue) < 86401);
             {
@@ -586,19 +556,15 @@ class ActionController extends Controller
                     'status'                => 'complete'
                 ]);
 
-
                 $driver->update([
                     'scanned_goods' => $this_scanned,
                     // 'duration'      => $timeContValue,
                     // 'car_scanning' =>  0
                 ]);
 
-
-            return response()->json(200);
-        }
-
-        return response()->json(500);
-
+                return response()->json(200);
+            }
+            return response()->json(500);
         }
     }
 
@@ -657,7 +623,6 @@ class ActionController extends Controller
 
     public  function add_product(Request $request)
     {
-        // dd($request->all());
         Common::Log(route('add_product'),"manually add product qty");
 
         $product = Product::find($request->product);

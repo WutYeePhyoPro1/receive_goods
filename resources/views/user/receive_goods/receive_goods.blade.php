@@ -28,7 +28,7 @@
 
     }
 
-    .copy-button, .scan-copy-button, .excess-copy-button .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode, i {
+    .copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode, i {
         font-size: 10px;
         color: black;
     }
@@ -91,7 +91,7 @@
                     <button class="h-12 bg-rose-300 hover:bg-rose-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg" id="start_count_btn">Start Count</button>
                 @endif
             @elseif($driver_last)
-            
+
                 {{-- @if ($status != 'view' && isset($driver_last->start_date) && ($main->scan_user_id == getAuth()->id || $driver_last->scan_user_id == getAuth()->id)) --}}
                 @if ($status != 'view' && isset($driver_last->start_date) && ($driver_last->scan_user_id == getAuth()->id))
                     <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
@@ -130,7 +130,7 @@
                     {{ $driver_last->duration }}
                 </span>
             @endif
-        @else 
+        @else
             <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
             </span>
         @endif
@@ -205,7 +205,7 @@
                 @if ($cur_driver)
                     <input type="hidden" id="started_time" value="{{ isset($cur_driver->start_date) ? ($cur_driver->start_date.' '.$cur_driver->start_time) : ''}}">
                 @elseif($driver_last)
-                    <input type="hidden" id="started_time_pause" value="{{$driver_last->duration}}">   
+                    <input type="hidden" id="started_time_pause" value="{{$driver_last->duration}}">
                 @endif
             @endif
 
@@ -334,10 +334,10 @@
                                                     @if (!$color)
                                                         <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_barcode" data-barcode="{{ $tem->bar_code }}" data-id = "{{ $tem->id }}" >
                                                             <i class="bx bx-minus"></i>
-                                                        </button> 
+                                                        </button>
                                                     @endif
-                                                    
-        
+
+
                                                     {{-- <span data-barCode="{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
                                                     <button data-copy-id="{{ $tem->bar_code }}" data-barCode="{{ $tem->bar_code }}" class="copy-button-barcode">
                                                         <i class="fas fa-copy"></i>
@@ -361,10 +361,9 @@
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
                                                 <div class="main_scan">
                                                     {{ $tem->scanned_qty }}
-
                                                     @if (!$driver_last)
                                                         {{-- <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i> --}}
-                                                    @else 
+                                                    @else
                                                         @if (isset($driver_last->start_date))
                                                             <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                         @endif
@@ -405,6 +404,7 @@
                                 <th class="border border-slate-400 border-t-0">Box Barcode</th>
                                 <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
                                 <th class="border border-slate-400 border-t-0 border-r-0">Quantity</th>
+                                <th class="border border-slate-400 border-t-0 border-r-0">Scann Quantity</th>
                             </tr>
                         </thead>
                             <?php $i=0 ?>
@@ -480,12 +480,12 @@
                                                         <button data-copy-id="{{ $tem->bar_code }}" class="scan-copy-button-barcode" >
                                                             <i class="fas fa-copy"></i>
                                                         </button>
-
                                                 </td>
 
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
 
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty }}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0 no">{{ $tem->scann_count }}</td>
                                             </tr>
                                             {{-- @endif --}}
                                             @endforeach
@@ -520,7 +520,7 @@
                         </thead>
 
                             <?php $i=0 ?>
-                            
+
                             {{-- @foreach ($document as $item)
                                 @if (count(search_excess_pd($item->id))>0)
                                 <?php
@@ -571,7 +571,7 @@
                             @php
                                 $searchResult = search_excess_pd($item->id);
                             @endphp
-                        
+
                             @if (count($searchResult) > 0)
                                 <?php $i++; ?>
                                 <tbody class="excess_body">
@@ -613,7 +613,7 @@
                                 </tbody>
                             @endif
                         @endforeach
-                        
+
 
 
                             <tbody class="excess_scan_body"></tbody>
@@ -779,18 +779,6 @@
                         @csrf
                             <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}" value="{{ isset($main) ? $main->id : ''  }}">
                             <div class="grid grid-cols-2 gap-5 my-5">
-
-                                {{-- <div class="flex flex-col px-10 relative ">
-                                    <label for="truck_no">Truck No<span class="text-rose-600">*</span> :</label>
-                                    <input type="text" name="truck_no" id="truck_no" class=" truck_div mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none" value="{{ old('truck_no') }}" placeholder="truck..." autocomplete="off">
-                                        <ul class="truck_div w-[77%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto" style="top: 100%">
-                                        </ul>
-                                    @error('truck_no')
-                                        <small class="text-rose-500 ms-1">{{ $message }}</small>
-                                    @enderror
-                                </div> --}}
-
-
                                 <div class="flex flex-col px-10">
                                     <label for="truck_type">Type of Truck<span class="text-rose-600">*</span> :</label>
                                     <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
@@ -801,7 +789,7 @@
                                             <option value="{{ $item->id }}" data-name="{{ $item->truck_name }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>
                                                 {{ $item->truck_name }}
                                             </option>
-                                            
+
                                         @endforeach
                                     </Select>
                                     @error('truck_type')
@@ -848,7 +836,7 @@
                                     @enderror
                                 </div>
 
-                                
+
                                 <?php
                                     $dc = [17,19,20];
                                 ?>
@@ -866,7 +854,7 @@
                                     @enderror
                                     </div>
                                 @endif
-                
+
 
                             </div>
                         <div class="grid grid-cols-2 gap-5 my-5">
@@ -1247,11 +1235,11 @@
                 $pause_scan_pd = $(this).data('po');
 
                 var currentStatus = $icon.data('status');
-                var newStatusText = currentStatus === 1 
+                var newStatusText = currentStatus === 1
                     ? `Do you want to continue <b>${$pause_scan_barcode}</b> barcode from this <b>${$pause_scan_pd}</b> ? `
                     : `Do you want to pause <b>${$pause_scan_barcode}</b> barcode from this <b>${$pause_scan_pd}</b> ? `;
-                var successText = currentStatus === 1 
-                    ? "The barcode scan has been continued." 
+                var successText = currentStatus === 1
+                    ? "The barcode scan has been continued."
                     : "The barcode scan has been paused.";
 
                 Swal.fire({
@@ -1283,7 +1271,7 @@
 
             async function copyText(copyId, buttonElement) {
                 try {
-                    const textToCopy = copyId; 
+                    const textToCopy = copyId;
                     if (textToCopy) {
                         const tempInput = document.createElement('textarea');
                         tempInput.value = textToCopy;
@@ -1358,26 +1346,8 @@
                                 $('.search_main_body').empty();
                                 $('.search_scan_body').empty();
                                 $('.excess_scan_body').empty();
+
                                 if (!isEmptyDocuments) {
-                                    documents.forEach((document, i) => {
-                                        let barCodes = document.bar_code;
-                                        let supplierNames = document.supplier_name;
-                                        let qtys = document.qty;
-                                        let scannedQtys = document.scanned_qty;
-                                        let checkColor = document.check_color;
-                                        let scanZero = document.scan_zero;
-                                        let searchpdId = document.search_pd_id;
-                                        let Unit = document.unit;
-                                        let documentno = document.document_no;
-                                        let isDcStaff = need_document_inform.isDcStaff;
-                                        let curDriver = need_document_inform.curDriver;
-                                        let authId = need_document_inform.authId;
-                                        let curDriverStartDate = need_document_inform.cur_driver_start_date;
-
-                                        for (let j = 0; j < barCodes.length; j++) {
-                                            let buttonHtml = '';
-                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
-
                                     for (var i = 0; i < documents.length; i++) {
                                         var document = documents[i];
                                         var barCodes = document.bar_code;
@@ -1396,37 +1366,23 @@
                                         var authId = need_document_inform.authId;
                                         var barcodeId = document.barcode_id
                                         var lastDriverStartDate = need_document_inform.driver_last_start_date;
-        
+
                                         for (var j = 0; j < barCodes.length; j++) {
                                             var buttonHtml = '';
-<<<<<<< HEAD
-                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || (!isDcStaff && driverLast && authId === driverLast.user_id) || isDcStaff) {
-
-                                                buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
-                                            }
-                                            let additionalIconHtml = '';
-                                            if( curDriverStartDate == null){
-
-                                            } else if (curDriverStartDate.length != 0) {
-=======
                                             if ((!isDcStaff && curDriver && authId === curDriver.user_id) || (!isDcStaff && driverLast && authId === driverLast.scan_user_id) || isDcStaff) {
                                                 buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
                                             }
                                             var additionalIconHtml = '';
                                             if (lastDriverStartDate == null) {
                                             } else if (lastDriverStartDate.length != 0) {
->>>>>>> 21127af (260824 second)
                                                 additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
                                             }
-
-                                            let rowHtml = `<tr class="h-10">
-
 
                                             var barcodeHtml = barcodeHtmls[j] || {
                                                 bar_stick1: '',
                                                 bar_stick2: '',
                                                 bar_stick3: ''
-                                            }; 
+                                            };
                                             var buttonHtmltwo = '';
                                             if (!checkColor[j]) {
                                                 buttonHtmltwo = `
@@ -1436,26 +1392,10 @@
                                                     `;
                                             }
                                             var rowHtml = `<tr class="h-10">
-
                                                 ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `
                                                     <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-
-
-                                                            <span id="doc-no- ${document.document_no}"> ${document.document_no}</span>
-                                                            <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
-                                                                <i class="fas fa-copy"></i>
-                                                            </button>
-                                                    </td>`
-                                                :
-                                                '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
-                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
-                                                        <span id="bar-code- ${barCodes[j]}"> ${barCodes[j]}</span>
-                                                        <button id="btn-copy-bar- ${barCodes[j]}" class="copy-button-barcode" >
-                                                            <i class="fas fa-copy"></i>
-                                                        </button>
-=======
                                                         <span>${document.document_no}</span>
                                                         <button data-copy-id="${document.document_no}" class="copy-button">
                                                             <i class="fas fa-copy"></i>
@@ -1468,74 +1408,30 @@
                                                     <button data-copy-id="${barCodes[j]}" class="copy-button-barcode">
                                                         <i class="fas fa-copy"></i>
                                                     </button>
->>>>>>> 498ac34 (14/08/24 first)
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
-                                                    <span class="cursor-pointer hover:underline hover:font-semibold  select-none" data-index="${j}">${qtys[j]}</span>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} qty">
+                                                    <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="${j}">${qtys[j]}</span>
                                                     <input type="hidden" class="pd_unit" value="${Unit[j]}">
                                                     <input type="hidden" class="pd_name" value="${supplierNames[j]}">
                                                     <input type="hidden" class="pd_id" value="${searchpdId[j]}">
-                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'></div>
-                                                    <div class='px-5 bar_stick1 hidden' id='bar_stick1_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
-                                                    <div class='px-5 bar_stick2 hidden' id='bar_stick2_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 22)}</div>
-                                                    <div class='px-5 bar_stick3 hidden' id='bar_stick3_${searchpdId[j]}'>${generateBarcodeHTML(barCodes[j], 50)}</div>
+                                                    <div class='px-5 bar_stick1 hidden'>${barcodeHtml.bar_stick1}</div>
+                                                    <div class='px-5 bar_stick2 hidden'>${barcodeHtml.bar_stick2}</div>
+                                                    <div class='px-5 bar_stick3 hidden'>${barcodeHtml.bar_stick3}</div>
                                                 </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  scanned_qty">
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} scanned_qty">
                                                     <div class="main_scan">
                                                         ${scannedQtys[j]}
                                                         ${additionalIconHtml}
                                                     </div>
                                                     <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="${searchpdId[j]}" data-old="${scannedQtys[j]}" value="${scannedQtys[j]}">
                                                 </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} border-r-0 remain_qty">${qtys[j] - scannedQtys[j]}</td>
+
                                             </tr>`;
                                             $('.search_main_body').append(rowHtml);
                                         }
-                                    });
-                                }
-                                function generateBarcodeHTML(barcode, height) {
-                                    let barcodeHTML = `
-                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
-                                        </div>
-                                    `;
-                                    return barcodeHTML;
+                                    }
                                 }
                                 if (!isEmptyScanDocuments) {
                                     scanDocuments.forEach((scanDocument, i) => {
@@ -1548,9 +1444,7 @@
                                         var scannCount = scanDocument.scann_count;
                                         var scannId = scanDocument.scan_id;
                                         var scannPause = scanDocument.scann_pause;
-
                                         var barcodEqual = scanDocument.barcode_equal;
-          
 
                                         for (let j = 0; j < sanbarCodes.length; j++) {
                                             var buttonHtml = '';
@@ -1582,6 +1476,7 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
                                                     ${scannedQty > qty ? qty : scannedQty}
                                                 </td>
+                                                <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 no">${scannCount[j]}</td>
                                             </tr>`;
                                             $('.search_scan_body').append(rowHtmltwo);
                                         }
@@ -1627,47 +1522,6 @@
                                             $('.excess_scan_body').append(rowHtmlthree);
                                         }
                                     });
-                                }
-                                function generateBarcodeHTML(barcode, height) {
-                                    let barcodeHTML = `
-                                        <div style="font-size:0;position:relative;width:246px;height:${height}px;">
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:0px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:6px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:12px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:22px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:28px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:36px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:44px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:56px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:62px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:66px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:70px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:76px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:88px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:94px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:102px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:110px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:118px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:124px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:132px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:144px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:150px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:154px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:8px;height:${height}px;position:absolute;left:158px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:168px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:176px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:184px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:188px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:198px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:208px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:214px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:220px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:6px;height:${height}px;position:absolute;left:230px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:2px;height:${height}px;position:absolute;left:238px;top:0px;">&nbsp;</div>
-                                            <div style="background-color:black;width:4px;height:${height}px;position:absolute;left:242px;top:0px;">&nbsp;</div>
-                                        </div>
-                                    `;
-                                    return barcodeHTML;
                                 }
                             } else {
                                 $('.search_main_body').empty();
@@ -1718,7 +1572,7 @@
                 var startedTimePause = localStorage.getItem('startedTimePause') || $('#started_time_pause').val();
                 var startTime = localStorage.getItem('startTime') || Date.now();
                 if (startedTimePause) {
-                    var interval = 1000; 
+                    var interval = 1000;
                     function timeToSeconds(time) {
                         var parts = time.split(':');
                         var hours = parseInt(parts[0], 10);
@@ -1740,7 +1594,7 @@
                             var updatedTime = secondsToTime(totalSeconds);
                             $('#time_count_pause').text(updatedTime);
                             localStorage.setItem('startedTimePause', updatedTime);
-                        }, interval); 
+                        }, interval);
                     }
                     function stopInterval() {
                         if (intervalID) {
@@ -1760,7 +1614,7 @@
                     localStorage.removeItem('startTime');
                 }
 
-                
+
                 var token = $("meta[name='__token']").attr('content');
                 $finish = $('#finished').val();
                 $status = $('#view_').val();
@@ -1816,12 +1670,12 @@
                         }
                     })
 
-                })  
+                })
 
                 $(document).on('click','.del_barcode',function(e){
                     let barcode = $(this).data('barcode');
                     let product_id = $(this).data('id');
-                    
+
                     Swal.fire({
                         icon: 'warning',
                         text: 'Are you sure to remove for this product code?',
@@ -1843,7 +1697,7 @@
                                 method: 'POST',
                                 data: {
                                     barcode: barcode,
-                                    document_id: product_id, 
+                                    document_id: product_id,
                                     remark: result.value,
                                     _token:token
                                     // _token: $('meta[name="csrf-token"]').attr('content')
@@ -1862,10 +1716,10 @@
                                     Swal.fire('Error', xhr.responseText, 'error');
                                 }
                             });
-                            
+
                         }
                     })
-                    
+
                 })
 
                 if(!$finish)
@@ -1980,8 +1834,8 @@
                     $(document).on('click','.sticker',function(e){
                         $('#print_eq').val('');
                         $('#print_count').val('');
-                       $('#print_no').show();
-                       $('#print_eq').val($(this).data('index'));
+                        $('#print_no').show();
+                        $('#print_eq').val($(this).data('index'));
                     })
 
                     $(document).on("input",'#print_count',function(e){
@@ -1999,7 +1853,6 @@
 
                    $(document).on('click','#final_print',function(e){
                         $index = $('#print_eq').val();
-
                         $pd_code= $('.bar_code').eq($index).text();
                         $qty    = $('#print_count').val();
                         $unit   = $('.pd_unit').eq($index).val();
@@ -2042,7 +1895,7 @@
 
                                 // new_pr.document.write(`
                                 //     <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
-                                //         <div style="padding-left: 20px; padding-right: 20px;">            
+                                //         <div style="padding-left: 20px; padding-right: 20px;">
                                 //             <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
                                 //         </div>
                                 //         <div style="margin-top:${ $margin }px; margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
@@ -2058,7 +1911,7 @@
 
                                 new_pr.document.write(`
                                     <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
-                                        <div style="padding-left: 20px; padding-right: 20px;">            
+                                        <div style="padding-left: 20px; padding-right: 20px;">
                                             <small class="" style="word-break: break-all;font-size:0.9rem;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
                                         </div>
                                         <div style="margin-top:${ $margin }px; margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
@@ -2124,9 +1977,9 @@
                                     new_pr.document.write(`
                                     <div class="" style="padding: 20px 10px 5px 5px;position:relative;">
 
-                                    <div style="padding-left: 20px; padding-right: 50px;">  
+                                    <div style="padding-left: 20px; padding-right: 50px;">
                                         <small class="" style="font-size:0.8rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
-                                    </div>  
+                                    </div>
                                     <div style="position:absolute;right:50px;top:120px">
                                         <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
                                     </div>
@@ -2153,7 +2006,6 @@
                             new_pr.close();
                             };
                             $('#print_no').hide();
-
                         }
 
                     })
@@ -2375,6 +2227,7 @@
                     });
 
                     $(document).on('barcode_enter','#bar_code',function(e){
+                        $('#back').hide();
                         $val  = $(this).val();
                         $recieve_id = $('#receive_id').val();
                         $this       = $(this);
@@ -2388,6 +2241,7 @@
                                 data: {_token:token , data:$val,id:$recieve_id,car : $cur_id},
                                 success:function(res){
 
+                                    //$('.scanned_pd_div').eq(0).find('td').addClass('latest');
                                     // if(res.msg == 'decision')
 
                                     // {
@@ -2500,6 +2354,7 @@
 
                             })
                         }
+
                     })
 
                     $(document).on('click','.decision_doc',function(e)
@@ -2569,28 +2424,14 @@
             function not_finish($id) {
                 var timeCountValue = $('#time_count').text() ? $('#time_count').text() : $('#time_count_pause').text();
                 $.ajax({
-                        url : "{{ route('confirm') }}",
-                        type: 'POST',
-                        data:{_token : token , id :$id},
-                        success:function(res){
-                            location.href = '/list';
-                        },
-                        error:function(xhr,status,error){
-                            Swal.fire({
-                                    icon : 'error',
-                                    title: 'truck duration မှာ 24 hr ကျော်သွားပါသဖြင့် save မရပါ။'
-                                })
-                        }
-                    })
-             }
                     url : "{{ route('confirm') }}",
                     type: 'POST',
                     data:{_token : token , id :$id, timecount: timeCountValue},
                     success: function(res) {
                         if (localStorage.getItem('startedTimePause') !== null) {
-                            localStorage.removeItem('startedTimePause');   
-                            localStorage.removeItem('startTime');  
-                        } 
+                            localStorage.removeItem('startedTimePause');
+                            localStorage.removeItem('startTime');
+                        }
                         location.href = '/list';
                     },
                     error:function(xhr,status,error){
@@ -2601,7 +2442,6 @@
                     }
                 })
             }
->>>>>>> 4b4d1f6 (12/08/24 first)
 
 
             $(document).on('click','#confirm_btn',function(e){
@@ -2623,7 +2463,7 @@
                                 }
                                 not_finish($id)
                             }
-                        })                                                                                                                                  
+                        })
                     }else{
                         if (startedTimePause) {
                                     stopInterval();
@@ -2636,7 +2476,7 @@
                 function all_finish($finish,$id){
                     if(!$finish)
                     {
-                        
+
                             Swal.fire({
                                 'icon'      : 'info',
                                 'title'     : 'Are You Sure?',
@@ -2705,11 +2545,11 @@
                     $.ajax({
                             url : "/finish_goods/"+$id+"/"+$timeContValue,
                             type: 'get',
-                            success:function(res){ 
+                            success:function(res){
                                 if (localStorage.getItem('startedTimePause') !== null) {
-                                    localStorage.removeItem('startedTimePause');   
-                                    localStorage.removeItem('startTime');  
-                                } 
+                                    localStorage.removeItem('startedTimePause');
+                                    localStorage.removeItem('startTime');
+                                }
                                 location.href = '/list';
                             },
                             error : function(xhr,status,error){
@@ -2731,7 +2571,7 @@
                                 type: 'POST',
                                 data: {_token : token , id : $id},
                                 success: function(res){
-            
+
                                     $('.scan_parent').load(location.href + ' .scan_parent');
                                     $('.excess_div').load(location.href + ' .excess_div');
                                 }
@@ -3008,7 +2848,7 @@
                     // if($vali == 'car' && $('#tru_imp').hasClass('hidden'))
                     // {
                     //     $('#tru_imp').removeClass('hidden');
-                        
+
                     // }else if($vali == 'no_car' && !$('#tru_imp').hasClass('hidden'))
                     // {
                     //     $('#tru_imp').addClass('hidden');

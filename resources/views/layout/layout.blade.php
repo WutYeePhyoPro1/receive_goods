@@ -154,8 +154,6 @@
         "></script>
         <script src="https://cdn.jsdelivr.net/npm/selectize@0.12.6/dist/js/standalone/selectize.min.js"></script>
 
-
-        
         <script>
             $(document).ready(function(e){
                 var token = $("meta[name='__token']").attr('content');
