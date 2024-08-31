@@ -41,8 +41,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('join_receive/{id}/{car}','join_receive')->name('join_receive');
             route::get('view_goods/{id}','view_goods')->name('view_goods');
 
-
-
             route::post('car_info','store_car_info')->name('store_car_info');
             route::post('doc_info','store_doc_info')->name('store_doc_info');
 
@@ -51,9 +49,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             route::get('get_driver_info/{id}','driver_info');
             route::post('active_user','active_user')->name('active_user');
-
             route::post('del_doc','del_doc')->name('del_doc');
-
             route::post('add_product_qty','add_product_qty')->name('add_product_qty');
             route::post('search_car','search_car')->name('search_car');
             route::post('get_car','get_car')->name('get_car');

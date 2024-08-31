@@ -134,8 +134,6 @@ class userController extends Controller
     public function car_info()
     {
 
-        //$ip_address = get_client_ip();
-        //$ip_address = request()->ip();
         $id = getAuth()->id;
         $data = get_branch_truck();
         $truck_id   = $data[0];
@@ -144,14 +142,6 @@ class userController extends Controller
         $mgld_dc    = [17,19,20];
         $user_branch    = getAuth()->branch_id;
         $user_branch_code    = getAuth()->branch->branch_code;
-
-
-        // $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
-        //                 ->leftJoin('goods_receives', 'driver_infos.received_goods_id', 'goods_receives.id')
-        //                 ->where('driver_infos.user_id', getAuth()->id)
-        //                 ->whereNull('goods_receives.deleted_at')
-        //                 ->whereNull('driver_infos.duration')
-        //                 ->first();
 
         $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
                         ->leftJoin('goods_receives', 'driver_infos.received_goods_id', 'goods_receives.id')
@@ -401,6 +391,7 @@ class userController extends Controller
     {
 
         Common::Log(route('store_doc_info'),"Store Infomation and Generate REG");
+
         if(dc_staff())
         {
             $data = $request->validate([
@@ -424,7 +415,6 @@ class userController extends Controller
                 ]);
             }
 
-
             // $validator->after(function ($validator) use($request) {
             //     if ($request->image_1 == null && $request->image_2 == null && $request->image_3 == null) {
             //         $validator->errors()->add(
@@ -439,14 +429,24 @@ class userController extends Controller
             $shr  = 'REG'.getAuth()->branch->branch_short_name.str_replace('-', '', Carbon::now()->format('Y-m-d'));
         }
 
-
-        $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',getAuth()->branch_id)->withTrashed()->get();
+        if(dc_staff()){
+            $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',$request->branch)
+            ->withTrashed()->get();
+        } else {
+            $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',getAuth()->branch_id)
+            ->withTrashed()->get();
+        }
+        // $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',getAuth()->branch_id)
+        // $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',$request->branch)
+        // ->withTrashed()->get();
         $same = count($same);
+        
         if($same > 0){
             $name = $shr.'-'.sprintf("%04d",$same+1);
         }else{
             $name = $shr.'-'.sprintf("%04d",1);
         }
+        // dd($request->branch, getAuth()->branch_id, $same, $name);
 
         $main               = new GoodsReceive();
         $main->document_no  = $name;
