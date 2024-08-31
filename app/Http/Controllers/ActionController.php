@@ -536,6 +536,10 @@ class ActionController extends Controller
         $this_scanned = get_scanned_qty($id);
         if($driver)
         {
+            $driver->update([
+                'car_scanning' =>  0,
+                'duration'      => $timeContValue,
+            ]);
 
             $receive->update([
                 'total_duration'  => get_all_duration_second($id),  
@@ -543,6 +547,7 @@ class ActionController extends Controller
                 'exceed_qty'            => $data['exceed'],
                 'status'                => 'complete'
             ]);
+
 
 
 
@@ -562,7 +567,6 @@ class ActionController extends Controller
                 'car_scanning' =>  0,
                 'duration'      => $timeContValue,
             ]);
-
 
 
             // if(cur_truck_sec($driver->id) < 86401)
