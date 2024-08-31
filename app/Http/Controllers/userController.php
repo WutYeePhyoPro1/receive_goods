@@ -133,6 +133,7 @@ class userController extends Controller
 
     public function car_info()
     {
+
         //$ip_address = get_client_ip();
         //$ip_address = request()->ip();
         $id = getAuth()->id;
@@ -151,12 +152,26 @@ class userController extends Controller
                         ->whereNull('goods_receives.deleted_at')
                         ->whereNull('driver_infos.duration')
                         ->first();
-        
+
+        $data = DriverInfo::select('driver_infos.*', 'goods_receives.user_id')
+                        ->leftJoin('goods_receives', 'driver_infos.received_goods_id', 'goods_receives.id')
+                        ->where('driver_infos.user_id', getAuth()->id)
+                        ->whereNull('goods_receives.deleted_at')
+                        ->where(function ($query) {
+                            $query->whereNull('driver_infos.duration')
+                            // ->orWhereNull('driver_infos.car_scanning')
+                                ->orWhere('driver_infos.car_scanning',1);
+                        })
+                        ->first();
+
+
 
         $emp = GoodsReceive::where('user_id',getAuth()->id)
                             ->whereNull('deleted_at')
                             ->whereNull('total_duration')
                             ->first();
+
+
         $type = Truck::get();
         $gate   = CarGate::when($loc == 'dc',function($q) {
                         $q->whereIn('branch',['MM-505','MM-510','MM-511']);
@@ -203,6 +218,8 @@ class userController extends Controller
     public function receive_goods($id)
     {
         // dd('yes');
+       
+
         $data = get_branch_truck();
         $truck_id   = $data[0];
         $loc        = $data[1];
@@ -212,15 +229,20 @@ class userController extends Controller
         $main = GoodsReceive::where('id',$id)->first();
         $truck = Truck::get();
         $driver = DriverInfo::where('received_goods_id',$id)->get();
-
         $cur_driver = DriverInfo::where(['received_goods_id'=>$id,'user_id'=>getAuth()->id])->whereNull('duration')->first();
-        // dd($id, getAuth()->id);
-
-
-        // if(!$cur_driver){
         $driver_last = DriverInfo::where('received_goods_id', $id)->orderBy('id', 'desc')->first();
-        // }
-        // dd($driver_last);
+
+        if ($cur_driver) {
+            $cur_driver->update([
+                'car_scanning' => 1,
+            ]);
+        } elseif ($driver_last) {
+            $driver_last->update([
+                'car_scanning' => 1,
+            ]);
+        }
+        
+
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
@@ -275,6 +297,7 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
+
         Common::Log(route('store_car_info'),"Store Car Infomation");
         $status = 'scan';
         $driver = DriverInfo::where('received_goods_id',$request->main_id)->get();

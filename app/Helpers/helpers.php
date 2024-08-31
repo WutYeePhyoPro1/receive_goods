@@ -249,7 +249,9 @@ use Illuminate\Support\Facades\DB;
     function check_empty($id)
     {
         $data = DriverInfo::where('user_id',getAuth()->id)
-                            ->whereNull('duration')
+                            //->whereNull('duration')
+                            // ->whereNull('car_scanning')
+                            ->Where('car_scanning', 1)
                             ->first();
         $empty = false;
         if($data){

@@ -407,19 +407,13 @@ class ActionController extends Controller
     //confirm/continue Button click
     public function confirm(Request $request)
     {
-
+        
         $receive = GoodsReceive::where('id',$request->id)->first();
         $doc    = Document::where('received_goods_id',$request->id)->get();
         $driver =  DriverInfo::where('received_goods_id',$request->id)
                             ->where('user_id',getAuth()->id)
                             ->whereNull('duration')->first();
-
         $driver_last = DriverInfo::where('received_goods_id', $request->id)->orderBy('id', 'desc')->first();
-       
-
-
-
-
         if($driver)
         {
             $start = strtotime($driver->start_date.' '.$driver->start_time);
@@ -444,7 +438,8 @@ class ActionController extends Controller
                 ]);
                 $driver->update([
                     'scanned_goods' => $this_scanned,
-                    'duration'      => $pass
+                    'duration'      => $pass,
+                    'car_scanning' =>  0
                 ]);
             }else{
                 return response()->json(500);
@@ -465,13 +460,14 @@ class ActionController extends Controller
 
                 $driver_last->update([
                     'scanned_goods' => $last_this_scanned,
-                    'duration'      => $request->timecount
+                    'duration'      => $request->timecount,
+                    'car_scanning' =>  0
                 ]);
             }
         }else{
             $receive->update([
                 'total_duration' => '00:00:00',
-                'status'         => 'incomplete'
+                'status'         => 'incomplete',
             ]);
         }
         return response()->json(200);
@@ -510,12 +506,12 @@ class ActionController extends Controller
         //                         ->first();
         // }
 
+
         $driver = DriverInfo::where('received_goods_id', $id)
                     ->where('user_id', auth()->id())
-                    ->orderByRaw('duration IS NOT NULL') // Prioritize NULL durations
-                    ->orderBy('id', 'desc')             // Then order by ID descending
+                    ->orderByRaw('duration IS NOT NULL') 
+                    ->orderBy('id', 'desc')
                     ->first();
->>>>>>> 5e6a8e9 (02/08/2024 fourth)
 
         $start_time = strtotime($driver->start_date.' '.$driver->start_time);
         $now        = strtotime(Carbon::now()->format('Y-m-d H:i:s'));
@@ -560,7 +556,8 @@ class ActionController extends Controller
 
                 $driver->update([
                     'scanned_goods' => $this_scanned,
-                    'duration'      => $time
+                    'duration'      => $time,
+                    'car_scanning' =>  0
                 ]);
 
 
