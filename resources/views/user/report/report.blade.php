@@ -144,6 +144,7 @@
         <div class="">
             <table class="w-full mt-4">
                 <thead>
+                    {{ $report }}
                     @if ($report == 'product')
                             @if (dc_staff() || getAuth()->can('user-management'))
                                 <tr class="">
@@ -154,6 +155,7 @@
                                     <th class="py-2 bg-slate-400 border" colspan="3">Scanned (Count) Qty</th>
                                     <th class="py-2 bg-slate-400  border" rowspan="2">Scanned Qty</th>
                                     <th class="py-2 bg-slate-400 border" rowspan="2">Product Qty</th>
+                                    <th class="py-2 bg-slate-400 border" rowspan="2">Not Scann Qty</th>
                                     <th class="py-2 bg-slate-400  rounded-tr-md" rowspan="2">Created At</th>
                                 </tr>
                                 <tr class="">
@@ -171,6 +173,7 @@
                                 <th class="py-2 bg-slate-400 border" >Scanned (Count) Qty</th>
                                 <th class="py-2 bg-slate-400  border" >Scanned Qty</th>
                                 <th class="py-2 bg-slate-400 border" >Product Qty</th>
+                                <th class="py-2 bg-slate-400 border">Not Scann Aty</th>
                                 <th class="py-2 bg-slate-400  rounded-tr-md" >Created At</th>
                             </tr>
                             @endif
@@ -280,6 +283,7 @@
                                         <td class="h-10 text-center border border-slate-400 w-10">{{ get_scan_truck_pd($item->driver_info_id,$item->product_id,'S') }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->product->qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->product->qty - $item->scanned_qty }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
                                     </tr>
                                 @else
@@ -293,6 +297,8 @@
                                         <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'S') }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->qty - $item->scanned_qty }}aa</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
                                     </tr>
                                 @endif
@@ -307,6 +313,7 @@
                                         <td class="h-10 text-center border border-slate-400 w-10">{{ get_scan_truck_pd($item->driver_info_id,$item->product_id,'S') }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->product->scanned_qty }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->product->qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->product->qty - $item->product->scanned_qty }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->product->created_at->format('Y-m-d')}}</td>
                                     </tr>
                                 @else
@@ -318,6 +325,8 @@
                                         <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'S') }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->qty }}</td>
+                                        <td class="h-10 text-center border border-slate-400">{{ $item->qty - $item->scanned_qty }}</td>
+                                        {{-- <td class="h-10 text-center border border-slate-400">ahrkarkyaw</td> --}}
                                         <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d')}}</td>
                                     </tr>
                                 @endif

@@ -116,6 +116,9 @@ class userController extends Controller
         $truck = Truck::get();
         $driver = DriverInfo::where('received_goods_id',$id)->get();
         $cur_driver = DriverInfo::where('received_goods_id',$id)->whereNull('duration')->first();
+        // if(!$cur_driver){
+        $driver_last = DriverInfo::where('received_goods_id', $id)->orderBy('id', 'desc')->first();
+        // }
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
@@ -123,7 +126,7 @@ class userController extends Controller
         $status = 'view';
         $page = 'view';
 
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document','reason','id','scan_document_no','page'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','status','scan_document','reason','id','scan_document_no','page','driver_last'));
     }
 
     public function car_info()
@@ -146,6 +149,7 @@ class userController extends Controller
                         ->whereNull('goods_receives.deleted_at')
                         ->whereNull('driver_infos.duration')
                         ->first();
+        
 
         $emp = GoodsReceive::where('user_id',getAuth()->id)
                             ->whereNull('deleted_at')
@@ -207,7 +211,15 @@ class userController extends Controller
         $main = GoodsReceive::where('id',$id)->first();
         $truck = Truck::get();
         $driver = DriverInfo::where('received_goods_id',$id)->get();
+
         $cur_driver = DriverInfo::where(['received_goods_id'=>$id,'user_id'=>getAuth()->id])->whereNull('duration')->first();
+        // dd($id, getAuth()->id);
+
+
+        // if(!$cur_driver){
+        $driver_last = DriverInfo::where('received_goods_id', $id)->orderBy('id', 'desc')->first();
+        // }
+        // dd($driver_last);
         $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
@@ -220,7 +232,7 @@ class userController extends Controller
         $reason     = PrintReason::get();
         $page = 'receive';
         view()->share(['status'=>'scan','reason'=>$reason]);
-        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document','id','scan_document_no', 'page'));
+        return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document','id','scan_document_no', 'page','driver_last'));
     }
 
     public function join_receive($id,$car)
@@ -585,7 +597,6 @@ class userController extends Controller
                             ->where('car_no','like',"%$search%")
                             ->distinct()
                             ->get();
-
         return response()->json($data,200);
     }
 
