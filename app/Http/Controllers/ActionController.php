@@ -527,7 +527,7 @@ class ActionController extends Controller
         $this_scanned = get_scanned_qty($driver->id);
         if($driver)
         {
-            $maxTime = "23:59:59";
+            $maxTime = "24:00:00";
 
             // Check if $timeContValue is valid
             if ($timeContValue > $maxTime) {
