@@ -387,6 +387,7 @@ class ActionController extends Controller
 
         $finish_driver = DriverInfo::where('received_goods_id',$request->id)
                             ->whereNotNull('duration')->get();
+    
         if($driver)
         {
             $start = strtotime($driver->start_date.' '.$driver->start_time);

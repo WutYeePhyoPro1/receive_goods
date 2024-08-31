@@ -633,6 +633,18 @@ class userController extends Controller
             $cur_driver_start_date = [];
         }
 
+        $driver_last_first = DriverInfo::where('received_goods_id', $id)->orderBy('id', 'desc')->first();
+        if($curDriverFirst) {
+            $driver_last = DriverInfo::where('received_goods_id', $id)->orderBy('id', 'desc')->first();
+        } else {
+            $driver_last = [];
+        }
+
+        $document_id = Document::where('received_goods_id',$request->id)->pluck('id');
+        $product_barcode = Product::whereIn('document_id',$document_id)
+        ->WhereNull('not_scan_remark')
+        ->pluck('bar_code')->toArray();
+
         $authId = getAuth()->id;
         $response = [];
         $scan_response = [];
@@ -662,6 +674,7 @@ class userController extends Controller
                 $search_scaned_pd = collect(search_scanned_pd($document_id));
                 $search_excess_pd = collect(search_excess_pd($document_id));
                 if ($search_pd->isNotEmpty()) {
+                    $barcode_id = [];
                     $bar_codes = [];
                     $supplier_names = [];
                     $qtys = [];
@@ -674,6 +687,7 @@ class userController extends Controller
                     foreach ($search_pd as $pd_data) {
                         if($input_barcode_no) {
                             if ($pd_data->bar_code == $input_barcode_no) {
+                                $barcode_id[] = $pd_data->id;
                                 $bar_codes[] = $pd_data->bar_code;
                                 $supplier_names[] = $pd_data->supplier_name;
                                 $qtys[] = $pd_data->qty;
@@ -689,6 +703,7 @@ class userController extends Controller
                                 ];
                             }
                         } else {
+                            $scan_id[] = $pd_data->id;
                             $bar_codes[] = $pd_data->bar_code;
                             $supplier_names[] = $pd_data->supplier_name;
                             $qtys[] = $pd_data->qty;
@@ -721,6 +736,7 @@ class userController extends Controller
                         'search_pd_id' => $search_pd_id,
                         'unit' => $unit,
                         'barcode_htmls' => $barcode_htmls,
+                        'barcode_id' =>  $barcode_id 
                     ];
 
                     $response[] = $merged_data;
@@ -734,6 +750,7 @@ class userController extends Controller
                     $scan_colors = [];
                     $scann_count = [];
                     $scann_pause = [];
+                    $barcode_equal = [];
 
                     foreach ($search_scaned_pd as $scan_pd_data) {
                         if($input_barcode_no) {
@@ -746,6 +763,7 @@ class userController extends Controller
                                 $scan_colors[] = check_scanned_color($scan_pd_data->id);
                                 $scann_count[] = $scan_pd_data->scann_count;
                                 $scann_pause[] = $scan_pd_data->scann_pause;
+                                $barcode_equal[] = barcode_equal($product_barcode,$scan_pd_data->bar_code);
                             }
                         } else {
                             $scan_id[] = $scan_pd_data->id;
@@ -756,6 +774,7 @@ class userController extends Controller
                             $scan_colors[] = check_scanned_color($scan_pd_data->id);
                             $scann_count[] = $scan_pd_data->scann_count;
                             $scann_pause[] = $scan_pd_data->scann_pause;
+                            $barcode_equal[] = barcode_equal($product_barcode,$scan_pd_data->bar_code);
                         }
                     }
 
@@ -773,7 +792,8 @@ class userController extends Controller
                         'all_scanned' => check_all_scan($document_id),
                         'scann_count' => $scann_count,
                         'scan_id' => $scan_id,
-                        'scann_pause' => $scann_pause
+                        'scann_pause' => $scann_pause,
+                        'barcode_equal' => $barcode_equal
                     ];
                     $scan_response[] = $scan_merged_data;
                 }
@@ -819,7 +839,8 @@ class userController extends Controller
                     'isDcStaff' => $isDcStaff,
                     'curDriver' => $curDriver,
                     'authId' => $authId,
-                    'cur_driver_start_date' => $cur_driver_start_date
+                    'cur_driver_start_date' => $cur_driver_start_date,
+                    'driver_last' => $driver_last
                 ];
             }
             //dd($response, $scan_response, $excess_response);

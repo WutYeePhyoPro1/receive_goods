@@ -84,28 +84,30 @@
                 <!-- <a href="{{ route('complete_doc_print',['id'=>$main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a> -->
             @endif
 
-            @if(!$cur_driver)
-            {{-- @if ($driver_last) --}}
-                <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
-                <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
-            @else
+
+            @if ($cur_driver)
                 @if ($status != 'view' && isset($cur_driver->start_date) && ($main->user_id == getAuth()->id || $cur_driver->user_id == getAuth()->id))
                     <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
                     <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
                 @elseif(!isset($cur_driver->start_date) && !dc_staff() && $status == 'scan' && $main->status != 'complete')
                     <button class="h-12 bg-rose-300 hover:bg-rose-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg" id="start_count_btn">Start Count</button>
                 @endif
+            @elseif($driver_last)
+                @if ($status != 'view' && isset($driver_last->start_date) && ($main->user_id == getAuth()->id || $driver_last->user_id == getAuth()->id))
+                    <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
+                    <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
+                @endif
+            @else 
+                <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
+                <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
             @endif
+
         </div>
         <?php
                 $total_sec    = get_done_duration($main->id);
         ?>
 
-        @if (!$cur_driver)
-            <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count_pause">
-                {{ $driver_last->duration }}
-            </span>
-        @else
+        @if ($cur_driver)
             <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count">
                 @if ($main->status == 'complete')
                 {{ $main->total_duration }}
@@ -113,9 +115,20 @@
                 {{ (isset($status) && $status == 'view') ? ($main->total_duration) : (isset($cur_driver) ? cur_truck_dur($cur_driver->id) : '00:00:00') }}
                 @endif
             </span>
+        @elseif($driver_last)
+            @if ((isset($status) && $status == 'view'))
+                <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
+                    {{$main->total_duration }}
+                </span>
+            @elseif((isset($status) && $status == 'scan'))
+                <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2" id="time_count_pause">
+                {{ $driver_last->duration }}
+                </span>
+            @endif
+        @else 
+            <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
+            </span>
         @endif
-
-        
 
     </div>
     <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
@@ -183,11 +196,10 @@
             </div>
             @if($main->status != 'complete')
 
-            @if (!$cur_driver)
-                <input type="hidden" id="started_time_pause" value="{{$driver_last->duration}}">   
-                {{-- <input type="hidden" id="started_time" value="{{ isset($driver_last->start_date) ? ($driver_last->start_date.' '.$driver_last->start_time) : ''}}">    --}}
-            @else
+            @if ($cur_driver)
                 <input type="hidden" id="started_time" value="{{ isset($cur_driver->start_date) ? ($cur_driver->start_date.' '.$cur_driver->start_time) : ''}}">
+            @elseif($driver_last)
+                <input type="hidden" id="started_time_pause" value="{{$driver_last->duration}}">   
             @endif
 
             {{-- <input type="hidden" id="duration" value="{{ $total_sec ?? 0 }}"> --}}
@@ -300,8 +312,8 @@
                                                     </div>
                                                 </td> --}}
                                                 <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-                                                        <span id="doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
-                                                        <button id="btn-copy-doc-{{ $item->document_no }}" class="copy-button">
+                                                        <span>{{ $item->document_no }}</span>
+                                                        <button data-copy-id="{{ $item->document_no }}" class="copy-button">
                                                             <i class="fas fa-copy"></i>
                                                         </button>
                                                 </td>
@@ -313,16 +325,21 @@
 
                                             <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">
                                                     @if (!$color)
-                                                        <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_barcode" data-barcode="{{ $tem->bar_code }}" data-id = "{{ $tem->id }}">
+                                                        <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_barcode" data-barcode="{{ $tem->bar_code }}" data-id = "{{ $tem->id }}" >
                                                             <i class="bx bx-minus"></i>
                                                         </button> 
                                                     @endif
                                                     
         
-                                                    <span id="bar-code-{{ $tem->bar_code }}-{{$j}}">{{ $tem->bar_code }}</span>
-                                                    <button id="btn-copy-bar-{{ $tem->bar_code }}" class="copy-button-barcode" >
+                                                    {{-- <span data-barCode="{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
+                                                    <button data-copy-id="{{ $tem->bar_code }}" data-barCode="{{ $tem->bar_code }}" class="copy-button-barcode">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button> --}}
+                                                    <span>{{ $tem->bar_code }}</span>
+                                                    <button data-copy-id="{{ $tem->bar_code }}" class="copy-button-barcode">
                                                         <i class="fas fa-copy"></i>
                                                     </button>
+
                                             </td>
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
                                             <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
@@ -345,7 +362,6 @@
                                                             <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
                                                         @endif
                                                     @endif
-                                                    {{-- a --}}
                                                 </div>
                                                 <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
                                             </td>
@@ -430,8 +446,8 @@
                                                     <td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 {{ check_all_scan($item->id) ? 'bg-green-200 text-green-600' : '' }}">
                                                         {{-- {{ $item->document_no }} --}}
 
-                                                            <span id="scan-doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
-                                                            <button id="scan-btn-copy-doc-{{ $item->document_no }}" class="scan-copy-button">
+                                                            <span>{{ $item->document_no }}</span>
+                                                            <button data-copy-id="{{ $item->document_no }}" class="scan-copy-button">
                                                                 <i class="fas fa-copy"></i>
                                                             </button>
 
@@ -453,8 +469,8 @@
                                                         @if (barcode_equal($product_barcode, $tem->bar_code))
                                                             <button class="pause_scan" id="{{ $tem->id }}" data-status="{{ $tem->scann_pause }}" data-bar_code="{{ $tem->bar_code }}" data-po="{{ $item->document_no }}"><i class='bx {{ $tem->scann_pause === 1 ? 'bx-play-circle' : 'bx-pause-circle' }} text-sm'></i></button>
                                                         @endif
-                                                        <span id="scan-bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
-                                                        <button id="scan-btn-copy-bar-{{ $tem->bar_code }}" class="scan-copy-button-barcode" >
+                                                        <span data-bar_code="{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
+                                                        <button data-copy-id="{{ $tem->bar_code }}" class="scan-copy-button-barcode" >
                                                             <i class="fas fa-copy"></i>
                                                         </button>
 
@@ -566,8 +582,8 @@
                                         @if ($index == 0)
                                             <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
                                             <td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0">
-                                                <span id="excess-doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
-                                                <button id="excess-btn-copy-doc-{{ $item->document_no }}" class="excess-copy-button">
+                                                <span>{{ $item->document_no }}</span>
+                                                <button data-copy-id="{{ $item->document_no }}" class="excess-copy-button">
                                                     <i class="fas fa-copy"></i>
                                                 </button>
                                             </td>
@@ -576,8 +592,8 @@
                                             <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
                                         @endif
                                         <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
-                                            <span id="excess-bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
-                                            <button id="excess-btn-copy-bar-{{ $tem->bar_code }}" class="excess-copy-button-barcode">
+                                            <span>{{ $tem->bar_code }}</span>
+                                            <button data-copy-id="{{ $tem->bar_code }}" class="excess-copy-button-barcode">
                                                 <i class="fas fa-copy"></i>
                                             </button>
                                         </td>
@@ -886,7 +902,7 @@
 @endif
 
    {{-- Decision Modal --}}
-   {{-- <div class="hidden" id="alert_model">
+   <div class="hidden" id="alert_model">
         <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 ">
             <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
                 <!-- Modal content -->
@@ -913,8 +929,8 @@
                 </div>
             </div>
         </div>
-    </div> --}}
-{{-- End Modal --}}
+    </div>
+{{-- End Modal
 
     {{-- Auth Modal --}}
     <div class="hidden" id="pass_con">
@@ -1214,199 +1230,109 @@
         <script>
 
             $(document).on('click', '.copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode', function() {
-                const buttonId = $(this).attr('id');
-                let documentNo, textId;
 
-                if (buttonId.startsWith('btn-copy-doc-')) {
-                    documentNo = buttonId.replace('btn-copy-doc-', '');
-                    textId = 'doc-no-' + documentNo;
-                } else if (buttonId.startsWith('scan-btn-copy-doc-')) {
-                    documentNo = buttonId.replace('scan-btn-copy-doc-', '');
-                    textId = 'scan-doc-no-' + documentNo;
-                } else if (buttonId.startsWith('excess-btn-copy-doc-')) {
-                    documentNo = buttonId.replace('excess-btn-copy-doc-', '');
-                    textId = 'excess-doc-no-' + documentNo;
-                } else if (buttonId.startsWith('btn-copy-bar-')) {
-                    const buttonId = $(this).attr('id');
-                    const parts = buttonId.split('-');
-                    const baseBarcode = parts.slice(1, -1).join('-');
-                    console.log(baseBarcode);
-                    documentNo = buttonId.replace('btn-copy-bar-', '');
-                     textId = 'bar-code-' + baseBarcode;
-
-                } else if (buttonId.startsWith('scan-btn-copy-bar-')) {
-                    documentNo = buttonId.replace('scan-btn-copy-bar-', '');
-                    textId = 'scan-bar-code-' + documentNo;
-                } else if (buttonId.startsWith('excess-btn-copy-bar-')) {
-                    documentNo = buttonId.replace('excess-btn-copy-bar-', '');
-                    textId = 'excess-bar-code-' + documentNo;
-                }
-                copyText(textId, buttonId);
+                const copyId = $(this).data('copy-id');
+                const buttonElement = this;
+                copyText(copyId, buttonElement);
             });
 
 
             $(document).on('click','.pause_scan', function() {
-                    var $icon = $(this);
-                    var token = $("meta[name='__token']").attr('content');
-                    $pause_scan_id = $(this).attr('id');
-                    $pause_scan_barcode = $(this).data('bar_code');
-                    $pause_scan_pd = $(this).data('po');
+                var $icon = $(this);
+                var token = $("meta[name='__token']").attr('content');
+                $pause_scan_id = $(this).attr('id');
+                $pause_scan_barcode = $(this).data('bar_code');
+                $pause_scan_pd = $(this).data('po');
 
-                    var currentStatus = $icon.data('status');
-                    var newStatusText = currentStatus === 1 
-                        ? `Do you want to continue this <b>${$pause_scan_pd}</b> of this <b>${$pause_scan_barcode}</b> barcode scan?` 
-                        : `Do you want to pause this <b>${$pause_scan_pd}</b> of this <b>${$pause_scan_barcode}</b> barcode scan?`;
-                    var successText = currentStatus === 1 
-                        ? "The barcode scan has been continued." 
-                        : "The barcode scan has been paused.";
+                var currentStatus = $icon.data('status');
+                var newStatusText = currentStatus === 1 
+                    ? `Do you want to continue this <b>${$pause_scan_pd}</b> of this <b>${$pause_scan_barcode}</b> barcode scan?` 
+                    : `Do you want to pause this <b>${$pause_scan_pd}</b> of this <b>${$pause_scan_barcode}</b> barcode scan?`;
+                var successText = currentStatus === 1 
+                    ? "The barcode scan has been continued." 
+                    : "The barcode scan has been paused.";
 
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        html: newStatusText,
-                        icon: 'warning',
-                        showCancelButton: true,
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // console.log($pause_scan_id);
-                            $.ajax({
-                                url: "/barcode_scan_pause/" + $pause_scan_id,
-                                type: 'get',
-                                success: function(response) {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: currentStatus === 1 ? 'Continued!' : 'Paused!',
-                                        text: successText,
-                                    }).then(() => {
-                                        location.reload();
-                                    });
-                                },
-                                error: function(xhr) {
-                                    Swal.fire('Error', xhr.responseText, 'error');
-                                }
-                            });
-                        }
-                    });
+                Swal.fire({
+                    title: 'Are you sure?',
+                    html: newStatusText,
+                    icon: 'warning',
+                    showCancelButton: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "/barcode_scan_pause/" + $pause_scan_id,
+                            type: 'get',
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: currentStatus === 1 ? 'Continued!' : 'Paused!',
+                                    text: successText,
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire('Error', xhr.responseText, 'error');
+                            }
+                        });
+                    }
                 });
+            });
 
-            // async function copyText(textId, buttonId) {
-            //     try {
-            //         const element = document.getElementById(textId);
-            //         if (!element) {
-            //             console.log(`Element with id ${textId} not found`);
-            //             return;
-            //         }
-            //         const text = element.innerText;
-
-            //         if (navigator.clipboard) {
-            //             await navigator.clipboard.writeText(text);
-
-            //         } else {
-            //             // Fallback method using textarea
-            //             const textArea = document.createElement('textarea');
-            //             textArea.value = text;
-            //             textArea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge
-            //             textArea.style.opacity = '0';  // Hide the textarea element
-            //             document.body.appendChild(textArea);
-            //             textArea.focus();
-            //             textArea.select();
-
-            //             try {
-            //                 document.execCommand('copy');
-
-            //             } catch (err) {
-
-            //             }
-
-            //             document.body.removeChild(textArea);
-            //         }
-
-            //         const button = document.getElementById(buttonId);
-            //                 if (!button) {
-            //                     console.log(`Button with id ${buttonId} not found`);
-            //                     return;
-            //                 }
-
-            //                 button.innerHTML = '<i class="fas fa-check"></i>';
-            //                 setTimeout(() => {
-            //                     button.innerHTML = '<i class="fa-solid fa-copy"></i>';
-            //                 }, 1000);
-            //     } catch (err) {
-            //                     console.log('Failed to copy: ', err);
-
-            //     }
-            // }
-
-            async function copyText(textId, buttonId) {
+            async function copyText(copyId, buttonElement) {
                 try {
-                    const element = document.getElementById(textId);
-                    if (!element) {
-                        console.log(`Element with id ${textId} not found`);
-                        return;
-                    }
-                    const text = element.innerText;
-
-                    if (navigator.clipboard) {
-                        await navigator.clipboard.writeText(text);
-                    } else {
-                        // Fallback method using textarea
-                        const textArea = document.createElement('textarea');
-                        textArea.value = text;
-                        textArea.style.position = 'fixed';  // Prevent scrolling to bottom of page in MS Edge
-                        textArea.style.opacity = '0';  // Hide the textarea element
-                        document.body.appendChild(textArea);
-                        textArea.focus();
-                        textArea.select();
-
-                        try {
-                            document.execCommand('copy');
-                        } catch (err) {
-                            console.log('Fallback copy failed: ', err);
+                    const textToCopy = copyId; 
+                    if (textToCopy) {
+                        const tempInput = document.createElement('textarea');
+                        tempInput.value = textToCopy;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+                        if (buttonElement) {
+                            $(buttonElement).html('<i class="fas fa-check"></i>');
+                            setTimeout(() => {
+                                $(buttonElement).html('<i class="fas fa-copy"></i>');
+                            }, 1000);
+                        } else {
+                            console.log('Button element is not provided');
                         }
-
-                        document.body.removeChild(textArea);
+                    } else {
+                        console.log('No text to copy found.');
                     }
-
-                    const button = document.getElementById(buttonId);
-                    if (!button) {
-                        console.log(`Button with id ${buttonId} not found`);
-                        return;
-                    }
-
-                    // Set the button state to copied
-                    button.innerHTML = '<i class="fas fa-check"></i>';
-                    setTimeout(() => {
-                        button.innerHTML = '<i class="fas fa-copy"></i>';
-                    }, 1000);
-
                 } catch (err) {
                     console.log('Failed to copy: ', err);
                 }
             }
 
             $(document).ready(function() {
+
+                localStorage.removeItem('startedTimePause');
                 var startedTimePause = localStorage.getItem('startedTimePause') || $('#started_time_pause').val();
-                var interval = 1000; 
-                function timeToSeconds(time) {
-                    var parts = time.split(':');
-                    var hours = parseInt(parts[0], 10);
-                    var minutes = parseInt(parts[1], 10);
-                    var seconds = parseInt(parts[2], 10);
-                    return (hours * 3600) + (minutes * 60) + seconds;
+                if (startedTimePause) {
+                    var interval = 1000; 
+                    function timeToSeconds(time) {
+                        var parts = time.split(':');
+                        var hours = parseInt(parts[0], 10);
+                        var minutes = parseInt(parts[1], 10);
+                        var seconds = parseInt(parts[2], 10);
+                        return (hours * 3600) + (minutes * 60) + seconds;
+                    }
+                    function secondsToTime(seconds) {
+                        var hours = Math.floor(seconds / 3600);
+                        seconds %= 3600;
+                        var minutes = Math.floor(seconds / 60);
+                        seconds %= 60;
+                        return [hours, minutes, seconds].map(num => String(num).padStart(2, '0')).join(':');
+                    }
+                    var totalSeconds = timeToSeconds(startedTimePause);
+                    setInterval(function() {
+                        totalSeconds += 1;
+                        var updatedTime = secondsToTime(totalSeconds);
+                        $('#time_count_pause').text(updatedTime);
+                        localStorage.setItem('startedTimePause', updatedTime);
+                    }, interval);
                 }
-                function secondsToTime(seconds) {
-                    var hours = Math.floor(seconds / 3600);
-                    seconds %= 3600;
-                    var minutes = Math.floor(seconds / 60);
-                    seconds %= 60;
-                    return [hours, minutes, seconds].map(num => String(num).padStart(2, '0')).join(':');
-                }
-                var totalSeconds = timeToSeconds(startedTimePause);
-                setInterval(function() {
-                    totalSeconds += 1;
-                    var updatedTime = secondsToTime(totalSeconds);
-                    $('#time_count_pause').text(updatedTime);
-                    localStorage.setItem('startedTimePause', updatedTime);
-                }, interval);
 
                 new TomSelect("#documentNoselect",{
                     selectOnTab	: true
@@ -1477,6 +1403,31 @@
                                         for (let j = 0; j < barCodes.length; j++) {
                                             let buttonHtml = '';
                                             if ((!isDcStaff && curDriver && authId === curDriver.user_id) || isDcStaff) {
+
+                                    for (var i = 0; i < documents.length; i++) {
+                                        var document = documents[i];
+                                        var barCodes = document.bar_code;
+                                        var supplierNames = document.supplier_name;
+                                        var qtys = document.qty;
+                                        var scannedQtys = document.scanned_qty;
+                                        var checkColor = document.check_color;
+                                        var scanZero = document.scan_zero;
+                                        var searchpdId = document.search_pd_id;
+                                        var Unit = document.unit;
+                                        var documentno = document.document_no;
+                                        var barcodeHtmls = document.barcode_htmls; // New line to get barcode HTMLs
+                                        var isDcStaff = need_document_inform.isDcStaff;
+                                        var curDriver = need_document_inform.curDriver;
+                                        var driverLast = need_document_inform.driverLast;
+                                        var authId = need_document_inform.authId;
+                                        var barcodeId = document.barcode_id
+                                       
+                                        var curDriverStartDate = need_document_inform.cur_driver_start_date;
+        
+                                        for (var j = 0; j < barCodes.length; j++) {
+                                            var buttonHtml = '';
+                                            if ((!isDcStaff && curDriver && authId === curDriver.user_id) || (!isDcStaff && driverLast && authId === driverLast.user_id) || isDcStaff) {
+
                                                 buttonHtml = `<button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc" ${scanZero ? '' : 'hidden'} data-doc="${documentno}"><i class='bx bx-minus'></i></button>`;
                                             }
                                             let additionalIconHtml = '';
@@ -1485,11 +1436,30 @@
                                             } else if (curDriverStartDate.length != 0) {
                                                 additionalIconHtml = `<i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' id='${j}' data-index="${j}" title="add quantity"></i>`;
                                             }
+
                                             let rowHtml = `<tr class="h-10">
+
+
+                                            var barcodeHtml = barcodeHtmls[j] || {
+                                                bar_stick1: '',
+                                                bar_stick2: '',
+                                                bar_stick3: ''
+                                            }; 
+                                            var buttonHtmltwo = '';
+                                            if (!checkColor[j]) {
+                                                buttonHtmltwo = `
+                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_barcode" data-barcode="${barCodes[j]}" data-id = "${barcodeId[j]}" >
+                                                    <i class="bx bx-minus"></i>
+                                                    </button>
+                                                    `;
+                                            }
+                                            var rowHtml = `<tr class="h-10">
+
                                                 ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `
                                                     <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+
 
                                                             <span id="doc-no- ${document.document_no}"> ${document.document_no}</span>
                                                             <button id="btn-copy-doc- ${document.document_no}" class="copy-button">
@@ -1503,6 +1473,20 @@
                                                         <button id="btn-copy-bar- ${barCodes[j]}" class="copy-button-barcode" >
                                                             <i class="fas fa-copy"></i>
                                                         </button>
+=======
+                                                        <span>${document.document_no}</span>
+                                                        <button data-copy-id="${document.document_no}" class="copy-button">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                    </td>`
+                                                : '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
+                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
+                                                    ${buttonHtmltwo}
+                                                    <span>${barCodes[j]}</span>
+                                                    <button data-copy-id="${barCodes[j]}" class="copy-button-barcode">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+>>>>>>> 498ac34 (14/08/24 first)
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}">${supplierNames[j]}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]}  qty">
@@ -1583,22 +1567,31 @@
                                         var scannId = scanDocument.scan_id;
                                         var scannPause = scanDocument.scann_pause;
 
+                                        var barcodEqual = scanDocument.barcode_equal;
+          
+
                                         for (let j = 0; j < sanbarCodes.length; j++) {
+                                            var buttonHtml = '';
+                                            if (barcodEqual[j]) {
+                                                buttonHtml = `
+                                                <button class="pause_scan" id="${scannId[j]}" data-bar_code="${sanbarCodes[j]}" data-status="${scannPause[j]}" data-po="${scanDocument.document_no}"> <i class='bx ${scannPause[j] === 1 ? 'bx-play-circle' : 'bx-pause-circle'} text-sm'></i></button>
+                                                    `;
+                                            }
+
                                             let qty = Number(sanqtys[j]);
                                             let scannedQty = Number(sanscannedQtys[j]);
                                             let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
-                                                            <span id="scan-doc-no- ${scanDocument.document_no}">${scanDocument.document_no}</span>
-                                                            <button id="scan-btn-copy-doc- ${scanDocument.document_no}" class="scan-copy-button">
+                                                            <span>${scanDocument.document_no}</span>
+                                                            <button data-copy-id="scan-btn-copy-doc- ${scanDocument.document_no}" class="scan-copy-button">
                                                                 <i class="fas fa-copy"></i>
                                                             </button>
                                                     </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
-
-                                                    <button class="pause_scan" id="${scannId[j]}" data-bar_code="${sanbarCodes[j]}" data-status="${scannPause[j]}" data-po="${scanDocument.document_no}"> <i class='bx ${scannPause[j] === 1 ? 'bx-play-circle' : 'bx-pause-circle'} text-sm'></i></button>
-                                                    <span id="scan-bar-code-  ${sanbarCodes[j]}">${sanbarCodes[j]}</span>
-                                                    <button id="scan-btn-copy-bar-  ${sanbarCodes[j]}" class="scan-copy-button-barcode" >
+                                                    ${buttonHtml}
+                                                    <span>${sanbarCodes[j]}</span>
+                                                    <button data-copy-id="${sanbarCodes[j]}" class="scan-copy-button-barcode" >
                                                         <i class="fas fa-copy"></i>
                                                     </button>
 
@@ -1633,14 +1626,14 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
-                                                            <span id="excess-doc-no- ${excessDocument.document_no}">${excessDocument.document_no}</span>
-                                                            <button id="excess-btn-copy-doc- ${excessDocument.document_no}" class="excess-copy-button">
+                                                            <span>${excessDocument.document_no}</span>
+                                                            <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
                                                                 <i class="fas fa-copy"></i>
                                                             </button>
                                                     </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
-                                                    <span id="excess-bar-code- ${excessBarCodes[j]}">${excessBarCodes[j]}</span>
-                                                    <button id="excess-btn-copy-bar- ${excessBarCodes[j]}" class="excess-copy-button-barcode" >
+                                                    <span>${excessBarCodes[j]}</span>
+                                                    <button data-copy-id="${excessBarCodes[j]}" class="excess-copy-button-barcode" >
                                                         <i class="fas fa-copy"></i>
                                                     </button>
                                                     </td>
@@ -2571,6 +2564,7 @@
                     type: 'POST',
                     data:{_token : token , id :$id, timecount: timeCountValue},
                     success:function(res){
+                        localStorage.removeItem('startedTimePause');
                         location.href = '/list';
                     },
                     error:function(xhr,status,error){

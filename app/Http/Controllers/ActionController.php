@@ -415,17 +415,10 @@ class ActionController extends Controller
                             ->whereNull('duration')->first();
 
         $driver_last = DriverInfo::where('received_goods_id', $request->id)->orderBy('id', 'desc')->first();
+       
 
-        $start = strtotime($driver_last->start_date.' '.$driver_last->start_time);
-        $now    = Carbon::now()->timestamp;
-        $diff = $now - $start;
 
-        if(cur_truck_sec($driver_last->id) < 86401)
-        {
-                $driver_last->update([
-                    'duration'      => $request->timecount
-                ]);
-        }
+
 
         if($driver)
         {
@@ -434,7 +427,6 @@ class ActionController extends Controller
             $diff = $now - $start;
 
             $data =  $this->repository->get_remain($request->id);
-
             $hour   = (int)($diff / 3600);
             $min    = (int)(($diff % 3600) / 60);
             $sec    = (int)(($diff % 3600) % 60);
@@ -450,7 +442,6 @@ class ActionController extends Controller
                     'exceed_qty'            => $data['exceed'],
                     'status'                => 'incomplete'
                 ]);
-
                 $driver->update([
                     'scanned_goods' => $this_scanned,
                     'duration'      => $pass
@@ -458,8 +449,25 @@ class ActionController extends Controller
             }else{
                 return response()->json(500);
             }
+        } elseif ($driver_last)
+        {
+            $data =  $this->repository->get_remain($request->id);
+            $last_this_scanned = get_scanned_qty($driver_last->id);
+            if(cur_truck_sec($driver_last->id) < 86401)
+            {
 
+                $receive->update([
+                    'total_duration'        => $request->timecount,
+                    'remaining_qty'         => $data['remaining'],
+                    'exceed_qty'            => $data['exceed'],
+                    'status'                => 'incomplete'
+                ]);
 
+                $driver_last->update([
+                    'scanned_goods' => $last_this_scanned,
+                    'duration'      => $request->timecount
+                ]);
+            }
         }else{
             $receive->update([
                 'total_duration' => '00:00:00',
