@@ -242,7 +242,7 @@
                 });
 
                 $(document).on('keypress','#truck_no',function(e){
-                    $val    = $(this).val();
+                    $val    = $(this).val();             
                     var truckType = $('#truck_type').find('option:selected').data('name');
                     if (truckType !== "Motorcycle" && $val.length > 6) {
                         e.preventDefault();

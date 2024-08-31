@@ -10,19 +10,6 @@
     @endif
         <fieldset class="mt-3 border border-slate-500 rounded-md p-5">
             <legend class="px-4 text-2xl font-serif"> {{ isset($main) ? 'Driver Info' : 'Document Info' }} </legend>
-
-            {{-- @if (isset($driver))
-                <div class="text-center">
-                    <select id="old_driver" class="px-3 min-w-[20%] h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
-                        <option value="">Choose Previous Car</option>
-                        @foreach($driver as $item)
-                            <option value="{{ $item->id }}">{{ $item->truck_no }}</option>
-                        @endforeach
-
-                    </select>
-                </div>
-            @endif --}}
-
             <form action="{{ isset($main) ? route('store_car_info') : route('store_doc_info') }}" id="driver_form" method="POST" enctype="multipart/form-data">
                 @csrf
                 @if (isset($main) || !dc_staff())
@@ -30,6 +17,7 @@
                         <input type="hidden" id="no_car" name="{{ !dc_staff() ? 'no_car' : '' }}">
                     <div class="grid grid-cols-2 gap-5 my-5">
 
+<<<<<<< HEAD
 
                         {{-- <div class="flex flex-col px-10 relative truck_div">
                             <label for="truck_no" >Truck No<span class="text-rose-600" id="tru_imp">*</span> :</label>
@@ -41,6 +29,8 @@
                             @enderror
                         </div> --}}
 
+=======
+>>>>>>> a6e11ff (210824 first)
                         <div class="flex flex-col px-10">
                             <label for="truck_type">Type of Truck<span class="text-rose-600">{{ dc_staff() ? '*' : '' }}</span> :</label>
                             <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
@@ -90,8 +80,7 @@
                     </div>
                     @endif
                     <div class="grid grid-cols-2 gap-5 my-5">
-<<<<<<< HEAD
-=======
+
 
                         <div class="flex flex-col px-10 relative truck_div">
                             <label for="truck_no" >Truck No<span class="text-rose-600" id="tru_imp">*</span> :</label>
@@ -105,7 +94,6 @@
                             @enderror
                         </div>
 
->>>>>>> 30cc085 (02/08/2024 first)
                         {{-- <div class="flex flex-col px-10">
                             <label for="truck_type">Type of Truck<span class="text-rose-600">{{ dc_staff() ? '*' : '' }}</span> :</label>
                             <Select name="truck_type" id="truck_type" class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
@@ -365,6 +353,15 @@
                 })
 
                 $(document).on('change','#truck_type',function(e){
+
+
+                    var selectedOption = $(this).find('option:selected');
+                    var truckName = selectedOption.data('name');
+                    if (truckName === "Motorcycle") {
+                        $('#truck_no').attr('placeholder', '');
+                    } else {
+                        $('#truck_no').attr('placeholder', 'xx-xxxx');
+                    }
                     $vali   = $(this).find('option:selected').data('re');
                     if($vali == 'car' && $('#tru_imp').hasClass('hidden'))
                     {
