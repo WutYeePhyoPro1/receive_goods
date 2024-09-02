@@ -2555,7 +2555,8 @@
                             error : function(xhr,status,error){
                                 Swal.fire({
                                     icon : 'error',
-                                    title: 'truck duration မှာ 24 hr ကျော်သွားပါသဖြင့် save မရပါ။'
+                                    // title: 'truck duration မှာ 24 hr ကျော်သွားပါသဖြင့် save မရပါ။'
+                                    title: 'something wrong'
                                 })
                             }
                         })

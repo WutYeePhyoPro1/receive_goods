@@ -527,16 +527,20 @@ class ActionController extends Controller
         $this_scanned = get_scanned_qty($driver->id);
         if($driver)
         {
-            $maxTime = "24:00:00";
+            // $maxTime = "24:00:00";
 
-            // Check if $timeContValue is valid
-            if ($timeContValue > $maxTime) {
-                $timeContValue = "00:00:00";
-            }
-            
+            // // Check if $timeContValue is valid
+            // if ($timeContValue > $maxTime) {
+            //     $timeContValue = "00:00:00";
+            // }
+            // $receive->update([
+            //     'status'                => 'complete'
+            // ]);
+
             $driver->update([
                 'car_scanning' =>  0,
                 'duration'      => $timeContValue,
+                'status'                => 'complete'
             ]);
 
             $receive->update([
@@ -545,6 +549,7 @@ class ActionController extends Controller
                 'exceed_qty'            => $data['exceed'],
                 'status'                => 'complete'
             ]);
+
 
             // if(cur_truck_sec($driver->id) < 86401)
             if(timeToTotalSeconds($timeContValue) < 86401);
