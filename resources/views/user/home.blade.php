@@ -109,6 +109,29 @@
     @push('js')
         <script >
             $(document).ready(function(){
+                var updateListHTML = `
+                    <div id="update-container" style="text-align: left; margin-left: 20px;">
+                        <ol>
+                            <li>type of truck ကို အရင် ရွေးပေးစေချင် အောင် လုပ်ထား ပြီ motocycle ကို ရွေးပါက truck no တွင် - မပါတော့ ဘဲ အများဆုံးကို လဲ ၆ လုံး မှ ၁၀ လုံး ထိ အများဆုံး ထားပေးထား ခြင်း။</li><br>
+                            <li>Scan မဖတ်ချင်တဲ့ barcode ရှိရင် barcode ရဲ့ ဘေးက minus ကို နှိပ်ခြင်းဖြင့် excess/storage ထဲကို မဖတ်ဘဲ ရောက်သွားခြင်း။</li><br>
+                            <li>dashboard ရဲ့ total scanned products မှာ not scann qty ထပ်ထည့်ထား ခြင်း။</li><br>
+                            <li>continuous နှိပ်ပြီးပါက car info ထပ် မဖြည့်ရအောင် လုပ်ထားပေး ခြင်း ။ continuous နှိပ်ပြီးပါက car info ထပ် မဖြည့်ပါက တပြင် acc နဲ့ ကြည့်ပါက edit မ ပေါတော့ခြင်း အဘယ် ကြောင့်ဆို သော် car info ထပ် မဖြည့်ခြင်းသည် ဖတ်နေ ခြင်းဖြင့်တူပြီ join receive ဖြင့်သာ ၀င်ဖတ်လို့ရခြင်း continuous နှိပ်ပြီးပါက car info ထပ် မဖြည့်ပါက တပြင့် document များကို ဖတ်လို့မရခြင်း</li><br>
+                            <li>တူညီသော barcode ကို Scan ဖတ်ပါက Scan Count ကို ပြပေးခြင်း။</li><br>
+                            <li>copy button တွေကို ပြန်ပြင်ဆင်ထား ခြင်း</li><br>
+                            <li>တူညီသော barcode ကို Scan ဖတ်ပါက ရပ်ချင်တာကို ရပ်ထား ပြီ ဖတ်ချင်တာကိုဖတ်လို့ရခြင်း</li><br>
+                            <li>Scan qty မမှန်သော issue ကိုဖြေရှင်းပေးထားခြင်း</li><br>
+                            <li>DC တွင် Document duplicate ဖြစ်နေသော error ကို ဖြေရှင်းပေးထား ခြင်း</li><br>
+                            <li>Product name ကို စာလုံးရေ40လျှင် စာတစ်ကြောင်းသတ်မှတ်ပေး၍ Bar 2 မညီသည့်Issue ကိုဖြေရှင်းထားခြင်း၊ Product name အတို ပဲဖြစ်ဖြစ် အရှည်ပဲဖြစ်ဖြစ် Bar 2ကို အဆင်ပြေစွာPrintထုတ်နိုင်ခြင်း</li><br>
+                        </ol>
+                    </div>
+                `;
+
+                Swal.fire({
+                    icon: 'info',
+                    title: "ပြင်ဆင်ထားသော အချက်များနှင့် အသစ်ထည့်ထား သော အချက်များ",
+                    html: updateListHTML, 
+                    width: '1000px',
+                });
 
             })
         </script>
