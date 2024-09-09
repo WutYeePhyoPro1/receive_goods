@@ -37,6 +37,18 @@
         cursor: pointer;
     }
 </style>
+@if (session('error_message'))
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                title: 'Error',
+                icon: 'error',
+                text: '{{ session('error_message') }}',
+                confirmButtonText: 'OK'
+            });
+        });
+    </script>
+@endif
 
 @section('content')
     @if($errors->any())

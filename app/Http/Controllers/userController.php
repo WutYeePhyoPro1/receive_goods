@@ -206,6 +206,17 @@ class userController extends Controller
     public function receive_goods($id)
     {
        
+        $receive_goods_status = GoodsReceive::where('id',$id)->value('status');
+        if ($receive_goods_status == 'complete') {
+            return redirect()->back()->with('error_message', 'Receive Goods document  မှာ complete ဖြစ်သွားပါပြီ။ Scan ဖတ်မရတော့ပါ။');
+        }
+        $scanning_check = DriverInfo::where('scan_user_id', getAuth()->id)
+            ->where('car_scanning', 1)
+            ->where('received_goods_id', '!=', $id)
+            ->first();
+        if ($scanning_check) {
+            return redirect()->back()->with('error_message', 'Receive Goods မှာ မပြီးပြတ်သေးတဲ့ document ရှိနေပါသည်။ continue/complete အရင်နှိပ်ပါ');
+        }
 
         $data = get_branch_truck();
         $truck_id   = $data[0];
