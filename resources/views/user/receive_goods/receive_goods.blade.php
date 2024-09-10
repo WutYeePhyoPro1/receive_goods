@@ -139,7 +139,7 @@
                 </span>
             @else
                 <span class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
-                    
+
                     {{ $driver_last->duration }}
                 </span>
             @endif
@@ -1891,54 +1891,61 @@
                             const new_pr = window.open("","","width=900,height=600");
                              $name = $name.length > 80 ? $name.substring(0,80)+'..' : $name;
                              $mar_top = $name.length > 50 ? 3 : ($name.length > 35 ? 10 : 30);
+
+
                             if($type == 1)
                             {
                                 $bar = $('.bar_stick1').eq($index).html();
+                                $name = $name.length > 80 ? $name.substring(0,78)+'..' : $name;
+                                $name = $name.length > 60 ? $name.substring(0,30)+"<br/>" +$name.substring(30,60)+"<br/>"+$name.substring(60)
+                                        : $name.length > 30 ? $name.substring(0,30)+"<br/>" +$name.substring(30) : $name;
+                                {{-- console.log($name); --}}
+                                $mar_top =  $name.length > 60 ? 3
+                                            : $name.length > 30 ? 10 : 30;
                                 new_pr.document.write(
                                     "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:12px;padding-right:25px;gap:20px}"
-                            );
+                                );
 
-                            new_pr.document.write(
-                               "</style></head><body><div id='per_div'>"
-                            )
-                            $color = 100;
-                            $margin = $pd_code.length > 11 ? 10 : 40;
-                            for($i = 0 ; $i < $qty ; $i++)
-                            {
+                                new_pr.document.write(
+                                "</style></head><body><div id='per_div'>"
+                                )
+                                $color = 100;
+                                $margin = $pd_code.length > 11 ? 10 : 40;
+                                for($i = 0 ; $i < $qty ; $i++)
+                                {
 
-                                // new_pr.document.write(`
-                                //     <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
-                                //         <div style="padding-left: 20px; padding-right: 20px;">
-                                //             <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
-                                //         </div>
-                                //         <div style="margin-top:${ $margin }px; margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
-                                //         <div style="padding:5px 0;display:flex;flex-direction:column">
-                                //              <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
-                                //              >
-                                //              <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
-                                //             <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
-                                //         </div>
-                                //     </div>
-                                // `);
-                                // $color = $color+10;
+                                    // new_pr.document.write(`
+                                    //     <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
+                                    //         <div style="padding-left: 20px; padding-right: 20px;">
+                                    //             <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
+                                    //         </div>
+                                    //         <div style="margin-top:${ $margin }px; margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
+                                    //         <div style="padding:5px 0;display:flex;flex-direction:column">
+                                    //              <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
+                                    //              >
+                                    //              <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
+                                    //             <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
+                                    //         </div>
+                                    //     </div>
+                                    // `);
+                                    // $color = $color+10;
 
-                                new_pr.document.write(`
-                                    <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
-                                        <div style="padding-left: 20px; padding-right: 20px;">
-                                            <small class="" style="word-break: break-all;font-size:0.9rem;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
+                                    new_pr.document.write(`
+                                        <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
+
+                                                <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+
+                                            <div style="margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
+                                            <div style="padding:5px 0;display:flex;flex-direction:column">
+                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
+                                                >
+                                                <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
+                                                <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
+                                            </div>
                                         </div>
-                                        <div style="margin-top:${ $margin }px; margin-left:${ $margin }px;margin-top:15px">${$bar}</div>
-                                        <div style="padding:5px 0;display:flex;flex-direction:column">
-                                             <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
-                                             >
-                                             <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
-                                            <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
-                                        </div>
-                                    </div>
-                                `);
-                                $color = $color+10;
+                                    `);
 
-                            }
+                                }
                                 new_pr.document.write("</div></body></html>");
                             }else if($type == 2)
                             {
