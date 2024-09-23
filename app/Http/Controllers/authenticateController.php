@@ -41,7 +41,7 @@ class authenticateController extends Controller
     }
 
     public function logout(Request $request)
-    {
+{
         Common::Log(route('logout'),"LogOut");
 
         Auth::logout();

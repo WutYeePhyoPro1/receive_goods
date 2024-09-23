@@ -105,11 +105,12 @@
             @elseif($driver_last)
 
                 {{-- @if ($status != 'view' && isset($driver_last->start_date) && ($main->scan_user_id == getAuth()->id || $driver_last->scan_user_id == getAuth()->id)) --}}
-                @if ($status != 'view' && isset($driver_last->start_date) && ($driver_last->scan_user_id == getAuth()->id))
+                @if ($status != 'view'  && ($driver_last->scan_user_id == getAuth()->id))
                     <button class="h-12 bg-sky-300 hover:bg-sky-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg mr-1  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="confirm_btn">Continue</button>
                     <button class="h-12 bg-emerald-300 hover:bg-emerald-600 text-white px-10 2xl:px-16 tracking-wider font-semibold rounded-lg  {{ $main->status == 'complete' ? 'hidden' : '' }}" id="finish_btn">Complete</button>
                 @endif
             @endif
+
 
 
         </div>
@@ -1473,7 +1474,7 @@
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
                                                             <span>${scanDocument.document_no}</span>
-                                                            <button data-copy-id="scan-btn-copy-doc- ${scanDocument.document_no}" class="scan-copy-button">
+                                                            <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
                                                                 <i class="fas fa-copy"></i>
                                                             </button>
                                                     </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}

@@ -108,33 +108,33 @@
 
     @push('js')
         <script >
-            $(document).ready(function(){
-                var updateListHTML = `
-                    <div id="update-container" style="text-align: left; margin-left: 20px;">
-                        <ol>
-                            <li>1. Type of truck တွင် motocycle ကို‌‌ ‌ရွေးပါက truck no အား အများဆုံး ၆ လုံးမှ ၁၀လုံးအထိ ရိုက်နိုင်ခြင်း။</li><br>
-                            <li>2. barcode အား Scan မဖတ်လိုပါက barcode ဘေးရှိ minus အား နှိပ်ခြင်းဖြင့် excess/storage ထဲသို့ auto ရောက်သွားခြင်း။</li><br>
-                            <li>3. dashboard ရဲ့ total scanned products မှာ not scan qty ထပ်ထည့်ထားခြင်း။</li><br>
-                            <li>4. continuous နှိပ်ပြီးပါက car info ထပ်ဖြည့်စရာမလိုအောင် လုပ်ထားပေးခြင်း။</li><br>
-                            <li>5. တူညီသော barcode ကို Scan ဖတ်ပါက Scan Count ကို ပြပေးခြင်း။</li><br>
-                            <li>6. copy button များအား ပြန်ပြင်ထားခြင်း။</li><br>
-                            <li>7. တူညီသော barcode ကို Scan ဖတ်ပါက ရပ်ချင်တာကို ရပ်ထား ပြီး ဖတ်ချင်တာကို ဖတ်လို့ရနိုင်ခြင်း။</li><br>
-                            <li>8. Scan qty မမှန်သော issue ကိုဖြေရှင်းပေးထားခြင်း။</li><br>
-                            <li>9. DC တွင် Document duplicate ဖြစ်နေသော issue ကို ဖြေရှင်းပေးထားခြင်း။</li><br>
-                            <li>10. Product name ကို စာလုံးရေ40လျှင် စာတစ်ကြောင်းသတ်မှတ်ပေး၍ Bar 2 မညီသည့်Issue ကိုဖြေရှင်းထားခြင်း။</li><br>
-                            <li>11. Product name တိုသည်ဖြစ်စေ၊ရှည်သည်ဖြစ်စေ Bar 2ကို အဆင်ပြေစွာPrintထုတ်နိုင်ခြင်း။</li>
-                        </ol>
-                    </div>
-                `;
+            // $(document).ready(function(){
+            //     var updateListHTML = `
+            //         <div id="update-container" style="text-align: left; margin-left: 20px;">
+            //             <ol>
+            //                 <li>1. Type of truck တွင် motocycle ကို‌‌ ‌ရွေးပါက truck no အား အများဆုံး ၆ လုံးမှ ၁၀လုံးအထိ ရိုက်နိုင်ခြင်း။</li><br>
+            //                 <li>2. barcode အား Scan မဖတ်လိုပါက barcode ဘေးရှိ minus အား နှိပ်ခြင်းဖြင့် excess/storage ထဲသို့ auto ရောက်သွားခြင်း။</li><br>
+            //                 <li>3. dashboard ရဲ့ total scanned products မှာ not scan qty ထပ်ထည့်ထားခြင်း။</li><br>
+            //                 <li>4. continuous နှိပ်ပြီးပါက car info ထပ်ဖြည့်စရာမလိုအောင် လုပ်ထားပေးခြင်း။</li><br>
+            //                 <li>5. တူညီသော barcode ကို Scan ဖတ်ပါက Scan Count ကို ပြပေးခြင်း။</li><br>
+            //                 <li>6. copy button များအား ပြန်ပြင်ထားခြင်း။</li><br>
+            //                 <li>7. တူညီသော barcode ကို Scan ဖတ်ပါက ရပ်ချင်တာကို ရပ်ထား ပြီး ဖတ်ချင်တာကို ဖတ်လို့ရနိုင်ခြင်း။</li><br>
+            //                 <li>8. Scan qty မမှန်သော issue ကိုဖြေရှင်းပေးထားခြင်း။</li><br>
+            //                 <li>9. DC တွင် Document duplicate ဖြစ်နေသော issue ကို ဖြေရှင်းပေးထားခြင်း။</li><br>
+            //                 <li>10. Product name ကို စာလုံးရေ40လျှင် စာတစ်ကြောင်းသတ်မှတ်ပေး၍ Bar 2 မညီသည့်Issue ကိုဖြေရှင်းထားခြင်း။</li><br>
+            //                 <li>11. Product name တိုသည်ဖြစ်စေ၊ရှည်သည်ဖြစ်စေ Bar 2ကို အဆင်ပြေစွာPrintထုတ်နိုင်ခြင်း။</li>
+            //             </ol>
+            //         </div>
+            //     `;
 
-                Swal.fire({
-                    icon: 'info',
-                    title: "ပြင်ဆင်ထားသော အချက်များနှင့် အသစ်ထည့်ထား သော အချက်များ",
-                    html: updateListHTML, 
-                    width: '1000px',
-                });
+            //     Swal.fire({
+            //         icon: 'info',
+            //         title: "ပြင်ဆင်ထားသော အချက်များနှင့် အသစ်ထည့်ထား သော အချက်များ",
+            //         html: updateListHTML, 
+            //         width: '1000px',
+            //     });
 
-            })
+            // })
         </script>
     @endpush
 @endsection

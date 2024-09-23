@@ -216,7 +216,6 @@
             @elseif ($type == 'gate')
                 <form action="{{ isset($data) ? route('update_gate') : route('store_gate') }}" method="POST">
                     @csrf
-
                     <div class="grid grid-cols-2 gap-5 my-5">
                         <div class="flex flex-col px-10">
                             <label for="gate">Gate name<span class="text-rose-600">*</span> :</label>
