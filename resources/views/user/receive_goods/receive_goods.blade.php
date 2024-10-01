@@ -2365,9 +2365,9 @@
                                         });
                                     }
 
-                                    setTimeout(() => {
-                                        Swal.close();
-                                        }, 3000);
+                                    // setTimeout(() => {
+                                    //     Swal.close();
+                                    //     }, 3000);
                                 },
                                 complete:function(){
                                     $this.val('');
