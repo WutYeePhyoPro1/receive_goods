@@ -2347,7 +2347,7 @@
                                         Swal.fire({
                                             icon : 'error',
                                             title: 'Warning',
-                                            text : 'Bar Code Not found'
+                                            text : 'Barcode Not found'
                                         });
                                     }else if($msg == 'dublicate')
                                     {
