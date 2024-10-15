@@ -94,7 +94,6 @@ class userController extends Controller
                             })
                             ->when($loc == 'dc',function($q) use($mgld_dc){
                                 $q->whereIn('branch_id',$mgld_dc);
-
                             })
                             ->when($loc == 'other',function($q) use($user_branch){
                                 $q->where('branch_id',$user_branch);
@@ -207,7 +206,14 @@ class userController extends Controller
     {
        
         $receive_goods_status = GoodsReceive::where('id',$id)->value('status');
+        
         if ($receive_goods_status == 'complete') {
+            $driverInfo = DriverInfo::where('received_goods_id', $id)->first();
+            if ($driverInfo && $driverInfo->car_scanning == 1) {
+                $driverInfo->car_scanning = 0;
+                $driverInfo->save();
+                return redirect()->back()->with('success_message', 'Car scanning has been updated to 0.');
+            }
             return redirect()->back()->with('error_message', 'Receive Goods document  မှာ complete ဖြစ်သွားပါပြီ။ Scan ဖတ်မရတော့ပါ။');
         }
         $scanning_check = DriverInfo::where('scan_user_id', getAuth()->id)
