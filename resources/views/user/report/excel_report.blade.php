@@ -182,18 +182,20 @@
                         </tr>
                     @endforeach
                 @elseif($report == 'truck')
-                        @foreach ($all as $index=>$item)
-                            <tr >
-                                <td class="h-10 text-center border border-slate-400">{{ $index+1  }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->truck_no }}</td>
-                                <td class="h-10 text-center border border-slate-400 ">{{ $item->driver_name }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->truck->truck_name }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ get_scanned_qty($item->id) }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->gates->name }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->duration }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d H:i:s')}}</td>
-                            </tr>
-                        @endforeach
+                    @foreach ($all as $index=>$item)
+                        <tr>
+                            <td class="h-10 text-center border border-slate-400">{{ $index+1 }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->truck_no }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->driver_name }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->truck ? $item->truck->truck_name : 'N/A' }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ get_scanned_qty($item->id) }}</td>
+                            <td class="h-10 text-center border border-slate-400">
+                                {{ $item->gates ? $item->gates->name : 'N/A' }}
+                            </td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->duration }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $item->created_at->format('Y-m-d H:i:s') }}</td>
+                        </tr>
+                    @endforeach
                 @elseif($report == 'remove')
                     @foreach ($all as $index=>$item)
                         <tr>
