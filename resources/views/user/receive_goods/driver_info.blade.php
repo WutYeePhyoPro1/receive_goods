@@ -25,7 +25,7 @@
                             ?>
                                 <option value="">Choose Type of Truck</option>
                                 @foreach ($truck as $item)
-                                    <option value="{{ $item->id }}" data-name="{{ $item->truck_name }}"  data-re="{{ in_array($item->truck_name,$name) ? 'no_car' : 'car'; }}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option>
+                                    <option value="{{ $item->id }}" data-name="{{ $item->truck_name }}"  data-re="{{ in_array($item->truck_name,$name) ? 'no_car' : 'car'}}" {{ old('truck_type') == $item->id ? 'selected' : '' }}>{{ $item->truck_name }}</option>
                                 @endforeach
                             </Select>
                             @error('truck_type')
@@ -69,7 +69,7 @@
                                 <ul class="2xl:w-[89.5%] w-[85%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto truck_div" style="top: 100%">
                                 </ul>
                             <span id="truck_alert" class="text-rose-500 hidden">Please first choose type of truck</span>
-                            
+
                             @error('truck_no')
                                 <small class="text-rose-500 ms-1">{{ $message }}</small>
                             @enderror
@@ -125,7 +125,7 @@
                             @if(dc_staff())
                                 @error('atLeastOne')
                                     <small class="text-rose-500 ms-1">{{ $message }}</small>
-                                @enderror 
+                                @enderror
                             @else
                                 <small class="text-rose-400 -translate-y-7 ms-12">i : ပုံမထည့်လဲ ရပါတယ် ခင်ဗျ</small>
                             @endif
@@ -334,7 +334,7 @@
                     if($vali == 'car' && $('#tru_imp').hasClass('hidden'))
                     {
                         $('#tru_imp').removeClass('hidden');
-                        
+
                     }else if($vali == 'no_car' && !$('#tru_imp').hasClass('hidden'))
                     {
                         $('#tru_imp').addClass('hidden');

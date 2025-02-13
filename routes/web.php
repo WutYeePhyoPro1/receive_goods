@@ -4,7 +4,9 @@ use App\Http\Controllers\ActionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\authenticateController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UnavailableScannedProductController;
 use App\Http\Controllers\userController;
+use App\Models\UnavailableScannedProduct;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +34,11 @@ route::group(['controller'=>authenticateController::class],function(){
 Route::middleware(['auth:sanctum'])->group(function () {
         // route::group(['controller'=>])
         route::get('/home',[authenticateController::class,'home'])->name('home');
+
+        Route::group(['prefix' => '/unavailable_scanned_products','controller' => UnavailableScannedProductController::class,'as' => 'unavailable_scanned_products.'], function () {
+            Route::get('/','index')->name('get');
+            Route::post('/','store')->name('create');
+        });
 
         route::group(['controller'=>userController::class],function(){
             route::get('list','list')->name('list');
