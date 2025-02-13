@@ -2213,7 +2213,7 @@
                                     for ($i = 0; $i < $qty; $i++) {
                                         new_pr.document.write(`
 
-                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
+                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;padding-top:20px">
                                              <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:500;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
                                            <div style="position:absolute;right:70px;top:70px">
