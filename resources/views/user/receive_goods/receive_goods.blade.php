@@ -198,10 +198,13 @@
     <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
     <input type="hidden" id="wh_remark" value="{{ $main->remark }}">
     @if ($status != 'view')
-        <input type="text" id="bar_code" class="pointer-events-none border mt-1 rounded-lg shadow-lg" value="">
-        <span class="ms-1">previous scanned barcode : <b
-                id="prev_scan">{{ Session::get('first_time_search_' . $main->id) }}</b></span>
-        <input type="hidden" id="finished" value="{{ $main->status == 'complete' ? true : false }}">
+        <div class="d-none">
+            <input type="text" id="bar_code" class="pointer-events-none border mt-1 rounded-lg shadow-lg"
+                value="">
+            <span class="ms-1">previous scanned barcode : <b
+                    id="prev_scan">{{ Session::get('first_time_search_' . $main->id) }}</b></span>
+            <input type="hidden" id="finished" value="{{ $main->status == 'complete' ? true : false }}">
+        </div>
     @endif
 
     {{-- @if (isset($status) && $status != 'view') --}}
@@ -278,7 +281,8 @@
                 </div>
                 <div class="modal-body">
                     <div class="trash-products">
-                        <img class="no_data_image" src="{{ asset('image/error_image/No data-cuate.png') }}" alt="">
+                        <img class="no_data_image" src="{{ asset('image/error_image/No data-cuate.png') }}"
+                            alt="">
                     </div>
                 </div>
                 {{-- <div class="modal-footer">
@@ -1506,7 +1510,7 @@
                             );
                         });
                         $('#badage').text(res.length);
-                        if(res.length > 0){
+                        if (res.length > 0) {
                             $("#badage").show();
                             $(".no_data_image").hide();
                         }
@@ -1632,12 +1636,12 @@
                                                 ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `
-                                                                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-                                                                                                        <span>${document.document_no}</span>
-                                                                                                        <button data-copy-id="${document.document_no}" class="copy-button">
-                                                                                                            <i class="fas fa-copy"></i>
-                                                                                                        </button>
-                                                                                                    </td>`
+                                                                                                            <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+                                                                                                                <span>${document.document_no}</span>
+                                                                                                                <button data-copy-id="${document.document_no}" class="copy-button">
+                                                                                                                    <i class="fas fa-copy"></i>
+                                                                                                                </button>
+                                                                                                            </td>`
                                                 : '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
                                                     ${buttonHtmltwo}
@@ -1696,11 +1700,11 @@
                                             let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
-                                                                                                            <span>${scanDocument.document_no}</span>
-                                                                                                            <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
-                                                                                                                <i class="fas fa-copy"></i>
-                                                                                                            </button>
-                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                                                                                    <span>${scanDocument.document_no}</span>
+                                                                                                                    <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
+                                                                                                                        <i class="fas fa-copy"></i>
+                                                                                                                    </button>
+                                                                                                            </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
                                                     ${buttonHtml}
                                                     <span>${sanbarCodes[j]}</span>
@@ -1750,11 +1754,11 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
-                                                                                                            <span>${excessDocument.document_no}</span>
-                                                                                                            <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
-                                                                                                                <i class="fas fa-copy"></i>
-                                                                                                            </button>
-                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                                                                                    <span>${excessDocument.document_no}</span>
+                                                                                                                    <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
+                                                                                                                        <i class="fas fa-copy"></i>
+                                                                                                                    </button>
+                                                                                                            </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
                                                     <span>${excessBarCodes[j]}</span>
                                                     <button data-copy-id="${excessBarCodes[j]}" class="excess-copy-button-barcode" >
