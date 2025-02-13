@@ -469,11 +469,14 @@
                                             <span
                                                 class="cursor-pointer hover:underline hover:font-semibold sticker select-none"
                                                 data-index="{{ $j }}">{{ $tem->qty }}</span>
-                                            <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
-                                            <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
-                                            <input type="hidden" class="pd_id" value="{{ $tem->id }}">
+
+                                                <div style="font-family: 'Courier New', Courier, monospace;font-weight:light">
+                                                    <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
+                                                    <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
+                                                    <input type="hidden" class="pd_id" value="{{ $tem->id }}">
+                                                </div>
                                             <div class='px-5 bar_stick1 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 50) !!}</div>
-                                            <div class='px-5 bar_stick2 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 22) !!}</div>
+                                            <div class='px-5 bar_stick2 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 1, 25) !!}</div>
                                             <div class='px-5 bar_stick3 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 50) !!}</div>
                                         </td>
                                         <td
@@ -2211,15 +2214,14 @@
                                         new_pr.document.write(`
 
                                         <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
-                                             <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                             <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:500;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
                                            <div style="position:absolute;right:70px;top:70px">
                                                 <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
                                             </div>
-                                            <div style="margin-left:10px;margin-top:2px;padding:0">${$bar}</div>
+                                            <div style="margin-left:20px;margin-top:6px;padding:0">${$bar}</div>
                                             <div style="padding:5px 0;display:flex;flex-direction:column">
-                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:0.7rem;font-weight:900;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
-                                                <small class="" style="margin: 0 0 0 20px;font-size:0.7rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$full_date}</small>
+                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 35px;font-size:0.7rem;font-weight:500;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
                                             </div>
                                         </div>
                                 `);
