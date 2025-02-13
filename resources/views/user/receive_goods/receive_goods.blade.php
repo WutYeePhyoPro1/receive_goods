@@ -2599,6 +2599,7 @@
                                             $badageCount = parseInt($badageCount) + 1;
                                             $('#badage').text($badageCount);
                                             $("#badage").show();
+                                            $(".no_data_image").hide();
                                             $('.trash-products').append(
                                                 `<div class="text-center text-white bg-red-500 mb-4 shadow rounded-md border border-slate-200 py-3 cursor-pointer" data-barcode="${$val}">${$val}</div>`
                                             );
