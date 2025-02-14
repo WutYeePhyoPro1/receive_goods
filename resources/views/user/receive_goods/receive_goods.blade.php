@@ -476,7 +476,7 @@
                                                     <input type="hidden" class="pd_id" value="{{ $tem->id }}">
                                                 </div>
                                             <div class='px-5 bar_stick1 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 50) !!}</div>
-                                            <div class='px-5 bar_stick2 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 1, 25) !!}</div>
+                                            <div class='px-5 bar_stick2 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 1.3, 25) !!}</div>
                                             <div class='px-5 bar_stick3 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 50) !!}</div>
                                         </td>
                                         <td
@@ -2213,15 +2213,15 @@
                                     for ($i = 0; $i < $qty; $i++) {
                                         new_pr.document.write(`
 
-                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;padding-top:10px">
-                                             <small class="" style="word-break: break-all;font-size:0.65rem;font-weight:500;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;padding-top:9px">
+                                             <small class="" style="word-break: break-all;font-size:0.75rem;font-weight:600;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
                                            <div style="position:absolute;right:70px;top:70px">
                                                 <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
                                             </div>
                                             <div style="margin-left:20px;margin-top:6px;padding:0">${$bar}</div>
                                             <div style="padding:5px 0;display:flex;flex-direction:column">
-                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 35px;font-size:0.7rem;font-weight:500;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
+                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 50px;font-size:0.7rem;font-weight:600;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
                                             </div>
                                         </div>
                                 `);

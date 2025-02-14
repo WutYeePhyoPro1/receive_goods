@@ -23,6 +23,9 @@ class UnavailableScannedProductController extends Controller
 
     public function store(Request $request)
     {
+        if($request['data']['scanned_barcode'] == ""){
+            return;
+        }
         DB::beginTransaction();
         try {
             $this->model->create([
