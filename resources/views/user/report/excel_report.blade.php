@@ -231,15 +231,30 @@
                     @endforeach
                 @elseif($report == 'print')
                     @foreach ($all as $index=>$item)
+
                         <tr class="">
-                                <td class="h-10 text-center border border-slate-400">{{ $index+1 }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->received->document_no }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->document_no }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->product->bar_code }}</td>
-                                <td class="h-10 text-center border border-slate-400 ">{{ $item->quantity }}</td>
-                                <td class="h-10 text-center border border-slate-400 ">{{ 'Bar '.$item->bar_type }}</td>
-                                <td class="h-10 text-center border border-slate-400 ">{{ $item->reasons->reason ?? '' }}</td>
+                            <td class="h-10 text-center border border-slate-400">{{ $index+1 }}</td>
+                            <td class="h-10 text-center border border-slate-400">
+                                {{ optional(optional($item->product->doc)->received)->document_no }}
+                            </td>
+                            <td class="h-10 text-center border border-slate-400">
+                                {{ optional($item->product->doc)->document_no }}
+                            </td>
+                            <td class="h-10 text-center border border-slate-400">
+                                {{ $item->product->bar_code ?? '' }}
+                            </td>
+                            <td class="h-10 text-center border border-slate-400">
+                                {{ $item->quantity ?? '' }}
+                            </td>
+                            <td class="h-10 text-center border border-slate-400">
+                                {{ $item->bar_type ? 'Bar ' . $item->bar_type : '' }}
+                            </td>
+                            <td class="h-10 text-center border border-slate-400">
+                                {{ optional($item->reasons)->reason }}
+                            </td>
                         </tr>
+
+
                     @endforeach
                 @elseif($report == 'man_add')
                     @foreach ($all as $index=>$item)
@@ -258,3 +273,14 @@
     </div>
 </body>
 </html>
+
+
+                        <!-- <tr class="">
+                                <td class="h-10 text-center border border-slate-400">{{ $index+1 }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ ($item->product->doc->received->document_no) ? ($item->product->doc->received->document_no) : ''}}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->document_no }}</td>
+                                <td class="h-10 text-center border border-slate-400">{{ $item->product->bar_code }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ $item->quantity }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ 'Bar '.$item->bar_type }}</td>
+                                <td class="h-10 text-center border border-slate-400 ">{{ $item->reasons->reason ?? '' }}</td>
+                        </tr> -->
