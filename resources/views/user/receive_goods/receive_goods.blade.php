@@ -2210,16 +2210,17 @@
                                     new_pr.document.write(
                                         "</style></head><body style='margin:0;padding:0'><div id='per_div'>"
                                     )
+
                                     for ($i = 0; $i < $qty; $i++) {
                                         new_pr.document.write(`
 
                                         <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
-                                             <small class="" style="word-break: break-all;font-size:0.76rem;font-weight:700;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                             <small class="" style="word-break: break-all;line-height:15px;font-size:0.78rem;font-weight:700;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
                                            <div style="position:absolute;right:70px;top:70px">
                                                 <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
                                             </div>
-                                            <div style="margin-left:20px;margin-top:6px;padding:0">${$bar}</div>
+                                            <div style="margin-left:20px;margin-top:6px;padding:0px">${$bar}</div>
                                             <div style="padding:5px 0;display:flex;flex-direction:column">
                                                 <b class="" style="letter-spacing:1px;margin: 0 0 0 50px;font-size:0.9rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
                                             </div>
