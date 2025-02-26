@@ -2180,7 +2180,7 @@
                                         // $color = $color+10;
 
                                         new_pr.document.write(`
-                                        <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;text-align: center;padding-top:2px">
+                                        <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;padding-top:2px">
 
                                                 <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
@@ -2243,9 +2243,9 @@
                                     <div class="" style="padding-top:10px;position:relative;">
 
                                     <div style="padding-left: 20px; padding-right: 50px;">
-                                        <small class="" style="font-size:0.8rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
+                                        <small class="" style="font-size:0.8rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;">${$name}</small>
                                     </div>
-                                    <div style="position:absolute;right:50px;top:120px">
+                                    <div style="position:absolute;right:50px;top:150px">
                                         <small class="" style="font-weight:700; font-family: "Times New Roman", Times, serif;">${$unit}</small>
                                     </div>
                                     <div style="padding-left:5px;margin-top:15">${$bar}</div>
