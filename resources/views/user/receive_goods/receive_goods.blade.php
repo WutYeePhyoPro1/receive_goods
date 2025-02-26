@@ -2180,20 +2180,19 @@
                                         // $color = $color+10;
 
                                         new_pr.document.write(`
-                                        <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;">
+                                        <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;text-align: center;padding-top:2px">
 
                                                 <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
                                             <div style="margin-left:${ $margin }px;margin-top:2px">${$bar}</div>
                                             <div style="padding:5px 0;display:flex;flex-direction:column">
-                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
+                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 0px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
                                                 >
-                                                <small class="" style="margin-left:230px;transform:translateY(-10px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
-                                                <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
+                                                <small class="" style="margin-left:230px;transform:translateY(-4px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
                                             </div>
                                         </div>
                                     `);
-
+                                    // <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
                                     }
                                     new_pr.document.write("</div></body></html>");
                                 } else if ($type == 2) {
@@ -2257,13 +2256,13 @@
                                             <div style="width:20px;height:20px;border:solid 3px black;margin:10px 0 0 4px"></div>
                                             <div style="margin:15px 0 0 4px;font-weight:800">.............</div>
                                         </div>
-                                        <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
                                     </div>
                                     </div>
                                     `);
                                     }
                                     new_pr.document.write("</div></body></html>");
                                 }
+                                // <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700">${$full_date}</small>
 
                                 new_pr.document.close();
                                 new_pr.focus();
