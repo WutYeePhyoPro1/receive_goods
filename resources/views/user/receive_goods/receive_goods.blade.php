@@ -2138,18 +2138,18 @@
                                 })
 
                                 const new_pr = window.open("", "", "width=900,height=600");
-                                $name = $name.length > 80 ? $name.substring(0, 80) + '..' : $name;
+                                $name = $name.length > 77 ? $name.substring(0, 77) + '..' : $name;
                                 $mar_top = $name.length > 50 ? 3 : ($name.length > 35 ? 10 : 30);
 
 
                                 if ($type == 1) {
                                     $bar = $('.bar_stick1').eq($index).html();
-                                    $name = $name.length > 80 ? $name.substring(0, 78) + '..' : $name;
-                                    $name = $name.length > 60 ? $name.substring(0, 30) + "<br/>" + $name
-                                        .substring(30, 60) + "<br/>" + $name.substring(60) :
-                                        $name.length > 30 ? $name.substring(0, 30) + "<br/>" + $name.substring(
-                                            30) : $name;
-                                    {{-- console.log($name); --}}
+                                    // $name = $name.length > 80 ? $name.substring(0, 78) + '..' : $name;
+                                    // $name = $name.length > 60 ? $name.substring(0, 30) + "<br/>" + $name
+                                    //     .substring(30, 60) + "<br/>" + $name.substring(60) :
+                                    //     $name.length > 30 ? $name.substring(0, 30) + "<br/>" + $name.substring(
+                                    //         30) : $name;
+                                    // {{-- console.log($name); --}}
                                     $mar_top = $name.length > 60 ? 3 :
                                         $name.length > 30 ? 10 : 30;
                                     new_pr.document.write(
@@ -2189,6 +2189,7 @@
                                                 <b class="" style="letter-spacing:1px;margin: 0 0 0 0px;font-size:1rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif;"">${$pd_code}</b
                                                 >
                                                 <small class="" style="margin-left:230px;transform:translateY(-4px);font-size:1rem;font-family: Arial, Helvetica, sans-serif;"">${$unit}</small>
+                                                <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
                                             </div>
                                         </div>
                                     `);
@@ -2197,9 +2198,9 @@
                                     new_pr.document.write("</div></body></html>");
                                 } else if ($type == 2) {
                                     $bar = $('.bar_stick2').eq($index).html();
-                                    $name = $name.length > 80 ? $name.substring(0, 78) + '..' : $name;
-                                    $name = $name.length > 40 ? $name.substring(0, 40) + "<br/>" + $name
-                                        .substring(40) : $name;
+                                    // $name = $name.length > 80 ? $name.substring(0, 78) + '..' : $name;
+                                    // $name = $name.length > 40 ? $name.substring(0, 40) + "<br/>" + $name
+                                    //     .substring(40) : $name;
                                     $mar_top = $name.length > 40 ? 0 : 10;
                                     new_pr.document.write(
 
@@ -2216,12 +2217,14 @@
                                         <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
                                              <small class="" style="word-break: break-all;line-height:15px;font-size:0.78rem;font-weight:700;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
-                                           <div style="position:absolute;right:70px;top:70px">
+                                           <div style="position:absolute;right:70px;top:80px">
                                                 <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
+
                                             </div>
                                             <div style="margin-left:20px;margin-top:6px;padding:0px">${$bar}</div>
-                                            <div style="padding:5px 0;display:flex;flex-direction:column">
-                                                <b class="" style="letter-spacing:1px;margin: 0 0 0 50px;font-size:0.9rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
+                                            <div style="padding:2px 2px;display:flex;justify-content:space-between;align-items:center">
+                                                <small class="" style="font-size:0.8rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
+                                                <b class="" style="letter-spacing:1px;font-size:0.9rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
                                             </div>
                                         </div>
                                 `);
@@ -2250,13 +2253,14 @@
                                     </div>
                                     <div style="padding-left:5px;margin-top:15">${$bar}</div>
                                     <div style="padding:5px 0;display:flex;flex-direction:column">
-                                        <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900">${$pd_code}</b>
+                                        <b class="" style="letter-spacing:1px;margin: 0 0 0 60px;font-size:1rem;font-weight:900;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
                                         <div style="display:flex">
                                             <div style="width:100px;height:30px;border:solid 3px black"></div>
                                             <div style="width:20px;height:20px;border:solid 3px black;margin:10px 0 0 4px"></div>
                                             <div style="margin:15px 0 0 4px;font-weight:800">.............</div>
                                         </div>
                                     </div>
+                                    <small class="" style="padding-left:10px;font-size:0.7rem;font-weight:800;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
                                     </div>
                                     `);
                                     }
