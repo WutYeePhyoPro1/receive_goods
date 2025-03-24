@@ -470,11 +470,11 @@
                                                 class="cursor-pointer hover:underline hover:font-semibold sticker select-none"
                                                 data-index="{{ $j }}">{{ $tem->qty }}</span>
 
-                                                <div style="font-family: 'Courier New', Courier, monospace;font-weight:light">
-                                                    <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
-                                                    <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
-                                                    <input type="hidden" class="pd_id" value="{{ $tem->id }}">
-                                                </div>
+                                            <div style="font-family: 'Courier New', Courier, monospace;font-weight:light">
+                                                <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
+                                                <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
+                                                <input type="hidden" class="pd_id" value="{{ $tem->id }}">
+                                            </div>
                                             <div class='px-5 bar_stick1 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 50) !!}</div>
                                             <div class='px-5 bar_stick2 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 26) !!}</div>
                                             <div class='px-5 bar_stick3 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 50) !!}</div>
@@ -1639,12 +1639,12 @@
                                                 ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `
-                                                                                                            <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-                                                                                                                <span>${document.document_no}</span>
-                                                                                                                <button data-copy-id="${document.document_no}" class="copy-button">
-                                                                                                                    <i class="fas fa-copy"></i>
-                                                                                                                </button>
-                                                                                                            </td>`
+                                                                                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+                                                                                                                        <span>${document.document_no}</span>
+                                                                                                                        <button data-copy-id="${document.document_no}" class="copy-button">
+                                                                                                                            <i class="fas fa-copy"></i>
+                                                                                                                        </button>
+                                                                                                                    </td>`
                                                 : '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
                                                     ${buttonHtmltwo}
@@ -1703,11 +1703,11 @@
                                             let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
-                                                                                                                    <span>${scanDocument.document_no}</span>
-                                                                                                                    <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
-                                                                                                                        <i class="fas fa-copy"></i>
-                                                                                                                    </button>
-                                                                                                            </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                                                                                            <span>${scanDocument.document_no}</span>
+                                                                                                                            <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
+                                                                                                                                <i class="fas fa-copy"></i>
+                                                                                                                            </button>
+                                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
                                                     ${buttonHtml}
                                                     <span>${sanbarCodes[j]}</span>
@@ -1757,11 +1757,11 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
-                                                                                                                    <span>${excessDocument.document_no}</span>
-                                                                                                                    <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
-                                                                                                                        <i class="fas fa-copy"></i>
-                                                                                                                    </button>
-                                                                                                            </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                                                                                            <span>${excessDocument.document_no}</span>
+                                                                                                                            <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
+                                                                                                                                <i class="fas fa-copy"></i>
+                                                                                                                            </button>
+                                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
                                                     <span>${excessBarCodes[j]}</span>
                                                     <button data-copy-id="${excessBarCodes[j]}" class="excess-copy-button-barcode" >
@@ -2104,6 +2104,10 @@
                             }
                         })
 
+                        function str_repeat(str, num) {
+                            return new Array(num + 1).join(str);
+                        }
+
                         $(document).on('click', '#final_print', function(e) {
                             $index = $('#print_eq').val();
                             $pd_code = $('.bar_code').eq($index).text();
@@ -2137,9 +2141,18 @@
                                     success: function(res) {}
                                 })
 
+                                console.log($name.length);
+
                                 const new_pr = window.open("", "", "width=900,height=600");
                                 $name = $name.length > 77 ? $name.substring(0, 77) + '..' : $name;
+                                // $name = $name.length < 49 ? $name + str_repeat(' .', 50 - $name.length / 2) : $name;
+                                $name = $name.length < 49 ? $name + "<br>" + "." : $name;
+
+                                // $name = $name.length < 30 ? console.log($name):
+                                //  : $name;
+
                                 $mar_top = $name.length > 50 ? 3 : ($name.length > 35 ? 10 : 30);
+
 
 
                                 if ($type == 1) {
@@ -2193,7 +2206,7 @@
                                             </div>
                                         </div>
                                     `);
-                                    // <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
+                                        // <small class="" style="margin: 0 0 0 20px;font-size:1rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
                                     }
                                     new_pr.document.write("</div></body></html>");
                                 } else if ($type == 2) {
@@ -2217,12 +2230,12 @@
                                         <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
                                              <small class="" style="word-break: break-all;line-height:15px;font-size:0.78rem;font-weight:700;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
-                                           <div style="position:absolute;right:70px;top:80px">
+                                           <div style="position:absolute;right:70px;top:79px">
                                                 <small class="" style="font-weight:700; font-family: Arial, Helvetica, sans-serif;">${$unit}</small>
 
                                             </div>
                                             <div style="margin-left:20px;margin-top:6px;padding:0px">${$bar}</div>
-                                            <div style="padding:2px 2px;display:flex;justify-content:space-between;align-items:center">
+                                            <div style="padding:2px 5px;display:flex;justify-content:space-between;align-items:center">
                                                 <small class="" style="font-size:0.8rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;"">${$full_date}</small>
                                                 <b class="" style="letter-spacing:1px;font-size:0.9rem;font-weight:700;font-family: Arial, Helvetica, sans-serif;">${$pd_code}</b>
                                             </div>
