@@ -152,7 +152,7 @@ class userController extends Controller
                                 ->orWhere('driver_infos.car_scanning',1);
                         })
                         ->first();
-                        
+
         $emp = GoodsReceive::where('user_id',getAuth()->id)
                             ->whereNull('deleted_at')
                             ->whereNull('total_duration')
@@ -204,9 +204,9 @@ class userController extends Controller
 
     public function receive_goods($id)
     {
-       
+
         $receive_goods_status = GoodsReceive::where('id',$id)->value('status');
-        
+
         if ($receive_goods_status == 'complete') {
             $driverInfo = DriverInfo::where('received_goods_id', $id)->first();
             if ($driverInfo && $driverInfo->car_scanning == 1) {
@@ -298,85 +298,88 @@ class userController extends Controller
 
     public function store_car_info(Request $request)
     {
-        Common::Log(route('store_car_info'),"Store Car Infomation");
-        $status = 'scan';
-        $driver = DriverInfo::where('received_goods_id',$request->main_id)->get();
 
-        if(dc_staff())
-        {
-            $validator = Validator::make($request->all(),[
-                'driver_name'       => 'required',
-                'driver_phone'      => 'required|numeric',
-                'driver_nrc'        => 'required',
-                'truck_no'          => 'required',
-                'truck_type'        => 'required',
-                'gate'              => 'required'
-            ]);
+        DB::beginTransaction();
+        try {
+            Common::Log(route('store_car_info'),"Store Car Infomation");
+            $status = 'scan';
+            $driver = DriverInfo::where('received_goods_id',$request->main_id)->get();
 
-            $validator->after(function ($validator) use($request) {
-                if ($request->image_1 == null && $request->image_2 == null && $request->image_3 == null) {
-                    $validator->errors()->add(
-                        'atLeastOne', 'Please Fill Atleast One Image'
-                    );
+            if(dc_staff())
+            {
+                $validator = Validator::make($request->all(),[
+                    'driver_name'       => 'required',
+                    'driver_phone'      => 'required|numeric',
+                    'driver_nrc'        => 'required',
+                    'truck_no'          => 'required',
+                    'truck_type'        => 'required',
+                    'gate'              => 'required'
+                ]);
+
+                $validator->after(function ($validator) use($request) {
+                    if ($request->image_1 == null && $request->image_2 == null && $request->image_3 == null) {
+                        $validator->errors()->add(
+                            'atLeastOne', 'Please Fill Atleast One Image'
+                        );
+                    }
+                });
+
+                if ($validator->fails()) {
+                    return back()->withErrors($validator)
+                                ->withInput();
                 }
-            });
 
-            if ($validator->fails()) {
-                return back()->withErrors($validator)
-                            ->withInput();
+            }else{
+                $request->validate([
+                    'driver_name'       => 'required',
+                    'truck_no'          => 'required',
+                    'truck_type'        => 'required',
+                    'gate'              => 'required'
+                ]);
             }
 
-        }else{
-            $request->validate([
-                'driver_name'       => 'required',
-                'truck_no'          => 'required',
-                'truck_type'        => 'required',
-                'gate'              => 'required'
-            ]);
-        }
-
-        if(count($driver) > 0){
-            $driver = new DriverInfo();
-            $driver->ph_no              = $request->driver_phone ?? null;
-            $driver->type_truck         = $request->truck_type;
-            $driver->received_goods_id  = $request->main_id;
-            $driver->driver_name        = $request->driver_name;
-            $driver->truck_no           = $request->truck_no;
-            $driver->nrc_no             = $request->driver_nrc ?? null;
-            $driver->start_date         = Carbon::now()->format('Y-m-d');
-            $driver->start_time         = Carbon::now()->format('H:i:s');
-            $driver->user_id            = getAuth()->id;
-            $driver->scan_user_id       = getAuth()->id;
-            $driver->gate               = $request->gate ?? 0;
-            $driver->save();
-
-
-        }else{
-
-            // $branch_id = getAuth()->branch->id;
-
-            $main               = GoodsReceive::find($request->main_id);
-            $main->start_date   = Carbon::now()->format('Y-m-d');
-            $main->start_time   = Carbon::now()->format('H:i:s');
-            $main->status       = 'incomplete';
-            $main->save();
-
-
+            if(count($driver) > 0){
                 $driver = new DriverInfo();
-                $driver->ph_no              = $request->driver_phone;
+                $driver->ph_no              = $request->driver_phone ?? null;
                 $driver->type_truck         = $request->truck_type;
-                $driver->received_goods_id  = $main->id;
+                $driver->received_goods_id  = $request->main_id;
                 $driver->driver_name        = $request->driver_name;
                 $driver->truck_no           = $request->truck_no;
-                $driver->nrc_no             = $request->driver_nrc;
+                $driver->nrc_no             = $request->driver_nrc ?? null;
                 $driver->start_date         = Carbon::now()->format('Y-m-d');
                 $driver->start_time         = Carbon::now()->format('H:i:s');
                 $driver->user_id            = getAuth()->id;
                 $driver->scan_user_id       = getAuth()->id;
-                $driver->gate               = 0;
-
+                $driver->gate               = $request->gate ?? 0;
                 $driver->save();
-        }
+
+
+            }else{
+
+                // $branch_id = getAuth()->branch->id;
+
+                $main               = GoodsReceive::find($request->main_id);
+                $main->start_date   = Carbon::now()->format('Y-m-d');
+                $main->start_time   = Carbon::now()->format('H:i:s');
+                $main->status       = 'incomplete';
+                $main->save();
+
+
+                    $driver = new DriverInfo();
+                    $driver->ph_no              = $request->driver_phone;
+                    $driver->type_truck         = $request->truck_type;
+                    $driver->received_goods_id  = $main->id;
+                    $driver->driver_name        = $request->driver_name;
+                    $driver->truck_no           = $request->truck_no;
+                    $driver->nrc_no             = $request->driver_nrc;
+                    $driver->start_date         = Carbon::now()->format('Y-m-d');
+                    $driver->start_time         = Carbon::now()->format('H:i:s');
+                    $driver->user_id            = getAuth()->id;
+                    $driver->scan_user_id       = getAuth()->id;
+                    $driver->gate               = 0;
+
+                    $driver->save();
+            }
 
             if($request->only('image_1','image_2','image_3') != [])
             {
@@ -396,17 +399,28 @@ class userController extends Controller
                 ]);
             }
 
-        view()->share(['status'=>$status]);
-        $history = CarHistory::where(['car_no'=>$request->truck_no,'car_type'=>$request->truck_type,'driver_name'=>$request->driver_name])->first();
-        if(!$history)
-        {
-            CarHistory::create([
-                'car_no'        => $request->truck_no,
-                'car_type'      => $request->truck_type,
-                'driver_name'   => $request->driver_name
-            ]);
+            view()->share(['status'=>$status]);
+            $history = CarHistory::where(['car_no'=>$request->truck_no,'car_type'=>$request->truck_type,'driver_name'=>$request->driver_name])->first();
+            if(!$history)
+            {
+                CarHistory::create([
+                    'car_no'        => $request->truck_no,
+                    'car_type'      => $request->truck_type,
+                    'driver_name'   => $request->driver_name
+                ]);
+            }
+            DB::commit();
+            return redirect()->route('receive_goods',$request->main_id);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error saving car info: ' . $e->getMessage());
+
+            return back()->with('error', 'Something went wrong. Please try again.');
         }
-        return redirect()->route('receive_goods',$request->main_id);
+
+
+
 
     }
 
@@ -463,7 +477,7 @@ class userController extends Controller
         // $same = GoodsReceive::whereDate('created_at',Carbon::now()->format('Y-m-d'))->where('branch_id',$request->branch)
         // ->withTrashed()->get();
         $same = count($same);
-        
+
         if($same > 0){
             $name = $shr.'-'.sprintf("%04d",$same+1);
         }else{
@@ -774,7 +788,7 @@ class userController extends Controller
                         'search_pd_id' => $search_pd_id,
                         'unit' => $unit,
                         'barcode_htmls' => $barcode_htmls,
-                        'barcode_id' =>  $barcode_id 
+                        'barcode_id' =>  $barcode_id
                     ];
 
                     $response[] = $merged_data;

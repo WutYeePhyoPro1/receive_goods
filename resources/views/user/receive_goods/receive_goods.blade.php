@@ -48,6 +48,19 @@
     .pause_scan {
         cursor: pointer;
     }
+
+    /* Unified loading style (reusable) */
+    .loading-overlay {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: inherit;
+        border-radius: inherit;
+        color: white;
+        font-weight: bold;
+    }
 </style>
 @if (session('error_message'))
     <script>
@@ -926,7 +939,8 @@
                             </div>
                         </div>
                         <div class="card-body pt-4">
-                            <form action="{{ route('store_car_info') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('store_car_info') }}" method="POST" enctype="multipart/form-data"
+                                id="formId">
                                 @csrf
                                 <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}"
                                     value="{{ isset($main) ? $main->id : '' }}">
@@ -1065,8 +1079,26 @@
                                     <input type="file" class="car_img" accept="image/*" name="image_3" hidden
                                         id="img3">
                                     <div class="">
-                                        <button type="submit"
-                                            class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
+                                        {{-- <button type="submit"
+                                            class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save
+                                        </button> --}}
+
+                                        <button type="submit" id="submitButton"
+                                            class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10 relative">
+                                            <span class="button-text">Save</span>
+                                            <span class="loading-overlay">Processing...</span>
+                                        </button>
+
+                                        {{-- <button type="submit" id="submitButton">
+                                            <span
+                                                class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Submit</span>
+                                            <div class="loading-overlay hidden" style="display: none;">
+                                                <!-- Your spinner here -->
+                                                <span>Loading...</span>
+                                            </div>
+                                        </button> --}}
+
+
                                     </div>
                                 </div>
                             </form>
@@ -1415,6 +1447,30 @@
 
     @push('js')
         <script>
+            function showLoading(button) {
+                button.disabled = true;
+                button.querySelector('.button-text').style.visibility = 'hidden';
+                button.querySelector('.loading-overlay').classList.remove('hidden');
+                button.querySelector('.loading-overlay').style.display = 'flex';
+            }
+
+            function hideLoading(button) {
+                button.disabled = false;
+                button.querySelector('.button-text').style.visibility = 'visible';
+                button.querySelector('.loading-overlay').classList.add('hidden');
+                button.querySelector('.loading-overlay').style.display = 'none';
+            }
+
+            window.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('formId');
+                const button = document.getElementById('submitButton');
+                hideLoading(button);
+                form.addEventListener('submit', function() {
+                    showLoading(button);
+                });
+            });
+
+
             $(document).on('click',
                 '.copy-button, .scan-copy-button, .excess-copy-button, .copy-button-barcode, .scan-copy-button-barcode, .excess-copy-button-barcode',
                 function() {
@@ -1639,12 +1695,12 @@
                                                 ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `
-                                                                                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-                                                                                                                        <span>${document.document_no}</span>
-                                                                                                                        <button data-copy-id="${document.document_no}" class="copy-button">
-                                                                                                                            <i class="fas fa-copy"></i>
-                                                                                                                        </button>
-                                                                                                                    </td>`
+                                                                                                                                                                                                                                                                            <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+                                                                                                                                                                                                                                                                                <span>${document.document_no}</span>
+                                                                                                                                                                                                                                                                                <button data-copy-id="${document.document_no}" class="copy-button">
+                                                                                                                                                                                                                                                                                    <i class="fas fa-copy"></i>
+                                                                                                                                                                                                                                                                                </button>
+                                                                                                                                                                                                                                                                            </td>`
                                                 : '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
                                                     ${buttonHtmltwo}
@@ -1703,11 +1759,11 @@
                                             let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
-                                                                                                                            <span>${scanDocument.document_no}</span>
-                                                                                                                            <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
-                                                                                                                                <i class="fas fa-copy"></i>
-                                                                                                                            </button>
-                                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                                                                                                                                                                                                                                                    <span>${scanDocument.document_no}</span>
+                                                                                                                                                                                                                                                                                    <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
+                                                                                                                                                                                                                                                                                        <i class="fas fa-copy"></i>
+                                                                                                                                                                                                                                                                                    </button>
+                                                                                                                                                                                                                                                                            </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
                                                     ${buttonHtml}
                                                     <span>${sanbarCodes[j]}</span>
@@ -1757,11 +1813,11 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
-                                                                                                                            <span>${excessDocument.document_no}</span>
-                                                                                                                            <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
-                                                                                                                                <i class="fas fa-copy"></i>
-                                                                                                                            </button>
-                                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                                                                                                                                                                                                                                                    <span>${excessDocument.document_no}</span>
+                                                                                                                                                                                                                                                                                    <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
+                                                                                                                                                                                                                                                                                        <i class="fas fa-copy"></i>
+                                                                                                                                                                                                                                                                                    </button>
+                                                                                                                                                                                                                                                                            </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
                                                     <span>${excessBarCodes[j]}</span>
                                                     <button data-copy-id="${excessBarCodes[j]}" class="excess-copy-button-barcode" >
