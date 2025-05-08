@@ -2202,12 +2202,12 @@
                                 const new_pr = window.open("", "", "width=900,height=600");
                                 $name = $name.length > 77 ? $name.substring(0, 77) + '..' : $name;
                                 // $name = $name.length < 49 ? $name + str_repeat(' .', 50 - $name.length / 2) : $name;
-                                $name = $name.length < 49 ? $name + "<br>" + "." : $name;
+                                $name = $name.length < 45 ? $name + "<br>" + "." : $name;
 
                                 // $name = $name.length < 30 ? console.log($name):
                                 //  : $name;
 
-                                $mar_top = $name.length > 50 ? 3 : ($name.length > 35 ? 10 : 30);
+                                // $mar_top = $name.length > 50 ? 3 : ($name.length > 35 ? 10 : 30);
 
 
 
