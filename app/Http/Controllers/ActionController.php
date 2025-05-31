@@ -35,6 +35,62 @@ class ActionController extends Controller
     }
 
     //search doc
+    // public function search_doc(Request $request)
+    // {
+
+    //     $val = trim(strtoupper($request->data),' ');
+    //     $type = substr($val,0,2);
+    //     $reg = get_branch_truck()[2];
+
+    //     $docs = Document::where('document_no',$val)
+    //                     ->whereIn('received_goods_id',$reg)->first();
+    //     if($docs){
+    //         return response()->json(['message'=>'dublicate'],400);
+    //     }
+    //     // dd($type);
+    //     $conn = DB::connection('master_product');
+
+    //     if($type == "PO")
+    //     {
+    //         $brch_con = '';
+    //         if(!dc_staff())
+    //         {
+    //             $user_brch = getAuth()->branch->branch_code;
+    //             $brch_con = "and brchcode = '$user_brch'";
+    //         }
+
+
+    //         $data = $conn->select("
+    //             select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
+    //             from  purchaseorder.po_purchaseorderhd aa
+    //             inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
+    //             left join master_data.master_branch br on aa.brchcode= br.branch_code
+    //             where statusflag <> 'C'
+    //             and statusflag in ('P','Y')
+    //             $brch_con
+    //             and purchaseno= '$val'
+    //         ");
+    //     }else{
+    //         $data = $conn->select("
+    //             select tohd.transferdocno as to_docno
+    //             ,(select branch_name_eng from master_data.master_branch br where tohd.desbrchcode = br.branch_code) as to_branch
+    //             ,todt.productcode as product_code,todt.productname as product_name,todt.unitcount as unit
+    //             ,todt.transferoutqty as qty
+    //             from inventory.trs_transferouthd tohd
+    //             left join inventory.trs_transferoutdt todt on tohd.transferid= todt.transferid
+    //             where tohd.transferdocno in ('$val')
+    //             and tohd.statusid <> 'C'
+    //         ");
+    //     }
+    //     $conn = null;
+    //     if($data){
+    //         $this->repository->add_doc($data,$request->id);
+    //         return response()->json($data,200);
+    //     }else{
+    //         return response()->json(['message','not found'],404);
+    //     }
+    // }
+
     public function search_doc(Request $request)
     {
 
@@ -47,9 +103,8 @@ class ActionController extends Controller
         if($docs){
             return response()->json(['message'=>'dublicate'],400);
         }
-        // dd($type);
-        $conn = DB::connection('master_product');
 
+        $conn = DB::connection('master_product');
         if($type == "PO")
         {
             $brch_con = '';
@@ -58,19 +113,21 @@ class ActionController extends Controller
                 $user_brch = getAuth()->branch->branch_code;
                 $brch_con = "and brchcode = '$user_brch'";
             }
-
-   
             $data = $conn->select("
                 select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
                 from  purchaseorder.po_purchaseorderhd aa
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
-                where statusflag <> 'C'
-                and statusflag in ('P','Y')
-                $brch_con
-                and purchaseno= '$val'
+
+
             ");
-        }else{
+            // where statusflag <> 'C'
+            // and statusflag in ('P','Y')
+                //             $brch_con
+                // and purchaseno= '$val'
+        }
+        else if($type!='OU'){
+
             $data = $conn->select("
                 select tohd.transferdocno as to_docno
                 ,(select branch_name_eng from master_data.master_branch br where tohd.desbrchcode = br.branch_code) as to_branch
@@ -81,6 +138,71 @@ class ActionController extends Controller
                 where tohd.transferdocno in ('$val')
                 and tohd.statusid <> 'C'
             ");
+        }
+        if ($type=='OU')
+        {
+
+            $conn = DB::connection('dc_connection');
+            $data = $conn->select("
+            select outbound_docuno,indock_docudate::date as date, vendor_code as frombranch,
+            (select branch_name from master_data.master_branch where branch_code= outbounddoc.vendor_code) as frombranch_name,
+            tpdoc.branch_code as Tobranch,
+            (select branch_name from  master_data.master_branch where branch_code= tpdoc.branch_code)as Tobranch_name,
+            ----,transfer_docuno,
+            transfer_out_docno,
+            product_code,product_name,
+            ---product_quantity,
+            product_quantity_transfer as Qty
+            ---, product_unit_pack
+            --* ---docid,outboundid, TPdocno, productcode,
+            from global_logistics.outbound_logistic as outbounddoc
+            left join global_logistics.outbound_import as tpdoc
+            on outbounddoc.outbound_id= tpdoc.outbound_id
+            where outbound_docuno= '$val'
+            order by transfer_docuno
+            ");
+            $receive = GoodsReceive::whereId($request->id)->first();
+
+            if(!$receive->vendor_name)
+            {
+                $vendor_name = $data[0]->vendorname ?? $data[0]->frombranch;
+                $receive->update([
+                    'vendor_name' => $vendor_name
+                ]);
+                $vendor = Vendor::where('vendor_name',$vendor_name)->first();
+                if(!$vendor)
+                {
+                    $conn = DB::connection('master_product');
+                    $ven_info = $conn->select("
+                    selecdd(collect($data));t vendor_name,vendor_code,vendor_addr,vendor_conttel from configure.setap_vendor where
+                    vendor_name = '$vendor_name'
+                    ");
+                    $ven_info = $ven_info[0];
+                    Vendor::create([
+                        'vendor_code'   => $ven_info->vendor_code,
+                        'vendor_name'   => $ven_info->vendor_name,
+                        'vendor_address'=> $ven_info->vendor_addr,
+                        'vendor_ph'     => $ven_info->vendor_conttel
+                    ]);
+                }
+            }
+            $out_bounds = collect($data);
+            foreach($out_bounds as $item)
+            {
+                $doc = Document::create([
+                    'document_no'       => $item->transfer_out_docno,
+                    'received_goods_id'  => $request->id
+                ]);
+                $pd_code                = new Product();
+                $pd_code->document_id   = $doc->id;
+                $pd_code->bar_code       = $item->product_code ;
+                $pd_code->supplier_name = $item->product_name;
+                $pd_code->qty           = (float)($item->qty);
+                $pd_code->scanned_qty   = 0;
+                $pd_code->unit          = $item->unit??null;
+                $pd_code->save();
+            }
+            return response()->json($data,200);
         }
         $conn = null;
         if($data){
@@ -274,7 +396,7 @@ class ActionController extends Controller
                             $count ++;
                             break;
                         }else if($item->qty > $item->scanned_qty && $sub < $total_scan && $index != count($all_product)-1){
-       
+
                             if($sub < $total_scan)
                             {
                                 $scanned    = $item->qty;
@@ -472,7 +594,7 @@ class ActionController extends Controller
             }
         } elseif ($driver_last)
         {
-            
+
             $totalSeconds = timeToTotalSeconds($request->timecount);
             $data =  $this->repository->get_remain($request->id);
             $last_this_scanned = get_scanned_qty($driver_last->id);
@@ -544,7 +666,7 @@ class ActionController extends Controller
             ]);
 
             $receive->update([
-                'total_duration'  => get_all_duration_second($driver->id),  
+                'total_duration'  => get_all_duration_second($driver->id),
                 'remaining_qty'         => $data['remaining'],
                 'exceed_qty'            => $data['exceed'],
                 'status'                => 'complete'
@@ -606,7 +728,7 @@ class ActionController extends Controller
         // dd($user, $user_branch);
         if(isset($user))
         {
-     
+
             $branch_exst = UserBranch::where(['user_id'=>$user->id,'branch_id'=>$user_branch])->first();
 
             if($branch_exst || $user_branch==$user->branch_id)
@@ -615,7 +737,7 @@ class ActionController extends Controller
             }
             if($same_br && Hash::check($password, $user->password) && ($user->role == 4 || $user->role==3))
             if($same_br && Hash::check($password, $user->password) && ($user->role == 3 || $user->role ==4))
-            
+
             {
                 return response()->json($user,200);
             }else{
@@ -632,7 +754,7 @@ class ActionController extends Controller
 
         $product = Product::find($request->product);
         $track   = Tracking::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id])->first();
- 
+
         $scan_track = ScanTrack::where(['driver_info_id' => $request->car_id , 'product_id'=>$request->product,'user_id'=>getAuth()->id,'unit'=>'S'])->first();
         $product->update([
             'scanned_qty'   => $product->scanned_qty + $request->data,
@@ -803,7 +925,7 @@ class ActionController extends Controller
         $remark = $request->input('remark');
         $product_id = $request->input('document_id');
         $product = Product::where('id',$product_id)->first();
-        
+
         if ($product) {
             $product->not_scan_remark = $remark;
             $product->save();
@@ -827,7 +949,7 @@ class ActionController extends Controller
             } else {
                 $product->scann_pause = 1;
             }
-            
+
             $product->save();
             return response()->json([
                 'message' => 'Barcode scan pause status updated successfully',
