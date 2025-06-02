@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Models\Product;
 use App\Models\Document;
 use App\Models\Tracking;
@@ -118,13 +119,12 @@ class ActionController extends Controller
                 from  purchaseorder.po_purchaseorderhd aa
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
-
+                where statusflag <> 'C'
+                and statusflag in ('P','Y')
+                and purchaseno= '$val'
 
             ");
-            // where statusflag <> 'C'
-            // and statusflag in ('P','Y')
-                //             $brch_con
-                // and purchaseno= '$val'
+
         }
         else if($type!='OU'){
 
@@ -141,6 +141,12 @@ class ActionController extends Controller
         }
         if ($type=='OU')
         {
+
+            $docs = Document::where('outbound',$val)
+            ->whereIn('received_goods_id',$reg)->first();
+            if($docs){
+                return response()->json(['message'=>'dublicate'],400);
+            }
 
             $conn = DB::connection('dc_connection');
             $data = $conn->select("
@@ -161,11 +167,12 @@ class ActionController extends Controller
             where outbound_docuno= '$val'
             order by transfer_docuno
             ");
+            
             $receive = GoodsReceive::whereId($request->id)->first();
-
             if(!$receive->vendor_name)
             {
-                $vendor_name = $data[0]->vendorname ?? $data[0]->frombranch;
+                // $vendor_name = $data[0]->vendorname ?? $data[0]->frombranch;
+                $vendor_name = $data[0]->frombranch;
                 $receive->update([
                     'vendor_name' => $vendor_name
                 ]);
@@ -174,7 +181,7 @@ class ActionController extends Controller
                 {
                     $conn = DB::connection('master_product');
                     $ven_info = $conn->select("
-                    selecdd(collect($data));t vendor_name,vendor_code,vendor_addr,vendor_conttel from configure.setap_vendor where
+                   select vendor_name,vendor_code,vendor_addr,vendor_conttel from configure.setap_vendor where
                     vendor_name = '$vendor_name'
                     ");
                     $ven_info = $ven_info[0];
@@ -191,7 +198,8 @@ class ActionController extends Controller
             {
                 $doc = Document::create([
                     'document_no'       => $item->transfer_out_docno,
-                    'received_goods_id'  => $request->id
+                    'outbound'       => $item->outbound_docuno,
+                    'received_goods_id'  => $request->id,
                 ]);
                 $pd_code                = new Product();
                 $pd_code->document_id   = $doc->id;

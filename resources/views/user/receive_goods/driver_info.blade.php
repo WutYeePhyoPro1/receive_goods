@@ -26,6 +26,7 @@
         <fieldset class="mt-3 border border-slate-500 rounded-md p-5">
 
             <legend class="px-4 text-2xl font-serif"> {{ isset($main) ? 'Driver Info' : 'Document Info' }} </legend>
+            
             <form action="{{ isset($main) ? route('store_car_info') : route('store_doc_info') }}" id="driver_form"
                 method="POST" enctype="multipart/form-data">
                 @csrf
@@ -34,7 +35,6 @@
                         value="{{ isset($main) ? $main->id : '' }}">
                     <input type="hidden" id="no_car" name="{{ !dc_staff() ? 'no_car' : '' }}">
                     <div class="grid grid-cols-2 gap-5 my-5">
-
                         <div class="flex flex-col px-10">
                             <label for="truck_type">Type of Truck<span
                                     class="text-rose-600">{{ dc_staff() ? '*' : '' }}</span> :</label>
@@ -373,12 +373,24 @@
                     $('#deci_model').show();
                 })
 
+                // $(document).on('click', '.save_btn', function(e) {
+                //     showLoading(this);
+                //     var action = $(this).val();
+                //     $('#driver_form').append('<input type="hidden" name="action" value="' + action + '">')
+                //     console.log($('#driver_form').length); // should return 1
+
+                //     $('#driver_form').submit();
+                // })
+
                 $(document).on('click', '.save_btn', function(e) {
+                    console.log('Save button clicked');
                     showLoading(this);
                     var action = $(this).val();
-                    $('#driver_form').append('<input type="hidden" name="action" value="' + action + '">')
+                    console.log('Action:', action);
+                    $('#driver_form').append('<input type="hidden" name="action" value="' + action + '">');
                     $('#driver_form').submit();
-                })
+                    return;
+                });
 
 
                 $(document).on('change', '.car_img', function(e) {
