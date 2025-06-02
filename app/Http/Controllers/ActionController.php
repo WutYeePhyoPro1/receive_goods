@@ -99,10 +99,17 @@ class ActionController extends Controller
         $type = substr($val,0,2);
         $reg = get_branch_truck()[2];
 
-        $docs = Document::where('document_no',$val)
-                        ->whereIn('received_goods_id',$reg)->first();
-        if($docs){
-            return response()->json(['message'=>'dublicate'],400);
+        // $docs = Document::where('document_no',$val)
+        //                 ->whereIn('received_goods_id',$reg)->first();
+        // if($docs){
+        //     return response()->json(['message'=>'dublicate'],400);
+        // }
+        $existingDoc = Document::where('document_no', $val)
+        ->whereIn('received_goods_id', $reg)
+        ->exists();  // Using exists() is more efficient than first()
+
+        if ($existingDoc) {
+            return response()->json(['message' => 'Document already exists'], 400);
         }
 
         $conn = DB::connection('master_product');
