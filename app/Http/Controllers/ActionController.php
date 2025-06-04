@@ -147,7 +147,80 @@ class ActionController extends Controller
                 and tohd.statusid <> 'C'
             ");
         }
-        if ($type=='OU')
+        // if ($type=='OU')
+        // {
+
+        //     $docs = Document::where('outbound',$val)
+        //     ->whereIn('received_goods_id',$reg)->first();
+        //     if($docs){
+        //         return response()->json(['message'=>'dublicate'],400);
+        //     }
+
+        //     $conn = DB::connection('dc_connection');
+        //     $data = $conn->select("
+        //     select outbound_docuno,indock_docudate::date as date, vendor_code as frombranch,
+        //     (select branch_name from master_data.master_branch where branch_code= outbounddoc.vendor_code) as frombranch_name,
+        //     tpdoc.branch_code as Tobranch,
+        //     (select branch_name from  master_data.master_branch where branch_code= tpdoc.branch_code)as Tobranch_name,
+        //     ----,transfer_docuno,
+        //     transfer_out_docno,
+        //     product_code,product_name,
+        //     ---product_quantity,
+        //     product_quantity_transfer as Qty
+        //     ---, product_unit_pack
+        //     --* ---docid,outboundid, TPdocno, productcode,
+        //     from global_logistics.outbound_logistic as outbounddoc
+        //     left join global_logistics.outbound_import as tpdoc
+        //     on outbounddoc.outbound_id= tpdoc.outbound_id
+        //     where outbound_docuno= '$val'
+        //     order by transfer_docuno
+        //     ");
+
+        //     $receive = GoodsReceive::whereId($request->id)->first();
+        //     if(!$receive->vendor_name)
+        //     {
+        //         // $vendor_name = $data[0]->vendorname ?? $data[0]->frombranch;
+        //         $vendor_name = $data[0]->frombranch;
+        //         $receive->update([
+        //             'vendor_name' => $vendor_name
+        //         ]);
+        //         $vendor = Vendor::where('vendor_name',$vendor_name)->first();
+        //         if(!$vendor)
+        //         {
+        //             $conn = DB::connection('master_product');
+        //             $ven_info = $conn->select("
+        //            select vendor_name,vendor_code,vendor_addr,vendor_conttel from configure.setap_vendor where
+        //             vendor_name = '$vendor_name'
+        //             ");
+        //             $ven_info = $ven_info[0];
+        //             Vendor::create([
+        //                 'vendor_code'   => $ven_info->vendor_code,
+        //                 'vendor_name'   => $ven_info->vendor_name,
+        //                 'vendor_address'=> $ven_info->vendor_addr,
+        //                 'vendor_ph'     => $ven_info->vendor_conttel
+        //             ]);
+        //         }
+        //     }
+        //     $out_bounds = collect($data);
+        //     foreach($out_bounds as $item)
+        //     {
+        //         $doc = Document::create([
+        //             'document_no'       => $item->transfer_out_docno,
+        //             'outbound'       => $item->outbound_docuno,
+        //             'received_goods_id'  => $request->id,
+        //         ]);
+        //         $pd_code                = new Product();
+        //         $pd_code->document_id   = $doc->id;
+        //         $pd_code->bar_code       = $item->product_code ;
+        //         $pd_code->supplier_name = $item->product_name;
+        //         $pd_code->qty           = (float)($item->qty);
+        //         $pd_code->scanned_qty   = 0;
+        //         $pd_code->unit          = $item->unit??null;
+        //         $pd_code->save();
+        //     }
+        //     return response()->json($data,200);
+        // }
+        else if ($type=='OU')
         {
 
             $docs = Document::where('outbound',$val)
@@ -172,10 +245,28 @@ class ActionController extends Controller
             from global_logistics.outbound_logistic as outbounddoc
             left join global_logistics.outbound_import as tpdoc
             on outbounddoc.outbound_id= tpdoc.outbound_id
-            where outbound_docuno= '$val'
-            order by transfer_docuno
+            where outbound_docuno= '$val'-- and transfer_out_docno ilike 'PO%'
+
+            Union all
+
+            SELECT DISTINCT x.outbound_docuno,indock_docudate::date as date,x.vendor_code as frombranch,
+            (select branch_name from master_data.master_branch where branch_code= x.vendor_code) as frombranch_name,
+            --- aa.barcode_pallet_docuno,
+                aa.branch_code::text AS Tobranch,
+                (select branch_name from  master_data.master_branch where branch_code= aa.branch_code)as Tobranch_name,
+                    bb.poinvoiceno as transfer_out_docno,po.product_code,product_name1 as product_name,product_quantity as qty
+            FROM global_logistics.outbound_domestic aa
+                LEFT JOIN global_logistics.inbound_onetime_barcode bb ON aa.barcode_pallet_docuno::text = bb.barcodepallet_docuno::text AND aa.onetime_barcode::text = bb.onetime_barcode::text
+                LEFT JOIN master_data.master_branch br ON aa.branch_code::text = br.branch_code::text
+                LEFT JOIN global_logistics.outbound_logistic x ON aa.outbound_id = x.outbound_id
+                left join logistic.delivery_poi_branch_dt as po on poinvoiceno= po.poinvoice_no
+                left join master_data.master_product as prod on po.product_code= prod.product_code
+                where x.outbound_docuno= '$val'
+                order by transfer_out_docno
+
             ");
-            
+
+
             $receive = GoodsReceive::whereId($request->id)->first();
             if(!$receive->vendor_name)
             {
@@ -193,6 +284,7 @@ class ActionController extends Controller
                     vendor_name = '$vendor_name'
                     ");
                     $ven_info = $ven_info[0];
+                    // dd($ven_info);
                     Vendor::create([
                         'vendor_code'   => $ven_info->vendor_code,
                         'vendor_name'   => $ven_info->vendor_name,
@@ -204,11 +296,21 @@ class ActionController extends Controller
             $out_bounds = collect($data);
             foreach($out_bounds as $item)
             {
-                $doc = Document::create([
-                    'document_no'       => $item->transfer_out_docno,
-                    'outbound'       => $item->outbound_docuno,
-                    'received_goods_id'  => $request->id,
-                ]);
+                // $doc = Document::create([
+                //     'document_no'       => $item->transfer_out_docno,
+                //     'outbound'       => $item->outbound_docuno,
+                //     'received_goods_id'  => $request->id,
+                // ]);
+                $doc = Document::updateOrCreate(
+                    ['document_no' => $item->transfer_out_docno], // Condition to check existence
+                    [
+                        'outbound'           => $item->outbound_docuno,
+                        'received_goods_id'  => $request->id,
+                        'creator'            => auth()->id(), // or set this manually
+                        'updated_at'         => now(),        // Laravel updates this automatically, but you can set explicitly
+                    ]
+                );
+
                 $pd_code                = new Product();
                 $pd_code->document_id   = $doc->id;
                 $pd_code->bar_code       = $item->product_code ;
