@@ -74,33 +74,70 @@ class userController extends Controller
         if(request('search') == 'truck_no' || request('search') == 'driver_name'){
             $ids = DriverInfo::where(request('search'),request('search_data'))->pluck('received_goods_id');
         }
-        $data = GoodsReceive::when(request('search') == 'document_no' && request('search_data'),function($q){
-                            $q->where('document_no',request('search_data'));
-        })
-                            ->when(request('search') != 'document_no' && request('search_data'),function($q) use($ids){
-                                $q->whereIn('id',$ids);
-                            })
-                            ->when(request('branch'),function($q){
-                                $q->where('branch_id',request('branch'));
-                            })
-                            ->when(request('status'),function($q){
-                                $q->where('status',request('status'));
-                            })
-                            ->when(request('from_date'),function($q){
-                                $q->where('start_date','>=',request('from_date'));
-                            })
-                            ->when(request('to_date'),function($q){
-                                $q->where('start_date','<=',request('to_date'));
-                            })
-                            ->when($loc == 'dc',function($q) use($mgld_dc){
-                                $q->whereIn('branch_id',$mgld_dc);
-                            })
-                            ->when($loc == 'other',function($q) use($user_branch){
-                                $q->where('branch_id',$user_branch);
-                            })
-                            ->whereNotNull('status')
-                            ->orderBy('created_at','desc')
-                            ->paginate(15);
+
+        // $data = GoodsReceive::when(request('search') == 'document_no' && request('search_data'),function($q){
+        //                     $q->where('document_no',request('search_data'));
+        // })
+        //                     ->when(request('search') != 'document_no' && request('search_data'),function($q) use($ids){
+        //                         $q->whereIn('id',$ids);
+        //                     })
+        //                     ->when(request('branch'),function($q){
+        //                         $q->where('branch_id',request('branch'));
+        //                     })
+        //                     ->when(request('status'),function($q){
+        //                         $q->where('status',request('status'));
+        //                     })
+        //                     ->when(request('from_date'),function($q){
+        //                         $q->where('start_date','>=',request('from_date'));
+        //                     })
+        //                     ->when(request('to_date'),function($q){
+        //                         $q->where('start_date','<=',request('to_date'));
+        //                     })
+        //                     ->when($loc == 'dc',function($q) use($mgld_dc){
+        //                         $q->whereIn('branch_id',$mgld_dc);
+        //                     })
+        //                     ->when($loc == 'other',function($q) use($user_branch){
+        //                         $q->where('branch_id',$user_branch);
+        //                     })
+        //                     ->whereNotNull('status')
+        //                     ->orderBy('created_at','desc')
+        //                     ->paginate(15);
+
+        $data = GoodsReceive::query()
+            ->when(!request()->hasAny(['search', 'search_data', 'branch', 'status', 'from_date', 'to_date']), function($q) {
+                $q->whereBetween('start_date', [
+                    now()->startOfMonth()->format('Y-m-d'),
+                    now()->endOfMonth()->format('Y-m-d')
+                ]);
+            })
+            ->when(request('search') == 'document_no' && request('search_data'), function($q) {
+                $q->where('document_no', request('search_data'));
+            })
+            ->when(request('search') != 'document_no' && request('search_data'), function($q) use($ids) {
+                $q->whereIn('id', $ids);
+            })
+            ->when(request('branch'), function($q) {
+                $q->where('branch_id', request('branch'));
+            })
+            ->when(request('status'), function($q) {
+                $q->where('status', request('status'));
+            })
+            ->when(request('from_date'), function($q) {
+                $q->where('start_date', '>=', request('from_date'));
+            })
+            ->when(request('to_date'), function($q) {
+                $q->where('start_date', '<=', request('to_date'));
+            })
+            ->when($loc == 'dc', function($q) use($mgld_dc) {
+                $q->whereIn('branch_id', $mgld_dc);
+            })
+            ->when($loc == 'other', function($q) use($user_branch) {
+                $q->where('branch_id', $user_branch);
+            })
+            ->whereNotNull('status')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
         $branch = Branch::get();
         view()->share(['branch'=>$branch]);
         return view('user.list',compact('data'));
@@ -247,7 +284,7 @@ class userController extends Controller
                 ]);
             }
         }
-        $document = Document::where('received_goods_id',$id)->orderBy('id')->get();
+        $document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
         $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
         $gate   = CarGate::when($loc == 'dc',function($q) {

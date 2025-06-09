@@ -35,63 +35,6 @@ class ActionController extends Controller
         $this->repository = $repository;
     }
 
-    //search doc
-    // public function search_doc(Request $request)
-    // {
-
-    //     $val = trim(strtoupper($request->data),' ');
-    //     $type = substr($val,0,2);
-    //     $reg = get_branch_truck()[2];
-
-    //     $docs = Document::where('document_no',$val)
-    //                     ->whereIn('received_goods_id',$reg)->first();
-    //     if($docs){
-    //         return response()->json(['message'=>'dublicate'],400);
-    //     }
-    //     // dd($type);
-    //     $conn = DB::connection('master_product');
-
-    //     if($type == "PO")
-    //     {
-    //         $brch_con = '';
-    //         if(!dc_staff())
-    //         {
-    //             $user_brch = getAuth()->branch->branch_code;
-    //             $brch_con = "and brchcode = '$user_brch'";
-    //         }
-
-
-    //         $data = $conn->select("
-    //             select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty
-    //             from  purchaseorder.po_purchaseorderhd aa
-    //             inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
-    //             left join master_data.master_branch br on aa.brchcode= br.branch_code
-    //             where statusflag <> 'C'
-    //             and statusflag in ('P','Y')
-    //             $brch_con
-    //             and purchaseno= '$val'
-    //         ");
-    //     }else{
-    //         $data = $conn->select("
-    //             select tohd.transferdocno as to_docno
-    //             ,(select branch_name_eng from master_data.master_branch br where tohd.desbrchcode = br.branch_code) as to_branch
-    //             ,todt.productcode as product_code,todt.productname as product_name,todt.unitcount as unit
-    //             ,todt.transferoutqty as qty
-    //             from inventory.trs_transferouthd tohd
-    //             left join inventory.trs_transferoutdt todt on tohd.transferid= todt.transferid
-    //             where tohd.transferdocno in ('$val')
-    //             and tohd.statusid <> 'C'
-    //         ");
-    //     }
-    //     $conn = null;
-    //     if($data){
-    //         $this->repository->add_doc($data,$request->id);
-    //         return response()->json($data,200);
-    //     }else{
-    //         return response()->json(['message','not found'],404);
-    //     }
-    // }
-
     public function search_doc(Request $request)
     {
 
@@ -126,13 +69,13 @@ class ActionController extends Controller
                 from  purchaseorder.po_purchaseorderhd aa
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
-                where statusflag <> 'C'
-               and statusflag in ('P','Y')
-                $brch_con
+
                 and purchaseno= '$val'
 
             ");
-
+            // where statusflag <> 'C'
+            // and statusflag in ('P','Y')
+            //  $brch_con
         }
         else if($type!='OU'){
 
