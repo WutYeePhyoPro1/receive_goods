@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\ActionController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\authenticateController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\UnavailableScannedProductController;
-use App\Http\Controllers\userController;
-use App\Models\UnavailableScannedProduct;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\userController;
+use App\Http\Controllers\AdminController;
+use App\Models\UnavailableScannedProduct;
+use App\Http\Controllers\ActionController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\authenticateController;
+use App\Http\Controllers\UnavailableScannedProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -160,4 +161,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             route::post('del','del')->name('del');
         });
+
+        Route::post('/verify-password', [AuthController::class, 'verifyPassword']);
 });

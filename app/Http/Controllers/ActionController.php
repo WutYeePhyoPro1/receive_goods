@@ -37,7 +37,6 @@ class ActionController extends Controller
 
     public function search_doc(Request $request)
     {
-
         $val = trim(strtoupper($request->data),' ');
         $type = substr($val,0,2);
         $reg = get_branch_truck()[2];
@@ -56,6 +55,7 @@ class ActionController extends Controller
         }
 
         $conn = DB::connection('master_product');
+
         if($type == "PO")
         {
             $brch_con = '';
@@ -69,13 +69,12 @@ class ActionController extends Controller
                 from  purchaseorder.po_purchaseorderhd aa
                 inner join  purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
                 left join master_data.master_branch br on aa.brchcode= br.branch_code
-
+            where statusflag <> 'C'
+            and statusflag in ('P','Y')
+            $brch_con
                 and purchaseno= '$val'
 
             ");
-            // where statusflag <> 'C'
-            // and statusflag in ('P','Y')
-            //  $brch_con
         }
         else if($type!='OU'){
 

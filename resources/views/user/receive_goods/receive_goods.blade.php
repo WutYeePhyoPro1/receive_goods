@@ -456,13 +456,13 @@
 
                                         <td
                                             class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">
-                                            @if (!$color)
-                                                <button
-                                                    class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_barcode"
-                                                    data-barcode="{{ $tem->bar_code }}" data-id = "{{ $tem->id }}">
-                                                    <i class="bx bx-minus"></i>
-                                                </button>
-                                            @endif
+                                            {{-- @if (!$color) --}}
+                                            <button
+                                                class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_barcode"
+                                                data-barcode="{{ $tem->bar_code }}" data-id = "{{ $tem->id }}">
+                                                <i class="bx bx-minus"></i>
+                                            </button>
+                                            {{-- @endif --}}
 
 
                                             {{-- <span data-barCode="{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
@@ -617,13 +617,13 @@
 
                                                 <td
                                                     class="td-barcode-container ps-2 border border-slate-400 border-t-0  {{ $color }}">
-                                                    @if (barcode_equal($product_barcode, $tem->bar_code))
-                                                        <button class="pause_scan" id="{{ $tem->id }}"
-                                                            data-status="{{ $tem->scann_pause }}"
-                                                            data-bar_code="{{ $tem->bar_code }}"
-                                                            data-po="{{ $item->document_no }}"><i
-                                                                class='bx {{ $tem->scann_pause === 1 ? 'bx-play-circle' : 'bx-pause-circle' }} text-sm'></i></button>
-                                                    @endif
+                                                    {{-- @if (barcode_equal($product_barcode, $tem->bar_code)) --}}
+                                                    <button class="pause_scan" id="{{ $tem->id }}"
+                                                        data-status="{{ $tem->scann_pause }}"
+                                                        data-bar_code="{{ $tem->bar_code }}"
+                                                        data-po="{{ $item->document_no }}"><i
+                                                            class='bx {{ $tem->scann_pause === 1 ? 'bx-play-circle' : 'bx-pause-circle' }} text-sm'></i></button>
+                                                    {{-- @endif --}}
                                                     <span
                                                         data-bar_code="{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
                                                     <button data-copy-id="{{ $tem->bar_code }}"
@@ -780,9 +780,6 @@
                                 </tbody>
                             @endif
                         @endforeach
-
-
-
                         <tbody class="excess_scan_body"></tbody>
                     </table>
                 </div>
@@ -1695,12 +1692,12 @@
                                                 ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `
-                                                                                                                                                                                                                                                                                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-                                                                                                                                                                                                                                                                                                                        <span>${document.document_no}</span>
-                                                                                                                                                                                                                                                                                                                        <button data-copy-id="${document.document_no}" class="copy-button">
-                                                                                                                                                                                                                                                                                                                            <i class="fas fa-copy"></i>
-                                                                                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                                                                    </td>`
+                                                                                                                                                                                                                                                                                                                                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+                                                                                                                                                                                                                                                                                                                                                                        <span>${document.document_no}</span>
+                                                                                                                                                                                                                                                                                                                                                                        <button data-copy-id="${document.document_no}" class="copy-button">
+                                                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-copy"></i>
+                                                                                                                                                                                                                                                                                                                                                                        </button>
+                                                                                                                                                                                                                                                                                                                                                                    </td>`
                                                 : '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
                                                     ${buttonHtmltwo}
@@ -1759,11 +1756,11 @@
                                             let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
-                                                                                                                                                                                                                                                                                                                            <span>${scanDocument.document_no}</span>
-                                                                                                                                                                                                                                                                                                                            <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
-                                                                                                                                                                                                                                                                                                                                <i class="fas fa-copy"></i>
-                                                                                                                                                                                                                                                                                                                            </button>
-                                                                                                                                                                                                                                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                                                                                                                                                                                                                                                                                                                                            <span>${scanDocument.document_no}</span>
+                                                                                                                                                                                                                                                                                                                                                                            <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
+                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-copy"></i>
+                                                                                                                                                                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                                                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
                                                     ${buttonHtml}
                                                     <span>${sanbarCodes[j]}</span>
@@ -1813,11 +1810,11 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
-                                                                                                                                                                                                                                                                                                                            <span>${excessDocument.document_no}</span>
-                                                                                                                                                                                                                                                                                                                            <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
-                                                                                                                                                                                                                                                                                                                                <i class="fas fa-copy"></i>
-                                                                                                                                                                                                                                                                                                                            </button>
-                                                                                                                                                                                                                                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                                                                                                                                                                                                                                                                                                                                            <span>${excessDocument.document_no}</span>
+                                                                                                                                                                                                                                                                                                                                                                            <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
+                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-copy"></i>
+                                                                                                                                                                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                                                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
                                                     <span>${excessBarCodes[j]}</span>
                                                     <button data-copy-id="${excessBarCodes[j]}" class="excess-copy-button-barcode" >
@@ -1940,14 +1937,11 @@
                 $dc_staff = $dc_staff.includes([17, 19, 20]) ? true : false;
 
                 function reload_page() {
-                    $('.main_table').load(location.href + ' .main_table', function() {
-                        $('.main_pd_div').eq(0).find('td').addClass('latest');
-                    });
-
+                    $('.main_table').load(location.href + ' .main_table');
                     $('.scan_parent').load(location.href + ' .scan_parent', function() {
                         $('.excess_div').load(location.href + ' .excess_div', function() {
                             $('.scanned_pd_div').eq(0).find('td').addClass('latest');
-
+                            $('.main_pd_div').eq(0).find('td').addClass('latest');
                         });
                     });
                 }
@@ -1990,55 +1984,151 @@
 
                 })
 
+                // $(document).on('click', '.del_barcode', function(e) {
+                //     let barcode = $(this).data('barcode');
+                //     let product_id = $(this).data('id');
+
+                //     Swal.fire({
+                //         icon: 'warning',
+                //         text: 'Are you sure to remove for this product code?',
+                //         showCancelButton: true,
+                //         confirmButtonText: 'Yes',
+                //         cancelButtoText: 'No',
+                //         input: 'text',
+                //         inputPlaceholder: 'Enter Your Remark Here',
+                //         inputValidator: (value) => {
+                //             if (!value) {
+                //                 return 'You need to write remark!'
+                //             }
+                //         }
+                //     }).then((result) => {
+                //         if (result.isConfirmed) {
+                //             //Swal.fire(`Your name is: ${result.value}`);
+                //             $.ajax({
+                //                 url: '/barcode_not_scan',
+                //                 method: 'POST',
+                //                 data: {
+                //                     barcode: barcode,
+                //                     document_id: product_id,
+                //                     remark: result.value,
+                //                     _token: token
+                //                     // _token: $('meta[name="csrf-token"]').attr('content')
+                //                 },
+                //                 success: function(response) {
+                //                     Swal.fire({
+                //                         icon: 'success',
+                //                         title: 'Success!',
+                //                         text: 'Your product code  was removed successfully.'
+                //                         // text: `Barcode: ${response.barcode}\nRemark: ${response.remark}\nRemark: ${response.document_id}`,
+                //                     }).then(() => {
+                //                         location.reload();
+                //                     });
+                //                 },
+                //                 error: function(xhr) {
+                //                     Swal.fire('Error', xhr.responseText, 'error');
+                //                 }
+                //             });
+
+                //         }
+                //     })
+
+                // })
+
                 $(document).on('click', '.del_barcode', function(e) {
                     let barcode = $(this).data('barcode');
                     let product_id = $(this).data('id');
 
+                    // Step 1: Ask for password (employee_code)
                     Swal.fire({
-                        icon: 'warning',
-                        text: 'Are you sure to remove for this product code?',
+                        title: 'Enter Password',
+                        input: 'password',
+                        inputPlaceholder: 'Enter your password (employee code)',
                         showCancelButton: true,
-                        confirmButtonText: 'Yes',
-                        cancelButtoText: 'No',
-                        input: 'text',
-                        inputPlaceholder: 'Enter Your Remark Here',
+                        confirmButtonText: 'Next',
+                        cancelButtonText: 'Cancel',
                         inputValidator: (value) => {
                             if (!value) {
-                                return 'You need to write remark!'
+                                return 'Password is required!';
                             }
                         }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            //Swal.fire(`Your name is: ${result.value}`);
+                    }).then((passwordResult) => {
+                        if (passwordResult.isConfirmed) {
+                            const password = passwordResult.value;
+
+                            // Step 2: Verify password via AJAX
                             $.ajax({
-                                url: '/barcode_not_scan',
+                                url: '/verify-password',
                                 method: 'POST',
                                 data: {
-                                    barcode: barcode,
-                                    document_id: product_id,
-                                    remark: result.value,
+                                    password: password,
                                     _token: token
-                                    // _token: $('meta[name="csrf-token"]').attr('content')
                                 },
                                 success: function(response) {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Success!',
-                                        text: 'Your product code  was removed successfully.'
-                                        // text: `Barcode: ${response.barcode}\nRemark: ${response.remark}\nRemark: ${response.document_id}`,
-                                    }).then(() => {
-                                        location.reload();
-                                    });
+                                    if (response.success) {
+                                        // Step 3: Ask for remark
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            text: 'Are you sure to remove this product code?',
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Yes',
+                                            cancelButtonText: 'No',
+                                            input: 'text',
+                                            inputPlaceholder: 'Enter Your Remark Here',
+                                            inputValidator: (value) => {
+                                                if (!value) {
+                                                    return 'You need to write a remark!';
+                                                }
+                                            }
+                                        }).then((remarkResult) => {
+                                            if (remarkResult.isConfirmed) {
+                                                const remark = remarkResult.value;
+
+                                                // Step 4: Send final deletion request
+                                                $.ajax({
+                                                    url: '/barcode_not_scan',
+                                                    method: 'POST',
+                                                    data: {
+                                                        barcode: barcode,
+                                                        document_id: product_id,
+                                                        remark: remark,
+                                                        _token: token
+                                                    },
+                                                    success: function(
+                                                        response) {
+                                                        Swal.fire({
+                                                            icon: 'success',
+                                                            title: 'Success!',
+                                                            text: 'Your product code was removed successfully.'
+                                                        }).then(
+                                                            () => {
+                                                                location
+                                                                    .reload();
+                                                            });
+                                                    },
+                                                    error: function(xhr) {
+                                                        Swal.fire(
+                                                            'Error',
+                                                            xhr
+                                                            .responseText,
+                                                            'error');
+                                                    }
+                                                });
+                                            }
+                                        });
+
+                                    } else {
+                                        Swal.fire('Error', 'Incorrect password.', 'error');
+                                    }
                                 },
                                 error: function(xhr) {
-                                    Swal.fire('Error', xhr.responseText, 'error');
+                                    Swal.fire('Error', 'Password is Wrong',
+                                        'error');
                                 }
                             });
-
                         }
-                    })
+                    });
+                });
 
-                })
 
                 if (!$finish) {
                     $(document).on('click', '.del_doc', function(e) {
