@@ -617,13 +617,13 @@
 
                                                 <td
                                                     class="td-barcode-container ps-2 border border-slate-400 border-t-0  {{ $color }}">
-                                                    {{-- @if (barcode_equal($product_barcode, $tem->bar_code)) --}}
+                                                    @if (barcode_equal($product_barcode, $tem->bar_code))
                                                     <button class="pause_scan" id="{{ $tem->id }}"
                                                         data-status="{{ $tem->scann_pause }}"
                                                         data-bar_code="{{ $tem->bar_code }}"
                                                         data-po="{{ $item->document_no }}"><i
                                                             class='bx {{ $tem->scann_pause === 1 ? 'bx-play-circle' : 'bx-pause-circle' }} text-sm'></i></button>
-                                                    {{-- @endif --}}
+                                                    @endif
                                                     <span
                                                         data-bar_code="{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
                                                     <button data-copy-id="{{ $tem->bar_code }}"
