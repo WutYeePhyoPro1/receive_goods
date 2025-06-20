@@ -367,7 +367,7 @@ class ActionController extends Controller
                     select * from
                     (
                     select	 product_code, qty
-                    from	dblink('dbname=pro1_awms host = 192.168.151.241 port=5432 user=superadmin password=super123',
+                    from	dblink('dbname=pro1_awms host = 192.168.151.241 port=5432 user=superadmin password=W151_mware@house241SvrMain',
                     '
                     SELECT product_code,qty FROM (
                     SELECT product_code,product_code as barcode,product_unit_rate as qty FROM public.aw_master_product_rate UNION ALL
