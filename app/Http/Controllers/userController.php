@@ -257,8 +257,18 @@ class userController extends Controller
             ->where('car_scanning', 1)
             ->where('received_goods_id', '!=', $id)
             ->first();
+        // if ($scanning_check) {
+        //     return redirect()->back()->with('error_message', 'Receive Goods မှာ မပြီးပြတ်သေးတဲ့ document ရှိနေပါသည်။ continue/complete အရင်နှိပ်ပါ');
+        // }
+
+
         if ($scanning_check) {
-            return redirect()->back()->with('error_message', 'Receive Goods မှာ မပြီးပြတ်သေးတဲ့ document ရှိနေပါသည်။ continue/complete အရင်နှိပ်ပါ');
+            $updates = ['car_scanning' => 0];
+            if (is_null($scanning_check->duration)) {
+                $updates['duration'] = '00:00:00';
+            }
+            $scanning_check->update($updates);
+            // return redirect()->back()->with('error_message', 'Receive Goods မှာ မပြီးပြတ်သေးတဲ့ document ရှိနေပါသည်။ continue/complete အရင်နှိပ်ပါ');
         }
 
         $data = get_branch_truck();
