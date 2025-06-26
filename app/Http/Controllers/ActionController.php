@@ -499,7 +499,8 @@ class ActionController extends Controller
 
             } catch (\Exception $e) {
                 logger($e);
-                return response()->json(['message'=>'Server Time Out Please Try Again'],500);
+                return response()->json(['message'=>'Something wrong, Connect SD HO'],500);
+                // Server Time Out Please Try Again
             }
 
         }else{
