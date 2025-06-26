@@ -128,8 +128,8 @@ class ActionController extends Controller
             from global_logistics.outbound_logistic as outbounddoc
             left join global_logistics.outbound_import as tpdoc
             on outbounddoc.outbound_id= tpdoc.outbound_id
-            where outbound_docuno= '$val'-- and transfer_out_docno ilike 'PO%'
-
+            where outbound_docuno in ('$val')-- and transfer_out_docno ilike 'PO%
+				and tpdoc.branch_code='$user_brch'
             Union all
 
             SELECT DISTINCT x.outbound_docuno,indock_docudate::date as date,x.vendor_code as frombranch,
@@ -143,8 +143,11 @@ class ActionController extends Controller
                 LEFT JOIN master_data.master_branch br ON aa.branch_code::text = br.branch_code::text
                 LEFT JOIN global_logistics.outbound_logistic x ON aa.outbound_id = x.outbound_id
                 left join logistic.delivery_poi_branch_dt as po on poinvoiceno= po.poinvoice_no
-                left join master_data.master_product as prod on po.product_code= prod.product_code
-                where x.outbound_docuno= '$val'
+                left join master_data.master_product as prod on
+				po.product_code= prod.product_code
+                where x.outbound_docuno in ('$val')
+				and aa.branch_code::text='$user_brch'
+				--and prod.product_code='0404016017006'
                 order by transfer_out_docno
 
             ");
@@ -166,6 +169,12 @@ class ActionController extends Controller
                    select vendor_name,vendor_code,vendor_addr,vendor_conttel from configure.setap_vendor where
                     vendor_name = '$vendor_name'
                     ");
+                    if(!$ven_info)
+                    { $ven_info= $conn->select("select branch_code as vendor_code, branch_name_eng as vendor_name,branch_address1 as vendor_addr,tel as vendor_conttel from master_data.master_branch where branch_code='$vendor_name'");
+                    }
+                    else{ 
+                        $ven_info = $ven_info;
+                    }
                     $ven_info = $ven_info[0];
                     // dd($ven_info);
                     Vendor::create([
@@ -193,6 +202,7 @@ class ActionController extends Controller
                         'updated_at'         => now(),        // Laravel updates this automatically, but you can set explicitly
                     ]
                 );
+                // $p_code = Product::updateOrCreate([ 'document_id'=>$doc_id,'bar_code'=>$item->product_code,],[])
 
                 $pd_code                = new Product();
                 $pd_code->document_id   = $doc->id;
