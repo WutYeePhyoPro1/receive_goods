@@ -165,6 +165,9 @@
         $total_sec = get_done_duration($main->id);
         ?>
 
+        <input type="hidden" id="started_count_time"
+            value="{{ isset($cur_driver) ? strtotime($cur_driver->start_date . ' ' . $cur_driver->start_time) * 1000 : '' }}">
+
         @if ($cur_driver)
             <span
                 class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
@@ -174,7 +177,6 @@
                 @else
                     {{ isset($status) && $status == 'view' ? $main->total_duration : (isset($cur_driver) ? cur_truck_dur($cur_driver->id) : '00:00:00') }}
                 @endif
-
             </span>
         @elseif($driver_last)
             @if (isset($status) && $status == 'view')
@@ -422,7 +424,6 @@
                                     ?>
                                     <tr class="h-10 main_pd_div">
                                         @if ($key == 0)
-
                                             <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
                                                 @if (
                                                     (!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) ||
@@ -1736,12 +1737,12 @@
                                                 ${j === 0 ? `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">${buttonHtml}</td>` : `<td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8"></td>`}
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 doc_times">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `
-                                                                                                                                                                                                                                                                                                                                                                                            <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-                                                                                                                                                                                                                                                                                                                                                                                                <span>${document.document_no}</span>
-                                                                                                                                                                                                                                                                                                                                                                                                <button data-copy-id="${document.document_no}" class="copy-button">
-                                                                                                                                                                                                                                                                                                                                                                                                    <i class="fas fa-copy"></i>
-                                                                                                                                                                                                                                                                                                                                                                                                </button>
-                                                                                                                                                                                                                                                                                                                                                                                            </td>`
+                                                                                                                                                                                                                                                                                                                                                                                                                    <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
+                                                                                                                                                                                                                                                                                                                                                                                                                        <span>${document.document_no}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                        <button data-copy-id="${document.document_no}" class="copy-button">
+                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-copy"></i>
+                                                                                                                                                                                                                                                                                                                                                                                                                        </button>
+                                                                                                                                                                                                                                                                                                                                                                                                                    </td>`
                                                 : '<td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add ${checkColor[j]} px-2 bar_code">
                                                     ${buttonHtmltwo}
@@ -1800,11 +1801,11 @@
                                             let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
-                                                                                                                                                                                                                                                                                                                                                                                                    <span>${scanDocument.document_no}</span>
-                                                                                                                                                                                                                                                                                                                                                                                                    <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
-                                                                                                                                                                                                                                                                                                                                                                                                        <i class="fas fa-copy"></i>
-                                                                                                                                                                                                                                                                                                                                                                                                    </button>
-                                                                                                                                                                                                                                                                                                                                                                                            </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                                                                                                                                                                                                                                                                                                                                                                                            <span>${scanDocument.document_no}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                            <button data-copy-id="${scanDocument.document_no}" class="scan-copy-button">
+                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-copy"></i>
+                                                                                                                                                                                                                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                                                                                                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">
                                                     ${buttonHtml}
                                                     <span>${sanbarCodes[j]}</span>
@@ -1854,11 +1855,11 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 border-l-0">${buttonHtml}</td>
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 border-l-0">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0"}">
-                                                                                                                                                                                                                                                                                                                                                                                                    <span>${excessDocument.document_no}</span>
-                                                                                                                                                                                                                                                                                                                                                                                                    <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
-                                                                                                                                                                                                                                                                                                                                                                                                        <i class="fas fa-copy"></i>
-                                                                                                                                                                                                                                                                                                                                                                                                    </button>
-                                                                                                                                                                                                                                                                                                                                                                                            </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
+                                                                                                                                                                                                                                                                                                                                                                                                                            <span>${excessDocument.document_no}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                            <button data-copy-id="${excessDocument.document_no}" class="excess-copy-button">
+                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-copy"></i>
+                                                                                                                                                                                                                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                                                                                                                                                                                    </td>` : '<td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>'}
                                                 <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
                                                     <span>${excessBarCodes[j]}</span>
                                                     <button data-copy-id="${excessBarCodes[j]}" class="excess-copy-button-barcode" >
@@ -2897,22 +2898,31 @@
                         });
                     }
 
-                    if (!$finish && ($role == 2 || $role == 3) && ($all_begin != '')) {
-                        setInterval(() => {
-                            time_count();
-                        }, 1000);
+                    const timeStart = parseInt(document.getElementById('started_count_time')?.value || 0);
+                    const timeDisplay = document.getElementById('time_count');
 
-                        function time_count() {
-                            let time = new Date($('#started_time').val()).getTime();
-                            let duration = 0;
-                            let now = new Date().getTime();
-                            let diff = Math.floor(now - time + duration);
-                            let hour = Math.floor(diff / (60 * 60 * 1000));
-                            let min = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
-                            let sec = Math.floor((diff % (60 * 60 * 1000)) % (60 * 1000) / (1000));
-                            $('#time_count').text(hour.toString().padStart(2, '0') + ':' + min.toString().padStart(2,
-                                '0') + ':' + sec.toString().padStart(2, '0'));
-                        }
+                    if (!isNaN(timeStart) && timeDisplay) {
+                        setInterval(() => {
+                            const now = Date.now();
+                            let diff = now - timeStart;
+
+                            let note = '';
+                            if (diff < 0) {
+                                diff = 0;
+                                note = ' (time not synced)';
+                            }
+
+                            const hour = Math.floor(diff / (3600 * 1000));
+                            const min = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
+                            const sec = Math.floor((diff % (60 * 1000)) / 1000);
+
+                            const timeText =
+                                hour.toString().padStart(2, '0') + ':' +
+                                min.toString().padStart(2, '0') + ':' +
+                                sec.toString().padStart(2, '0');
+
+                            timeDisplay.textContent = timeText + note;
+                        }, 1000);
                     }
 
                     $(document).on('blur', '#all_remark', function(e) {
