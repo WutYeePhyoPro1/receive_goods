@@ -202,16 +202,24 @@ class ActionController extends Controller
                         'updated_at'         => now(),        // Laravel updates this automatically, but you can set explicitly
                     ]
                 );
-                // $p_code = Product::updateOrCreate([ 'document_id'=>$doc_id,'bar_code'=>$item->product_code,],[])
+                $p_code = Product::updateOrCreate(
+                    [   'document_id'       => $doc_id,
+                        'bar_code'          => $item->product_code,
+                        'qty'               => (float)($item->qty)],
+                    [
+                        'supplier_name'     => $item->product_name,
+                        'scanned_qty'       => 0,
+                        'unit'              => $item->unit??null
+                    ]);
 
-                $pd_code                = new Product();
-                $pd_code->document_id   = $doc->id;
-                $pd_code->bar_code       = $item->product_code ;
-                $pd_code->supplier_name = $item->product_name;
-                $pd_code->qty           = (float)($item->qty);
-                $pd_code->scanned_qty   = 0;
-                $pd_code->unit          = $item->unit??null;
-                $pd_code->save();
+                // $pd_code                = new Product();
+                // $pd_code->document_id   = $doc->id;
+                // $pd_code->bar_code       = $item->product_code ;
+                // $pd_code->supplier_name = $item->product_name;
+                // $pd_code->qty           = (float)($item->qty);
+                // $pd_code->scanned_qty   = 0;
+                // $pd_code->unit          = $item->unit??null;
+                // $pd_code->save();
             }
             return response()->json($data,200);
         }

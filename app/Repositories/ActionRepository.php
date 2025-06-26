@@ -124,14 +124,26 @@ Class ActionRepository implements ActionRepositoryInterface
             for($i = 0 ; $i < count($data) ; $i++){
                 if(!in_array($data[$i]->productcode ?? $data[$i]->product_code,$dub_pd))
                 {
-                    $pd_code                = new Product();
-                    $pd_code->document_id   = $doc->id;
-                    $pd_code->bar_code       = $data[$i]->productcode ?? $data[$i]->product_code;
-                    $pd_code->supplier_name = $data[$i]->productname ?? $data[$i]->product_name;
-                    $pd_code->qty           = (float)($data[$i]->goodqty ?? $data[$i]->qty);
-                    $pd_code->scanned_qty   = 0;
-                    $pd_code->unit          = $data[$i]->unit;
-                    $pd_code->save();
+                    // $pd_code                = new Product();
+                    // $pd_code->document_id   = $doc->id;
+                    // $pd_code->bar_code       = $data[$i]->productcode ?? $data[$i]->product_code;
+                    // $pd_code->supplier_name = $data[$i]->productname ?? $data[$i]->product_name;
+                    // $pd_code->qty           = (float)($data[$i]->goodqty ?? $data[$i]->qty);
+                    // $pd_code->scanned_qty   = 0;
+                    // $pd_code->unit          = $data[$i]->unit;
+                    // $pd_code->save();
+                    $pd_code = Product::updateOrCreate(
+                        [
+                            'document_id' => $doc->id,
+                            'bar_code'    => $data[$i]->productcode ?? $data[$i]->product_code,
+                            'qty'         => (float)($data[$i]->goodqty ?? $data[$i]->qty),
+                        ],
+                        [
+                            'supplier_name' => $data[$i]->productname ?? $data[$i]->product_name,
+                            'scanned_qty'   => 0,
+                            'unit'          => $data[$i]->unit ?? null
+                        ]
+                    );
                     $dub_pd[]    = $data[$i]->productcode ?? $data[$i]->product_code;
                 }else{
                     $search_dub = Product::where(['document_id'=>$doc->id,'bar_code'=>$data[$i]->productcode])->first();
