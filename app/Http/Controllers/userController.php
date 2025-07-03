@@ -104,10 +104,16 @@ class userController extends Controller
         //                     ->paginate(15);
 
         $data = GoodsReceive::query()
+            // ->when(!request()->hasAny(['search', 'search_data', 'branch', 'status', 'from_date', 'to_date']), function($q) {
+            //     $q->whereBetween('start_date', [
+            //         now()->startOfMonth()->format('Y-m-d'),
+            //         now()->endOfMonth()->format('Y-m-d')
+            //     ]);
+            // })
             ->when(!request()->hasAny(['search', 'search_data', 'branch', 'status', 'from_date', 'to_date']), function($q) {
                 $q->whereBetween('start_date', [
-                    now()->startOfMonth()->format('Y-m-d'),
-                    now()->endOfMonth()->format('Y-m-d')
+                    now()->subDays(29)->format('Y-m-d'), // 30 days ago including today
+                    now()->format('Y-m-d')
                 ]);
             })
             ->when(request('search') == 'document_no' && request('search_data'), function($q) {
