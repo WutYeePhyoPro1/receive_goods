@@ -105,7 +105,7 @@ class ActionController extends Controller
             }
         } else if ($type=='OU')
         {
-
+            $user_brch = getAuth()->branch->branch_code;
             $docs = Document::where('outbound',$val)
             ->whereIn('received_goods_id',$reg)->first();
             if($docs){
@@ -149,7 +149,6 @@ class ActionController extends Controller
 				and aa.branch_code::text='$user_brch'
 				--and prod.product_code='0404016017006'
                 order by transfer_out_docno
-
             ");
 
 
@@ -203,7 +202,7 @@ class ActionController extends Controller
                     ]
                 );
                 $p_code = Product::updateOrCreate(
-                    [   'document_id'       => $doc_id,
+                    [   'document_id'       => $doc->id,
                         'bar_code'          => $item->product_code,
                         'qty'               => (float)($item->qty)],
                     [
