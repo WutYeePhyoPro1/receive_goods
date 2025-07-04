@@ -2388,7 +2388,7 @@
                                         // $color = $color+10;
 
                                         new_pr.document.write(`
-                                        <div class="" style="padding-left: 18px;margin-top:${$mar_top}px;padding-top:2px">
+                                        <div class="" style="padding-left: 18px;margin-top:30px;padding-top:2px">
 
                                                 <small class="" style="word-break: break-all;font-size:0.9rem;font-weight:1000;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
@@ -2422,7 +2422,7 @@
                                     for ($i = 0; $i < $qty; $i++) {
                                         new_pr.document.write(`
 
-                                        <div class="" style="margin: ${$mar_top+12}px 10px 5px 2px;position:relative;">
+                                        <div class="" style="margin: 22px 10px 5px 2px;position:relative;">
                                              <small class="" style="word-break: break-all;line-height:15px;font-size:0.78rem;font-weight:700;font-family: Arial, Helvetica, sans-serif">${$name}</small>
 
                                            <div style="position:absolute;right:70px;top:79px">
