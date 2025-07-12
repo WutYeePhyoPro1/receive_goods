@@ -2909,7 +2909,7 @@
                             let note = '';
                             if (diff < 0) {
                                 diff = 0;
-                                note = ' (time not synced)';
+                                note = '';
                             }
 
                             const hour = Math.floor(diff / (3600 * 1000));
