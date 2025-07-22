@@ -14,6 +14,7 @@ class UnavailableScannedProductController extends Controller
 
     public function index(Request $request)
     {
+      
         return $this->model
             ->where('received_goods_id', $request->received_goods_id)
             ->orderBy('created_at', 'desc')

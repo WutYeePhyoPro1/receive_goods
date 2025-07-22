@@ -245,9 +245,41 @@ class userController extends Controller
         }
     }
 
+        public function receive_goods_partial($id)
+    {
+        // Data Preparation
+        $main = GoodsReceive::where('id', $id)->first();
+        $document = Document::where('received_goods_id', $id)->orderBy('updated_at', 'desc')->get();
+        $driver = DriverInfo::where('received_goods_id', $id)->get();
+        $cur_driver = DriverInfo::where([
+            'received_goods_id' => $id,
+            'user_id' => getAuth()->id,
+        ])->whereNull('duration')->first();
+        $driver_last = DriverInfo::where('received_goods_id', $id)->orderBy('id', 'desc')->first();
+        $scan_document = $document;
+        $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
+        $document_id = Document::where('received_goods_id', $id)->pluck('id');
+        $product_barcode = Product::whereIn('document_id', $document_id)
+            ->whereNull('not_scan_remark')
+            ->pluck('bar_code')->toArray();
+
+        // Render partials
+        $main_table_html = view('user.receive_goods.partials.main_table', compact('main', 'document','cur_driver','driver_last'))->render();
+        $scan_parent_html = view('user.receive_goods.partials.scan_parent', compact('cur_driver','scan_document','product_barcode'))->render();
+        $excess_div_html = view('user.receive_goods.partials.excess_div', compact('driver','document','main'))->render();
+
+        return response()->json([
+            'main_table' => $main_table_html,
+            'scan_parent' => $scan_parent_html,
+            'excess_div' => $excess_div_html,
+            'product_barcode' => $product_barcode, // optional
+        ]);
+    }
+
+
     public function receive_goods($id)
     {
-
+            $start = microtime(true);
         $receive_goods_status = GoodsReceive::where('id',$id)->value('status');
 
         if ($receive_goods_status == 'complete') {
@@ -316,6 +348,10 @@ class userController extends Controller
         $product_barcode = Product::whereIn('document_id',$document_id)
                             ->WhereNull('not_scan_remark')
                             ->pluck('bar_code')->toArray();
+
+        $end = microtime(true);
+        $duration = $end - $start;
+        \Log::info('Function duration: ' . $duration . ' seconds');
 
         view()->share(['status'=>'scan','reason'=>$reason]);
         return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document','id','scan_document_no', 'page','driver_last','product_barcode'));

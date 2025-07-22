@@ -331,205 +331,9 @@
                 {{-- <input type="hidden" id="duration" value="{{ $total_sec ?? 0 }}"> --}}
                 <input type="hidden" id="receive_id" value="{{ $main->id }}">
             @endif
-            <div class="main_table">
-                <table class="w-full" class="main_tb_body">
-                    <thead>
-                        <tr class="h-10">
-                            <th class="border border-slate-400 border-t-0 border-l-0"></th>
-                            <th class="border border-slate-400 border-t-0 w-8"></th>
-                            <th class="border border-slate-400 border-t-0">Document No</th>
-                            <th class="border border-slate-400 border-t-0"><span>Box Barcode</span>
-                                <a href="../product_pdf/{{ $main->id }}" target="_blank"><i
-                                        class='bx bx-download ms-1 hover:text-amber-500'></i></a>
-                            </th>
-                            <th class="border border-slate-400 border-t-0">Product Name</th>
-                            <th class="border border-slate-400 border-t-0">Quantity</th>
-                            <th class="border border-slate-400 border-t-0">Scanned</th>
-                            <th class="border border-slate-400 border-t-0 border-r-0">Remaining</th>
-                        </tr>
-                    </thead>
-                    {{-- <input type="hidden" id="doc_total" value="{{ count($document) }}">
-                        <?php
-                        $i = 0;
-                        $j = 0;
-                        ?>
-                        @foreach ($document as $item)
-                            @if (count(search_pd($item->id)) > 0)
-                                <tbody class="main_body">
-                                    @foreach (search_pd($item->id) as $key => $tem)
-                                        <?php
-                                        $color = check_color($tem->id);
-                                        ${'id' . $key} = $key;
-                                        ?>
-                                        <tr class="h-10">
-                                            @if ($key == 0)
-                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                @if ((!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) || dc_staff())
-                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}" data-doc="{{ $item->document_no }}"><i class='bx bx-minus'></i></button>
-                                                @endif
-                                            </td>
-                                            <td class="ps-2 border border-slate-400 border-t-0  doc_times">{{ $i+1 }}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no">{{ $item->document_no }}</td>
-                                            @else
-                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
-                                            @endif
 
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">{{ $tem->bar_code }}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">{{ $tem->supplier_name }}</td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
-                                                <span class="cursor-pointer hover:underline hover:font-semibold sticker select-none" data-index="{{ $j }}">{{$tem->qty }}</span>
-                                                <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
-                                                <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
-                                                <input type="hidden" class="pd_id" value="{{ $tem->id }}">
-                                                <div class='px-5 bar_stick1 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
-                                                <div class='px-5 bar_stick2 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,22 ) !!}</div>
-                                                <div class='px-5 bar_stick3 hidden' >{!! DNS1D::getBarcodeHTML( $tem->bar_code ?? '1' , 'C128' ,2,50 ) !!}</div>
-                                            </td>
+            @include('user.receive_goods.partials.main_table',['document'=>$document,'cur_driver'=>$cur_driver])
 
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
-                                                <div class="main_scan">
-                                                    {{ $tem->scanned_qty }}
-                                                    @if (isset($cur_driver->start_date))
-                                                        <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i>
-                                                    @endif
-                                                </div>
-                                                <input type="hidden" class="w-[80%] real_scan border border-slate-400 rounded-md" data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}" value="{{ $tem->scanned_qty }}">
-                                            </td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">{{ $tem->qty - $tem->scanned_qty }}</td>
-                                        </tr>
-                                        <?php
-                                        $j++;
-                                        ?>
-                                    @endforeach
-                                </tbody>
-                                <?php $i++; ?>
-                            @endif
-                        @endforeach
-                        <input type="hidden" id="count" value="{{ $i }}"> --}}
-
-                    <input type="hidden" id="doc_total" value="{{ count($document) }}">
-                    <?php
-                    $i = 0;
-                    $j = 0;
-                    ?>
-                    @foreach ($document as $item)
-                        @if (count(search_pd($item->id)) > 0)
-                            <tbody class="main_body">
-                                @foreach (search_pd($item->id) as $key => $tem)
-                                    <?php
-                                    $color = check_color($tem->id);
-                                    ${'id' . $key} = $key;
-                                    ?>
-                                    <tr class="h-10 main_pd_div">
-                                        @if ($key == 0)
-                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
-                                                @if (
-                                                    (!dc_staff() && $cur_driver && getAuth()->id == $cur_driver->user_id) ||
-                                                        (!dc_staff() && $driver_last && getAuth()->id == $driver_last->scan_user_id) ||
-                                                        dc_staff())
-                                                    <button
-                                                        class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_doc {{ scan_zero($item->id) ? '' : 'hidden ' }}"
-                                                        data-doc="{{ $item->document_no }}"><i
-                                                            class='bx bx-minus'></i></button>
-                                                @endif
-                                            </td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_times">
-                                                {{ $i + 1 }}</td>
-                                            {{-- <td class="ps-2 border border-slate-400 border-t-0 doc_no">
-                                                    <div class="container">
-                                                        <span id="doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
-                                                        <button id="btn-copy-doc-{{ $item->document_no }}" class="copy-button" onclick="copyText('doc-no-{{ $item->document_no }}', 'btn-copy-doc-{{ $item->document_no }}')">
-                                                            <i class="fa-solid fa-copy"></i>
-                                                        </button>
-                                                    </div>
-                                                </td> --}}
-                                            <td class="td-container ps-2 border border-slate-400 border-t-0 doc_no">
-                                                <span>{{ $item->document_no }}</span>
-                                                <button data-copy-id="{{ $item->document_no }}" class="copy-button">
-                                                    <i class="fas fa-copy"></i>
-                                                </button>
-                                            </td>
-                                        @else
-                                            <td class="ps-2 border border-slate-400 border-t-0 border-l-0 "></td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_times"></td>
-                                            <td class="ps-2 border border-slate-400 border-t-0 doc_no"></td>
-                                        @endif
-
-                                        <td
-                                            class="td-barcode-container ps-2 border border-slate-400 border-t-0 color_add {{ $color }} px-2 bar_code">
-                                            {{-- @if (!$color) --}}
-                                            <button
-                                                class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_barcode"
-                                                data-barcode="{{ $tem->bar_code }}" data-id = "{{ $tem->id }}">
-                                                <i class="bx bx-minus"></i>
-                                            </button>
-                                            {{-- @endif --}}
-
-
-                                            {{-- <span data-barCode="{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
-                                                    <button data-copy-id="{{ $tem->bar_code }}" data-barCode="{{ $tem->bar_code }}" class="copy-button-barcode">
-                                                        <i class="fas fa-copy"></i>
-                                                    </button> --}}
-                                            <span>{{ $tem->bar_code }}</span>
-                                            <button data-copy-id="{{ $tem->bar_code }}" class="copy-button-barcode">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
-
-                                        </td>
-                                        <td class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }}">
-                                            {{ $tem->supplier_name }}</td>
-                                        <td
-                                            class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} qty">
-                                            <span
-                                                class="cursor-pointer hover:underline hover:font-semibold sticker select-none"
-                                                data-index="{{ $j }}">{{ $tem->qty }}</span>
-
-                                            <div style="font-family: 'Courier New', Courier, monospace;font-weight:light">
-                                                <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
-                                                <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
-                                                <input type="hidden" class="pd_id" value="{{ $tem->id }}">
-                                            </div>
-                                            <div class='px-5 bar_stick1 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 50) !!}</div>
-                                            <div class='px-5 bar_stick2 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 26) !!}</div>
-                                            <div class='px-5 bar_stick3 hidden'>{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 50) !!}</div>
-                                        </td>
-                                        <td
-                                            class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} scanned_qty">
-                                            <div class="main_scan">
-                                                {{ $tem->scanned_qty }}
-                                                @if (!$driver_last)
-                                                    {{-- <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan' data-index="{{ $j }}" title="add quantity"></i> --}}
-                                                @else
-                                                    @if (isset($driver_last->start_date))
-                                                        <i class='bx bx-key float-end mr-2 cursor-pointer text-xl change_scan'
-                                                            data-index="{{ $j }}" title="add quantity"></i>
-                                                    @endif
-                                                @endif
-                                            </div>
-                                            <input type="hidden"
-                                                class="w-[80%] real_scan border border-slate-400 rounded-md"
-                                                data-id="{{ $tem->id }}" data-old="{{ $tem->scanned_qty }}"
-                                                value="{{ $tem->scanned_qty }}">
-                                        </td>
-                                        <td
-                                            class="ps-2 border border-slate-400 border-t-0 color_add {{ $color }} border-r-0 remain_qty">
-                                            {{ $tem->qty - $tem->scanned_qty }}</td>
-                                    </tr>
-                                    <?php
-                                    $j++;
-                                    ?>
-                                @endforeach
-                            </tbody>
-                            <?php $i++; ?>
-                        @endif
-                    @endforeach
-                    <input type="hidden" id="count" value="{{ $i }}">
-                    <tbody class="search_main_body">
-                    </tbody>
-                </table>
-            </div>
         </div>
         <div class="mt-5 grid grid-rows-2 gap-2" style="max-height: 83vh;width:100%; overflow:hidden">
             <div class="border border-slate-400 rounded-md overflow-y-auto overflow-x-hidden main_product_table"
@@ -540,123 +344,7 @@
                     </span>
                 </div>
                 {{-- {{ $product_barcode }} --}}
-                <div class="scan_parent">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="h-10">
-                                <th class="border border-slate-400 border-t-0 w-8 border-l-0"></th>
-                                <th class="border border-slate-400 border-t-0">Document No</th>
-                                <th class="border border-slate-400 border-t-0">Box Barcode</th>
-                                <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
-                                <th class="border border-slate-400 border-t-0 border-r-0">Quantity</th>
-                                <th class="border border-slate-400 border-t-0 border-r-0">Scann Quantity</th>
-                            </tr>
-                        </thead>
-                        <?php $i = 0; ?>
-                        @if (count($scan_document) > 0)
-                            @foreach ($scan_document as $item)
-                                @if (count(search_scanned_pd($item->id)) > 0)
-                                    <?php
-                                    $i++;
-                                    ?>
-                                    <tbody class="scan_body">
-                                        @foreach (search_scanned_pd($item->id) as $index => $tem)
-                                            <?php
-                                            $color = check_scanned_color($tem->id);
-                                            $scanned[] = $tem->bar_code;
-                                            ?>
-                                            {{-- @if ($tem->id == get_latest_scan_pd($main->id))
-                                                    <tr class="h-10">
-                                                        @if ($index == 0)
-                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest">{{ $i }}</td>
-                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest">{{ $item->document_no }}</td>
-                                                        @else
-                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest"></td>
-                                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0 latest"></td>
-                                                        @endif
-                                                                <td class="ps-2 border border-slate-400 border-t-0  {{ $color }} latest" >{{ $tem->bar_code }}</td>
-                                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} latest">{{ $tem->supplier_name }}</td>
-                                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} latest border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
-                                                    </tr>
-                                                    @else --}}
-                                            {{-- <tr class="h-10 scanned_pd_div">
-                                                @if ($index == 0)
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0 {{ check_all_scan($item->id) ? 'bg-green-200 text-green-600' : '' }}">{{ $item->document_no }}</td>
-                                                @else
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                        <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                @endif
-                                                <td class="ps-2 border border-slate-400 border-t-0  {{ $color }}">{{ $tem->bar_code }}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
-                                            </tr> --}}
-                                            <tr class="h-10 scanned_pd_div">
-                                                @if ($index == 0)
-                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0">
-                                                        {{ $i }}</td>
-
-                                                    <td
-                                                        class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 {{ check_all_scan($item->id) ? 'bg-green-200 text-green-600' : '' }}">
-                                                        {{-- {{ $item->document_no }} --}}
-
-                                                        <span>{{ $item->document_no }}</span>
-                                                        <button data-copy-id="{{ $item->document_no }}"
-                                                            class="scan-copy-button">
-                                                            <i class="fas fa-copy"></i>
-                                                        </button>
-
-                                                        {{-- <div class="container">
-                                                            <span id="doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
-                                                            <button id="btn-copy-doc-{{ $item->document_no }}" class="copy-button" onclick="copyText('scan-doc-no-{{ $item->document_no }}', 'btn-copy-doc-{{ $item->document_no }}')">
-                                                                <i class="fa-solid fa-copy"></i>
-                                                            </button>
-                                                        </div> --}}
-                                                    </td>
-                                                @else
-                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                    <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                @endif
-
-                                                <td
-                                                    class="td-barcode-container ps-2 border border-slate-400 border-t-0  {{ $color }}">
-                                                    @if (barcode_equal($product_barcode, $tem->bar_code))
-                                                        <button class="pause_scan" id="{{ $tem->id }}"
-                                                            data-status="{{ $tem->scann_pause }}"
-                                                            data-bar_code="{{ $tem->bar_code }}"
-                                                            data-po="{{ $item->document_no }}"><i
-                                                                class='bx {{ $tem->scann_pause === 1 ? 'bx-play-circle' : 'bx-pause-circle' }} text-sm'></i></button>
-                                                    @endif
-                                                    <span
-                                                        data-bar_code="{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
-                                                    <button data-copy-id="{{ $tem->bar_code }}"
-                                                        class="scan-copy-button-barcode">
-                                                        <i class="fas fa-copy"></i>
-                                                    </button>
-                                                </td>
-
-                                                <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">
-                                                    {{ $tem->supplier_name }}</td>
-
-                                                <td
-                                                    class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">
-                                                    {{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty }}
-                                                </td>
-                                                <td
-                                                    class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0 no">
-                                                    {{ $tem->scann_count }}</td>
-                                            </tr>
-                                            {{-- @endif --}}
-                                        @endforeach
-                                    </tbody>
-                                @endif
-                            @endforeach
-                        @endif
-
-                        <tbody class="search_scan_body"></tbody>
-
-                    </table>
-                </div>
+                @include('user.receive_goods.partials.scan_parent',['scan_document'=>$scan_document])
             </div>
             <input type="hidden" id="user_role" value="{{ getAuth()->role }}">
             <div class="border border-slate-400 rounded-md overflow-x-hidden overflow-y-auto main_product_table"
@@ -666,126 +354,7 @@
                         List Of Scanned Products (excess / shortage)
                     </span>
                 </div>
-                <div class="excess_div">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="h-10">
-                                <th class="border border-slate-400 border-t-0 w-8 border-l-0"></th>
-                                <th class="border border-slate-400 border-t-0 w-8"></th>
-                                <th class="border border-slate-400 border-t-0">Document No</th>
-                                <th class="border border-slate-400 border-t-0">Box Barcode</th>
-                                <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
-                                <th class="border border-slate-400 border-t-0 border-r-0">Quantity</th>
-                            </tr>
-                        </thead>
-
-                        <?php $i = 0; ?>
-
-                        {{-- @foreach ($document as $item)
-                                @if (count(search_excess_pd($item->id)) > 0)
-                                <?php
-                                $i++;
-                                ?>
-                                    <tbody class="excess_body">
-                                    @foreach (search_excess_pd($item->id) as $index => $tem)
-                                    <?php
-                                    ?>
-                                    <tr class="h-10">
-                                        <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
-                                            @can('adjust-excess')
-                                                @if ($main->status == 'complete' && $tem->qty < $tem->scanned_qty)
-                                                    <button class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed" data-id="{{ $tem->id }}"><i class='bx bx-minus'></i></button>
-                                                @endif
-                                            @endcan
-                                        </td>
-                                        @if ($index == 0)
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">{{ $i }}</td>
-                                                <td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0">
-                                                        <span id="excess-doc-no-{{ $item->document_no }}">{{ $item->document_no }}</span>
-                                                        <button id="excess-btn-copy-doc-{{ $item->document_no }}" class="excess-copy-button">
-                                                            <i class="fas fa-copy"></i>
-                                                        </button>
-                                                </td>
-                                        @else
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                        @endif
-                                                <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
-                                                        <span id="excess-bar-code-{{ $tem->bar_code }}">{{ $tem->bar_code }}</span>
-                                                        <button id="excess-btn-copy-bar-{{ $tem->bar_code }}" class="excess-copy-button-barcode">
-                                                            <i class="fas fa-copy"></i>
-                                                        </button>
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
-                                                    <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic' data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}" data-eq="{{ $index }}"></i>
-                                                </td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">{{ $tem->scanned_qty - $tem->qty }}</td>
-                                    </tr>
-                                    @endforeach
-                                    </tbody>
-
-                                @endif
-                            @endforeach --}}
-
-                        @foreach ($document as $item)
-                            @php
-                                $searchResult = search_excess_pd($item->id);
-                            @endphp
-
-                            @if (count($searchResult) > 0)
-                                <?php $i++; ?>
-                                <tbody class="excess_body">
-                                    @foreach ($searchResult as $index => $tem)
-                                        <tr class="h-10">
-                                            <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
-                                                @can('adjust-excess')
-                                                    @if ($main->status == 'complete' && $tem->qty < $tem->scanned_qty)
-                                                        <button
-                                                            class="bg-rose-400 hover:bg-rose-700 text-white px-1 rounded-sm del_exceed"
-                                                            data-id="{{ $tem->id }}">
-                                                            <i class='bx bx-minus'></i>
-                                                        </button>
-                                                    @endif
-                                                @endcan
-                                            </td>
-                                            @if ($index == 0)
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0">
-                                                    {{ $i }}</td>
-                                                <td
-                                                    class="td-container ps-2 border border-slate-400 border-t-0 border-l-0">
-                                                    <span>{{ $item->document_no }}</span>
-                                                    <button data-copy-id="{{ $item->document_no }}"
-                                                        class="excess-copy-button">
-                                                        <i class="fas fa-copy"></i>
-                                                    </button>
-                                                </td>
-                                            @else
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                                <td class="ps-2 border border-slate-400 border-t-0 border-l-0"></td>
-                                            @endif
-                                            <td class="td-barcode-container ps-2 border border-slate-400 border-t-0">
-                                                <span>{{ $tem->bar_code }}</span>
-                                                <button data-copy-id="{{ $tem->bar_code }}"
-                                                    class="excess-copy-button-barcode">
-                                                    <i class="fas fa-copy"></i>
-                                                </button>
-                                            </td>
-                                            <td class="ps-2 border border-slate-400 border-t-0">{{ $tem->supplier_name }}
-                                                <i class='bx bx-message-rounded-dots cursor-pointer float-end text-xl mr-1 rounded-lg px-1 text-white {{ !isset($tem->remark) ? 'bg-emerald-400 hover:bg-emerald-600' : 'bg-sky-400 hover:bg-sky-600' }} remark_ic'
-                                                    data-pd="{{ $tem->bar_code }}" data-id="{{ $tem->id }}"
-                                                    data-eq="{{ $index }}"></i>
-                                            </td>
-                                            <td
-                                                class="ps-2 border border-slate-400 border-t-0 border-r-0 {{ $tem->scanned_qty > $tem->qty ? 'text-emerald-600' : 'text-rose-600' }}">
-                                                {{ $tem->scanned_qty - $tem->qty }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            @endif
-                        @endforeach
-                        <tbody class="excess_scan_body"></tbody>
-                    </table>
-                </div>
+                @include('user.receive_goods.partials.excess_div')
             </div>
         </div>
     </div>
@@ -1981,15 +1550,34 @@
                 $dc_staff = "{{ getAuth()->branch_id }}";
                 $dc_staff = $dc_staff.includes([17, 19, 20]) ? true : false;
 
-                function reload_page() {
-                    $('.main_table').load(location.href + ' .main_table');
-                    $('.scan_parent').load(location.href + ' .scan_parent', function() {
-                        $('.excess_div').load(location.href + ' .excess_div', function() {
-                            $('.scanned_pd_div').eq(0).find('td').addClass('latest');
-                            $('.main_pd_div').eq(0).find('td').addClass('latest');
-                        });
+                function reload_page() 
+                {
+                    let id = extractIdFromUrl(); // from current URL
+                    $.get(`/receive_goods/${id}/partial`, function(data) {
+                    $('.main_table').html(data.main_table);
+                    $('.scan_parent').html(data.scan_parent);
+                    $('.excess_div').html(data.excess_div);
+
+                    $('.scanned_pd_div').eq(0).find('td').addClass('latest');
+                    $('.main_pd_div').eq(0).find('td').addClass('latest');
                     });
                 }
+
+                function extractIdFromUrl()
+                {
+                    const urlParts = window.location.pathname.split('/');
+                    return urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
+                }
+
+                // function reload_page() {
+                //     $('.main_table').load(location.href + ' .main_table');
+                //     $('.scan_parent').load(location.href + ' .scan_parent', function() {
+                //         $('.excess_div').load(location.href + ' .excess_div', function() {
+                //             $('.scanned_pd_div').eq(0).find('td').addClass('latest');
+                //             $('.main_pd_div').eq(0).find('td').addClass('latest');
+                //         });
+                //     });
+                // }
                 // $('.real_scan').eq(0).attr('type','text');
 
                 $(document).on('click', '#driver_info', function(e) {

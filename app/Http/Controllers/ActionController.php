@@ -224,6 +224,19 @@ class ActionController extends Controller
         }
     }
 
+    public function ajaxUpdate()
+    {
+        $main_items = Item::all();
+        $scanned_item = Scan::latest()->first();
+        $excess_count = 5;
+
+        return response()->json([
+            'main_table' => View::make('partials.main_table', compact('main_items'))->render(),
+            'scan_parent' => View::make('partials.scan_parent', compact('scanned_item'))->render(),
+            'excess_div' => View::make('partials.excess_div', compact('excess_count'))->render(),
+        ]);
+    }
+
     //barcode scan
     public function barcode_scan(Request $request)
     {
@@ -234,9 +247,11 @@ class ActionController extends Controller
         $unit   = preg_replace("/[^A-Za-z].*/", '', $all);
         $unit   = $unit == '' ? 'S' : $unit;
         $poi    = false;
+         \Log::info(['AT'=>'hiii']);
         if(strtoupper(substr($all,0,2)) == 'PO' || strtoupper(substr($all,0,2)) == 'IC' || strtoupper(substr($all,0,2)) == 'AT')
         {
             $reg = get_branch_truck()[2];
+           
             $all = strtoupper($all);
             $docs = Document::where('document_no',$all)
                             ->whereIn('received_goods_id',$reg)->first();
