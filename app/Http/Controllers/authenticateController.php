@@ -108,10 +108,22 @@ class authenticateController extends Controller
                             ->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))
                             ->get();
         $shortage   = $shortage->sum('sub');
-        $print      = printTrack::whereDate('created_at',Carbon::today())
-                                ->whereIn('product_id',$product_ids)
-                                ->sum('quantity');
+        // $print      = printTrack::whereDate('created_at',Carbon::today())
+        //                         ->whereIn('product_id',$product_ids)
+        //                         ->sum('quantity');
         // dd($product_ids);
+
+        $total = 0;
+
+        collect($product_ids)->chunk(1000)->each(function ($chunkedIds) use (&$total) {
+            $partial = printTrack::whereDate('created_at', Carbon::today())
+                                 ->whereIn('product_id', $chunkedIds->toArray())
+                                 ->sum('quantity');
+            $total += $partial;
+        });
+        
+        $print = $total;
+        
         $non_scan   = AddProductTrack::whereDate('created_at',Carbon::today())
                                         ->whereIn('truck_id',$truck_id)
                                         ->whereNotNull('product_id')

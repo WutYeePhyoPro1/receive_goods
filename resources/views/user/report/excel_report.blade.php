@@ -158,7 +158,8 @@
                                     <tr>
                                         <td class="h-10 text-center border border-slate-400">{{ $index+1  }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->doc->received->document_no }}</td>
-                                        <td class="h-10 text-center border border-slate-400">{{ $item->doc->document_no }}</td>
+                                        <td class="h-10 text-center border border-slate-400">  {{ $item->doc && $item->doc->received ? $item->doc->received->document_no : '-' }}</td>
+                                        
                                         <td class="h-10 text-center border border-slate-400 ">{{ $item->bar_code }}</td>
                                         <td class="h-10 text-center border border-slate-400 w-10">{{ get_per($item->id,'S') }}</td>
                                         <td class="h-10 text-center border border-slate-400">{{ $item->scanned_qty }}</td>
@@ -273,14 +274,3 @@
     </div>
 </body>
 </html>
-
-
-                        <!-- <tr class="">
-                                <td class="h-10 text-center border border-slate-400">{{ $index+1 }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ ($item->product->doc->received->document_no) ? ($item->product->doc->received->document_no) : ''}}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->product->doc->document_no }}</td>
-                                <td class="h-10 text-center border border-slate-400">{{ $item->product->bar_code }}</td>
-                                <td class="h-10 text-center border border-slate-400 ">{{ $item->quantity }}</td>
-                                <td class="h-10 text-center border border-slate-400 ">{{ 'Bar '.$item->bar_type }}</td>
-                                <td class="h-10 text-center border border-slate-400 ">{{ $item->reasons->reason ?? '' }}</td>
-                        </tr> -->
