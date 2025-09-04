@@ -169,6 +169,7 @@
             value="{{ isset($cur_driver) ? strtotime($cur_driver->start_date . ' ' . $cur_driver->start_time) * 1000 : '' }}">
 
         @if ($cur_driver)
+            {{-- <h1>hi there </h1>
             <span
                 class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
                 id="time_count">
@@ -177,8 +178,28 @@
                 @else
                     {{ isset($status) && $status == 'view' ? $main->total_duration : (isset($cur_driver) ? cur_truck_dur($cur_driver->id) : '00:00:00') }}
                 @endif
-            </span>
-        @elseif($driver_last)
+
+            </span> --}}
+            @if (isset($cur_driver->start_date) || dc_staff() || $status != 'scan' || $main->status == 'complete')
+                <span
+                    class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
+                    id="time_count">
+                    @if ($main->status == 'complete')
+                        {{ $main->total_duration }}
+                    @else
+                        {{ isset($status) && $status == 'view'
+                            ? $main->total_duration
+                            : (isset($cur_driver)
+                                ? cur_truck_dur($cur_driver->id)
+                                : '00:00:00') }}
+                    @endif
+                </span>
+            @else
+                <span
+                    class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
+                </span>
+            @endif
+         @elseif($driver_last)
             @if (isset($status) && $status == 'view')
                 <span
                     class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
@@ -209,7 +230,6 @@
                 class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
             </span>
         @endif
-
     </div>
     <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
     <input type="hidden" id="wh_remark" value="{{ $main->remark }}">
@@ -2486,32 +2506,83 @@
                         });
                     }
 
-                    const timeStart = parseInt(document.getElementById('started_count_time')?.value || 0);
                     const timeDisplay = document.getElementById('time_count');
+                    const storageKey = 'start_timestamp';
 
-                    if (!isNaN(timeStart) && timeDisplay) {
+                    // Get saved start time or set it now
+
+
+                    if (timeDisplay) {
+
+                                            let startTimestamp = parseInt(localStorage.getItem(storageKey) || '0', 10);
+                    if (!startTimestamp) {
+                        startTimestamp = Date.now();
+                        localStorage.setItem(storageKey, startTimestamp);
+                    }
+                    
                         setInterval(() => {
                             const now = Date.now();
-                            let diff = now - timeStart;
+                            // Calculate elapsed seconds from fixed start time
+                            const elapsed = Math.floor((now - startTimestamp) / 1000);
 
-                            let note = '';
-                            if (diff < 0) {
-                                diff = 0;
-                                note = '';
-                            }
-
-                            const hour = Math.floor(diff / (3600 * 1000));
-                            const min = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
-                            const sec = Math.floor((diff % (60 * 1000)) / 1000);
+                            const hour = Math.floor(elapsed / 3600);
+                            const min = Math.floor((elapsed % 3600) / 60);
+                            const sec = elapsed % 60;
 
                             const timeText =
                                 hour.toString().padStart(2, '0') + ':' +
                                 min.toString().padStart(2, '0') + ':' +
                                 sec.toString().padStart(2, '0');
 
-                            timeDisplay.textContent = timeText + note;
+                            timeDisplay.textContent = timeText;
                         }, 1000);
                     }
+
+
+
+                    // const timeStart = parseInt(document.getElementById('started_count_time')?.value || 0);
+                    // const timeDisplay = document.getElementById('time_count');
+
+                    // if (!isNaN(timeStart) && timeDisplay) {
+                    //     setInterval(() => {
+                    //         const now = Date.now();
+                    //         let diff = now - timeStart;
+                    //         let note = '';
+                    //         if (diff < 0) {
+                    //             diff = 0;
+                    //             note = '';
+                    //         }
+                    //         const hour = Math.floor(diff / (3600 * 1000));
+                    //         const min = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
+                    //         const sec = Math.floor((diff % (60 * 1000)) / 1000);
+
+                    //         const timeText =
+                    //             hour.toString().padStart(2, '0') + ':' +
+                    //             min.toString().padStart(2, '0') + ':' +
+                    //             sec.toString().padStart(2, '0');
+
+                    //         timeDisplay.textContent = timeText + note;
+                    //     }, 1000);
+                    // }
+
+
+
+                    // if (timeDisplay) {
+                    //     const start = Date.now();
+                    //     setInterval(() => {
+                    //         const now = Date.now();
+                    //         let diff = now - start; // elapsed ms since script started
+                    //         const hour = Math.floor(diff / (3600 * 1000));
+                    //         const min = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
+                    //         const sec = Math.floor((diff % (60 * 1000)) / 1000);
+                    //         const timeText =
+                    //             hour.toString().padStart(2, '0') + ':' +
+                    //             min.toString().padStart(2, '0') + ':' +
+                    //             sec.toString().padStart(2, '0');
+
+                    //         timeDisplay.textContent = timeText;
+                    //     }, 1000);
+                    // }
 
                     $(document).on('blur', '#all_remark', function(e) {
                         $val = $(this).val();
@@ -2561,10 +2632,14 @@
                         })
                     }
 
-
                     $(document).on('click', '#confirm_btn', function(e) {
-                        $id = $('#receive_id').val();
-                        $remark = $('#wh_remark').val();
+                        let $id = $('#receive_id').val();
+                        let $remark = $('#wh_remark').val();
+
+                        const deleteLocalTimer = () => {
+                            localStorage.removeItem('start_timestamp'); // ✅ clear timer
+                        };
+
                         if ($remark == '') {
                             Swal.fire({
                                 icon: 'question',
@@ -2577,17 +2652,19 @@
                                     if (startedTimePause) {
                                         stopInterval();
                                     }
-                                    not_finish($id)
+                                    not_finish($id);
+                                    deleteLocalTimer();
                                 }
-                            })
+                            });
                         } else {
                             if (startedTimePause) {
                                 stopInterval();
                             }
                             stopInterval();
+                            deleteLocalTimer();
                         }
+                    });
 
-                    })
 
                     function all_finish($finish, $id) {
                         if (!$finish) {
@@ -2620,19 +2697,21 @@
                     }
 
                     $(document).on('click', '#finish_btn', function(e) {
-                        // console.log('yes');
-                        // return;
-                        $finish = true;
-                        $id = $('#receive_id').val();
-                        $doc_count = $('#doc_total').val();
-                        $remark = $('#wh_remark').val();
-                        $('.remain_qty').each((i, v) => {
+                        let $finish = true;
+                        let $id = $('#receive_id').val();
+                        let $doc_count = $('#doc_total').val();
+                        let $remark = $('#wh_remark').val();
 
+                        $('.remain_qty').each((i, v) => {
                             if (parseInt($(v).text()) > 0) {
                                 $finish = false;
                                 return false;
                             }
-                        })
+                        });
+
+                        const deleteLocalTimer = () => {
+                            localStorage.removeItem('start_timestamp'); // ✅ delete timer
+                        };
 
                         if ($remark == '') {
                             Swal.fire({
@@ -2644,13 +2723,15 @@
                             }).then((res) => {
                                 if (res.isConfirmed) {
                                     all_finish($finish, $id);
+                                    deleteLocalTimer();
                                 }
-                            })
+                            });
                         } else {
                             all_finish($finish, $id);
+                            deleteLocalTimer();
                         }
+                    });
 
-                    })
 
                     function finish($id) {
                         $timeContValue = $('#time_count').text() ? $('#time_count').text() : $('#time_count_pause')

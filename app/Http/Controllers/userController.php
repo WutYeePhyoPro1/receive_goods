@@ -175,7 +175,6 @@ class userController extends Controller
 
     public function car_info()
     {
-
         $id = getAuth()->id;
         $data = get_branch_truck();
         $truck_id   = $data[0];
@@ -279,7 +278,8 @@ class userController extends Controller
 
     public function receive_goods($id)
     {
-            $start = microtime(true);
+        
+        $start = microtime(true);
         $receive_goods_status = GoodsReceive::where('id',$id)->value('status');
 
         if ($receive_goods_status == 'complete') {
@@ -516,6 +516,7 @@ class userController extends Controller
     public function store_doc_info(Request $request)
     {
 
+
         Common::Log(route('store_doc_info'),"Store Infomation and Generate REG");
 
         if(dc_staff())
@@ -644,6 +645,10 @@ class userController extends Controller
         }
 
         return redirect()->route('receive_goods',$main->id);
+
+
+
+
     }
 
     public function add_product_qty(Request $request)
