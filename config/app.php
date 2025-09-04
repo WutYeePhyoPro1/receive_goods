@@ -172,6 +172,7 @@ return [
         Barryvdh\DomPDF\ServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
         Milon\Barcode\BarcodeServiceProvider::class,
+        Pro1\Changelog\ChangelogServiceProvider::class,
     ])->toArray(),
 
     /*

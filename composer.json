@@ -30,7 +30,8 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/" ,
+             "Pro1\\Changelog\\":"vendor/pro1/changelogpack/src/"
         },
         "files": [
             "app/Helpers/helpers.php"
