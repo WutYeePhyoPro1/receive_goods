@@ -169,8 +169,7 @@
             value="{{ isset($cur_driver) ? strtotime($cur_driver->start_date . ' ' . $cur_driver->start_time) * 1000 : '' }}">
 
         @if ($cur_driver)
-            {{-- <h1>hi there </h1>
-            <span
+            <!-- <span
                 class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
                 id="time_count">
                 @if ($main->status == 'complete')
@@ -178,8 +177,7 @@
                 @else
                     {{ isset($status) && $status == 'view' ? $main->total_duration : (isset($cur_driver) ? cur_truck_dur($cur_driver->id) : '00:00:00') }}
                 @endif
-
-            </span> --}}
+            </span> -->
             @if (isset($cur_driver->start_date) || dc_staff() || $status != 'scan' || $main->status == 'complete')
                 <span
                     class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
@@ -199,7 +197,7 @@
                     class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
                 </span>
             @endif
-         @elseif($driver_last)
+        @elseif($driver_last)
             @if (isset($status) && $status == 'view')
                 <span
                     class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
@@ -230,6 +228,7 @@
                 class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
             </span>
         @endif
+
     </div>
     <input type="hidden" id="view_" value="{{ isset($status) ? $status : '' }}">
     <input type="hidden" id="wh_remark" value="{{ $main->remark }}">
@@ -351,7 +350,7 @@
                 {{-- <input type="hidden" id="duration" value="{{ $total_sec ?? 0 }}"> --}}
                 <input type="hidden" id="receive_id" value="{{ $main->id }}">
             @endif
-
+                    
             @include('user.receive_goods.partials.main_table',['document'=>$document,'cur_driver'=>$cur_driver])
 
         </div>
@@ -2506,6 +2505,34 @@
                         });
                     }
 
+                    // const timeStart = parseInt(document.getElementById('started_count_time')?.value || 0);
+                    // const timeDisplay = document.getElementById('time_count');
+
+                    // if (!isNaN(timeStart) && timeDisplay) {
+                    //     setInterval(() => {
+                    //         const now = Date.now();
+                    //         let diff = now - timeStart;
+
+                    //         let note = '';
+                    //         if (diff < 0) {
+                    //             diff = 0;
+                    //             note = '';
+                    //         }
+
+                    //         const hour = Math.floor(diff / (3600 * 1000));
+                    //         const min = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
+                    //         const sec = Math.floor((diff % (60 * 1000)) / 1000);
+
+                    //         const timeText =
+                    //             hour.toString().padStart(2, '0') + ':' +
+                    //             min.toString().padStart(2, '0') + ':' +
+                    //             sec.toString().padStart(2, '0');
+
+                    //         timeDisplay.textContent = timeText + note;
+                    //     }, 1000);
+                    // }
+
+
                     const timeDisplay = document.getElementById('time_count');
                     const storageKey = 'start_timestamp';
 
@@ -2537,52 +2564,6 @@
                             timeDisplay.textContent = timeText;
                         }, 1000);
                     }
-
-
-
-                    // const timeStart = parseInt(document.getElementById('started_count_time')?.value || 0);
-                    // const timeDisplay = document.getElementById('time_count');
-
-                    // if (!isNaN(timeStart) && timeDisplay) {
-                    //     setInterval(() => {
-                    //         const now = Date.now();
-                    //         let diff = now - timeStart;
-                    //         let note = '';
-                    //         if (diff < 0) {
-                    //             diff = 0;
-                    //             note = '';
-                    //         }
-                    //         const hour = Math.floor(diff / (3600 * 1000));
-                    //         const min = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
-                    //         const sec = Math.floor((diff % (60 * 1000)) / 1000);
-
-                    //         const timeText =
-                    //             hour.toString().padStart(2, '0') + ':' +
-                    //             min.toString().padStart(2, '0') + ':' +
-                    //             sec.toString().padStart(2, '0');
-
-                    //         timeDisplay.textContent = timeText + note;
-                    //     }, 1000);
-                    // }
-
-
-
-                    // if (timeDisplay) {
-                    //     const start = Date.now();
-                    //     setInterval(() => {
-                    //         const now = Date.now();
-                    //         let diff = now - start; // elapsed ms since script started
-                    //         const hour = Math.floor(diff / (3600 * 1000));
-                    //         const min = Math.floor((diff % (3600 * 1000)) / (60 * 1000));
-                    //         const sec = Math.floor((diff % (60 * 1000)) / 1000);
-                    //         const timeText =
-                    //             hour.toString().padStart(2, '0') + ':' +
-                    //             min.toString().padStart(2, '0') + ':' +
-                    //             sec.toString().padStart(2, '0');
-
-                    //         timeDisplay.textContent = timeText;
-                    //     }, 1000);
-                    // }
 
                     $(document).on('blur', '#all_remark', function(e) {
                         $val = $(this).val();
@@ -2632,13 +2613,12 @@
                         })
                     }
 
-                    $(document).on('click', '#confirm_btn', function(e) {
-                        let $id = $('#receive_id').val();
-                        let $remark = $('#wh_remark').val();
 
-                        const deleteLocalTimer = () => {
-                            localStorage.removeItem('start_timestamp'); // ✅ clear timer
-                        };
+                    $(document).on('click', '#confirm_btn', function(e) {
+                        $id = $('#receive_id').val();
+                        $remark = $('#wh_remark').val();
+
+                        
 
                         if ($remark == '') {
                             Swal.fire({
@@ -2652,21 +2632,27 @@
                                     if (startedTimePause) {
                                         stopInterval();
                                     }
-                                    not_finish($id);
-                                    deleteLocalTimer();
+                                  not_finish($id);
+          
                                 }
-                            });
+                            })
                         } else {
                             if (startedTimePause) {
                                 stopInterval();
                             }
                             stopInterval();
-                            deleteLocalTimer();
-                        }
-                    });
 
+                        }
+
+                    })
 
                     function all_finish($finish, $id) {
+
+                      
+                           
+
+
+                        let $doc_count = $('#doc_total').val();
                         if (!$finish) {
 
                             Swal.fire({
@@ -2709,9 +2695,7 @@
                             }
                         });
 
-                        const deleteLocalTimer = () => {
-                            localStorage.removeItem('start_timestamp'); // ✅ delete timer
-                        };
+                       
 
                         if ($remark == '') {
                             Swal.fire({
@@ -2722,13 +2706,12 @@
                                 confirmButtonText: 'Yes'
                             }).then((res) => {
                                 if (res.isConfirmed) {
-                                    all_finish($finish, $id);
-                                    deleteLocalTimer();
+                                    all_finish($finish, $id);           
                                 }
                             });
                         } else {
                             all_finish($finish, $id);
-                            deleteLocalTimer();
+                          
                         }
                     });
 
@@ -2744,6 +2727,10 @@
                                     localStorage.removeItem('startedTimePause');
                                     localStorage.removeItem('startTime');
                                 }
+                                if (localStorage.getItem('start_timestamp') !== null) {
+                                    localStorage.removeItem('start_timestamp'); // ✅ delete t
+                                }
+                                
                                 location.href = '/list';
                             },
                             error: function(xhr, status, error) {
@@ -3057,3 +3044,4 @@
         </script>
     @endpush
 @endsection
+q
