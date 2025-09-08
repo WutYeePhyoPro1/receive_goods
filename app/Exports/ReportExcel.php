@@ -391,7 +391,7 @@ class ReportExcel implements FromView,WithColumnWidths,WithStyles
                         ->when(request('to_date'),function($q){
                             $q->whereDate('created_at','<=',request('to_date'));
                         })
-                        ->whereIn('id',$pd_ids)
+                        ->whereIn('product_id',$pd_ids)
                         ->get();
 
 
