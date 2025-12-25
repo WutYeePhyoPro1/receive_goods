@@ -11,6 +11,7 @@
     <link rel="icon" href="{{ asset('image/background_img/package.png') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="{{ asset('js/jquery.min.js') }}"></script>
+   
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('css')
     {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" /> --}}
@@ -25,6 +26,7 @@
     <link rel="stylesheet" href="{{ asset('css/selectize.bootstrap3.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    
 
 </head>
 
@@ -145,13 +147,22 @@
     <div class="content pb-16">
         @yield('content')
     </div>
-    <div class="footer flex justify-between">
+    <div class="footer flex justify-between align-items-center">
         <div class="logo">
             <img src="{{ asset('image/background_img/finallogo.png') }}" alt="">
             <div class="logo_content">
                 <span>PRO 1 Global Home Center</span>
             </div>
         </div>
+
+        <div>
+            @if(getAuth()->employee_code == "superadmin@mail.com")
+                <a href="{{ route('changelogs.index')  }}" target="_blank" class="nav-link">What is News?</a>
+            @else
+                <a href="{{ url('whatsnews?status=read')  }}" target="_blank" class="nav-link">What is News?</a>
+            @endif  
+        </div>
+
         <div class="flexv whitespace-nowrap" style="line-height: 60px">
             <span class="mr-4"><i class='bx bxs-user-account mr-1' style="transform: translateY(2px)"></i> User :
                 {{ getAuth()->name }}</span> |&nbsp;&nbsp;

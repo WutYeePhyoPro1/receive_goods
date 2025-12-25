@@ -1,0 +1,22 @@
+{
+  "name": "pro1/changelog",
+  "description": "Reusable Changelog CRUD package for Laravel",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+        "Pro1\\Changelog\\": "src/",
+        "Pro1\\Changelog\\Models\\": "src/Models/",
+        "Pro1\\Changelog\\Http\\Controllers\\": "src/Http/Controllers/",
+        "Pro1\\Changelog\\Http\\Controllers\\Api\\": "src/Http/Controllers/Api",
+        "Pro1\\Changelog\\Http\\Resources\\": "src/Http/Resources/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Pro1\\Changelog\\ChangelogServiceProvider"
+      ]
+    }
+  }
+}

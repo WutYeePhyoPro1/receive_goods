@@ -31,7 +31,7 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/" ,
-             "Pro1\\Changelog\\":"vendor/pro1/changelogpack/src/"
+            "Pro1\\Changelog\\": "packages/pro1/changelog/src/"
         },
         "files": [
             "app/Helpers/helpers.php"
