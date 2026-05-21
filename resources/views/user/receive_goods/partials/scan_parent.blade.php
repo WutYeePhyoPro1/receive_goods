@@ -7,7 +7,7 @@
                                 <th class="border border-slate-400 border-t-0">Box Barcode</th>
                                 <th class="border border-slate-400 border-t-0">Product Name/Supplier Name</th>
                                 <th class="border border-slate-400 border-t-0 border-r-0">Quantity</th>
-                                <th class="border border-slate-400 border-t-0 border-r-0">Scann Quantity</th>
+                                <th class="border border-slate-400 border-t-0 border-r-0">Scan Count</th>
                             </tr>
                         </thead>
                         <?php $i = 0; ?>

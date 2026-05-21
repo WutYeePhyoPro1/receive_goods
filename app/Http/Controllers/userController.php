@@ -278,7 +278,6 @@ class userController extends Controller
 
     public function receive_goods($id)
     {
-        
         $start = microtime(true);
         $receive_goods_status = GoodsReceive::where('id',$id)->value('status');
 

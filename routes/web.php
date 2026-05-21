@@ -64,6 +64,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('get_car','get_car')->name('get_car');
             route::get('/search_document_no','search_document_no')->name('document_no_search');
             // route::get('/search_suggestions','search_suggestions')->name('search_suggestions');
+
+            route::get('receive_goods/{id}/pull_rg','receive_goods')->name('receive_goods');
         });
 
         route::group(['controller'=>ReportController::class],function(){
