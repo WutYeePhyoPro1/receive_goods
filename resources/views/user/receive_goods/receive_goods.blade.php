@@ -294,7 +294,7 @@
         </div> --}}
 
         <div class="w-1/2 px-2 flex justify-between my-4">
-           <a href="#" 
+           <a href="{{ route('pull_rg', $main->id ?? '' ) }}" 
             class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg no-underline transition-colors duration-200 ease-in-out">
             Go To RG
             </a>

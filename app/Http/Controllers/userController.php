@@ -356,6 +356,11 @@ class userController extends Controller
         return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document','id','scan_document_no', 'page','driver_last','product_barcode'));
     }
 
+    public function pull_rg($id){
+        // dd('hay');
+        return view('user.receive_goods.pull_rg');
+    }
+
     public function join_receive($id,$car)
     {
 
