@@ -8,7 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Document extends Model
 {
     use HasFactory;
-    protected $fillable = ['document_no','received_goods_id','remark','outbound'];
+    protected $fillable = [
+        'document_no',
+        'received_goods_id',
+        'remark',
+        'outbound',
+        'creditday',
+        'purchasedate',
+        'vendor_name',
+        'vendor_code',
+        'total_amount',
+        'status',
+    ];
 
     public function received()
     {

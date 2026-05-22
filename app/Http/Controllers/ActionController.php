@@ -511,6 +511,11 @@ class ActionController extends Controller
         }
     }
 
+    public function retrieve_po($purchaseno){
+        $purchase_order = getPODocument($purchaseno);
+        
+    }
+
     //edit scan
     public function edit_scan(Request $request)
     {

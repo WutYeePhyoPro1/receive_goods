@@ -492,6 +492,28 @@ use Illuminate\Support\Facades\DB;
     }
 
     
+    function getPODocument($purchaseno){
+        $conn = DB::connection('master_product');
+        $brch_con = '';
+        // if (!dc_staff()) {
+        //     $user_brch = getAuth()->branch->branch_code;
+        //     $brch_con = "and brchcode = '$user_brch'";
+        // }
+        $val = trim(strtoupper($purchaseno), ' ');
 
+
+        $data = $conn->select("
+            select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,goodprice,bb.sumgoodamnt,creditday,purchasedate
+            from purchaseorder.po_purchaseorderhd aa
+            inner join purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
+            left join master_data.master_branch br on aa.brchcode= br.branch_code
+            where statusflag <> 'C'
+            and statusflag in ('P','Y') 
+            $brch_con
+            and purchaseno= '$val'
+        ");
+        dd($data);
+        return $data;
+    }
 
 

@@ -358,8 +358,13 @@ class userController extends Controller
 
     public function pull_rg($id){
         // dd('hay');
-        return view('user.receive_goods.pull_rg');
+        $good_receive = GoodsReceive::where('id',$id)->first();
+        $documents = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
+        
+
+        return view('user.receive_goods.pull_rg',compact('good_receive','documents'));
     }
+
 
     public function join_receive($id,$car)
     {

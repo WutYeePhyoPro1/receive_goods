@@ -21,32 +21,34 @@
                     <!-- Row 1 -->
                     <div>
                         <label class="block font-medium text-slate-500 mb-0.5">Portal Document No.</label>
-                        <input type="text" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No...">
+                        <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive->document_no }}">
                     </div>
                     <div>
-                        <label class="block font-medium text-slate-500 mb-0.5">Vendor Code <span class="text-[10px] text-slate-400 font-normal">(Read Only)</span></label>
-                        <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 cursor-not-allowed" value="VND-9831">
+                        <label class="block font-medium text-slate-500 mb-0.5">Vendor Code</label>
+                        <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 cursor-not-allowed" placeholder="VEN-999999" value="{{-- $good_receive->vendor_name --}}">
                     </div>
                     <div>
                         <label class="block font-medium text-slate-500 mb-0.5">Vendor Name</label>
-                        <input type="text" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Vendor Name">
+                        <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Vendor Name" value="{{-- $good_receive->vendor_name --}}">
                     </div>
 
                     <!-- Row 2 -->
                     <div>
                         <label class="block font-medium text-slate-500 mb-0.5">PO No</label>
-                        <input type="text" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="PO Number">
+                        <select id="po_no" name="po_no" class="w-full h-8 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                            <option value="" disabled selected>Choose PO No:</option>
+                            @foreach($documents as $document)
+                            <option value="{{ $document->document_no }}">{{ $document->document_no }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label class="block font-medium text-slate-500 mb-0.5">PO Date</label>
-                        <input type="date" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500">
+                        <input readonly type="date" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed">
                     </div>
                     <div>
-                        <label class="block font-medium text-slate-500 mb-0.5">Branch</label>
-                        <select class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
-                            <option>Branch Alpha</option>
-                            <option>Branch Beta</option>
-                        </select>
+                        <label  class="block font-medium text-slate-500 mb-0.5">Branch</label>
+                        <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="User Branch" value="{{ $userdata->branch->branch_name }}">
                     </div>
 
                     <!-- Row 3 -->
@@ -60,7 +62,10 @@
                     </div>
                     <div>
                         <label class="block font-medium text-slate-500 mb-0.5">Ship By</label>
-                        <input type="text" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Carrier / Method">
+                        <select class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                            <option>Supplier Container</option>
+                            <option>Supplier Border</option>
+                        </select>
                     </div>
 
                     <!-- Row 4 (Remark spans 2 columns, Checkboxes group occupies 1) -->
@@ -157,186 +162,6 @@
                                 <td class="py-1.5 px-3 text-right text-slate-500">45.50</td>
                                 <td class="py-1.5 px-3 text-right font-medium text-slate-700">455.00</td>
                             </tr>
-                                <!-- Row 1 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">1</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-10029</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">PCS</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">50</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="50">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">12.00</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">600.00</td>
-                            </tr>
-                            <!-- Row 2 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">2</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-20384</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">BOX</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">10</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="10">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">45.50</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">455.00</td>
-                            </tr>
-                                <!-- Row 1 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">1</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-10029</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">PCS</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">50</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="50">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">12.00</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">600.00</td>
-                            </tr>
-                            <!-- Row 2 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">2</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-20384</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">BOX</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">10</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="10">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">45.50</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">455.00</td>
-                            </tr>
-                                <!-- Row 1 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">1</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-10029</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">PCS</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">50</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="50">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">12.00</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">600.00</td>
-                            </tr>
-                            <!-- Row 2 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">2</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-20384</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">BOX</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">10</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="10">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">45.50</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">455.00</td>
-                            </tr>
-                                <!-- Row 1 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">1</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-10029</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">PCS</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">50</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="50">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">12.00</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">600.00</td>
-                            </tr>
-                            <!-- Row 2 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">2</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-20384</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">BOX</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">10</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="10">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">45.50</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">455.00</td>
-                            </tr>
-                                <!-- Row 1 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">1</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-10029</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">PCS</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">50</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="50">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">12.00</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">600.00</td>
-                            </tr>
-                            <!-- Row 2 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">2</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-20384</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">BOX</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">10</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="10">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">45.50</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">455.00</td>
-                            </tr>
-                                <!-- Row 1 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">1</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-10029</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">PCS</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">50</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="50">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">12.00</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">600.00</td>
-                            </tr>
-                            <!-- Row 2 Template -->
-                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                <td class="py-1.5 px-3 font-medium text-slate-400">2</td>
-                                <td class="py-1.5 px-3 text-center">
-                                    <input type="checkbox" class="accent-amber-500 rounded">
-                                </td>
-                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-20384</td>
-                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">BOX</span></td>
-                                <td class="py-1.5 px-3 text-right font-medium">10</td>
-                                <td class="py-1.5 px-3 text-right">
-                                    <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="10">
-                                </td>
-                                <td class="py-1.5 px-3 text-right text-slate-500">45.50</td>
-                                <td class="py-1.5 px-3 text-right font-medium text-slate-700">455.00</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -353,8 +178,10 @@
         </div>
     </div>
     @push('js')
-        <script>
-        
+        <script type="text/javascript">
+            $('#po_no').change(function(){
+                
+            });
         </script>
     @endpush
 @endsection
