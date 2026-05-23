@@ -17,6 +17,7 @@ class Document extends Model
         'purchasedate',
         'vendor_name',
         'vendor_code',
+        'remark',
         'total_amount',
         'status',
     ];

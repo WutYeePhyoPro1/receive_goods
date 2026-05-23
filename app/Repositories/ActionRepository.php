@@ -154,4 +154,50 @@ Class ActionRepository implements ActionRepositoryInterface
                 }
             }
     }
+
+    public function sync_doc($purchase_orders,$data){
+        $id = $data->id;
+        $purchaseno = $data->purchaseno;
+
+        $purchase_orders = collect($purchase_orders);
+
+        $creditday = $purchase_orders->first()?->creditday;
+        $purchasedate = $purchase_orders->first()?->purchasedate;
+        $vendor_name = $purchase_orders->first()?->vendorname;
+        $vendor_code = $purchase_orders->first()?->vendorcode;
+        $remark = $purchase_orders->first()?->remark;
+        $total_amount =  $purchase_orders->sum('sumgoodamnt');
+        // dd($total_amount);
+
+
+        $good_receive = GoodsReceive::where('id', $id)->first();
+        // dd($purchase_orders);
+
+        $document = Document::where('document_no',$purchaseno)
+                                ->where('received_goods_id',$id)->first();
+        
+        $document->update([
+            'creditday' => $creditday,
+            'purchasedate' => $purchasedate,
+            'vendor_name' => $vendor_name,
+            'vendor_code' => $vendor_code,
+            'remark' => $remark,
+            'total_amount' => $total_amount,
+        ]);
+
+        $products = Product::where('document_id',$document->id)->get();
+        foreach($purchase_orders as $purchase_order){
+            $product = $products
+                        ->where('bar_code', $purchase_order->productcode)
+                        ->first();
+
+            if ($product) {
+                $product->update([
+                    'unit' => $purchase_order->unit,
+                    'price'  => $purchase_order->goodprice,
+                    'amount' => $purchase_order->sumgoodamnt,
+                ]);
+            }
+        }
+    }
 }

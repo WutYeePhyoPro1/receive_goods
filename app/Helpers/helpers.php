@@ -503,7 +503,7 @@ use Illuminate\Support\Facades\DB;
 
 
         $data = $conn->select("
-            select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,goodprice,bb.sumgoodamnt,creditday,purchasedate
+            select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,goodprice,bb.sumgoodamnt,creditday,purchasedate,aa.remark
             from purchaseorder.po_purchaseorderhd aa
             inner join purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
             left join master_data.master_branch br on aa.brchcode= br.branch_code
@@ -512,7 +512,7 @@ use Illuminate\Support\Facades\DB;
             $brch_con
             and purchaseno= '$val'
         ");
-        dd($data);
+        // dd($data);
         return $data;
     }
 

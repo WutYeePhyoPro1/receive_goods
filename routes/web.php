@@ -122,7 +122,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/barcode_not_scan','barcode_not_scan')->name('barcode_not_scan');
             Route::get('/barcode_scan_pause/{id}','barcode_scan_pause')->name('barcode_scan_pause');
 
-            route::get('retrieve_po/{purchaseno}','retrieve_po')->name('retrieve_po');
+            route::post('receive_po','receive_po')->name('receive_po');
 
         });
 

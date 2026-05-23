@@ -511,9 +511,30 @@ class ActionController extends Controller
         }
     }
 
-    public function retrieve_po($purchaseno){
-        $purchase_order = getPODocument($purchaseno);
-        
+    public function receive_po(Request $request){
+        $purchaseno = $request->purchaseno;
+        $id = $request->id;
+
+        $purchase_orders = getPODocument($purchaseno);
+
+        if ($purchase_orders) {
+            $this->repository->sync_doc($purchase_orders, $request);
+            $document = Document::where('document_no',$purchaseno)
+                                ->where('received_goods_id',$id)->first();
+            $products = Product::where('document_id',$document->id)
+                        ->orderBy('id','desc')
+                        ->get();
+            
+            return response()->json([
+                'message' => 'success',
+                'data' => [
+                    "document" => $document,
+                    "products" => $products
+                ]
+            ], 200);
+        } else {
+            return response()->json(['message' => 'doc not found'], 404);
+        }
     }
 
     //edit scan

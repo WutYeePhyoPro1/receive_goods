@@ -16,6 +16,7 @@ class Product extends Model
         'qty',
         'scanned_qty',
         'remark',
+        'unit',
         'scann_count',
         'price',
         'amount',
