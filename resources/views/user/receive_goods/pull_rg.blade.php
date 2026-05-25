@@ -5,6 +5,7 @@
       <!-- MAIN CONTENT CONTAINER -->
     <div class="md:w-[80%] pb-16 px-4 pt-4 mx-auto">
         <form id="rg_form" action="" method="POST">
+            @csrf
             <!-- UNIFIED CARD CONTAINER -->
             <div class="bg-white rounded-lg shadow-sm border border-slate-200 text-slate-800 text-xs">
                 
@@ -22,16 +23,17 @@
                         
                         <!-- Row 1 -->
                         <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Portal Document No. <span class="text-red-600">*</span></label>
-                            <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive->document_no }}">
+                            <label class="block font-medium text-slate-500 mb-0.5">Scan Document No. <span class="text-red-600">*</span></label>
+                            <input type="text" name="scan_document_no" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive->document_no }}">
+                            <input type="text" name="scan_id" readonly hidden class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive->id }}">
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Vendor Code <span class="text-red-600">*</span></label>
-                            <input type="text" readonly id="vendor_code" class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 cursor-not-allowed" placeholder="VEN-999999" value="{{-- $good_receive->vendor_name --}}">
+                            <input type="text" name="vendor_code" readonly id="vendor_code" class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 cursor-not-allowed" placeholder="VEN-999999" value="{{-- $good_receive->vendor_name --}}">
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Vendor Name <span class="text-red-600">*</span></label>
-                            <input type="text" readonly id="vendor_name" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Vendor Name" value="{{-- $good_receive->vendor_name --}}">
+                            <input type="text" name="vendor_name" readonly id="vendor_name" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Vendor Name" value="{{-- $good_receive->vendor_name --}}">
                         </div>
 
                         <!-- Row 2 -->
@@ -46,25 +48,34 @@
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">PO Date <span class="text-red-600">*</span></label>
-                            <input readonly id="purchasedate" type="date" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed">
+                            <input name="po_date" readonly id="purchasedate" type="date" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed">
                         </div>
                         <div>
                             <label  class="block font-medium text-slate-500 mb-0.5">Branch <span class="text-red-600">*</span></label>
-                            <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="User Branch" value="{{ $userdata->branch->branch_name }}">
+                                <select
+                                    name="branch_id"
+                                    class="w-full h-8 px-2 border border-slate-300 rounded
+                                        bg-slate-100 text-slate-500
+                                        cursor-not-allowed
+                                        appearance-none
+                                        focus:outline-none"
+                                >
+                                    <option selected value="{{ $userdata->branch->id }}">{{ $userdata->branch->branch_name }}</option>
+                                </select>
                         </div>
 
                         <!-- Row 3 -->
                         <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Delivery Note <span class="text-red-600">*</span></label>
+                            <label class="block font-medium text-slate-500 mb-0.5">Delivery Note <span class="text-red-600">*</span> <span id="delivery_note_error" class="text-red-500 text-[10px] ml-1"></span></label>
                             <input type="text" name="delivery_note" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Delivery Note">
                         </div>
                         <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Delivery Date <span class="text-red-600">*</span></label>
-                            <input type="date" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500">
+                            <label class="block font-medium text-slate-500 mb-0.5">Delivery Date <span class="text-red-600">*</span> <span id="delivery_date_error" class="text-red-500 text-[10px] ml-1"></span></label>
+                            <input type="date" name="delivery_date" id="delivery_date" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500">
                         </div>
                         <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Ship By <span class="text-red-600">*</span></label>
-                            <select class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                            <label class="block font-medium text-slate-500 mb-0.5">Ship By <span class="text-red-600">*</span> <span id="ship_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
+                            <select name="ship_by" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                     <option value="">Choose a Transportation</option>
                                     @foreach($transportations as $transportation)
                                         <option value="{{ $transportation->transp_code }}">{{ $transportation->transp_name }}</option>
@@ -74,9 +85,9 @@
 
                         <!-- Row 4 (Remark spans 2 columns, Checkboxes group occupies 1) -->
                         <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Remark <span class="text-red-600">*</span></label>
-                            <select class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
-                            <option value="">Choose a Transportation</option>
+                            <label class="block font-medium text-slate-500 mb-0.5">Remark <span class="text-red-600">*</span> <span id="receive_type_error" class="text-red-500 text-[10px] ml-1"></span></label>
+                            <select name="receive_type" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                            <option value="">Choose a remark type</option>
                                 @foreach($receives as $receive)
                                     <option value="{{ $receive->remark_id }}">{{ $receive->remark_type_name }}</option>
                                 @endforeach
@@ -85,7 +96,7 @@
 
                         <div class="md:col-span-2 self-end">
                             <label class="block font-medium text-slate-500 mb-0.5"> </label>
-                            <input type="text" readonly id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Enter remarks details here...">
+                            <input type="text" name="po_remark" readonly id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Enter remarks details here...">
                         </div>
                         
                         <!-- Checkbox Controls Alignment -->
@@ -93,14 +104,14 @@
                         <div class="md:col-span-3">
                         <div class="grid grid-cols-3 gap-2 pt-4 items-center">
                             <label class="flex items-center gap-1.5 cursor-pointer font-medium text-slate-600">
-                                <input type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded"> Select All
+                                <input type="checkbox" id="receive_all" class="w-3.5 h-3.5 accent-amber-500 rounded"> Select All
                             </label>
                             <div class="flex gap-2">
                                 <label class="flex items-center gap-1.5 cursor-pointer font-medium text-slate-600">
-                                    <input type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded"> R008
+                                    <input name="R008" type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded"> R008
                                 </label>
                                 <div>
-                                    <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 text-center cursor-not-allowed" value="R008-DOC-99" title="R008 Doc. No (Read Only)">
+                                    <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 text-center cursor-not-allowed" value="" title="">
                                 </div>
                             </div>
                             <div></div>
@@ -118,6 +129,7 @@
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
                             <i class='bx bx-box text-amber-500 text-base'></i> Product Details
+                            <div id="product_error" class="text-red-500 text-[10px] mt-0.5"></div>
                         </h3>
                     </div>
 
@@ -177,6 +189,8 @@
                         <div class="bg-slate-50 border border-slate-200 rounded flex items-center divide-x divide-slate-200 overflow-hidden">
                             <span class="px-3 py-1.5 font-bold uppercase text-slate-500 text-[10px] tracking-wider">Total Amount</span>
                             <span id="total_amount" class="px-4 py-1.5 font-extrabold text-sm text-slate-800 bg-amber-50/50">{{-- 1,055.00 --}}</span>
+                            <input id="total_amount_input" name="total_amount" type="hidden" value="" />
+
                         </div>
                     </div>
 
@@ -198,15 +212,44 @@
 
     </div>
     @push('js')
-        <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="{{ asset('assets/libs/flatpickrv4/flatpickr.js') }}" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            flatpickr("#purchasedate", {
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                maxDate: new Date().fp_incr(30)
+            });
+
+            flatpickr("#delivery_date", {
+                defaultDate: new Date(),
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                maxDate: new Date().fp_incr(30)
+            });
+
+
+            // $("#purchasedate").flatpickr({
+            //     dateFormat: "Y-m-d",
+            //     minDate: "today",
+            //     maxDate: new Date().fp_incr(30)
+            // });
+        });
+
+        // ... rest of your existing AJAX code ...
+    </script>
         <script type="text/javascript">
             var token = $("meta[name='__token']").attr('content');
             const recieve_id = $('#receive_id').val();
 
-
+            // console.log(formatComma(10000000));
+ 
             $('#po_no').change(function(){
                 const getpono = $(this).val();
-                
+                $('#productTable tbody').html('');
+
                 $.ajax({
                     url: `/receive_po`,
                     type: 'POST',
@@ -226,7 +269,7 @@
                         $('#vendor_code').val(document.vendor_code);
                         $('#vendor_name').val(document.vendor_name);
                         $('#purchasedate').val(document.purchasedate);
-                        $('#total_amount').text(document.total_amount);
+                        // $('#total_amount').text(formatComma(document.total_amount));
                         $('#remark').val(document.remark);
 
 
@@ -235,7 +278,7 @@
                                 <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
                                     <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
                                     <td class="py-1.5 px-3 text-center">
-                                        <input type="checkbox" id="pickup_${product.bar_code}" class="accent-amber-500 rounded">
+                                        <input name="product_code[]" type="checkbox" id="pickup_${product.bar_code}" class="receive_barcode accent-amber-500 rounded" value="${product.bar_code}">
                                     </td>
                                     <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.bar_code}</td>
                                     <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">${product.unit}</span></td>
@@ -246,11 +289,18 @@
                                         </div>
 
                                         <div id="gr_edit_${product.bar_code}" hidden class="w-24  ms-auto">
-                                            <input type="number" name="gr_qty[]" id="gr_qty_${product.bar_code}" class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.qty}">
+                                            <input type="number" name="gr_qty[]" id="gr_qty_${product.bar_code}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.qty}">
+
+                                            <input name="product_name[]" type="hidden" value="${product.supplier_name}" disabled />
+                                            <input name="unit[]" type="hidden" value="${product.unit}" disabled />
+                                            <input name="po_qty[]" type="hidden" value="${product.qty}" disabled />
+                                            <input name="price[]" type="hidden" value="${product.price}" disabled />
+                                            <input name="amount[]" id="amount_${product.bar_code}_input" type="hidden" value="${product.amount}" disabled />
+                                            <input name="product_id[]" type="hidden" value="${product.id}" disabled />
                                         </div>
                                     </td>
-                                    <td class="py-1.5 px-3 text-right text-slate-500">${product.price}</td>
-                                    <td id="amount_${product.bar_code}" class="py-1.5 px-3 text-right font-medium text-slate-700">${product.amount}</td>
+                                    <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
+                                    <td id="amount_${product.bar_code}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.amount)}</td>
                                 </tr>
                             `;
                             $('#productTable tbody').append(html);
@@ -265,31 +315,37 @@
 
                                 if(qty > poqty){
                                     $(this).val(poqty)
-                                    $(`#amount_${product.bar_code}`).html(product.amount);
+                                    $(`#amount_${product.bar_code}`).html(formatComma(product.amount));
+                                    $(`#amount_${product.bar_code}_input`).val(product.amount);
                                 }else{
-                                    $(`#amount_${product.bar_code}`).html(amount);
+                                    $(`#amount_${product.bar_code}`).html(formatComma(amount));
+                                    $(`#amount_${product.bar_code}_input`).val(amount);
                                 }
+                                calculateTotalAmount()
                             });
 
                             $(`#pickup_${product.bar_code}`).change(function(){
                                 var isChecked = $(this).prop("checked") === true ? true : false;
-                                console.log(isChecked);
 
                                 let grView = $(`#gr_view_${product.bar_code}`);
                                 let grEdit = $(`#gr_edit_${product.bar_code}`);
+                                let qtyInput = $(`#gr_qty_${product.bar_code}`);
+
                                 if(isChecked){
                                     grView.hide();
                                     grEdit.show();
+
+                                    qtyInput.prop('disabled', false);
+                                    grEdit.find('input').prop('disabled',false);
                                 }else{
                                     grView.show();
                                     grEdit.hide();
+
+                                    qtyInput.prop('disabled', true);
+                                    grEdit.find('input').prop('disabled',true);
                                 }
+                                calculateTotalAmount();
                             });
-
-
-                    
-
-
                         });
               
 
@@ -299,8 +355,153 @@
 
             });
 
+            $('#receive_all').change(function () {
+
+                let isChecked = $(this).prop('checked');
+
+                $('.receive_barcode')
+                    .prop('checked', isChecked)
+                    .trigger('change');
+
+            });
+
+            function validateForm() {
+
+                let deliveryNote = $('[name="delivery_note"]').val().trim();
+                let deliveryDate = $('[name="delivery_date"]').val();
+                let shipBy = $('[name="ship_by"]').val();
+                let receiveType = $('[name="receive_type"]').val();
+                let receive_barcodes_input =  $('.receive_barcode:checked');
+
+                let isValid = true;
+
+                // clear old errors
+                $('.text-red-500').text('');
+                $('.gr_qty').removeClass('border-red-500');
+
+
+                if(deliveryNote === ''){
+                    $('#delivery_note_error').text('Delivery Note Required');
+                    isValid = false;
+                }
+
+                if(deliveryDate === ''){
+                    $('#delivery_date_error').text('Delivery Date Required');
+                    isValid = false;
+                }
+          
+                if(shipBy === '' || shipBy == null){
+                    $('#ship_by_error').text('Ship By Required');
+                    isValid = false;
+                }
+
+                if(receiveType === '' || receiveType == null){
+                    $('#receive_type_error').text('Remark Required');
+                    isValid = false;
+                }
+
+                // GR Qty
+                if(receive_barcodes_input.length == 0){
+                    $('#product_error').text('Please check at least one product.');
+                    isValid = false;
+                }
+
+                receive_barcodes_input.each(function(){
+
+                    let row = $(this).closest('tr');
+
+                    let qtyInput = row.find('.gr_qty');
+
+                    let qty = qtyInput.val();
+
+                    console.log(qty);
+                    if(qty === '' || qty <= 0){
+
+                        qtyInput.removeClass('border-slate-300').addClass('border-red-500');
+
+                        // row.find('.qty-error').text('Invalid qty');
+
+                        isValid = false;
+                    }
+
+                });
+
+                return isValid;
+            }
+
+            function calculateTotalAmount() {
+
+                let total = 0;
+
+                $('.receive_barcode:checked').each(function(){
+
+                    let row = $(this).closest('tr');
+
+                    let qty = parseFloat(row.find('.gr_qty').val()) || 0;
+                    let price = parseFloat(row.find('[name="price[]"]').val()) || 0;
+
+
+                    // let price = parseFloat(
+                    //     row.find('.price').data('price')
+                    // ) || 0;
+
+                    total += qty * price;
+
+                });
+
+                $('#total_amount').text(formatComma(total));
+                $('#total_amount_input').val(total)
+            }
+
+            $('#rg_form').submit(function(e){
+
+                e.preventDefault();
+
+                if(validateForm() || false){
+
+                    console.log('submit');
+
+                    // form submit here
+                    console.log($('#rg_form').serialize());
+
+                     $.ajax({
+                        url:"{{ route('save_rg') }}",
+                        type:"POST",
+                        dataType: "json",
+                        data:$("#rg_form").serialize(),
+                        success:function(response){
+                            console.log(response);
+
+                             const data = response.data;
+                            // Swal.fire({
+                            //     icon: "success",
+                            //     title: "RG saved successfully!",
+                            //     text: data.message,
+                            // });
+
+                            // window.location.href = ''
+                        },
+                        error:function(response){
+                            console.log("Error: ",response);
+
+                            Swal.fire({
+                                icon: "error",
+                                title: "RG Save Error!!",
+                                text: "Something went wrong while saving the RG.",
+                            });
+                        }
+                    });
+                }
+
+            });
+
 
            
         </script>
     @endpush
+@endsection
+
+
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/libs/flatpickrv4/flatpickr.min.css') }}">
 @endsection

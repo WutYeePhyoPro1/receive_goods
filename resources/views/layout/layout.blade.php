@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="{{ asset('css/boxicons.min.css') }}">
     <link rel="icon" href="{{ asset('image/background_img/package.png') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <script src="{{ asset('js/jquery.min.js') }}"></script>
-   
+    <script src="{{ asset('js/jquery.min.js') }}"></script>  
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('css')
     {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" /> --}}
@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     @endif
     
+    @yield('css')
 
 </head>
 
@@ -220,6 +221,7 @@
 <script src="{{ asset('js/selectize/selectize.min.js') }}"></script>
 <script src="{{ asset('js/bootstrap/bootstrap.bundle.min.js') }}"></script>
 
+<script src="{{ asset('/assets/dist/js/app.js') }}" type="text/javascript"></script>
 <script>
     $(document).ready(function(e) {
         var token = $("meta[name='__token']").attr('content');

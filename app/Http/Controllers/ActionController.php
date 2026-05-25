@@ -2,29 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Models\Product;
-use App\Models\Document;
-use App\Models\Tracking;
 use App\Customize\Common;
-use App\Models\ScanTrack;
-use App\Models\DriverInfo;
-use App\Models\RemoveTrack;
-use App\Models\UploadImage;
-use App\Models\GoodsReceive;
-use Illuminate\Http\Request;
+use App\Interfaces\ActionRepositoryInterface;
 use App\Models\AddProductTrack;
 use App\Models\changeTruckProduct;
+use App\Models\Document;
+use App\Models\DriverInfo;
+use App\Models\GoodsReceive;
+use App\Models\printTrack;
+use App\Models\Product;
+use App\Models\ReceiveGoodDocument;
+use App\Models\ReceiveGoodProduct;
+use App\Models\RemoveTrack;
+use App\Models\ScanTrack;
+use App\Models\Tracking;
+use App\Models\UploadImage;
+use App\Models\User;
+use App\Models\UserBranch;
+use App\Models\Vendor;
+use App\Repositories\ActionRepository;
+use Carbon\Carbon;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Repositories\ActionRepository;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
-use App\Interfaces\ActionRepositoryInterface;
-use App\Models\printTrack;
-use App\Models\UserBranch;
 
 class ActionController extends Controller
 {
@@ -534,6 +538,82 @@ class ActionController extends Controller
             ], 200);
         } else {
             return response()->json(['message' => 'doc not found'], 404);
+        }
+    }
+
+    public function save_rg(Request $request){
+        // dd($request);
+
+        DB::beginTransaction();
+        DB::connection('master_product')->beginTransaction();
+        try {
+
+            $r008 = isset($request['r008']) ? true : false;
+
+            // Start Receive Good Document
+            $receive_good_document = ReceiveGoodDocument::create([
+                "document_id" => $request->scan_id,
+                "vendor_code" => $request->vendor_code,
+                "po_no" => $request->po_no,
+                "branch_id" => $request->branch_id,
+                "delivery_note" => $request->delivery_note,
+                "delivery_date" => $request->delivery_date,
+                "ship_by" => $request->ship_by,
+                "receive_type" => $request->receive_type,
+                "r008" => $r008, 
+                "total_amount" => $request->total_amount,
+            ]);
+            // End Receive Good Document
+
+
+            // Start Receive Good Product
+            $product_code = $request['product_code'];
+            $product_name = $request['product_name'];
+            $unit = $request['unit'];
+            $po_qty = $request['po_qty'];
+            $gr_qty = $request['gr_qty'];
+
+            $price = $request['price'];
+            $amount = $request['amount'];
+
+            $product_id = $request['product_id'];
+
+            for($i=0; $i<count($product_code);$i++){
+                $data = [
+                    'receive_good_document_id' => $receive_good_document->id,
+                    'product_code' => $product_code[$i],
+                    'product_name' => $product_name[$i],
+                    'unit' => $unit[$i],
+                    'po_qty' => $po_qty[$i],
+                    'gr_qty' => $gr_qty[$i],
+                    'price' => $price[$i],
+                    'amount' => $amount[$i],
+                    'product_id' => $product_id[$i],
+                ];
+                ReceiveGoodProduct::create($data);
+            }
+            // End Receive Good Product
+
+            DB::commit();
+            DB::connection('master_product')->commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Receive Good Document created in ERP software successfully!",
+                'data' => $receive_good_document,
+            ]);        
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            DB::connection('master_product')->rollBack();
+
+            Log::info($e->getMessage());
+
+            return response()->json([
+                'success'=>false,
+                'message'=> 'There is an error in saving RG Document.'
+            ]);
+
         }
     }
 

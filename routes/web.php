@@ -123,6 +123,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/barcode_scan_pause/{id}','barcode_scan_pause')->name('barcode_scan_pause');
 
             route::post('receive_po','receive_po')->name('receive_po');
+            route::post('save_rg','save_rg')->name('save_rg');
 
         });
 
