@@ -12,6 +12,7 @@ use App\Models\GoodsReceive;
 use App\Models\printTrack;
 use App\Models\Product;
 use App\Models\ReceiveGoodDocument;
+use App\Models\ReceiveGoodFile;
 use App\Models\ReceiveGoodProduct;
 use App\Models\RemoveTrack;
 use App\Models\ScanTrack;
@@ -528,12 +529,32 @@ class ActionController extends Controller
             $products = Product::where('document_id',$document->id)
                         ->orderBy('id','desc')
                         ->get();
+
             
+            // $rg_documents = ReceiveGoodDocument::where('po_no',$purchaseno)->get();
+            $rg_doc_ids = ReceiveGoodDocument::where('po_no',$purchaseno)->pluck('id');
+            // $rg_products = ReceiveGoodProduct::where('receive_good_document_id',$rg_doc_ids);
+
+            // IMPORTANT
+            $received_sums = ReceiveGoodProduct::whereIn('receive_good_document_id', $rg_doc_ids)
+                            ->select('product_code', \DB::raw('SUM(gr_qty) as total_received'))
+                            ->groupBy('product_code')
+                            ->pluck('total_received', 'product_code');
+            // dd($received_sums);
+            
+            $filtered_products = $products->map(function ($product) use ($received_sums) {
+                $received_qty = $received_sums[$product->bar_code] ?? 0;
+                $product->remaining_qty = $product->qty - $received_qty;
+                return $product;
+            })->filter(function ($product) {
+                return $product->remaining_qty > 0;
+            })->values(); // Reset keys
+
             return response()->json([
                 'message' => 'success',
                 'data' => [
                     "document" => $document,
-                    "products" => $products
+                    "products" => $filtered_products
                 ]
             ], 200);
         } else {
@@ -550,6 +571,9 @@ class ActionController extends Controller
 
             $r008 = isset($request['r008']) ? true : false;
 
+            $user = auth()->user();
+            $user_id = $user->id;
+
             // Start Receive Good Document
             $receive_good_document = ReceiveGoodDocument::create([
                 "document_id" => $request->scan_id,
@@ -562,6 +586,7 @@ class ActionController extends Controller
                 "receive_type" => $request->receive_type,
                 "r008" => $r008, 
                 "total_amount" => $request->total_amount,
+                "user_id" => $user_id
             ]);
             // End Receive Good Document
 
@@ -594,6 +619,12 @@ class ActionController extends Controller
             }
             // End Receive Good Product
 
+
+            // Start Auto RG To ERP
+            $receive_good_document_id = $receive_good_document->id;
+            $this->rg_document($receive_good_document_id, $request);
+            // End Auto RG To ERP
+
             DB::commit();
             DB::connection('master_product')->commit();
 
@@ -615,6 +646,33 @@ class ActionController extends Controller
             ]);
 
         }
+    }
+
+    public function rg_document($receive_good_document_id, Request $request){
+        $receive_good_document = ReceiveGoodDocument::find($receive_good_document_id);
+
+        $insert_rg_document = generateRGDocHeader($request->all(),$receive_good_document);
+        $rg_document = $insert_rg_document[0];
+        // dd($insert_rg_document);
+
+        $receive_good_products = $receive_good_document->receive_good_products;
+        $list_no = 0;
+        foreach ($receive_good_products as $product) {
+            $list_no++;
+            $product['list_no'] = $list_no; // Use the updated value
+            $product['ref_list_no'] = count($receive_good_products);
+            $product['receive_no'] = $rg_document->receive_no;
+
+            $rg_document_detail = generateRGDocDetail($product);
+        }
+
+        // => Store RG Document No In Portal
+        $rg_doc_no = $rg_document->receive_no;
+        $receive_good_file = new ReceiveGoodFile(); 
+        $receive_good_file->receive_good_document_id = $receive_good_document_id;
+        $receive_good_file->name = 'Receive Good';
+        $receive_good_file->file = $rg_doc_no;
+        $receive_good_file->save();
     }
 
     //edit scan

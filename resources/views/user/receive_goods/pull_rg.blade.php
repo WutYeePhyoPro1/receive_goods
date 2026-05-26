@@ -108,7 +108,7 @@
                             </label>
                             <div class="flex gap-2">
                                 <label class="flex items-center gap-1.5 cursor-pointer font-medium text-slate-600">
-                                    <input name="R008" type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded"> R008
+                                    <input name="r008" type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded"> R008
                                 </label>
                                 <div>
                                     <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 text-center cursor-not-allowed" value="" title="">
@@ -198,11 +198,11 @@
 
                 <div class="flex items-center gap-2 p-4">
 
-                    <button class="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[12px] font-medium">
+                    <button type="button" class="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[12px] font-medium">
                         Cancel
                     </button>
 
-                    <button type="submit" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm">
+                    <button type="submit" id="saveBtn" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm">
                         Save
                     </button>
 
@@ -211,6 +211,9 @@
         </form>
 
     </div>
+
+
+  
     @push('js')
     <script src="{{ asset('assets/libs/flatpickrv4/flatpickr.js') }}" type="text/javascript"></script>
 
@@ -219,14 +222,15 @@
 
             flatpickr("#purchasedate", {
                 dateFormat: "Y-m-d",
-                minDate: "today",
+                // minDate: "today",
+                clickOpens: false ,
                 maxDate: new Date().fp_incr(30)
             });
 
             flatpickr("#delivery_date", {
                 defaultDate: new Date(),
                 dateFormat: "Y-m-d",
-                minDate: "today",
+                // minDate: "today",
                 maxDate: new Date().fp_incr(30)
             });
 
@@ -282,18 +286,18 @@
                                     </td>
                                     <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.bar_code}</td>
                                     <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">${product.unit}</span></td>
-                                    <td class="py-1.5 px-3 text-right font-medium">${product.qty}</td>
+                                    <td class="py-1.5 px-3 text-right font-medium">${product.remaining_qty}</td>
                                     <td class="py-1.5 px-3 text-right">
                                         <div id="gr_view_${product.bar_code}" class="w-24  ms-auto">
-                                            <span>${product.qty}<span>
+                                            <span>${product.remaining_qty}<span>
                                         </div>
 
                                         <div id="gr_edit_${product.bar_code}" hidden class="w-24  ms-auto">
-                                            <input type="number" name="gr_qty[]" id="gr_qty_${product.bar_code}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.qty}">
+                                            <input type="number" name="gr_qty[]" id="gr_qty_${product.bar_code}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.remaining_qty}">
 
                                             <input name="product_name[]" type="hidden" value="${product.supplier_name}" disabled />
                                             <input name="unit[]" type="hidden" value="${product.unit}" disabled />
-                                            <input name="po_qty[]" type="hidden" value="${product.qty}" disabled />
+                                            <input name="po_qty[]" type="hidden" value="${product.remaining_qty}" disabled />
                                             <input name="price[]" type="hidden" value="${product.price}" disabled />
                                             <input name="amount[]" id="amount_${product.bar_code}_input" type="hidden" value="${product.amount}" disabled />
                                             <input name="product_id[]" type="hidden" value="${product.id}" disabled />
@@ -307,8 +311,8 @@
 
                             $(`#gr_qty_${product.bar_code}`).on('input', function() {
 
-                                var qty = parseInt($(this).val());
-                                var poqty = parseInt(product.qty);
+                                var qty = parseInt($(this).val()) || 0;
+                                var poqty = parseInt(product.remaining_qty);
                                 var price = product.price;
                                 var amount = qty * price;
                                 console.log(amount);
@@ -414,7 +418,7 @@
 
                     let qty = qtyInput.val();
 
-                    console.log(qty);
+                    // console.log(qty);
                     if(qty === '' || qty <= 0){
 
                         qtyInput.removeClass('border-slate-300').addClass('border-red-500');
@@ -453,44 +457,83 @@
                 $('#total_amount_input').val(total)
             }
 
+            let isSubmitting = false;
             $('#rg_form').submit(function(e){
 
                 e.preventDefault();
+                if (isSubmitting) return;
 
                 if(validateForm() || false){
 
-                    console.log('submit');
+                    Swal.fire({
+                        icon: "question",
+                        text: "Are you sure to save RG to ERP?",
+                        showCancelButton: true,
+                    }).then((result) => {
+                        if(result.isConfirmed)
+                        {
 
-                    // form submit here
-                    console.log($('#rg_form').serialize());
+                            isSubmitting = true;                            
+                            $(".fullloader").removeClass("hidden");
+                            // Swal.disableButtons();
+                            $('#saveBtn').prop('disabled', true)
 
-                     $.ajax({
-                        url:"{{ route('save_rg') }}",
-                        type:"POST",
-                        dataType: "json",
-                        data:$("#rg_form").serialize(),
-                        success:function(response){
-                            console.log(response);
+                            console.log('submit');
 
-                             const data = response.data;
-                            // Swal.fire({
-                            //     icon: "success",
-                            //     title: "RG saved successfully!",
-                            //     text: data.message,
-                            // });
+                            // form submit here
+                            // console.log($('#rg_form').serialize());
 
-                            // window.location.href = ''
-                        },
-                        error:function(response){
-                            console.log("Error: ",response);
+                            $.ajax({
+                                url:"{{ route('save_rg') }}",
+                                type:"POST",
+                                dataType: "json",
+                                data:$("#rg_form").serialize(),
+                                success:function(response){
+                                    console.log(response);
 
-                            Swal.fire({
-                                icon: "error",
-                                title: "RG Save Error!!",
-                                text: "Something went wrong while saving the RG.",
+                                    const data = response;
+
+                                    if(data.success){
+                                        Swal.fire({
+                                            icon: "success",
+                                            title: "RG saved successfully!",
+                                            text: data.message,
+                                        });
+                                        // window.location.href = ''
+
+                                    }else{
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "RG Save Error!!",
+                                            text: "Something went wrong while saving the RG.",
+                                        });
+
+                                        isSubmitting = false;
+                                        $(".fullloader").addClass("hidden");
+                                    }
+                                },
+                                error:function(response){
+                                    console.log("Error: ",response);
+
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "RG Save Error!!",
+                                        text: "Something went wrong while saving the RG.",
+                                    });
+
+                                    isSubmitting = false;
+                                    $(".fullloader").addClass("hidden");
+                                },
+                                // complete:function(resopnse){
+                                //     isSubmitting = false;
+                            
+                                //     $(".fullloader").addClass("hidden");
+                                //     console.log('complete');
+                                // }
                             });
+
                         }
-                    });
+                    })
                 }
 
             });

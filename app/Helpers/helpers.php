@@ -517,3 +517,152 @@ use Illuminate\Support\Facades\DB;
     }
 
 
+    function generateRGDocHeader($data, $receive_good_document){
+        $conn = DB::connection('master_product');
+
+        $invoice_date = $receive_good_document->delivery_date;
+        $receive_employee_code = $receive_good_document->user->employee_code;
+        $transportation_by = $receive_good_document->ship_by;
+        $purchase_no = $receive_good_document->po_no;
+        $vendor_code = $receive_good_document->vendor_code;
+        $branch_code = $receive_good_document->branch->branch_code;
+        $approve_amount = $receive_good_document->total_amount;
+
+        $invoice_no = $receive_good_document->delivery_note;
+        $status_r008 = $receive_good_document->r008 ? 'N' : '';
+        $employeecode = $receive_good_document->user->employee_code;
+        $remark_id = $receive_good_document->receive_type;
+
+        $document = $receive_good_document->document;
+        $creditday = $document->creditday;
+        $remark = $document->remark;
+        $purchase_date = $document->purchasedate;
+        
+
+        $result = $conn->select("
+            INSERT INTO purchaseorder.receive_hd (
+                receive_no, 
+                receive_date, 
+                invoice_date, 
+                receive_employee_code, 
+                transportation_by, 
+                poinvoice_id, 
+                purchase_no, 
+                vendor_code, 
+                branch_code, 
+                credits, 
+                approve_amount, 
+                remark, 
+                receive_status, 
+                process_date, 
+                invoice_no, 
+                purchase_date, 
+                ismulticurrency, 
+                multicurrencyrate, 
+                poststockflag, 
+                status_r008, 
+                r008_docuno, 
+                employeecode, 
+                remark_id
+            )
+            SELECT 
+                -- Auto Generate Receive No 
+                (
+                    CASE
+                    WHEN (
+                        SELECT COUNT(receive_no) 
+                        FROM purchaseorder.receive_hd 
+                        WHERE receive_date::date = NOW()::date
+                    ) = 0 THEN 
+                        'RG' || (SELECT branch_short_name FROM master_data.master_branch WHERE branch_code = '$branch_code') ||
+                        TO_CHAR(NOW(), 'YYMMDD') || '-0001'
+                    ELSE (
+                        SELECT 
+                            
+                            REPLACE(LEFT(max_doc, -4), TO_CHAR(NOW(), 'YYYYMMDD'), TO_CHAR(NOW(), 'YYMMDD'))  
+                            || LPAD((RIGHT(max_doc, 4)::INTEGER + 1)::TEXT, 4, '0')
+                        FROM (
+                            SELECT MAX(receive_no) AS max_doc 
+                            FROM purchaseorder.receive_hd 
+                            WHERE receive_date::date = NOW()::date
+                        ) sub
+                    )
+                END 
+                ),
+                NOW(),                          -- receive_date (complete နှိပ်လိုက်တဲ့အချိန်)
+                '$invoice_date',                  -- invoice_date
+                '$receive_employee_code',         -- receive_employee_code (portal login user)
+                '$transportation_by',             -- transportation_by -- purchaseorder.po_transportation ကယူ
+                '0',                            -- poinvoice_id (Fix)
+                '$purchase_no',                   -- purchase_no --- From Portal
+                '$vendor_code',                   -- vendor_code --- From Portal
+                '$branch_code',                   -- branch_code --- From Portal
+                '$creditday',                     --(select creditday from purchaseorder.po_purchaseorderhd where purchaseno='$purchase_no') , --- credits
+                $approve_amount,                -- approve_amount -- from Portal Ma Wut Yee--
+                '$remark',                       --(select remark from purchaseorder.po_purchaseorderhd where purchaseno='$purchase_no'),    -- remark -- from Portal--
+                'N',                            -- receive_status (Fix)
+                NOW(),                          -- process_date (complete နှိပ်လိုက်တဲ့အချိန်)
+                '$invoice_no',                    -- invoice_no --- from Portal ?
+                '$purchase_date',                 --(select purchasedate from purchaseorder.po_purchaseorderhd where purchaseno='$purchase_no'),  --- purchase_date
+                'N',                            -- ismulticurrency --- (Fix)
+                0,                              -- multicurrencyrate --- (Fix)
+                'N',                            -- poststockflag (Fix)
+                '$status_r008',                   -- status_r008 ---  N
+                '',					            -- r008_docuno --- if status_r008=N , r008_docuno = blank
+                '$employeecode',                  -- employeecode (portal login user)
+                '$remark_id'                     -- remark_id --- purchaseorder.receive_type ကယူ
+                RETURNING *;
+            ");
+
+        return $result;
+    }
+
+
+    function generateRGDocDetail($productRG){
+        $conn = DB::connection('master_product');
+
+        $list_no = $productRG['list_no'];
+        $product_code = $productRG['product_code'];
+        $product_name = $productRG['product_name'];
+        $unit_count = $productRG['unit'];
+        $approve_quantity = $productRG['po_qty'];
+        $receive_quantity = $productRG['gr_qty'];
+        $approve_price = $productRG['price'];
+        $approve_amount = $productRG['amount'];
+        $ref_list_no = $productRG['ref_list_no'];
+        $receive_no = $productRG['receive_no'];
+
+
+        $result = $conn->insert("
+            INSERT INTO purchaseorder.receive_dt (
+                list_no,
+                product_code,
+                product_name, 
+                unit_count,
+                approve_quantity,
+                receive_quantity, 
+                approve_price,
+                approve_amount, 
+                ref_list_no, 
+                receive_no, 
+                discount, 
+                r008qty
+            )
+            SELECT 
+                '$list_no',                 				-- Ma Wut Yee --
+                '$product_code',                    -- product_code (From Portal)
+                '$product_name',     -- product_name (From Portal) 
+                '$unit_count',                               -- unit_count (From Portal)
+                '$approve_quantity',                               -- approve_quantity (From PO)
+                '$receive_quantity',                               -- receive_quantity (From Portal)
+                '$approve_price',                             -- approve_price (From Portal)
+                '$approve_amount',                            -- approve_amount (From Portal)
+                $ref_list_no,                                  -- ref_list_no  (PO က item အရေအတွက်)
+                '$receive_no',                -- receive_no (From Header)
+                0,                                  -- discount (From Portal)
+                0                                    -- r008qty
+            ;
+        ");
+
+        return $result;
+    }

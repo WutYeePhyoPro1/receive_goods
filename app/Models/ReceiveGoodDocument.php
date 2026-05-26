@@ -21,7 +21,24 @@ class ReceiveGoodDocument extends Model
         "receive_type",
         "r008",
         "total_amount",
-        "rg_no",
-        "r008_no",
+        "user_id",
     ];
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function branch(){
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function document(){
+        return $this->belongsTo(Document::class,'po_no','document_no');
+    }
+
+    public function receive_good_products()
+    {
+        return $this->hasMany(ReceiveGoodProduct::class, 'receive_good_document_id', 'id');
+    }
+
 }

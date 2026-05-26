@@ -199,6 +199,10 @@
                 {{ request()->ip() }}</span>
         </div>
     </div>
+
+
+    @include('components.fullloader')
+
 </body>
 {{-- <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script> --}}
 {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js" integrity="sha512-k2wo/BkbloaRU7gc/RkCekHr4IOVe10kYxJ/Q8dRPl7u3YshAQmg3WfZtIcseEk+nGBdK03fHBeLgXTxRmWCLQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
@@ -222,6 +226,7 @@
 <script src="{{ asset('js/bootstrap/bootstrap.bundle.min.js') }}"></script>
 
 <script src="{{ asset('/assets/dist/js/app.js') }}" type="text/javascript"></script>
+
 <script>
     $(document).ready(function(e) {
         var token = $("meta[name='__token']").attr('content');

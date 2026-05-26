@@ -23,8 +23,9 @@ return new class extends Migration
             $table->string('receive_type',20);
             $table->boolean('r008');
             $table->float('total_amount');
-            $table->string('rg_no')->nullable();
-            $table->string('r008_no')->nullable();
+            $table->unsignedBigInteger('user_id');
+            // $table->string('rg_no')->nullable();
+            // $table->string('r008_no')->nullable();
             $table->timestamps();
         });
     }
