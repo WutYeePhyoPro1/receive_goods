@@ -66,6 +66,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             // route::get('/search_suggestions','search_suggestions')->name('search_suggestions');
 
             route::get('receive_goods/{id}/pull_rg','pull_rg')->name('pull_rg');
+            route::get('receive_goods/rg_documents/list','rg_documents')->name('rg_documents');
         });
 
         route::group(['controller'=>ReportController::class],function(){

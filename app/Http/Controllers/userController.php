@@ -2,40 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use App\Models\Log;
-use App\Models\User;
-use App\Models\Truck;
-use App\Models\Branch;
-use App\Models\Source;
-use App\Models\CarGate;
-use App\Models\Product;
-use App\Models\Document;
-use App\Models\Tracking;
 use App\Customize\Common;
+use App\Interfaces\UserRepositoryInterface;
+use App\Models\Branch;
+use App\Models\CarGate;
 use App\Models\CarHistory;
 use App\Models\Department;
+use App\Models\Document;
 use App\Models\DriverInfo;
-use App\Models\RemoveTrack;
 use App\Models\GoodsReceive;
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
+use App\Models\Log;
+use App\Models\PrintReason;
+use App\Models\Product;
+use App\Models\ReceiveGoodDocument;
+use App\Models\RemoveTrack;
+use App\Models\Source;
+use App\Models\Tracking;
+use App\Models\Truck;
+use App\Models\UploadImage;
+use App\Models\User;
+use App\Models\UserBranch;
 use App\Repositories\UserRepository;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
-use App\Interfaces\UserRepositoryInterface;
-use App\Models\PrintReason;
-use App\Models\UploadImage;
-use App\Models\UserBranch;
-use Symfony\Component\CssSelector\Node\FunctionNode;
-use Spatie\Permission\Middleware\PermissionMiddleware;
 use Milon\Barcode\DNS1D;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Symfony\Component\CssSelector\Node\FunctionNode;
 
 class userController extends Controller
 {
@@ -356,6 +356,7 @@ class userController extends Controller
         return view('user.receive_goods.receive_goods',compact('main','document','driver','cur_driver','truck','gate','scan_document','id','scan_document_no', 'page','driver_last','product_barcode'));
     }
 
+    // Start RG Document
     public function pull_rg($id)
     {
         $good_receive = GoodsReceive::where('id', $id)->first();
@@ -378,13 +379,25 @@ class userController extends Controller
             LIMIT 100
         ");
 
-        return view('user.receive_goods.pull_rg', compact(
+        return view('user.receive_goods.rg_documents.pull_rg', compact(
             'good_receive',
             'documents',
             'transportations',
             'receives'
         ));
     }
+
+    public function rg_documents(Request $request){
+        // dd('hay');
+
+        $results = ReceiveGoodDocument::query();
+
+        $data = $results->orderBy('created_at','desc')->paginate(15);
+        // dd($data);
+
+        return view('user.receive_goods.rg_documents.index',compact("data"));
+    }
+    // End RG Document
 
     public function join_receive($id,$car)
     {
