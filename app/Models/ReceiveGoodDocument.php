@@ -41,4 +41,14 @@ class ReceiveGoodDocument extends Model
         return $this->hasMany(ReceiveGoodProduct::class, 'receive_good_document_id', 'id');
     }
 
+    public function vendor(){
+        return $this->belongsTo(Vendor::class,'vendor_code','vendor_code');
+    }
+
+    public function receive_good_files(){
+        return $this->hasMany(ReceiveGoodFile::class,'receive_good_document_id','id');
+    }
+
+
+
 }

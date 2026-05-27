@@ -1,14 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\userController;
-use App\Http\Controllers\AdminController;
-use App\Models\UnavailableScannedProduct;
 use App\Http\Controllers\ActionController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\authenticateController;
+use App\Http\Controllers\R008SController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UnavailableScannedProductController;
+use App\Http\Controllers\userController;
+use App\Models\UnavailableScannedProduct;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +68,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             route::get('receive_goods/{id}/pull_rg','pull_rg')->name('pull_rg');
             route::get('receive_goods/rg_documents/list','rg_documents')->name('rg_documents');
+            route::get('receive_goods/rg_documents/{id}','detail_rg')->name('detail_rg');
+
+        });
+
+        Route::group(['controller'=>R008SController::class],function(){
+            // Route::resource("r008s",StudentsController::class);
+
+            Route::get('r008s/create','create')->name('r008s.create');
+
         });
 
         route::group(['controller'=>ReportController::class],function(){

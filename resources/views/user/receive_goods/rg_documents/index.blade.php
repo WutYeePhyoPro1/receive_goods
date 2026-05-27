@@ -2,15 +2,15 @@
 
 @section('content')
 
-    <div class="md:w-[95%] mx-auto px-4 pt-4 pb-10">
+    <div class="md:w-[100%] mx-auto px-4 pt-4 pb-10">
         <!-- PAGE CARD -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
             <!-- HEADER -->
-            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="px-5 py-1 border-b border-slate-100 flex items-center justify-center">
                 <div class="flex items-center gap-2">
                     <i class='bx bx-list-ul text-amber-500 text-xl'></i>
-                    <h2 class="text-sm font-bold text-slate-700 tracking-wide">
+                    <h2 class="text-sm font-bold text-slate-700 tracking-wide mb-0">
                         Receive Goods Documents
                     </h2>
                 </div>
@@ -135,8 +135,7 @@
                     <!-- TABLE BODY -->
                     <tbody class="divide-y divide-slate-100 text-[13px] text-slate-700">
 
-                        <!-- ROW -->
-                        <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer">
+                        <!-- <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer">
 
                             <td class="px-4 py-3 font-medium text-slate-500">
                                 1
@@ -164,7 +163,6 @@
 
                         </tr>
 
-                        <!-- ROW -->
                         <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer">
 
                             <td class="px-4 py-3 font-medium text-slate-500">
@@ -191,47 +189,48 @@
                                 Myanmar Distribution Group
                             </td>
 
-                        </tr>
+                        </tr> -->
 
-                        <!-- ROW -->
-                        <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer">
+                        @foreach ($data as $idx=>$item)
+                            <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer"  onClick='window.location.href = "{{ route("detail_rg",$item->id) }}"' >
 
-                            <td class="px-4 py-3 font-medium text-slate-500">
-                                3
-                            </td>
+                                <td class="px-4 py-3 font-medium text-slate-500">
+                                    {{$idx + $data->firstItem()}}
+                                </td>
 
-                            <td class="px-4 py-3 font-semibold text-blue-700">
-                                RGMM250527-0003
-                            </td>
+                                <td class="px-4 py-3 font-semibold text-blue-700">
+                                    {{ $item->receive_good_files->first()->file }}
+                                </td>
 
-                            <td class="px-4 py-3">
-                                POHTY1260318-0003
-                            </td>
+                                <td class="px-4 py-3">
+                                    {{ $item->po_no }}
+                                </td>
 
-                            <td class="px-4 py-3">
-                                INV-2026052703
-                            </td>
+                                <td class="px-4 py-3">
+                                    {{ $item->delivery_note }}
+                                </td>
 
-                            <td class="px-4 py-3">
-                                2026-05-27
-                            </td>
+                                <td class="px-4 py-3">
+                                    {{ $item->created_at->format("Y-m-d") }}
+                                </td>
 
-                            <td class="px-4 py-3">
-                                Best Supplier Enterprise
-                            </td>
+                                <td class="px-4 py-3">
+                                    {{ $item->vendor->vendor_name }}
+                                </td>
+                            </tr>
 
-                        </tr>
+                        @endforeach
 
                     </tbody>
 
                 </table>
-
+                {{-- $data->links('pagination::tailwind') --}}
+                {{ $data->links('vendors.pagination.custom-rg') }}
             </div>
 
             <!-- PAGINATION -->
-            <div class="px-4 py-3 border-t border-slate-100 flex items-center justify-between bg-white">
+            <!-- <div class="px-4 py-3 border-t border-slate-100 flex items-center justify-between bg-white">
 
-                <!-- LEFT -->
                 <div class="text-[12px] text-slate-500">
                     Showing
                     <span class="font-semibold text-slate-700">1</span>
@@ -242,7 +241,6 @@
                     entries
                 </div>
 
-                <!-- RIGHT -->
                 <div class="flex items-center gap-1">
 
                     <button
@@ -282,7 +280,7 @@
 
                 </div>
 
-            </div>
+            </div> -->
 
         </div>
 
@@ -293,3 +291,7 @@
         </script>
     @endpush
 @endsection
+
+
+
+<!-- php artisan vendor:publish --tag=laravel-pagination -->

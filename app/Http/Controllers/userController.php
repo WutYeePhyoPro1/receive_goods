@@ -397,6 +397,42 @@ class userController extends Controller
 
         return view('user.receive_goods.rg_documents.index',compact("data"));
     }
+
+
+
+    public function detail_rg($id){
+        $receive_good_document = ReceiveGoodDocument::find($id);
+
+        $document_id = $receive_good_document->document_id;
+        $good_receive = GoodsReceive::where('id', $document_id)->first();
+        
+        $documents = Document::where('received_goods_id', $id)
+        ->orderBy('updated_at', 'desc')
+        ->get();
+
+        $conn = DB::connection('master_product');
+        $transportations = $conn->select("
+            SELECT *
+            FROM purchaseorder.po_transportation
+            ORDER BY transp_code DESC
+            LIMIT 100
+        ");
+
+        $receives = $conn->select("
+            SELECT * FROM purchaseorder.receive_type
+            ORDER BY remark_id DESC 
+            LIMIT 100
+        ");
+
+        return view('user.receive_goods.rg_documents.detail_rg',compact(
+            'receive_good_document',
+            'good_receive',
+            'documents',
+            'transportations',
+            'receives'
+        ));
+    }
+
     // End RG Document
 
     public function join_receive($id,$car)
