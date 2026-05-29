@@ -648,6 +648,35 @@ class ActionController extends Controller
         }
     }
 
+    public function receive_r008(Request $request)
+    {
+        $rg_no = $request->rg_no;
+
+        $receive_good_document = ReceiveGoodDocument::with('document', 'vendor')
+            ->whereHas('receive_good_files', function ($q) use ($rg_no) {
+                $q->where('file', $rg_no);
+            })
+            ->first();
+
+        $conn = DB::connection('defective_product');
+        $statuses = $conn->select("
+            SELECT * 
+            FROM public.r008_subject
+            ORDER BY subjectr008_id ASC
+            LIMIT 100
+        ");
+        // dd($statuses);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => [
+                'rg_document' => $receive_good_document,
+                'rg_products' => $receive_good_document->receive_good_products,
+                'statuses' => $statuses
+            ]
+        ]);
+    }
+
     public function rg_document($receive_good_document_id, Request $request){
         $receive_good_document = ReceiveGoodDocument::find($receive_good_document_id);
 

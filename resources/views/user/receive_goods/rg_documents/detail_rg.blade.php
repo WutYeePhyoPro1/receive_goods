@@ -194,11 +194,12 @@
                     </button>
                      --}}
 
-                    {{--  
-                    <button type="button" id="saveBtn" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm">
+                    <button type="button" id="r008Btn" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm"
+                        {{-- onClick="window.location.href = '{{ route('r008_rg',$receive_good_document->id) }}';" --}}
+                            onClick="window.open('{{ route('r008_rg', $receive_good_document->id) }}', '_blank')"
+                    >
                         R008
                     </button>
-                    --}}
 
                 </div>
             </div>

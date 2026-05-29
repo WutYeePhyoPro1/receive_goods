@@ -433,6 +433,14 @@ class userController extends Controller
         ));
     }
 
+    public function r008_rg($id){
+        $receive_good_document = ReceiveGoodDocument::find($id);
+
+        $rg_no = $receive_good_document->receive_good_files->first()->file;
+        return redirect()->route('r008s.create')
+                ->with('rg_no', $rg_no);
+    }
+
     // End RG Document
 
     public function join_receive($id,$car)

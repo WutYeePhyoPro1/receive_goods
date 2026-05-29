@@ -4,7 +4,7 @@
 @section('content')
       <!-- MAIN CONTENT CONTAINER -->
     <div class="md:w-[80%] pb-16 px-4 pt-4 mx-auto">
-        <form id="rg_form" action="" method="POST">
+        <form id="r008_form" action="" method="POST">
             @csrf
             <!-- UNIFIED CARD CONTAINER -->
             <div class="bg-white rounded-lg shadow-sm border border-slate-200 text-slate-800 text-xs">
@@ -18,13 +18,12 @@
                     </div>
 
                     <!-- 3-Column Compact Grid for Inputs -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 items-end">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-x-4 gap-y-2 items-end">
                         
                         <!-- Row 1 -->
                         <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Scan Document No. <span class="text-red-600">*</span></label>
-                            <input type="text" name="scan_document_no" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No...">
-                            <input type="text" name="scan_id" readonly hidden class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No...">
+                            <label class="block font-medium text-slate-500 mb-0.5">Document Date <span class="text-red-600">*</span> <span id="document_date_error" class="text-red-500 text-[10px] ml-1"></span></label>
+                            <input type="date" name="document_date" id="document_date" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500">
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Vendor Code <span class="text-red-600">*</span></label>
@@ -34,88 +33,48 @@
                             <label class="block font-medium text-slate-500 mb-0.5">Vendor Name <span class="text-red-600">*</span></label>
                             <input type="text" name="vendor_name" readonly id="vendor_name" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Vendor Name" value="{{-- $good_receive->vendor_name --}}">
                         </div>
+                        <div>
+                            <label class="block font-medium text-slate-500 mb-0.5">Product Type <span class="text-red-600">*</span> <span id="product_type_error" class="text-red-500 text-[10px] ml-1"></span></label>
+                            <select name="product_type" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                                <!-- <option value="">Choose a remark type</option> -->
+                                    <option value="Local">Local</option>
+                                    <option value="Local">Import</option>
+                            </select>
+                        </div>
 
                         <!-- Row 2 -->
+
                         <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">PO No <span class="text-red-600">*</span></label>
-                            <select id="po_no" name="po_no" class="w-full h-8 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
-                                <option value="" disabled selected>Choose PO No:</option>
-                                {{-- @foreach($documents as $document)
-                                <option value="{{ $document->document_no }}">{{ $document->document_no }}</option>
-                                @endforeach --}}
+                            <label class="block font-medium text-slate-500 mb-0.5">Receive Doc. No <span class="text-red-600">*</span></label>
+                            <select id="rg_no" name="rg_no" class="w-full h-8 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                                {{-- @if(!isset($rg_no)) --}}
+                                <option value="" disabled selected>Choose RG No:</option>
+                                {{-- @endif --}}
+                                @if(isset($rg_no))
+                                    <option value="{{ $rg_no }}">{{ $rg_no }}</option>
+                                @endif
                             </select>
                         </div>
                         <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">PO Date <span class="text-red-600">*</span></label>
-                            <input name="po_date" readonly id="purchasedate" type="date" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed">
+                            <label class="block font-medium text-slate-500 mb-0.5">Invoice No<span class="text-red-600">*</span></label>
+                            <input  type="text"  name="invoice_no" readonly id="invoice_no"class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed">
                         </div>
                         <div>
-                            <label  class="block font-medium text-slate-500 mb-0.5">Branch <span class="text-red-600">*</span></label>
-                                <select
-                                    name="branch_id"
-                                    class="w-full h-8 px-2 border border-slate-300 rounded
-                                        bg-slate-100 text-slate-500
-                                        cursor-not-allowed
-                                        appearance-none
-                                        focus:outline-none"
-                                >
-                                    <option selected value="{{ $userdata->branch->id }}">{{ $userdata->branch->branch_name }}</option>
-                                </select>
+                            <label class="block font-medium text-slate-500 mb-0.5">PO No<span class="text-red-600">*</span></label>
+                            <input  type="text"  name="po_no" readonly id="po_no"class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-slate-500 mb-0.5">Truck/Container No. <span class="text-red-600"></span> <span id="truck_container_no_error" class="text-red-500 text-[10px] ml-1"></span></label>
+                            <input type="text" name="truck_container_no" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="">
                         </div>
 
-                        <!-- Row 3 -->
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Delivery Note <span class="text-red-600">*</span> <span id="delivery_note_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <input type="text" name="delivery_note" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Delivery Note">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Delivery Date <span class="text-red-600">*</span> <span id="delivery_date_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <input type="date" name="delivery_date" id="delivery_date" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Ship By <span class="text-red-600">*</span> <span id="ship_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <select name="ship_by" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
-                                    <option value="">Choose a Transportation</option>
-                                    @foreach($transportations as $transportation)
-                                        <option value="{{ $transportation->transp_code }}">{{ $transportation->transp_name }}</option>
-                                    @endforeach
-                            </select>
+                        <div class="col-span-4">
+                            <label class="block font-medium text-slate-500 mb-0.5">Remark <span class="text-red-600"></span></label>
+                            <textarea name="remark" rows="3" class="w-full h-auto px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder=""></textarea>
                         </div>
 
-                        <!-- Row 4 (Remark spans 2 columns, Checkboxes group occupies 1) -->
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Remark <span class="text-red-600">*</span> <span id="receive_type_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <select name="receive_type" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
-                            <option value="">Choose a remark type</option>
-                                @foreach($receives as $receive)
-                                    <option value="{{ $receive->remark_id }}">{{ $receive->remark_type_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
 
-                        <div class="md:col-span-2 self-end">
-                            <label class="block font-medium text-slate-500 mb-0.5"> </label>
-                            <input type="text" name="po_remark" readonly id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Enter remarks details here...">
-                        </div>
-                        
-                        <!-- Checkbox Controls Alignment -->
 
-                        <div class="md:col-span-3">
-                        <div class="grid grid-cols-3 gap-2 pt-4 items-center">
-                            <label class="flex items-center gap-1.5 cursor-pointer font-medium text-slate-600">
-                                <input type="checkbox" id="receive_all" class="w-3.5 h-3.5 accent-amber-500 rounded"> Select All
-                            </label>
-                            <div class="flex gap-2">
-                                <label class="flex items-center gap-1.5 cursor-pointer font-medium text-slate-600">
-                                    <input name="r008" type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded"> R008
-                                </label>
-                                <div>
-                                    <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 text-center cursor-not-allowed" value="" title="">
-                                </div>
-                            </div>
-                            <div></div>
-                        </div>
-                        </div>
 
                     </div>
                 </div>
@@ -139,58 +98,18 @@
                             <thead class="sticky top-0 bg-slate-100 z-10 border-b border-slate-200 shadow-sm">
                                 <tr class="text-slate-600 font-semibold uppercase text-[11px] tracking-wider whitespace-nowrap">
                                     <th class="py-2 px-3 w-auto">No</th>
-                                    <th class="py-2 px-3 w-auto text-center">Select</th>
+                                    <th class="py-2 px-3 w-auto text-center">Status</th>
                                     <th class="py-2 px-3 w-auto">Product Code</th>
-                                    <th class="py-2 px-3 w-auto">Unit</th>
-                                    <th class="py-2 px-3 w-auto text-right">PO Qty</th>
-                                    <th class="py-2 px-3 w-auto text-right">GR Qty</th>
-                                    <th class="py-2 px-3 w-auto text-right">Price</th>
-                                    <th class="py-2 px-3 w-auto text-right">Amount</th>
+                                    <th class="py-2 px-3 w-auto">Product Name</th>
+                                    <th class="py-2 px-3 w-auto text-right">RG Qty</th>
+                                    <th class="py-2 px-3 w-auto text-right">Physical Qty</th>
+                                    <th class="py-2 px-3 w-auto text-right">Diff.</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white">
-                                <!-- Row 1 Template -->
-                                <!-- <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                    <td class="py-1.5 px-3 font-medium text-slate-400">1</td>
-                                    <td class="py-1.5 px-3 text-center">
-                                        <input type="checkbox" class="accent-amber-500 rounded">
-                                    </td>
-                                    <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-10029</td>
-                                    <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">PCS</span></td>
-                                    <td class="py-1.5 px-3 text-right font-medium">50</td>
-                                    <td class="py-1.5 px-3 text-right">
-                                        <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="50">
-                                    </td>
-                                    <td class="py-1.5 px-3 text-right text-slate-500">12.00</td>
-                                    <td class="py-1.5 px-3 text-right font-medium text-slate-700">600.00</td>
-                                </tr> -->
-                                <!-- Row 2 Template -->
-                                <!-- <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                    <td class="py-1.5 px-3 font-medium text-slate-400">2</td>
-                                    <td class="py-1.5 px-3 text-center">
-                                        <input type="checkbox" class="accent-amber-500 rounded">
-                                    </td>
-                                    <td class="py-1.5 px-3 font-mono font-medium text-slate-700">PROD-20384</td>
-                                    <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">BOX</span></td>
-                                    <td class="py-1.5 px-3 text-right font-medium">10</td>
-                                    <td class="py-1.5 px-3 text-right">
-                                        <input type="number" class="w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="10">
-                                    </td>
-                                    <td class="py-1.5 px-3 text-right text-slate-500">45.50</td>
-                                    <td class="py-1.5 px-3 text-right font-medium text-slate-700">455.00</td>
-                                </tr> -->
+                            
                             </tbody>
                         </table>
-                    </div>
-
-                    <!-- TOTAL AMOUNT DISPLAY SUMMARY -->
-                    <div class="mt-3 flex justify-end">
-                        <div class="bg-slate-50 border border-slate-200 rounded flex items-center divide-x divide-slate-200 overflow-hidden">
-                            <span class="px-3 py-1.5 font-bold uppercase text-slate-500 text-[10px] tracking-wider">Total Amount</span>
-                            <span id="total_amount" class="px-4 py-1.5 font-extrabold text-sm text-slate-800 bg-amber-50/50">{{-- 1,055.00 --}}</span>
-                            <input id="total_amount_input" name="total_amount" type="hidden" value="" />
-
-                        </div>
                     </div>
 
                 </div>
@@ -198,7 +117,7 @@
                 <div class="flex items-center gap-2 p-4">
 
                     <button type="button" class="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[12px] font-medium"
-                    onclick="window.location.href='{{ route('receive_goods', $good_receive->id) }}'"
+                    onclick="window.location.href='{{-- route('receive_goods', $good_receive->id) --}}'"
                     >
                         Cancel
                     </button>
@@ -228,7 +147,7 @@
                 maxDate: new Date().fp_incr(30)
             });
 
-            flatpickr("#delivery_date", {
+            flatpickr("#document_date", {
                 defaultDate: new Date(),
                 dateFormat: "Y-m-d",
                 // minDate: "today",
@@ -251,16 +170,17 @@
 
             // console.log(formatComma(10000000));
  
-            $('#po_no').change(function(){
-                const getpono = $(this).val();
+            $('#rg_no').change(function(){
+                const getrgno = $(this).val();
                 $('#productTable tbody').html('');
 
+                console.log(getrgno);
                 $.ajax({
-                    url: `/receive_po`,
+                    url: `/receive_r008`,
                     type: 'POST',
                     data: {
                         _token: token,
-                        purchaseno: getpono,
+                        rg_no: getrgno,
                         id: recieve_id,
                     },
                     dataType:"json",
@@ -268,89 +188,99 @@
                         console.log(response);
                         let data = response.data;
 
-                        let document = data.document;
-                        let products = data.products;
+                        let rg_document = data.rg_document;
+                        let rg_products = data.rg_products;
+                        let statuses = data.statuses;
 
-                        $('#vendor_code').val(document.vendor_code);
-                        $('#vendor_name').val(document.vendor_name);
-                        $('#purchasedate').val(document.purchasedate);
-                        // $('#total_amount').text(formatComma(document.total_amount));
-                        $('#remark').val(document.remark);
+                        $('#vendor_code').val(rg_document.vendor_code);
+                        $('#vendor_name').val(rg_document.vendor.vendor_name);
+                        $('#invoice_no').val(rg_document.delivery_note);
+                        $('#po_no').val(rg_document.po_no);
 
 
-                        products.forEach((product,idx) => {
+
+                        rg_products.forEach((product,idx) => {
                             let html = `
                                 <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
                                     <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
-                                    <td class="py-1.5 px-3 text-center">
-                                        <input name="product_code[]" type="checkbox" id="pickup_${product.bar_code}" class="receive_barcode accent-amber-500 rounded" value="${product.bar_code}">
+                                    <td class="py-1.5 px-3">
+                                        <select id="status_ids" name="status_ids[]" class="w-[200px] h-6 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                                            <option value="" disabled selected>--Choose Status:--</option>
+                                            ${
+                                                statuses.map((status)=>{
+                                                    return `
+                                                    <option value="${status.subjectr008_id}">${status.subjectr008_name}</option>
+                                                    `
+                                                })
+                                            }
+                                        </select>
                                     </td>
-                                    <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.bar_code}</td>
-                                    <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">${product.unit}</span></td>
-                                    <td class="py-1.5 px-3 text-right font-medium">${product.remaining_qty}</td>
+                                    <td class="py-1.5 px-3 text-center hidden">
+                                        <input name="product_code[]" type="checkbox" id="pickup_${product.product_code}" class="receive_barcode accent-amber-500 rounded" value="${product.product_code}" checked>
+                                    </td>
+                                    <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.product_code}</td>
+                                    <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.product_name}</td>
+                                    <td class="py-1.5 px-3 text-right font-medium">
+                                        ${product.po_qty}
+                                        <input type="hidden" name="gr_qty[]" value="${product.po_qty}" />
+                                    </td>
                                     <td class="py-1.5 px-3 text-right">
-                                        <div id="gr_view_${product.bar_code}" class="w-24  ms-auto">
-                                            <span>${product.remaining_qty}<span>
+                                        <div id="physical_view_${product.product_code}" class="w-24  ms-auto">
+                                            <span>${product.gr_qty}<span>
                                         </div>
-
-                                        <div id="gr_edit_${product.bar_code}" hidden class="w-24  ms-auto">
-                                            <input type="number" name="gr_qty[]" id="gr_qty_${product.bar_code}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.remaining_qty}">
-
-                                            <input name="product_name[]" type="hidden" value="${product.supplier_name}" disabled />
-                                            <input name="unit[]" type="hidden" value="${product.unit}" disabled />
-                                            <input name="po_qty[]" type="hidden" value="${product.remaining_qty}" disabled />
-                                            <input name="price[]" type="hidden" value="${product.price}" disabled />
-                                            <input name="amount[]" id="amount_${product.bar_code}_input" type="hidden" value="${product.amount}" disabled />
-                                            <input name="product_id[]" type="hidden" value="${product.id}" disabled />
+                                        <div id="physical_edit_${product.product_code}" hiddens class="w-24  ms-auto">
+                                            <input type="hidden" name="physical_qty[]" id="gr_qty_${product.gr_qty}" class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.gr_qty}">
                                         </div>
                                     </td>
-                                    <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
-                                    <td id="amount_${product.bar_code}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.amount)}</td>
+                                    <td class="py-1.5 px-3 text-right font-medium">
+                                        ${Math.abs(product.gr_qty - product.po_qty)}
+                                        <input type="hidden" name="diff[]" value="${product.gr_qty - product.po_qty}" />
+                                    </td>
                                 </tr>
                             `;
                             $('#productTable tbody').append(html);
 
-                            $(`#gr_qty_${product.bar_code}`).on('input', function() {
+                            // $(`#gr_qty_${product.bar_code}`).on('input', function() {
 
-                                var qty = parseInt($(this).val()) || 0;
-                                var poqty = parseInt(product.remaining_qty);
-                                var price = product.price;
-                                var amount = qty * price;
-                                console.log(amount);
+                            //     var qty = parseInt($(this).val()) || 0;
+                            //     var poqty = parseInt(product.remaining_qty);
+                            //     var price = product.price;
+                            //     var amount = qty * price;
+                            //     console.log(amount);
 
-                                if(qty > poqty){
-                                    $(this).val(poqty)
-                                    $(`#amount_${product.bar_code}`).html(formatComma(product.amount));
-                                    $(`#amount_${product.bar_code}_input`).val(product.amount);
-                                }else{
-                                    $(`#amount_${product.bar_code}`).html(formatComma(amount));
-                                    $(`#amount_${product.bar_code}_input`).val(amount);
-                                }
-                                calculateTotalAmount()
-                            });
+                            //     if(qty > poqty){
+                            //         $(this).val(poqty)
+                            //         $(`#amount_${product.bar_code}`).html(formatComma(product.amount));
+                            //         $(`#amount_${product.bar_code}_input`).val(product.amount);
+                            //     }else{
+                            //         $(`#amount_${product.bar_code}`).html(formatComma(amount));
+                            //         $(`#amount_${product.bar_code}_input`).val(amount);
+                            //     }
+                            //     calculateTotalAmount()
+                            // });
 
-                            $(`#pickup_${product.bar_code}`).change(function(){
-                                var isChecked = $(this).prop("checked") === true ? true : false;
+                            // $(`#pickup_${product.bar_code}`).change(function(){
+                            //     var isChecked = $(this).prop("checked") === true ? true : false;
 
-                                let grView = $(`#gr_view_${product.bar_code}`);
-                                let grEdit = $(`#gr_edit_${product.bar_code}`);
-                                let qtyInput = $(`#gr_qty_${product.bar_code}`);
+                            //     let grView = $(`#gr_view_${product.bar_code}`);
+                            //     let grEdit = $(`#gr_edit_${product.bar_code}`);
+                            //     let qtyInput = $(`#gr_qty_${product.bar_code}`);
 
-                                if(isChecked){
-                                    grView.hide();
-                                    grEdit.show();
+                            //     if(isChecked){
+                            //         grView.hide();
+                            //         grEdit.show();
 
-                                    qtyInput.prop('disabled', false);
-                                    grEdit.find('input').prop('disabled',false);
-                                }else{
-                                    grView.show();
-                                    grEdit.hide();
+                            //         qtyInput.prop('disabled', false);
+                            //         grEdit.find('input').prop('disabled',false);
+                            //     }else{
+                            //         grView.show();
+                            //         grEdit.hide();
 
-                                    qtyInput.prop('disabled', true);
-                                    grEdit.find('input').prop('disabled',true);
-                                }
-                                calculateTotalAmount();
-                            });
+                            //         qtyInput.prop('disabled', true);
+                            //         grEdit.find('input').prop('disabled',true);
+                            //     }
+                            //     calculateTotalAmount();
+                            // });
                         });
               
 
@@ -359,6 +289,9 @@
                 })
 
             });
+            @if(isset($rg_no))
+            $('#rg_no').trigger('change');
+            @endif
 
             $('#receive_all').change(function () {
 
@@ -373,7 +306,7 @@
             function validateForm() {
 
                 let deliveryNote = $('[name="delivery_note"]').val().trim();
-                let deliveryDate = $('[name="delivery_date"]').val();
+                let deliveryDate = $('[name="document_date"]').val();
                 let shipBy = $('[name="ship_by"]').val();
                 let receiveType = $('[name="receive_type"]').val();
                 let receive_barcodes_input =  $('.receive_barcode:checked');
@@ -391,7 +324,7 @@
                 }
 
                 if(deliveryDate === ''){
-                    $('#delivery_date_error').text('Delivery Date Required');
+                    $('#document_date_error').text('Delivery Date Required');
                     isValid = false;
                 }
           
@@ -459,16 +392,16 @@
             }
 
             let isSubmitting = false;
-            $('#rg_form').submit(function(e){
+            $('#r008_form').submit(function(e){
 
                 e.preventDefault();
                 if (isSubmitting) return;
 
-                if(validateForm() || false){
+                if(true || validateForm()){
 
                     Swal.fire({
                         icon: "question",
-                        text: "Are you sure to save RG to ERP?",
+                        text: "Are you sure to save R008?", // to Defective Product 246
                         showCancelButton: true,
                     }).then((result) => {
                         if(result.isConfirmed)
@@ -485,33 +418,33 @@
                             // console.log($('#rg_form').serialize());
 
                             $.ajax({
-                                url:"{{ route('save_rg') }}",
+                                url:"{{ route('r008s.store') }}",
                                 type:"POST",
                                 dataType: "json",
-                                data:$("#rg_form").serialize(),
+                                data:$("#r008_form").serialize(),
                                 success:function(response){
                                     console.log(response);
 
                                     const data = response;
 
-                                    if(data.success){
-                                        Swal.fire({
-                                            icon: "success",
-                                            title: "RG saved successfully!",
-                                            text: data.message,
-                                        });
-                                        // window.location.href = ''
+                                    // if(data.success){
+                                    //     Swal.fire({
+                                    //         icon: "success",
+                                    //         title: "RG saved successfully!",
+                                    //         text: data.message,
+                                    //     });
+                                    //     // window.location.href = ''
 
-                                    }else{
-                                        Swal.fire({
-                                            icon: "error",
-                                            title: "RG Save Error!!",
-                                            text: "Something went wrong while saving the RG.",
-                                        });
+                                    // }else{
+                                    //     Swal.fire({
+                                    //         icon: "error",
+                                    //         title: "RG Save Error!!",
+                                    //         text: "Something went wrong while saving the RG.",
+                                    //     });
 
-                                        isSubmitting = false;
-                                        $(".fullloader").addClass("hidden");
-                                    }
+                                    //     isSubmitting = false;
+                                    //     $(".fullloader").addClass("hidden");
+                                    // }
                                 },
                                 error:function(response){
                                     console.log("Error: ",response);

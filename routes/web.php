@@ -69,14 +69,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('receive_goods/{id}/pull_rg','pull_rg')->name('pull_rg');
             route::get('receive_goods/rg_documents/list','rg_documents')->name('rg_documents');
             route::get('receive_goods/rg_documents/{id}','detail_rg')->name('detail_rg');
-
+            route::get('receive_goods/rg_documents/{id}/r008','r008_rg')->name('r008_rg');
         });
 
         Route::group(['controller'=>R008SController::class],function(){
             // Route::resource("r008s",StudentsController::class);
 
+            
             Route::get('r008s/create','create')->name('r008s.create');
-
+            Route::post('r008s','store')->name('r008s.store');
         });
 
         route::group(['controller'=>ReportController::class],function(){
@@ -136,6 +137,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('receive_po','receive_po')->name('receive_po');
             route::post('save_rg','save_rg')->name('save_rg');
 
+            route::post('receive_r008','receive_r008')->name('receive_r008');
         });
 
         route::group(['controller'=>AdminController::class],function(){
