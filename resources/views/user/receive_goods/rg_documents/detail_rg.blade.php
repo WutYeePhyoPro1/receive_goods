@@ -116,7 +116,7 @@
                                     <input name="r008" type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded" {{ $receive_good_document->r008 ? 'checked' : '' }}> R008
                                 </label>
                                 <div>
-                                    <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 text-center cursor-not-allowed" value="" title="">
+                                    <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 text-center cursor-not-allowed" value="{{ $receive_good_document->receive_good_files->where('name','R008')->first()?->file }}" title="">
                                 </div>
                             </div>
                             <div class="flex items-center md:justify-start gap-2">
@@ -186,7 +186,7 @@
                     <button type="button" class="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[12px] font-medium"
                     onclick="window.location.href='{{ route('rg_documents') }}'"
                     >
-                        Cancel
+                        Back
                     </button>
                          {{--
                     <button type="submit" id="saveBtn" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm">
@@ -194,12 +194,14 @@
                     </button>
                      --}}
 
+                     @if($receive_good_document->r008 && !($receive_good_document->receive_good_files->where('name','R008')->first()?->file))
                     <button type="button" id="r008Btn" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm"
                         {{-- onClick="window.location.href = '{{ route('r008_rg',$receive_good_document->id) }}';" --}}
                             onClick="window.open('{{ route('r008_rg', $receive_good_document->id) }}', '_blank')"
                     >
                         R008
                     </button>
+                    @endif
 
                 </div>
             </div>
@@ -494,7 +496,13 @@
                                             title: "RG saved successfully!",
                                             text: data.message,
                                         });
-                                        // window.location.href = ''
+                                        
+                                        const receive_good_document = data.data;
+                                        if(receive_good_document.r008){
+                                            // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
+                                        }else{
+                                            window.location.href="{{ route('rg_documents') }}"
+                                        }
 
                                     }else{
                                         Swal.fire({

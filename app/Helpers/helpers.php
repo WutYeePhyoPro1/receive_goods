@@ -1,17 +1,18 @@
 <?php
 
-use Carbon\Carbon;
 use App\Models\Branch;
 use App\Models\CarGate;
-use App\Models\Product;
 use App\Models\Document;
-use App\Models\Tracking;
-use App\Models\ScanTrack;
 use App\Models\DriverInfo;
-use App\Models\UserBranch;
-use App\Models\RemoveTrack;
-use App\Models\UploadImage;
 use App\Models\GoodsReceive;
+use App\Models\Product;
+use App\Models\ReceiveGoodDocument;
+use App\Models\RemoveTrack;
+use App\Models\ScanTrack;
+use App\Models\Tracking;
+use App\Models\UploadImage;
+use App\Models\UserBranch;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
     function getAuth()
@@ -535,7 +536,8 @@ use Illuminate\Support\Facades\DB;
 
         $document = $receive_good_document->document;
         $creditday = $document->creditday;
-        $remark = $document->remark;
+        $portal_mark = 'RGN-' . str_pad($receive_good_document->id, 4, '0', STR_PAD_LEFT); // marked portal receive good document id in ERP
+        $remark = $document->remark . "/(PORTAL)$portal_mark";
         $purchase_date = $document->purchasedate;
         
 
@@ -665,4 +667,168 @@ use Illuminate\Support\Facades\DB;
         ");
 
         return $result;
+    }
+
+    function generateR008Header($data,$r008_document){
+        $conn = DB::connection('defective_product');
+
+        $vendor_code = $r008_document->vendor_code;
+        $r_poinvioce = $r008_document->rg_no;
+        
+        $rg_no = $r008_document->rg_no;
+        $receive_good_document = ReceiveGoodDocument::with('vendor')
+                                ->whereHas('receive_good_files', function ($q) use ($rg_no) {
+                                    $q->where('file', $rg_no);
+                                })
+                                ->first();
+        $r_invioce_tax = $receive_good_document->delivery_note;
+        
+
+        $portal_mark = 'RGN-' . str_pad($r008_document->id, 4, '0', STR_PAD_LEFT); // marked portal receive good document id in ERP
+        $remark = $r008_document->remark . "/(PORTAL)$portal_mark";
+        $r_usersave = $r008_document->user->employee_code;
+        $r_brchcode = $r008_document->branch->branch_code;
+        $truck_con_no = $r008_document->truck_container_no;
+        $product_type = $r008_document->product_type;
+
+
+        $result = $conn->select("
+            INSERT INTO public.r008_branch_reciverhd (
+                r_docuno, 
+                r_doc_type, 
+                r_status, 
+                vendorcode, 
+                r_poinvioce, 
+                r_invioce_tax, 
+                remark, 
+                r_usersave, 
+                r_brchcode, 
+                r_docudate, 
+                truck_con_no, 
+                product_type
+            )
+            SELECT 
+                (
+                    CASE
+                        
+                        WHEN (
+                            SELECT COUNT(r_docuno) 
+                            FROM public.r008_branch_reciverhd
+                            WHERE r_docudate::date = NOW()::date
+                        ) = 0 THEN 
+                            'R008RG' || 
+                            COALESCE(
+                                (
+                                    SELECT branch_short_name 
+                                    FROM dblink(
+                                        'dbname=pro1208 host=192.168.2.208 user=superuser password=_p8dLtH_doWA3E&A6-Oj',
+                                        'SELECT branch_short_name FROM master_data.master_branch WHERE branch_code = ''$r_brchcode'''
+                                    ) AS remote_data(branch_short_name TEXT)
+                                ), 
+                                'LAN1' 
+                            ) ||
+                            TO_CHAR(NOW(), 'YYMMDD') || '-0001'
+                        
+                        
+                        ELSE (
+                            SELECT 
+                                'R008RG' || 
+                                COALESCE(
+                                    (
+                                        SELECT branch_short_name 
+                                        FROM dblink(
+                                            'dbname=pro1208 host=192.168.2.208 user=superuser password=_p8dLtH_doWA3E&A6-Oj',
+                                            'SELECT branch_short_name FROM master_data.master_branch WHERE branch_code = ''$r_brchcode'''
+                                        ) AS remote_data(branch_short_name TEXT)
+                                    ), 
+                                    'LAN1'
+                                ) ||
+                                TO_CHAR(NOW(), 'YYMMDD') || '-' ||
+                                LPAD(
+                                    (COALESCE(
+                                        RIGHT(sub.max_doc, 4)::INTEGER, 
+                                        (SELECT COALESCE(MAX(RIGHT(r_docuno, 4)::INTEGER), 0) FROM public.r008_branch_reciverhd WHERE r_docudate::date = NOW()::date)
+                                    ) + 1)::TEXT, 
+                                    4, '0'
+                                )
+                            FROM (
+                                SELECT max_doc 
+                                FROM dblink(
+                                    'dbname=pro1208 host=192.168.2.208 user=superuser password=_p8dLtH_doWA3E&A6-Oj',
+                                    'SELECT MAX(receive_no) FROM purchaseorder.receive_hd WHERE receive_date::date = NOW()::date'
+                                ) AS remote_data(max_doc TEXT)
+                            ) sub
+                        )
+                    END 
+                ),
+                2,                        -- r_doc_type(fix)
+                1,                        -- r_status (fix)
+                '$vendor_code',             -- vendorcode (From RG)
+                '$r_poinvioce',    -- r_poinvioce (From RG)
+                '$r_invioce_tax',                       -- r_invioce_tax (From RG- delivery Note)
+                '$remark',                       -- remark(From R008 - remark)
+                '$r_usersave',             		  -- r_usersave (portal)
+                '$r_brchcode',                 -- r_brchcode
+                NOW(),                    -- r_docudate
+                '$truck_con_no',                   -- truck_con_no 
+                '$product_type'                  -- product_type (User's Choice)
+                RETURNING *;
+        ");
+        // dd($result);
+        return $result;
+    }
+
+
+    function generateR008Detail($product_r008){
+        $conn = DB::connection('defective_product');
+
+        $r_doc_id = $product_r008->r_doc_id;
+        $r8item_id = $product_r008->list_no;
+        $r8itembranch = $product_r008->branch_code;
+        $goodcode = $product_r008->product_code;
+        $goodname = $product_r008->product_name;
+        $amountinbill = $product_r008->gr_qty;
+        $amountcount = $product_r008->physical_qty;
+        $amountdifference = $product_r008->diff;
+        $status = $product_r008->status_id;
+        $list_no = $product_r008->list_no;
+
+
+        $result = $conn->select("
+            INSERT INTO public.r008_branch_receivedt(
+                r_doc_id, 
+                r8item_id,
+                r8date, 
+                r8itembranch, 
+                goodcode, 
+                goodname, 
+                amountinbill, 
+                amountcount, 
+                amountdifference, 
+                amountdamaged, 
+                attachs_id,   
+                status, 
+                list_no,
+                amountsmalldamage
+            )
+            SELECT 
+                
+                '$r_doc_id',   --- Header က ID ကိုယူ  
+                $r8item_id,    --- r8item_id (same , list_no)
+                NOW() ,  --- r8date                                                           
+                '$r8itembranch' , ---r8itembranch                                                         
+                '$goodcode', ---goodcode                                                     
+                '$goodname',  ---goodname                       
+                $amountinbill ,  ---amountinbill    (From ref RG )                                                          
+                $amountcount ,  ---amountcount      (From ref RG / actual)                                                          
+                $amountdifference ,  ---amountdifference  (From ref RG / diff)                                                        
+                0 ,  ---amountdamaged                                                                
+                0 ,  ---attachs_id                                                                                                                               
+                $status ,  ---status (Fix)                                                                      
+                $list_no ,  ---list_no                                                                      
+                0 ;  ---amountsmalldamage
+        ");
+
+        return $result;
+
     }

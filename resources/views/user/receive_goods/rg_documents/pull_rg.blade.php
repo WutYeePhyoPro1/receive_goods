@@ -201,7 +201,7 @@
                     <button type="button" class="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[12px] font-medium"
                     onclick="window.location.href='{{ route('receive_goods', $good_receive->id) }}'"
                     >
-                        Cancel
+                        Back
                     </button>
 
                     <button type="submit" id="saveBtn" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm">
@@ -501,7 +501,14 @@
                                             title: "RG saved successfully!",
                                             text: data.message,
                                         });
-                                        // window.location.href = ''
+                                        
+                                        const receive_good_document = data.data;
+                                        if(receive_good_document.r008){
+                                            // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
+                                            window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}/r008`
+                                        }else{
+                                            window.location.href="{{ route('rg_documents') }}"
+                                        }
 
                                     }else{
                                         Swal.fire({

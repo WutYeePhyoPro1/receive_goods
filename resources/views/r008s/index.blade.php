@@ -1,0 +1,184 @@
+@extends('layout.layout')
+
+@section('content')
+
+    <div class="md:w-[100%] mx-auto px-4 pt-4 pb-10">
+        <!-- PAGE CARD -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+
+            <!-- HEADER -->
+            <div class="px-5 py-1 border-b border-slate-100 flex items-center justify-center">
+                <div class="flex items-center gap-2">
+                    <i class='bx bx-list-ul text-amber-500 text-xl'></i>
+                    <h2 class="text-sm font-bold text-slate-700 tracking-wide mb-0">
+                        R008 Documents
+                    </h2>
+                </div>
+            </div>
+
+            <!-- SEARCH FILTER -->
+            <div class="p-4 border-b border-slate-100 bg-slate-50/40">
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+
+                    <!-- Document No -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                            Document No (RG | PO)
+                        </label>
+
+                        <input
+                            type="text"
+                            placeholder="Search Document..."
+                            class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
+                                focus:outline-none focus:ring-2 focus:ring-amber-400/30
+                                focus:border-amber-500 bg-white"
+                        >
+                    </div>
+
+                    <!-- From Date -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                            From Date
+                        </label>
+
+                        <input
+                            type="date"
+                            class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
+                                focus:outline-none focus:ring-2 focus:ring-amber-400/30
+                                focus:border-amber-500 bg-white"
+                        >
+                    </div>
+
+                    <!-- To Date -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                            To Date
+                        </label>
+
+                        <input
+                            type="date"
+                            class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
+                                focus:outline-none focus:ring-2 focus:ring-amber-400/30
+                                focus:border-amber-500 bg-white"
+                        >
+                    </div>
+
+                    <!-- Branch -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                            Branch
+                        </label>
+
+                        <div class="flex gap-2">
+
+                            <input
+                                type="text"
+                                readonly
+                                value="User Branch"
+                                class="w-full h-9 px-3 bg-slate-100 border border-slate-300
+                                    rounded-lg text-[13px] text-slate-500 cursor-not-allowed"
+                            >
+
+                            <button
+                                type="button"
+                                class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-amber-600
+                                    text-white text-[12px] font-semibold shadow-sm
+                                    whitespace-nowrap transition"
+                            >
+                                Search
+                            </button>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- TABLE -->
+            <div class="overflow-x-auto">
+
+                <table class="w-full text-sm border-collapse">
+
+                    <!-- TABLE HEAD -->
+                    <thead class="bg-slate-100 border-b border-slate-200">
+
+                        <tr class="text-[11px] uppercase tracking-wider text-slate-600 whitespace-nowrap">
+
+                            <th class="px-4 py-3 text-left font-bold">No</th>
+
+                            <th class="px-4 py-3 text-left font-bold">
+                                Doc. No
+                            </th>
+
+                            <th class="px-4 py-3 text-left font-bold">
+                                Doc. Date
+                            </th>
+
+                            <th class="px-4 py-3 text-left font-bold">
+                                Vendor Code
+                            </th>
+
+                            <th class="px-4 py-3 text-left font-bold">
+                                Doc RG No.
+                            </th>
+
+                            <th class="px-4 py-3 text-left font-bold">
+                                Invoice No
+                            </th>
+                        </tr>
+
+                    </thead>
+
+                    <!-- TABLE BODY -->
+                    <tbody class="divide-y divide-slate-100 text-[13px] text-slate-700">
+                        @foreach ($data as $idx=>$item)
+                        <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer"  onClick='window.location.href = "{{ route("r008s.show",$item->id) }}"' >
+                            <td class="px-4 py-3 font-medium text-slate-500">
+                                {{$idx + $data->firstItem()}}
+                            </td>
+
+                            <td class="px-4 py-3 font-semibold text-blue-700">
+                                {{ $item->r008_files->first()->file }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ $item->created_at->format("Y-m-d") }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ $item->vendor_code }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ $item->rg_no }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ $item->receive_good_document()->delivery_note }}
+                            </td>
+
+                        </tr>
+                        @endforeach
+                       
+
+                    </tbody>
+
+                </table>
+                {{-- $data->links('pagination::tailwind') --}}
+                {{ $data->links('vendors.pagination.custom-rg') }}
+            </div>
+        </div>
+
+    </div>
+    @push('js')
+        <script type="text/javascript">
+           
+        </script>
+    @endpush
+@endsection
+
+
+
+<!-- php artisan vendor:publish --tag=laravel-pagination -->

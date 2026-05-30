@@ -13,7 +13,7 @@
                 <div class="p-4">
                     <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
                         <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-                            <i class='bx bx-receipt text-amber-500 text-base'></i> Create R008
+                            <i class='bx bx-receipt text-amber-500 text-base'></i> Show R008
                         </h2>
                     </div>
 
@@ -23,22 +23,22 @@
                         <!-- Row 1 -->
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Document Date <span class="text-red-600">*</span> <span id="document_date_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <input type="date" name="document_date" id="document_date" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500">
+                            <input type="date" name="document_date" id="document_date" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="{{ $r008_document->document_date }}">
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Vendor Code <span class="text-red-600">*</span></label>
-                            <input type="text" name="vendor_code" readonly id="vendor_code" class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 cursor-not-allowed" placeholder="VEN-999999" value="{{-- $good_receive->vendor_name --}}">
+                            <input type="text" name="vendor_code" readonly id="vendor_code" class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 cursor-not-allowed" placeholder="VEN-999999" value="{{ $r008_document->vendor_code }}">
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Vendor Name <span class="text-red-600">*</span></label>
-                            <input type="text" name="vendor_name" readonly id="vendor_name" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Vendor Name" value="{{-- $good_receive->vendor_name --}}">
+                            <input type="text" name="vendor_name" readonly id="vendor_name" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Vendor Name" value="{{ $r008_document->vendor->vendor_name }}">
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Product Type <span class="text-red-600">*</span> <span id="product_type_error" class="text-red-500 text-[10px] ml-1"></span></label>
                             <select name="product_type" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                 <!-- <option value="">Choose a remark type</option> -->
-                                    <option value="Local">Local</option>
-                                    <option value="Import">Import</option>
+                                <option value="Local" {{ $r008_document->product_type == 'Local' ? 'selected' : '' }}>Local</option>
+                                <option value="Import"  {{ $r008_document->product_type == 'Import' ? 'selected' : '' }}>Import</option>
                             </select>
                         </div>
 
@@ -48,30 +48,42 @@
                             <label class="block font-medium text-slate-500 mb-0.5">Receive Doc. No <span class="text-red-600">*</span><span id="rg_no_error" class="text-red-500 text-[10px] ml-1"></span></label>
                             <select id="rg_no" name="rg_no" class="w-full h-8 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                 {{-- @if(!isset($rg_no)) --}}
-                                <option value="" disabled selected>Choose RG No:</option>
+                                <!-- <option value="" disabled selected>Choose RG No:</option> -->
                                 {{-- @endif --}}
-                                @if(isset($rg_no))
-                                    <option value="{{ $rg_no }}">{{ $rg_no }}</option>
-                                @endif
+                                <option value="{{ $r008_document->rg_no }}">{{ $r008_document->rg_no }}</option>
                             </select>
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Invoice No<span class="text-red-600">*</span></label>
-                            <input  type="text"  name="invoice_no" readonly id="invoice_no"class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed">
+                            <input  type="text"  name="invoice_no" readonly id="invoice_no"class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" value="{{ $r008_document->receive_good_document()->delivery_note }}">
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">PO No<span class="text-red-600">*</span></label>
-                            <input  type="text"  name="po_no" readonly id="po_no"class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed">
+                            <input  type="text"  name="po_no" readonly id="po_no"class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" value="{{ $r008_document->receive_good_document()->po_no }}">
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Truck/Container No. <span class="text-red-600"></span> <span id="truck_container_no_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <input type="text" name="truck_container_no" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="">
+                            <input type="text" name="truck_container_no" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="" value="{{ $r008_document->truck_container_no }}">
                         </div>
 
                         <div class="col-span-4">
                             <label class="block font-medium text-slate-500 mb-0.5">Remark <span class="text-red-600"></span></label>
-                            <textarea name="remark" rows="3" class="w-full h-auto px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder=""></textarea>
+                            <textarea name="remark" rows="3" class="w-full h-auto px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="">{{ $r008_document->remark }}</textarea>
                         </div>
+
+                        <div>
+                            <div class="flex items-center md:justify-start gap-2">
+                                <span class="text-sm font-medium text-slate-600 whitespace-nowrap">
+                                    R008 No:
+                                </span>
+
+                                <input type="text"
+                                    readonly
+                                    value="{{ $r008_document->r008_files->first()->file }}"
+                                    class="h-9 w-[100%] px-3 rounded-lg border border-blue-300 bg-blue-100 text-blue-700 font-bold tracking-wide focus:outline-none">
+                            </div>
+                        </div>
+
 
 
 
@@ -117,14 +129,16 @@
                 <div class="flex items-center gap-2 p-4">
 
                     <button type="button" class="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[12px] font-medium"
-                    onclick="window.location.href='{{-- route('receive_goods', $good_receive->id) --}}'"
+                    onclick="window.location.href='{{ route('r008s.index') }}'"
                     >
                         Back
                     </button>
 
+                    {{-- 
                     <button type="submit" id="saveBtn" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm">
                         Save
                     </button>
+                    --}}
 
                 </div>
             </div>
@@ -148,7 +162,7 @@
             });
 
             flatpickr("#document_date", {
-                defaultDate: new Date(),
+                // defaultDate: new Date(),
                 dateFormat: "Y-m-d",
                 // minDate: "today",
                 maxDate: new Date().fp_incr(30)
@@ -463,6 +477,58 @@
 
             });
 
+            (function showProducts(){
+                const products = @json($r008_document->r008_products);
+                const statuses = @json($statuses)
+
+                products.forEach((product,idx) => {
+
+                    let html = `
+                        <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
+                            <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
+                            <td class="py-1.5 px-3">
+                                <select id="status_ids" name="status_ids[]" class="status_ids w-[200px] h-6 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                                    <option value="" disabled selected>--Choose Status:--</option>
+                                    ${
+                                        statuses.map((status)=>{
+                                            return `
+                                            <option value="${status.subjectr008_id}" ${ status.subjectr008_id == product.status_id ? 'selected' : '' }>${status.subjectr008_name}</option>
+                                            `
+                                        })
+                                    }
+                                </select>
+                            </td>
+                            <td class="py-1.5 px-3 text-center hidden">
+                                <input name="product_code[]" type="checkbox" id="pickup_${product.product_code}" class="receive_barcode accent-amber-500 rounded" value="${product.product_code}" checked>
+                            </td>
+                            <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.product_code}</td>
+                            <td class="py-1.5 px-3 font-mono font-medium text-slate-700">
+                                ${product.product_name}
+                                <input type="hidden" name="product_name[]" value="${product.product_name}" />
+                            </td>
+                            <td class="py-1.5 px-3 text-right font-medium">
+                                ${product.gr_qty}
+                                <input type="hidden" name="gr_qty[]" value="${product.gr_qty}" />
+                            </td>
+                            <td class="py-1.5 px-3 text-right">
+                                <div id="physical_view_${product.product_code}" class="w-24  ms-auto">
+                                    <span>${product.physical_qty}<span>
+                                </div>
+                                <div id="physical_edit_${product.product_code}" hiddens class="w-24  ms-auto">
+                                    <input type="hidden" name="physical_qty[]" id="gr_qty_${product.physical_qty}" class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.gr_qty}">
+                                </div>
+                            </td>
+                            <td class="py-1.5 px-3 text-right font-medium">
+                                ${Math.abs(product.physical_qty - product.gr_qty)}
+                                <input type="hidden" name="diff[]" value="${product.physical_qty - product.gr_qty}" />
+                            </td>
+                        </tr>
+                    `;
+                    $('#productTable tbody').append(html);
+
+
+                });
+            })()
 
            
         </script>

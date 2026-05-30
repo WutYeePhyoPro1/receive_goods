@@ -667,11 +667,15 @@ class ActionController extends Controller
         ");
         // dd($statuses);
 
+        $rg_products = $receive_good_document
+        ->receive_good_products()
+        ->whereColumn('po_qty', '!=', 'gr_qty')
+        ->get();
         return response()->json([
             'message' => 'success',
             'data' => [
                 'rg_document' => $receive_good_document,
-                'rg_products' => $receive_good_document->receive_good_products,
+                'rg_products' => $rg_products,
                 'statuses' => $statuses
             ]
         ]);
