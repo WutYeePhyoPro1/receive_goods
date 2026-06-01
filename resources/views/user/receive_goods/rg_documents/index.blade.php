@@ -116,6 +116,7 @@
                                 PO Doc No
                             </th>
 
+
                             <th class="px-4 py-3 text-left font-bold">
                                 Invoice No
                             </th>
@@ -126,6 +127,10 @@
 
                             <th class="px-4 py-3 text-left font-bold">
                                 Vendor Name
+                            </th>
+
+                            <th class="px-4 py-3 text-left font-bold">
+                                R008
                             </th>
 
                         </tr>
@@ -216,6 +221,11 @@
 
                                 <td class="px-4 py-3">
                                     {{ $item->vendor->vendor_name }}
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    {{-- $item->r008 --}}
+                                    <input name="r008" type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded" {{ $item->r008 ? 'checked' : '' }}>
                                 </td>
                             </tr>
 

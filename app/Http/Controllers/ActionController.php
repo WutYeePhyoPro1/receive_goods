@@ -669,7 +669,7 @@ class ActionController extends Controller
 
         $rg_products = $receive_good_document
         ->receive_good_products()
-        ->whereColumn('po_qty', '!=', 'gr_qty')
+        // ->whereColumn('po_qty', '!=', 'gr_qty')
         ->get();
         return response()->json([
             'message' => 'success',

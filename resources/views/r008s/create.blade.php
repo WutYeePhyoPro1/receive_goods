@@ -97,6 +97,7 @@
                             <!-- Frozen Table Header -->
                             <thead class="sticky top-0 bg-slate-100 z-10 border-b border-slate-200 shadow-sm">
                                 <tr class="text-slate-600 font-semibold uppercase text-[11px] tracking-wider whitespace-nowrap">
+                                    <th class="py-2 px-3 w-auto">Action</th>
                                     <th class="py-2 px-3 w-auto">No</th>
                                     <th class="py-2 px-3 w-auto text-center">Status</th>
                                     <th class="py-2 px-3 w-auto">Product Code</th>
@@ -202,6 +203,13 @@
                         rg_products.forEach((product,idx) => {
                             let html = `
                                 <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
+                                    <td class="py-1.5 px-3">
+                                        <button
+                                            type="button"
+                                            class="h-8 w-8 rounded-md border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 inline-flex items-center justify-center  removeRow">
+                                            <i class='bx bx-trash'></i>
+                                        </button>
+                                    </td>
                                     <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
                                     <td class="py-1.5 px-3">
                                         <select id="status_ids" name="status_ids[]" class="status_ids w-[200px] h-6 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
@@ -228,16 +236,16 @@
                                         <input type="hidden" name="gr_qty[]" value="${product.po_qty}" />
                                     </td>
                                     <td class="py-1.5 px-3 text-right">
-                                        <div id="physical_view_${product.product_code}" class="w-24  ms-auto">
+                                        <div id="physical_view_${product.product_code}" class="w-24  ms-auto hidden">
                                             <span>${product.gr_qty}<span>
                                         </div>
                                         <div id="physical_edit_${product.product_code}" hiddens class="w-24  ms-auto">
-                                            <input type="hidden" name="physical_qty[]" id="gr_qty_${product.gr_qty}" class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.gr_qty}">
+                                            <input type="type" name="physical_qty[]" id="physical_qty_${product.gr_qty}" class="physical_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.gr_qty}">
                                         </div>
                                     </td>
                                     <td class="py-1.5 px-3 text-right font-medium">
-                                        ${Math.abs(product.gr_qty - product.po_qty)}
-                                        <input type="hidden" name="diff[]" value="${product.gr_qty - product.po_qty}" />
+                                        <span id="diff_${product.product_code}" >${Math.abs(product.gr_qty - product.po_qty)}</span>
+                                        <input type="hidden" id="diff_input_${product.product_code}" name="diff[]" value="${product.gr_qty - product.po_qty}" />
                                     </td>
                                 </tr>
                             `;
@@ -284,9 +292,28 @@
                             //     }
                             //     calculateTotalAmount();
                             // });
-                        });
-              
 
+
+                            $('.physical_qty').on('input',function(){
+                                console.log('hay');
+                                var qty = parseInt($(this).val()) || 0;
+                                var rgqty = parseInt(product.po_qty);
+
+                                var diff = Math.abs(qty - rgqty);
+
+                                let diffView = $(`#diff_${product.product_code}`);
+                                let diffInput = $(`#diff_input_${product.product_code}`);
+
+                                diffView.text(diff);
+                                diffInput.val(diff);
+                            });
+                            
+
+                            $(document).on('click','.removeRow',function (e) {
+                                $(this).parent('td').parent('tr').remove();
+                            });
+              
+                        })
                     }
                     
                 })
@@ -462,7 +489,6 @@
                 }
 
             });
-
 
            
         </script>
