@@ -7,7 +7,7 @@
     <style>
         body{
             font-family: DejaVu Sans, sans-serif;
-            font-size:12px;
+            font-size:10px;
             color:#000;
         }
 
@@ -109,11 +109,11 @@
 {{-- Document Info --}}
 <table class="detail-table">
     <tr>
-        <td width="50%"><strong>To</strong></td>
-        <td width="50%">BJ DEVELOPMENT COMPANY LIMITED</td>
+        <td width="20%"><strong>To</strong></td>
+        <td width="40%">{{ $r008_document->vendor->vendor_name }}</td>
 
-        <td width="50%"><strong>Doc. Date</strong></td>
-        <td width="50%">29/05/2026</td>
+        <td width="20%"><strong>Doc. Date</strong></td>
+        <td width="20%">29/05/2026</td>
     </tr>
 
     <tr>
