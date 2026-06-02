@@ -7,6 +7,7 @@ use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
 use App\Models\Product;
 use App\Models\ReceiveGoodDocument;
+use App\Models\ReceiveGoodProduct;
 use App\Models\RemoveTrack;
 use App\Models\ScanTrack;
 use App\Models\Tracking;
@@ -616,6 +617,7 @@ use Illuminate\Support\Facades\DB;
                 RETURNING *;
             ");
 
+        // dd($result);
         return $result;
     }
 
@@ -831,4 +833,47 @@ use Illuminate\Support\Facades\DB;
 
         return $result;
 
+    }
+
+    function updatePOStatus($data, $receive_good_document){
+        $conn = DB::connection('master_product');
+
+        $po_no = $receive_good_document->po_no;
+        $document = $receive_good_document->document;
+        $products = Product::where('document_id',$document->id)->get();
+
+        $received_sums = ReceiveGoodProduct::selectRaw(
+                'product_code, SUM(gr_qty) as total_received'
+            )
+            ->groupBy('product_code')
+            ->pluck('total_received', 'product_code');
+
+        $isComplete = true;
+
+        foreach ($products as $product) {
+
+            $receivedQty = $received_sums[$product->bar_code] ?? 0;
+
+            if ($receivedQty < $product->qty) {
+                $isComplete = false;
+                break;
+            }
+        }
+
+        // dd($isComplete);
+        if($isComplete){
+            $modified = $conn->update("
+                update purchaseorder.po_purchaseorderhd set statusflag='F' where purchaseno='$po_no'; --- when PO full
+            ");
+
+            $document->update(['status'=>'Already RG']);
+        }else{
+            $modified = $conn->update("
+                update purchaseorder.po_purchaseorderhd set statusflag='P' where purchaseno='$po_no'; --- when PO Partial
+            ");
+            $document->update(['status'=>'PO Partial']);
+        }
+
+        return $modified;
+        
     }

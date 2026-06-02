@@ -7,6 +7,8 @@ use App\Models\R008DocumentFile;
 use App\Models\R008Product;
 use App\Models\ReceiveGoodDocument;
 use App\Models\ReceiveGoodFile;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,11 +17,42 @@ use Illuminate\Support\Facades\Log;
 class R008SController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
+        $docuno =  $request->form_doc_no;
+        $branch = $request->branch_id;
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
 
         $results = R008Document::query();
+        if ($docuno) {
+            $results = $results->where(function ($query) use ($docuno) {
+                    $query->where('po_no', 'like', '%' . $docuno . '%')
+                    ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
+                        $q->where('file', 'like', '%' . $docuno . '%');
+                    });
+                    // ->orWhere('remark', 'like', '%' . $docuno . '%');
+            });
+        }
+        
+        if ($branch) {
+            $results = $results->where(function ($q) use ($branch) {
+                $q->where('from_branch', $branch);
+            });
+        } 
 
+        if($start_date || $end_date){
+            $start_date = $request->start_date
+                        ? Carbon::parse($request->start_date)->startOfDay()
+                        : Carbon::createFromTimestamp(0)->startOfDay();
+            $end_date = $request->end_date
+                        ? Carbon::parse($request->end_date)->endOfDay()
+                        : Carbon::today()->endOfDay();
+            $results = $results->whereBetween('created_at', [$start_date , $end_date]);
+        }else{
+            $results->whereDate('created_at','>=',now()->subMonth());
+        }
 
         $data = $results->orderBy('created_at','desc')->paginate(15);
 
@@ -174,5 +207,22 @@ class R008SController extends Controller
         $receive_good_file->file = $r008_doc_no;
         $receive_good_file->save();
 
+    }
+
+    public function printPDF(string $id){
+        $r008_document = R008Document::find($id);
+        $conn = DB::connection('defective_product');
+        $statuses = $conn->select("
+            SELECT * 
+            FROM public.r008_subject
+            ORDER BY subjectr008_id ASC
+            LIMIT 100
+        ");
+
+        view()->share(['r008_document' => $r008_document, 'statuses' => $statuses]);
+        $pdf = Pdf::loadView('r008s.pdf');
+
+        // return $pdf->download('invoice.pdf');
+        return $pdf->stream('r008.pdf');
     }
 }

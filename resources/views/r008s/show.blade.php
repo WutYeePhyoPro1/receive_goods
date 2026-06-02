@@ -134,6 +134,12 @@
                         Back
                     </button>
 
+                    <button type="button" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm"
+                    onclick="window.location.href='{{ route('r008s.print-pdf', $r008_document->id) }}'"
+                    >
+                        Print PDF
+                    </button>
+
                     {{-- 
                     <button type="submit" id="saveBtn" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm">
                         Save

@@ -625,6 +625,10 @@ class ActionController extends Controller
             $this->rg_document($receive_good_document_id, $request);
             // End Auto RG To ERP
 
+            // Start PO Status Update
+            $updated_po_document_count = updatePOStatus($request->all(),$receive_good_document);
+            // End PO Status Update
+
             DB::commit();
             DB::connection('master_product')->commit();
 
@@ -681,6 +685,7 @@ class ActionController extends Controller
         ]);
     }
 
+
     public function rg_document($receive_good_document_id, Request $request){
         $receive_good_document = ReceiveGoodDocument::find($receive_good_document_id);
 
@@ -707,6 +712,9 @@ class ActionController extends Controller
         $receive_good_file->file = $rg_doc_no;
         $receive_good_file->save();
     }
+
+
+
 
     //edit scan
     public function edit_scan(Request $request)
@@ -1131,4 +1139,6 @@ class ActionController extends Controller
             ], 404);
         }
     }
+
+
 }

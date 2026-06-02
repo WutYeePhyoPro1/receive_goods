@@ -388,13 +388,44 @@ class userController extends Controller
     }
 
     public function rg_documents(Request $request){
-        // dd('hay');
+        $docuno =  $request->form_doc_no;
+        $branch = $request->branch_id;
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
 
         $results = ReceiveGoodDocument::query();
 
-        $data = $results->orderBy('created_at','desc')->paginate(15);
-        // dd($data);
+        if ($docuno) {
+            $results = $results->where(function ($query) use ($docuno) {
+                    $query->where('po_no', 'like', '%' . $docuno . '%')
+                    ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
+                        $q->where('file', 'like', '%' . $docuno . '%');
+                    });
+                    // ->orWhere('remark', 'like', '%' . $docuno . '%');
+            });
+        }
+        
+        if ($branch) {
+            $results = $results->where(function ($q) use ($branch) {
+                $q->where('from_branch', $branch);
+            });
+        } 
 
+        if($start_date || $end_date){
+            $start_date = $request->start_date
+                        ? Carbon::parse($request->start_date)->startOfDay()
+                        : Carbon::createFromTimestamp(0)->startOfDay();
+            $end_date = $request->end_date
+                        ? Carbon::parse($request->end_date)->endOfDay()
+                        : Carbon::today()->endOfDay();
+            $results = $results->whereBetween('created_at', [$start_date , $end_date]);
+        }else{
+            $results->whereDate('created_at','>=',now()->subMonth());
+        }
+            
+
+        $data = $results->orderBy('created_at','desc')->paginate(15);
         return view('user.receive_goods.rg_documents.index',compact("data"));
     }
 

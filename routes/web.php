@@ -80,6 +80,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('r008s','store')->name('r008s.store');
             Route::get('r008s/{id}','show')->name('r008s.show');
 
+            Route::get('r008s/{id}/print-pdf','printPDF')->name('r008s.print-pdf');
+
         });
 
         route::group(['controller'=>ReportController::class],function(){
