@@ -160,6 +160,7 @@ Class ActionRepository implements ActionRepositoryInterface
         $purchaseno = $data->purchaseno;
 
         $purchase_orders = collect($purchase_orders);
+        dd($purchase_orders);
 
         $creditday = $purchase_orders->first()?->creditday;
         $purchasedate = $purchase_orders->first()?->purchasedate;

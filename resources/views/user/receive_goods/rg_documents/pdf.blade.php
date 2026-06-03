@@ -27,7 +27,7 @@
         }
 
         .text-right {
-            text-align: right;
+            text-align: right !important;
         }
 
         .bold {
@@ -138,6 +138,12 @@
         .footer td {
             vertical-align: top;
         }
+
+        .user-label{
+            border-bottom: 1px dotted #000;
+            margin: 0px 20px;
+            padding: 0px 40px;
+        }
     </style>
 </head>
 <body>
@@ -193,45 +199,44 @@
 
     <tr>
         <td class="label">Vendor Code</td>
-        <td class="value">: H-0001</td>
+        <td class="value">: {{ $receive_good_document->vendor_code }}</td>
 
         <td class="label">Doc.No.</td>
-        <td class="value">: RGMDY1260529-0010</td>
+        <td class="value">: {{ $receive_good_document->receive_good_files->first()->file }}</td>
     </tr>
 
     <tr>
         <td class="label">Vendor Name</td>
-        <td class="value">: BJ DEVELOPMENT COMPANY LIMITED</td>
+        <td class="value">: {{ $receive_good_document->vendor->vendor_name }}</td>
 
         <td class="label">Doc.Date</td>
-        <td class="value">: 29/05/2026</td>
+        <td class="value">: {{-- 29/05/2026 --}} {{ $receive_good_document->created_at->format('Y-m-d') }}</td>
     </tr>
 
     <tr>
         <td class="label">Address</td>
         <td class="value">
-            : No-(75/79), Shwedagon Pagoda Road,
-            Latha T/S, Yangon...
+            : {{ $receive_good_document->vendor->vendor_address }}
         </td>
 
         <td class="label">PO No.</td>
-        <td class="value">: POMDY1260519-0013</td>
+        <td class="value">: {{ $receive_good_document->po_no }}</td>
     </tr>
 
     <tr>
         <td class="label">Tel.</td>
-        <td class="value">: 951-253117</td>
+        <td class="value">: {{ $receive_good_document->vendor->vendor_ph }}</td>
 
         <td class="label">Delivery Note</td>
-        <td class="value">: BAHOINV-006565</td>
+        <td class="value">: {{ $receive_good_document->delivery_note }}</td>
     </tr>
 
     <tr>
         <td class="label">Fax</td>
-        <td class="value">: 951-245401</td>
+        <td class="value">: {{-- 951-245401 --}}</td>
 
         <td class="label">Delivery Date</td>
-        <td class="value">: 29/05/2026</td>
+        <td class="value">: {{ $receive_good_document->delivery_date }}</td>
     </tr>
 
     <tr>
@@ -239,7 +244,7 @@
         <td></td>
 
         <td class="label">Credit Term</td>
-        <td class="value">: 30</td>
+        <td class="value">: {{ $receive_good_document->document->creditday }}</td>
     </tr>
 
 </table>
@@ -260,7 +265,7 @@
 
     <tbody>
 
-        <tr>
+        <!-- <tr>
             <td>1</td>
             <td>1101020016005</td>
             <td>TIGER Shear 700</td>
@@ -276,7 +281,18 @@
             <td>PC</td>
             <td class="qty">24.00</td>
             <td></td>
-        </tr>
+        </tr> -->
+
+        @foreach($receive_good_document->receive_good_products as $idx=>$product)
+            <tr>
+                <td>{{ ++$idx }}</td>
+                <td>{{ $product->product_code }}</td>
+                <td>{{ $product->product_name }}</td>
+                <td>{{ $product->unit }}</td>
+                <td class="qty text-right">{{ $product->gr_qty }}</td>
+                <td></td>
+            </tr>
+        @endforeach
 
         <tr class="total-row">
             <td colspan="4" class="text-right">
@@ -284,7 +300,7 @@
             </td>
 
             <td class="qty">
-                48.00
+                {{ $receive_good_document->receive_good_products->sum('gr_qty') }}
             </td>
 
             <td></td>
@@ -298,12 +314,7 @@
 <div class="remark-section">
     <span class="remark-title">Remark :</span>
 
-    Refer POMDY1260518-0019 Stock Refill.
-    MGLD-DC Received Date 22.5.2026.
-    RG Received Date 29.5.2026.
-    Mix Container Car No;RGLL2920726.
-    Checked By Pyae Phyo Wai &amp; Htet Myat Soe.
-    Document No. R008RGMDY1260529-0004
+        {{ $receive_good_document->document->remark }}
 </div>
 
 {{-- SIGNATURE --}}
@@ -316,9 +327,9 @@
     </tr>
 
     <tr>
-        <td>Chaw Pyae Thandar</td>
-        <td>Wai Yan Shein</td>
-        <td></td>
+        <td><span  class="user-label">{{ $receive_good_document->user->name }}</span></td>
+        <td>.........,..........,.........,.........</td>
+        <td>.........,..........,.........,.........</td>
     </tr>
 
     <tr>
@@ -343,13 +354,11 @@
         <td width="33%"></td>
 
         <td width="33%" >
-            Print by : Chaw Pyae Thandar<brs>
+            Print by : {{ $userdata->name }}<brs>
         </td>
         <td width="33%">
-            02/06/2026 09:21
-
+            {{ now() }}
         </td>
-
     </tr>
 </table>
 

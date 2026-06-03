@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('receive_good_documents', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('document_id');
+            $table->unsignedBigInteger('document_id')->nullable();
             $table->string('vendor_code');
             $table->string('po_no');
             $table->unsignedBigInteger('branch_id');

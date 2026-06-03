@@ -212,7 +212,15 @@
                             </td>
 
                         </tr> -->
-
+                        @php 
+                            $statusClasses = [
+                                'pending rg' => 'bg-yellow-100 text-yellow-800',
+                                'already rg' => 'bg-green-100 text-green-800',
+                                'po partial' => 'bg-blue-100 text-blue-800',
+                                // 'rejected' => 'bg-red-100 text-red-800',
+                                // 'draft' => 'bg-gray-100 text-gray-800',
+                            ];
+                        @endphp
                         @foreach ($data as $idx=>$item)
                             <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer"  onClick='window.location.href = "{{ route("detail_rg",$item->id) }}"' >
 
@@ -226,6 +234,12 @@
 
                                 <td class="px-4 py-3">
                                     {{ $item->po_no }}
+                                    @php
+                                        $status = strtolower($item->document->status ?? 'draft');
+                                    @endphp
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
+                                        {{ $item->document->status }}
+                                    </span>
                                 </td>
 
                                 <td class="px-4 py-3">

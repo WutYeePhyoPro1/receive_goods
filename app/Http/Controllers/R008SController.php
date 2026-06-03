@@ -72,6 +72,7 @@ class R008SController extends Controller
 
         DB::beginTransaction();
         DB::connection('defective_product')->beginTransaction();
+        DB::connection('master_product')->beginTransaction();
 
         try {
             $user = auth()->user();
@@ -124,6 +125,8 @@ class R008SController extends Controller
 
             DB::commit();
             DB::connection('defective_product')->commit();
+            DB::connection('master_product')->commit();
+
 
             return response()->json([
                 'success' => true,
@@ -134,6 +137,8 @@ class R008SController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             DB::connection('defective_product')->rollBack();
+            DB::connection('master_product')->rollBack();
+
 
             Log::info($e);
             Log::info($e->getMessage());
@@ -207,6 +212,10 @@ class R008SController extends Controller
         $receive_good_file->file = $r008_doc_no;
         $receive_good_file->save();
 
+
+        // Start R8 Document Number Update
+        $updated_r8_document_count = updateR008No($request->all(),$r008_document);
+        // End R8 Document Number Update
     }
 
     public function printPDF(string $id){

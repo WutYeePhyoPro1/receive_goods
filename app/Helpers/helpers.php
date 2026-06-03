@@ -505,7 +505,7 @@ use Illuminate\Support\Facades\DB;
 
 
         $data = $conn->select("
-            select purchaseno,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,goodprice,bb.sumgoodamnt,creditday,purchasedate,aa.remark
+            select purchaseno,brchcode,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,goodprice,bb.sumgoodamnt,creditday,purchasedate,aa.remark
             from purchaseorder.po_purchaseorderhd aa
             inner join purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
             left join master_data.master_branch br on aa.brchcode= br.branch_code
@@ -708,58 +708,26 @@ use Illuminate\Support\Facades\DB;
                 truck_con_no, 
                 product_type
             )
-            SELECT 
-                (
-                    CASE
-                        
-                        WHEN (
-                            SELECT COUNT(r_docuno) 
-                            FROM public.r008_branch_reciverhd
-                            WHERE r_docudate::date = NOW()::date
-                        ) = 0 THEN 
-                            'R008RG' || 
-                            COALESCE(
-                                (
-                                    SELECT branch_short_name 
-                                    FROM dblink(
-                                        'dbname=pro1208 host=192.168.2.208 user=superuser password=_p8dLtH_doWA3E&A6-Oj',
-                                        'SELECT branch_short_name FROM master_data.master_branch WHERE branch_code = ''$r_brchcode'''
-                                    ) AS remote_data(branch_short_name TEXT)
-                                ), 
-                                'LAN1' 
-                            ) ||
-                            TO_CHAR(NOW(), 'YYMMDD') || '-0001'
-                        ELSE (
-                            SELECT 
-                                'R008RG' || 
-                                COALESCE(
-                                    (
-                                        SELECT branch_short_name 
-                                        FROM dblink(
-                                            'dbname=pro1208 host=192.168.2.208 user=superuser password=_p8dLtH_doWA3E&A6-Oj',
-                                            'SELECT branch_short_name FROM master_data.master_branch WHERE branch_code = ''$r_brchcode'''
-                                        ) AS remote_data(branch_short_name TEXT)
-                                    ), 
-                                    'LAN1'
-                                ) ||
-                                TO_CHAR(NOW(), 'YYMMDD') || '-' ||
-                                LPAD(
-                                    (COALESCE(
-                                        RIGHT(sub.max_doc, 4)::INTEGER, 
-                                        (SELECT COALESCE(MAX(RIGHT(r_docuno, 4)::INTEGER), 0) FROM public.r008_branch_reciverhd WHERE r_docudate::date = NOW()::date)
-                                    ) + 1)::TEXT, 
-                                    4, '0'
-                                )
-                            FROM (
-                                SELECT max_doc 
-                                FROM dblink(
-                                    'dbname=pro1208 host=192.168.2.208 user=superuser password=_p8dLtH_doWA3E&A6-Oj',
-                                    'SELECT MAX(receive_no) FROM purchaseorder.receive_hd WHERE receive_date::date = NOW()::date'
-                                ) AS remote_data(max_doc TEXT)
-                            ) sub
+                select 
+                            case
+                            when
+                    (
+                            select count(r_docuno) from r008_branch_reciverhd where r_docudate::date = now()::date and r_brchcode='$r_brchcode'
+                    ) = 0
+                            then
+                    (
+                            select doc_no||'-0001' as r_docuno from
+                    (
+                            select replace((select 'R008RG'||(select brchshortname from masterdata.master_branch where brchcode='$r_brchcode')||
+                                (select right((select (now()::date)::text),8)::text)), '-', '') as doc_no
+                        ) aa
+                            )
+                        else
+                        (
+                        select (left((select max(r_docuno) as max_date from r008_branch_reciverhd where r_docudate::date = now()::date and r_brchcode='$r_brchcode'),-3)||
+                        TO_CHAR(((right((select max(r_docuno) as max_date from r008_branch_reciverhd where r_docudate::date = now()::date and r_brchcode='$r_brchcode'),3)::integer +1)), 'fm000')) as doc_no
                         )
-                    END 
-                ),
+                end as r_docuno,
                 2,                        -- r_doc_type(fix)
                 1,                        -- r_status (fix)
                 '$vendor_code',             -- vendorcode (From RG)
@@ -873,4 +841,17 @@ use Illuminate\Support\Facades\DB;
 
         return $modified;
         
+    }
+
+    function updateR008No($data, $r008_document){
+        $conn = DB::connection('master_product');
+
+        $r008_docuno = $r008_document->r008_files->first()->file;
+        $receive_no = $r008_document->rg_no;
+
+        $modified = $conn->update("
+            update purchaseorder.receive_hd
+            set r008_docuno='$r008_docuno' , status_r008='t'
+            where receive_no='$receive_no'
+        ");
     }
