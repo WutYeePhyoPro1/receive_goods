@@ -70,6 +70,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('receive_goods/rg_documents/list','rg_documents')->name('rg_documents');
             route::get('receive_goods/rg_documents/{id}','detail_rg')->name('detail_rg');
             route::get('receive_goods/rg_documents/{id}/r008','r008_rg')->name('r008_rg');
+            route::get('receive_goods/rg_documents/{id}/print-pdf','printPDF')->name('rg_documents.print-pdf');
+
         });
 
         Route::group(['controller'=>R008SController::class],function(){

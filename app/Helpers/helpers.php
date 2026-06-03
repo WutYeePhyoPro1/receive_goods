@@ -570,27 +570,26 @@ use Illuminate\Support\Facades\DB;
             )
             SELECT 
                 -- Auto Generate Receive No 
-                (
-                    CASE
-                    WHEN (
-                        SELECT COUNT(receive_no) 
-                        FROM purchaseorder.receive_hd 
-                        WHERE receive_date::date = NOW()::date
-                    ) = 0 THEN 
-                        'RG' || (SELECT branch_short_name FROM master_data.master_branch WHERE branch_code = '$branch_code') ||
-                        TO_CHAR(NOW(), 'YYMMDD') || '-0001'
-                    ELSE (
-                        SELECT 
-                            
-                            REPLACE(LEFT(max_doc, -4), TO_CHAR(NOW(), 'YYYYMMDD'), TO_CHAR(NOW(), 'YYMMDD'))  
-                            || LPAD((RIGHT(max_doc, 4)::INTEGER + 1)::TEXT, 4, '0')
-                        FROM (
-                            SELECT MAX(receive_no) AS max_doc 
-                            FROM purchaseorder.receive_hd 
-                            WHERE receive_date::date = NOW()::date
-                        ) sub
+                (select 
+                    case
+                    when
+                    (
+                                select count(receive_no) from purchaseorder.receive_hd where receive_date::date = now()::date and branch_code='$branch_code'
+                    ) = 0
+                    then
+                    (
+                        select doc_no||'-0001' as rgno from
+                        (
+                        select replace((select 'RG'||(select branch_short_name from master_data.master_branch where branch_code='$branch_code')||
+                                (select right((select (now()::date)::text),8)::text)), '-', '') as doc_no
+                        ) aa
                     )
-                END 
+                    else
+                    (
+                        select (left((select max(receive_no) as max_date from purchaseorder.receive_hd where receive_date::date = now()::date and branch_code='$branch_code'),-3)||
+                        TO_CHAR(((right((select max(receive_no) as max_date from purchaseorder.receive_hd where receive_date::date = now()::date and branch_code='$branch_code'),3)::integer +1)), 'fm000')) as doc_no
+                    )
+                    end as receive_no
                 ),
                 NOW(),                          -- receive_date (complete နှိပ်လိုက်တဲ့အချိန်)
                 '$invoice_date',                  -- invoice_date
@@ -730,8 +729,6 @@ use Illuminate\Support\Facades\DB;
                                 'LAN1' 
                             ) ||
                             TO_CHAR(NOW(), 'YYMMDD') || '-0001'
-                        
-                        
                         ELSE (
                             SELECT 
                                 'R008RG' || 

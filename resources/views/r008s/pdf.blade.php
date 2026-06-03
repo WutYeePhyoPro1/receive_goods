@@ -52,7 +52,7 @@
 
         .remark-box{
             border:1px solid #000;
-            min-height:120px;
+            min-height:50px;
             padding:10px;
         }
 
@@ -73,18 +73,28 @@
 <table class="header">
     <tr>
         <td width="15%">
-            <img src="{{ public_path('image/logo.png') }}"
-                 style="width:80px;">
+            <!-- <img src="{{ public_path('image/logo.png') }}"
+                 style="width:80px;"> -->
+            <div class="logo">
+                <img src="{{ public_path('image/background_img/finallogo.png') }}" width="150px" alt="">
+                <!-- <div class="logo_content">
+                    <span>PRO 1 Global Home Center</span>
+                </div> -->
+            </div>
         </td>
 
         <td width="70%" class="text-center">
             <h2 style="margin:0;">
-                PRO 1 GLOBAL COMPANY LIMITED Theik Pan
+                PRO 1 GLOBAL COMPANY LIMITED ({{ $r008_document->branch->branch_name }})
             </h2>
 
-            <div>
+            <!-- <div>
                 Ma.8/6, Theik Pan Rd, Bet: 62 & 63 St.,
                 Chanmyathazi Tsp., Mandalay, Myanmar
+            </div> -->
+            <div>
+                No.76, Lanthit Street, Near Arleing Ngar Sint Pagoda,<brs>
+                    Insein Township, Yangon, Myanmar
             </div>
 
             <table style="margin-top:8px;">
@@ -112,8 +122,8 @@
         <td width="20%"><strong>To</strong></td>
         <td width="40%">{{ $r008_document->vendor->vendor_name }}</td>
 
-        <td width="20%"><strong>Doc. Date</strong></td>
-        <td width="20%">29/05/2026</td>
+        <td width="15%"><strong>Doc. Date</strong></td>
+        <td width="25%">{{ $r008_document->document_date }}</td>
     </tr>
 
     <tr>
@@ -121,20 +131,20 @@
         <td>Goods Receiving Issue (R008)</td>
 
         <td><strong>Receive Doc. No.</strong></td>
-        <td>RGMDY1260529-0010</td>
+        <td>{{ $r008_document->rg_no }}</td>
     </tr>
 
     <tr>
         <td><strong>Product Type</strong></td>
-        <td>Local</td>
+        <td>{{ $r008_document->product_type }}</td>
 
         <td><strong>Doc. No.</strong></td>
-        <td>R008RGMDY1260529-0004</td>
+        <td>{{ $r008_document->r008_files->first()->file }}</td>
     </tr>
 
     <tr>
         <td><strong>Truck / Container No.</strong></td>
-        <td></td>
+        <td>{{ $r008_document->truck_container_no }}</td>
 
         <td><strong>Receive Date</strong></td>
         <td></td>
@@ -155,7 +165,7 @@
 </p>
 
 {{-- Product Table --}}
-<table class="product-table mt-10">
+<table id="productTable"  class="product-table mt-10">
     <thead>
         <tr>
             <th rowspan="2">Reason</th>
@@ -180,7 +190,7 @@
     </thead>
 
     <tbody>
-        <tr>
+        <!-- <tr>
             <td>Product not according to PO</td>
             <td>1101020016005</td>
             <td>TIGER Shear 700</td>
@@ -193,21 +203,43 @@
             <td class="text-right">0</td>
 
             <td></td>
-        </tr>
+        </tr> -->
+        @php
+            $statuses = collect($statuses)->keyBy('subjectr008_id');
+        @endphp
+        @foreach($r008_document->r008_products as $product)
+        <tr>
+            <td>{{ $statuses->get($product->status_id)->subjectr008_name }}</td>
+            <td>{{ $product->product_code }}</td>
+            <td>{{ $product->product_name }}</td>
+
+            <td class="text-right">{{ $product->gr_qty }}</td>
+            <td class="text-right">{{ $product->physical_qty }}</td>
+            <td class="text-right">{{ $product->diff }}</td>
+
+            <td class="text-right">0</td>
+            <td class="text-right">0</td>
+
+            <td></td>
+        </tr> 
+        @endforeach
+
     </tbody>
 </table>
 
 {{-- Remark --}}
 <div class="remark-box mt-20">
-    <strong>Remark</strong>
+    <strong style="display: inline-block;margin-right: 50px;">Remark</strong>
 
-    <div style="margin-top:10px;">
+    {{ $r008_document->remark }}
+
+    <!-- <div style="margin-top:10px;">
         BAHOINV-006565
     </div>
 
     <div style="margin-top:20px;">
         POMDY1260519-0013
-    </div>
+    </div> -->
 </div>
 
 <p class="mt-10">
@@ -231,13 +263,13 @@
     </tr>
 
     <tr>
-        <td>5/29/2026 11:13:03 AM</td>
+        <td>{{ $r008_document->created_at->format('Y-m-d H:i:s') }}</td>
         <td></td>
         <td></td>
     </tr>
 
     <tr>
-        <td>Chaw Pyae Thandar</td>
+        <td>{{ $r008_document->user->name }}</td>
         <td></td>
         <td></td>
     </tr>
@@ -253,14 +285,19 @@
         </td>
 
         <td width="25%">
-            Print By : Chaw Pyae Thandar
+            Print By : {{ $userdata->name }}
         </td>
 
         <td width="20%" class="text-right">
-            02/06/2026 09:20
+            {{ now() }}
         </td>
     </tr>
 </table>
 
+
+<script type="text/javascript">
+        $('#productTable tbody').html('');
+
+</script>
 </body>
 </html>

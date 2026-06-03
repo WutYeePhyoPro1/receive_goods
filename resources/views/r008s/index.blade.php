@@ -160,7 +160,7 @@
                             </td>
 
                             <td class="px-4 py-3">
-                                {{ $item->created_at->format("Y-m-d") }}
+                                {{ $item->document_date  }}
                             </td>
 
                             <td class="px-4 py-3">

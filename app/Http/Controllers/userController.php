@@ -23,6 +23,7 @@ use App\Models\UploadImage;
 use App\Models\User;
 use App\Models\UserBranch;
 use App\Repositories\UserRepository;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -429,8 +430,6 @@ class userController extends Controller
         return view('user.receive_goods.rg_documents.index',compact("data"));
     }
 
-
-
     public function detail_rg($id){
         $receive_good_document = ReceiveGoodDocument::find($id);
 
@@ -462,6 +461,63 @@ class userController extends Controller
             'transportations',
             'receives'
         ));
+    }
+
+    public function printPDF(string $id){
+        // dd('hay');
+
+        $receive_good_document = ReceiveGoodDocument::find($id);
+
+        $document_id = $receive_good_document->document_id;
+        $good_receive = GoodsReceive::where('id', $document_id)->first();
+        
+        $documents = Document::where('received_goods_id', $id)
+        ->orderBy('updated_at', 'desc')
+        ->get();
+
+        $conn = DB::connection('master_product');
+        $transportations = $conn->select("
+            SELECT *
+            FROM purchaseorder.po_transportation
+            ORDER BY transp_code DESC
+            LIMIT 100
+        ");
+
+        $receives = $conn->select("
+            SELECT * FROM purchaseorder.receive_type
+            ORDER BY remark_id DESC 
+            LIMIT 100
+        ");
+
+        view()->share([
+            'receive_good_document' => $receive_good_document,
+            'good_receive' => $good_receive,
+            'documents' => $documents,
+            'transportations' => $transportations,
+            'receives' => $receives,
+        ]);
+
+        $pdf = Pdf::loadView('user.receive_goods.rg_documents.pdf');
+
+        // return $pdf->download('invoice.pdf');
+        return $pdf->stream('rg.pdf');
+
+
+
+        // $r008_document = R008Document::find($id);
+        // $conn = DB::connection('defective_product');
+        // $statuses = $conn->select("
+        //     SELECT * 
+        //     FROM public.r008_subject
+        //     ORDER BY subjectr008_id ASC
+        //     LIMIT 100
+        // ");
+
+        // view()->share(['r008_document' => $r008_document, 'statuses' => $statuses]);
+        // $pdf = Pdf::loadView('r008s.pdf');
+
+        // // return $pdf->download('invoice.pdf');
+        // return $pdf->stream('r008.pdf');
     }
 
     public function r008_rg($id){

@@ -305,7 +305,7 @@
                                 let diffInput = $(`#diff_input_${product.product_code}`);
 
                                 diffView.text(diff);
-                                diffInput.val(diff);
+                                diffInput.val(qty - rgqty);
                             });
                             
 
