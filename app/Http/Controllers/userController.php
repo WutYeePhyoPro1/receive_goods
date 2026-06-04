@@ -380,11 +380,14 @@ class userController extends Controller
             LIMIT 100
         ");
 
+        $branches = Branch::orderBy('id','asc')->get();
+
         return view('user.receive_goods.rg_documents.pull_rg', compact(
             'good_receive',
             'documents',
             'transportations',
-            'receives'
+            'receives',
+            'branches'
         ));
     }
 

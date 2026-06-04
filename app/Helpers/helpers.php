@@ -540,6 +540,7 @@ use Illuminate\Support\Facades\DB;
         $portal_mark = 'RGN-' . str_pad($receive_good_document->id, 4, '0', STR_PAD_LEFT); // marked portal receive good document id in ERP
         $remark = $document->remark . "/(PORTAL)$portal_mark";
         $purchase_date = $document->purchasedate;
+        // dd($document);
         
 
         $result = $conn->select("
@@ -807,11 +808,17 @@ use Illuminate\Support\Facades\DB;
         $document = $receive_good_document->document;
         $products = Product::where('document_id',$document->id)->get();
 
-        $received_sums = ReceiveGoodProduct::selectRaw(
-                'product_code, SUM(gr_qty) as total_received'
-            )
-            ->groupBy('product_code')
-            ->pluck('total_received', 'product_code');
+        // $rg_doc_ids = ReceiveGoodDocument::where('po_no',$po_no)->pluck('id');
+        // $received_sums = ReceiveGoodProduct::whereIn('receive_good_document_id', $rg_doc_ids)
+        //     ->selectRaw(
+        //         'product_code, SUM(gr_qty) as total_received'
+        //     )
+        //     ->groupBy('product_code')
+        //     ->pluck('total_received', 'product_code');
+
+        // => To Check total received products in both ERP and PORTAL  (we can update the latest status of PO)
+        $received_sums = getReceivedSums($po_no);
+        // dd($received_sums);
 
         $isComplete = true;
 
@@ -854,4 +861,38 @@ use Illuminate\Support\Facades\DB;
             set r008_docuno='$r008_docuno' , status_r008='t'
             where receive_no='$receive_no'
         ");
+    }
+
+    function getPOHistory($po_no){
+        $conn = DB::connection('master_product');
+        $data = $conn->select("
+            select purchaseno,rg.receive_no,product_code,product_name,approve_quantity,receive_quantity
+            from purchaseorder.po_purchaseorderhd po
+            inner join purchaseorder.receive_hd rg
+            on po.purchaseno=rg.purchase_no
+            inner join purchaseorder.receive_dt dt
+            on rg.receive_no=dt.receive_no
+            where purchaseno='$po_no'
+        ");
+        return $data;
+    }
+
+
+    function getReceivedSums($po_no){
+        $po_histories = collect(getPOHistory($po_no));
+        // dd($po_histories);
+
+        // Error: Method Illuminate\Support\Collection::selectRaw does not exist.",…}
+        // $received_sums = $po_histories::selectRaw(
+        //     'product_code, SUM(receive_quantity) as total_received'
+        // )
+        // ->groupBy('product_code')
+        // ->pluck('total_received', 'product_code');
+
+        $received_sums = $po_histories
+                        ->groupBy('product_code')
+                        ->map(fn ($items) => $items->sum('receive_quantity'));
+
+        // dd($received_sums);
+        return $received_sums;
     }

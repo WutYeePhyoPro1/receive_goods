@@ -73,7 +73,7 @@
                             <textarea name="remark" rows="3" class="w-full h-auto px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder=""></textarea>
                         </div>
 
-
+                        <input type="hidden" id="branch_id" name="branch_id" value="{{ $userdata->branch->id }}" />
 
 
                     </div>
@@ -111,6 +111,7 @@
                             
                             </tbody>
                         </table>
+                        @include('components.loader')
                     </div>
 
                 </div>
@@ -185,6 +186,10 @@
                         id: recieve_id,
                     },
                     dataType:"json",
+                    beforeSend:function(){
+                        // $(".loader").addClass("show");
+                        $(".loader").removeClass('hidden'); 
+                    },
                     success:function(response){
                         console.log(response);
                         let data = response.data;
@@ -198,7 +203,7 @@
                         $('#invoice_no').val(rg_document.delivery_note);
                         $('#po_no').val(rg_document.po_no);
 
-
+                        $('#branch_id').val(rg_document.branch_id);
 
                         rg_products.forEach((product,idx) => {
                             let html = `
@@ -314,6 +319,10 @@
                             });
               
                         })
+                    },
+                    complete:function(){
+                        // $(".loader").removeClass("show");
+                        $(".loader").addClass('hidden');
                     }
                     
                 })

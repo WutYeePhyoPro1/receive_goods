@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('remark')->nullable();
             $table->float('total_amount')->nullable();
             $table->string('status')->nullable()->default('Pending RG');
+            $table->unsignedBigInteger('branch_id')->nullable();
         });
     }
 
@@ -35,6 +36,7 @@ return new class extends Migration
             $table->dropColumn("remark");
             $table->dropColumn("total_amount");
             $table->dropColumn("status");
+            $table->dropColumn("branch_id");
         });
     }
 };

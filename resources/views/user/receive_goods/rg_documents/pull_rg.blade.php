@@ -53,6 +53,7 @@
                         <div>
                             <label  class="block font-medium text-slate-500 mb-0.5">Branch <span class="text-red-600">*</span></label>
                                 <select
+                                    id="branch_id"
                                     name="branch_id"
                                     class="w-full h-8 px-2 border border-slate-300 rounded
                                         bg-slate-100 text-slate-500
@@ -60,7 +61,9 @@
                                         appearance-none
                                         focus:outline-none"
                                 >
-                                    <option selected value="{{ $userdata->branch->id }}">{{ $userdata->branch->branch_name }}</option>
+                                    @foreach($branches as $branch)
+                                        <option value="{{ $branch->id }}" {{ $branch->id == $userdata->branch->id  ? "selected" : "" }}>{{ $branch->branch_name }}</option>
+                                    @endforeach
                                 </select>
                         </div>
 
@@ -182,6 +185,7 @@
                                 </tr> -->
                             </tbody>
                         </table>
+                        @include('components.loader')
                     </div>
 
                     <!-- TOTAL AMOUNT DISPLAY SUMMARY -->
@@ -265,6 +269,10 @@
                         id: recieve_id,
                     },
                     dataType:"json",
+                    beforeSend:function(){
+                        // $(".loader").addClass("show");
+                        $(".loader").removeClass('hidden'); 
+                    },
                     success:function(response){
                         console.log(response);
                         let data = response.data;
@@ -277,6 +285,8 @@
                         $('#purchasedate').val(document.purchasedate);
                         // $('#total_amount').text(formatComma(document.total_amount));
                         $('#remark').val(document.remark);
+                        $('#branch_id').val(document.branch_id);
+
 
 
                         products.forEach((product,idx) => {
@@ -353,8 +363,11 @@
                                 calculateTotalAmount();
                             });
                         });
-              
 
+                    },
+                    complete:function(){
+                        // $(".loader").removeClass("show");
+                        $(".loader").addClass('hidden');
                     }
                     
                 })

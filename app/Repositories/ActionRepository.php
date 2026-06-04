@@ -2,15 +2,16 @@
 
 namespace App\Repositories;
 
-use Carbon\Carbon;
-use App\Models\Vendor;
-use App\Models\Product;
-use App\Models\Document;
-use App\Models\Tracking;
-use App\Models\ScanTrack;
-use App\Models\GoodsReceive;
-use Illuminate\Support\Facades\DB;
 use App\Interfaces\ActionRepositoryInterface;
+use App\Models\Branch;
+use App\Models\Document;
+use App\Models\GoodsReceive;
+use App\Models\Product;
+use App\Models\ScanTrack;
+use App\Models\Tracking;
+use App\Models\Vendor;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 Class ActionRepository implements ActionRepositoryInterface
 {
@@ -160,7 +161,7 @@ Class ActionRepository implements ActionRepositoryInterface
         $purchaseno = $data->purchaseno;
 
         $purchase_orders = collect($purchase_orders);
-        dd($purchase_orders);
+        // dd($purchase_orders);
 
         $creditday = $purchase_orders->first()?->creditday;
         $purchasedate = $purchase_orders->first()?->purchasedate;
@@ -168,8 +169,8 @@ Class ActionRepository implements ActionRepositoryInterface
         $vendor_code = $purchase_orders->first()?->vendorcode;
         $remark = $purchase_orders->first()?->remark;
         $total_amount =  $purchase_orders->sum('sumgoodamnt');
-        // dd($total_amount);
-
+        $brchcode = $purchase_orders->first()?->brchcode;
+        $branch_id = Branch::where('branch_code',$brchcode)?->first()?->id;
 
         $good_receive = GoodsReceive::where('id', $id)->first();
         // dd($purchase_orders);
@@ -184,6 +185,7 @@ Class ActionRepository implements ActionRepositoryInterface
             'vendor_code' => $vendor_code,
             'remark' => $remark,
             'total_amount' => $total_amount,
+            'branch_id' => $branch_id,
         ]);
 
         $products = Product::where('document_id',$document->id)->get();

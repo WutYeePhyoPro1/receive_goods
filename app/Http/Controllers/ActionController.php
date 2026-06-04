@@ -530,17 +530,21 @@ class ActionController extends Controller
                         ->orderBy('id','desc')
                         ->get();
 
-            
-            // $rg_documents = ReceiveGoodDocument::where('po_no',$purchaseno)->get();
-            $rg_doc_ids = ReceiveGoodDocument::where('po_no',$purchaseno)->pluck('id');
-            // $rg_products = ReceiveGoodProduct::where('receive_good_document_id',$rg_doc_ids);
+            // => Only know RG from portal
+            // // $rg_documents = ReceiveGoodDocument::where('po_no',$purchaseno)->get();
+            // $rg_doc_ids = ReceiveGoodDocument::where('po_no',$purchaseno)->pluck('id');
+            // // $rg_products = ReceiveGoodProduct::where('receive_good_document_id',$rg_doc_ids);
 
-            // IMPORTANT
-            $received_sums = ReceiveGoodProduct::whereIn('receive_good_document_id', $rg_doc_ids)
-                            ->select('product_code', \DB::raw('SUM(gr_qty) as total_received'))
-                            ->groupBy('product_code')
-                            ->pluck('total_received', 'product_code');
+            // // IMPORTANT
+            // $received_sums = ReceiveGoodProduct::whereIn('receive_good_document_id', $rg_doc_ids)
+            //                 ->select('product_code', \DB::raw('SUM(gr_qty) as total_received'))
+            //                 ->groupBy('product_code')
+            //                 ->pluck('total_received', 'product_code');
             // dd($received_sums);
+
+            
+            // => To Prevent Manual RG in ERP , (cuz we don't know user type rg in ERP)
+            $received_sums = getReceivedSums($purchaseno);
             
             $filtered_products = $products->map(function ($product) use ($received_sums) {
                 $received_qty = $received_sums[$product->bar_code] ?? 0;

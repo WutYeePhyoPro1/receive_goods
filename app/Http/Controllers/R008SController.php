@@ -78,7 +78,7 @@ class R008SController extends Controller
             $user = auth()->user();
             $user_id = $user->id;
 
-            $request['branch_id'] = $user->branch->id;
+            // $request['branch_id'] = $user->branch->id;
 
             // Start R008 Document
             $r008_document = R008Document::create([
