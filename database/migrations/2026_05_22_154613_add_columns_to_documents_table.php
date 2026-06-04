@@ -16,7 +16,7 @@ return new class extends Migration
             $table->date("purchasedate")->nullable();
             $table->string('vendor_name')->nullable();
             $table->string('vendor_code')->nullable();
-            $table->text('remark')->nullable();
+            // $table->text('remark')->nullable();
             $table->float('total_amount')->nullable();
             $table->string('status')->nullable()->default('Pending RG');
             $table->unsignedBigInteger('branch_id')->nullable();
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->dropColumn("purchasedate");
             $table->dropColumn("vendor_name");
             $table->dropColumn("vendor_code");
-            $table->dropColumn("remark");
+            // $table->dropColumn("remark");
             $table->dropColumn("total_amount");
             $table->dropColumn("status");
             $table->dropColumn("branch_id");
