@@ -11,6 +11,7 @@ use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
 use App\Models\printTrack;
 use App\Models\Product;
+use App\Models\PurchaseOrderItem;
 use App\Models\ReceiveGoodDocument;
 use App\Models\ReceiveGoodFile;
 use App\Models\ReceiveGoodProduct;
@@ -529,6 +530,9 @@ class ActionController extends Controller
             $products = Product::where('document_id',$document->id)
                         ->orderBy('id','desc')
                         ->get();
+            // $products = PurchaseOrderItem::where('document_id',$document->id)
+            //             ->orderBy('id','desc')
+            //             ->get();
 
             // => Only know RG from portal
             // // $rg_documents = ReceiveGoodDocument::where('po_no',$purchaseno)->get();

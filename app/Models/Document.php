@@ -27,4 +27,9 @@ class Document extends Model
     {
         return $this->belongsTo(GoodsReceive::class,'received_goods_id','id');
     }
+
+    public function purchase_order_items()
+    {
+        return $this->hasMany(PurchaseOrderItem::class, 'document_id', 'id');
+    }
 }

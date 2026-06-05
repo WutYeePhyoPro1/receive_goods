@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\Document;
 use App\Models\GoodsReceive;
 use App\Models\Product;
+use App\Models\PurchaseOrderItem;
 use App\Models\ScanTrack;
 use App\Models\Tracking;
 use App\Models\Vendor;
@@ -201,6 +202,30 @@ Class ActionRepository implements ActionRepositoryInterface
                     'amount' => $purchase_order->sumgoodamnt,
                 ]);
             }
+
+
+            // Ordered products stores separately in another table. Cause 'Product' keep sum qty for same product codes under one PO Document.
+            // Example, 20000009876 = 200 (purchased) have price value, 6 (FOC) have only zero price
+
+            // if (!$document->purchase_order_items()->exists()) {
+            // }
+
+            $purchase_order_item = PurchaseOrderItem::firstOrCreate(
+                [
+                    'document_id' => $document->id,
+                    'bar_code' => $purchase_order->productcode,
+                    'price' => $purchase_order->goodprice,
+                ],
+                [
+                    'supplier_name' => $purchase_order->vendorname,
+                    'qty' => $purchase_order->goodqty,
+                    'unit' => $purchase_order->unit,
+                    'amount' => $purchase_order->sumgoodamnt,
+                ]
+            );
         }
+
+
+       
     }
 }
