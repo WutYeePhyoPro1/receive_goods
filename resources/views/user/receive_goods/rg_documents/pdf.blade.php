@@ -207,7 +207,7 @@
 
     <tr>
         <td class="label">Vendor Name</td>
-        <td class="value">: {{ $receive_good_document->vendor->vendor_name }}</td>
+        <td class="value">: {{ $receive_good_document?->vendor?->vendor_name }}</td>
 
         <td class="label">Doc.Date</td>
         <td class="value">: {{-- 29/05/2026 --}} {{ $receive_good_document->created_at->format('Y-m-d') }}</td>
@@ -216,7 +216,7 @@
     <tr>
         <td class="label">Address</td>
         <td class="value">
-            : {{ $receive_good_document->vendor->vendor_address }}
+            : {{ $receive_good_document?->vendor?->vendor_address }}
         </td>
 
         <td class="label">PO No.</td>
@@ -225,7 +225,7 @@
 
     <tr>
         <td class="label">Tel.</td>
-        <td class="value">: {{ $receive_good_document->vendor->vendor_ph }}</td>
+        <td class="value">: {{ $receive_good_document?->vendor?->vendor_ph }}</td>
 
         <td class="label">Delivery Note</td>
         <td class="value">: {{ $receive_good_document->delivery_note }}</td>

@@ -199,7 +199,7 @@
                         let statuses = data.statuses;
 
                         $('#vendor_code').val(rg_document.vendor_code);
-                        $('#vendor_name').val(rg_document.vendor.vendor_name);
+                        $('#vendor_name').val(rg_document?.vendor?.vendor_name);
                         $('#invoice_no').val(rg_document.delivery_note);
                         $('#po_no').val(rg_document.po_no);
 

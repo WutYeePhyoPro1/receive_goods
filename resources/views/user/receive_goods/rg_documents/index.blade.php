@@ -251,7 +251,7 @@
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    {{ $item->vendor->vendor_name }}
+                                    {{ $item?->vendor?->vendor_name }}
                                 </td>
 
                                 <td class="px-4 py-3">
