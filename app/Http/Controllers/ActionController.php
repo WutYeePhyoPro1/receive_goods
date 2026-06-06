@@ -721,6 +721,9 @@ class ActionController extends Controller
         $receive_good_file->save();
     }
 
+    public function rg_approve_form($receive_good_document_id){
+        dd('hay');
+    }
 
 
 

@@ -3,6 +3,9 @@
 
 @section('content')
       <!-- MAIN CONTENT CONTAINER -->
+    @php 
+    $manager = isManager($receive_good_document);
+    @endphp
     <div class="md:w-[80%] pb-16 px-4 pt-4 mx-auto">
         <form id="rg_form" action="" method="POST">
             @csrf
@@ -206,6 +209,13 @@
                             onClick="window.open('{{ route('r008_rg', $receive_good_document->id) }}', '_blank')"
                     >
                         Create R008
+                    </button>
+                    @endif
+
+                    @if($manager && $receive_good_document->status !== "Cancel")
+                    <button type="button" id="cancelBtn" class="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-700 text-white text-[12px] font-medium shadow-sm"
+                    >
+                        Cancel
                     </button>
                     @endif
 
@@ -591,6 +601,10 @@
                 });
             }
             showProducts();
+
+            $('#cancelBtn').click(function(){
+
+            });
            
         </script>
     @endpush

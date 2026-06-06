@@ -13,9 +13,11 @@ use App\Models\RemoveTrack;
 use App\Models\ScanTrack;
 use App\Models\Tracking;
 use App\Models\UploadImage;
+use App\Models\User;
 use App\Models\UserBranch;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
     function getAuth()
     {
@@ -907,4 +909,22 @@ use Illuminate\Support\Facades\DB;
         });
 
         return $received_sums;
+    }
+
+    function manager($data){
+        $user = User::where(['id' => getAuthUser()->id, 'role_id' => $role->id])->first();
+        return $user;
+    }
+
+    function isManager($data){
+        $user = auth()->user();
+        
+        $role = Role::where('name','manager')->first();
+        $role_id = $role->id;
+
+        $isManager = $user
+                        && $user->role == $role_id
+                        && $user->branch_id == $data->branch_id;
+
+        return $isManager;
     }
