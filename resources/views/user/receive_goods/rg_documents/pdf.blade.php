@@ -75,6 +75,7 @@
 
         .product-table {
             margin-top: 8px;
+            min-height: 600px;
         }
 
         .product-table th {

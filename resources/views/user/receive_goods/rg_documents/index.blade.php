@@ -125,6 +125,8 @@
 
                             <th class="px-4 py-3 text-left font-bold">No</th>
 
+                            <th class="px-4 py-3 text-left font-bold">Scan Document No.</th>
+
                             <th class="px-4 py-3 text-left font-bold">
                                 RG Document No
                             </th>
@@ -133,10 +135,6 @@
                                 PO Doc No
                             </th>
 
-
-                            <th class="px-4 py-3 text-left font-bold">
-                                Invoice No
-                            </th>
 
                             <th class="px-4 py-3 text-left font-bold">
                                 Document Date
@@ -148,6 +146,10 @@
 
                             <th class="px-4 py-3 text-left font-bold">
                                 R008
+                            </th>
+ 
+                            <th class="px-4 py-3 text-left font-bold">
+                                R8 Doc No
                             </th>
 
                         </tr>
@@ -228,8 +230,20 @@
                                     {{$idx + $data->firstItem()}}
                                 </td>
 
+                                <td class="px-4 py-3">
+                                    {{ $item->good_receive->document_no }}
+                                </td>
+
                                 <td class="px-4 py-3 font-semibold text-blue-700">
                                     {{ $item->receive_good_files->first()->file }}
+                                      <button
+                                        type="button"
+                                        class="ml-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                        onclick="event.stopPropagation(); copyDocumentNo(this, '{{  $item->receive_good_files->first()->file }}')"
+                                        title="Copy"
+                                    >
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
                                 </td>
 
                                 <td class="px-4 py-3">
@@ -243,10 +257,6 @@
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    {{ $item->delivery_note }}
-                                </td>
-
-                                <td class="px-4 py-3">
                                     {{ $item->created_at->format("Y-m-d") }}
                                 </td>
 
@@ -257,6 +267,10 @@
                                 <td class="px-4 py-3">
                                     {{-- $item->r008 --}}
                                     <input name="r008" type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded" {{ $item->r008 ? 'checked' : '' }}>
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    {{ $item->receive_good_files->where('name','R008')->first()?->file ?? "-" }}
                                 </td>
                             </tr>
 
@@ -328,7 +342,20 @@
     </div>
     @push('js')
         <script type="text/javascript">
-           
+             function copyDocumentNo(button, targetId) {
+                const text = targetId.trim();
+                 const icon = button.children[0];
+
+
+                navigator.clipboard.writeText(text).then(() => {
+                    // icon.className = 'fa-solid fa-check text-green-600';
+                    $(icon).html('<i class="fa-solid fa-check text-green-600"></i>');
+
+                    setTimeout(() => {
+                        $(icon).html('<i class="fa-regular fa-copy"></i>');
+                    }, 1500);
+                });
+            }
         </script>
     @endpush
 @endsection

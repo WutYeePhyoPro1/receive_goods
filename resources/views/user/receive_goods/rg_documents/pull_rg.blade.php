@@ -290,38 +290,41 @@
 
 
                         products.forEach((product,idx) => {
+                            // let key = `${product.bar_code}_${product.price}`;
+                            let key = `${product.bar_code}_${idx}`;
+
                             let html = `
                                 <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
                                     <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
                                     <td class="py-1.5 px-3 text-center">
-                                        <input name="product_code[]" type="checkbox" id="pickup_${product.bar_code}" class="receive_barcode accent-amber-500 rounded" value="${product.bar_code}">
+                                        <input name="product_code[]" type="checkbox" id="pickup_${key}" class="receive_barcode accent-amber-500 rounded" value="${product.bar_code}">
                                     </td>
                                     <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.bar_code}</td>
                                     <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">${product.unit}</span></td>
                                     <td class="py-1.5 px-3 text-right font-medium">${product.remaining_qty}</td>
                                     <td class="py-1.5 px-3 text-right">
-                                        <div id="gr_view_${product.bar_code}" class="w-24  ms-auto">
+                                        <div id="gr_view_${key}" class="w-24  ms-auto">
                                             <span>${product.remaining_qty}<span>
                                         </div>
 
-                                        <div id="gr_edit_${product.bar_code}" hidden class="w-24  ms-auto">
-                                            <input type="number" name="gr_qty[]" id="gr_qty_${product.bar_code}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.remaining_qty}">
+                                        <div id="gr_edit_${key}" hidden class="w-24  ms-auto">
+                                            <input type="number" name="gr_qty[]" id="gr_qty_${key}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.remaining_qty}">
 
                                             <input name="product_name[]" type="hidden" value="${product.supplier_name}" disabled />
                                             <input name="unit[]" type="hidden" value="${product.unit}" disabled />
                                             <input name="po_qty[]" type="hidden" value="${product.remaining_qty}" disabled />
                                             <input name="price[]" type="hidden" value="${product.price}" disabled />
-                                            <input name="amount[]" id="amount_${product.bar_code}_input" type="hidden" value="${product.amount}" disabled />
+                                            <input name="amount[]" id="amount_${key}_input" type="hidden" value="${product.price * product.remaining_qty}" disabled />
                                             <input name="product_id[]" type="hidden" value="${product.id}" disabled />
                                         </div>
                                     </td>
                                     <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
-                                    <td id="amount_${product.bar_code}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.amount)}</td>
+                                    <td id="amount_${key}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.price * product.remaining_qty)}</td>
                                 </tr>
                             `;
                             $('#productTable tbody').append(html);
 
-                            $(`#gr_qty_${product.bar_code}`).on('input', function() {
+                            $(`#gr_qty_${key}`).on('input', function() {
 
                                 var qty = parseInt($(this).val()) || 0;
                                 var poqty = parseInt(product.remaining_qty);
@@ -331,21 +334,21 @@
 
                                 if(qty > poqty){
                                     $(this).val(poqty)
-                                    $(`#amount_${product.bar_code}`).html(formatComma(product.amount));
-                                    $(`#amount_${product.bar_code}_input`).val(product.amount);
+                                    $(`#amount_${key}`).html(formatComma(product.amount));
+                                    $(`#amount_${key}_input`).val(product.amount);
                                 }else{
-                                    $(`#amount_${product.bar_code}`).html(formatComma(amount));
-                                    $(`#amount_${product.bar_code}_input`).val(amount);
+                                    $(`#amount_${key}`).html(formatComma(amount));
+                                    $(`#amount_${key}_input`).val(amount);
                                 }
                                 calculateTotalAmount()
                             });
 
-                            $(`#pickup_${product.bar_code}`).change(function(){
+                            $(`#pickup_${key}`).change(function(){
                                 var isChecked = $(this).prop("checked") === true ? true : false;
 
-                                let grView = $(`#gr_view_${product.bar_code}`);
-                                let grEdit = $(`#gr_edit_${product.bar_code}`);
-                                let qtyInput = $(`#gr_qty_${product.bar_code}`);
+                                let grView = $(`#gr_view_${key}`);
+                                let grEdit = $(`#gr_edit_${key}`);
+                                let qtyInput = $(`#gr_qty_${key}`);
 
                                 if(isChecked){
                                     grView.hide();
@@ -503,7 +506,7 @@
                                 type:"POST",
                                 dataType: "json",
                                 data:$("#rg_form").serialize(),
-                                success:function(response){
+                                success:async function(response){
                                     console.log(response);
 
                                     const data = response;
@@ -516,12 +519,28 @@
                                         });
                                         
                                         const receive_good_document = data.data;
+                                        
+                                        const recirectURL = "{{ route('rg_documents') }}";
                                         if(receive_good_document.r008){
-                                            // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
-                                            window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}/r008`
-                                        }else{
-                                            window.location.href="{{ route('rg_documents') }}"
+                                            await Swal.fire({
+                                                icon: "question",
+                                                title: "Continue to R008?",
+                                                text: "This RG includes an R008 document. Would you like to submit it to ERP now?",
+                                                showCancelButton: true,
+                                                confirmButtonText: "Submit now",
+                                                cancelButtonText: "Later",
+                                                reverseButtons: true,
+                                            }).then((result) => {
+                                                if(result.isConfirmed){
+                                                    // // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
+                                                    window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}/r008`;
+                                                }
+                                            })
+                                          
                                         }
+                                        setTimeout(() => {
+                                            window.location.href="{{ route('rg_documents') }}";
+                                        }, 3000);
 
                                     }else{
                                         Swal.fire({

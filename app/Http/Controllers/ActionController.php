@@ -527,12 +527,12 @@ class ActionController extends Controller
             $this->repository->sync_doc($purchase_orders, $request);
             $document = Document::where('document_no',$purchaseno)
                                 ->where('received_goods_id',$id)->first();
-            $products = Product::where('document_id',$document->id)
-                        ->orderBy('id','desc')
-                        ->get();
-            // $products = PurchaseOrderItem::where('document_id',$document->id)
+            // $products = Product::where('document_id',$document->id)
             //             ->orderBy('id','desc')
             //             ->get();
+            $products = PurchaseOrderItem::where('document_id',$document->id)
+                        ->orderBy('id','desc')
+                        ->get();
 
             // => Only know RG from portal
             // // $rg_documents = ReceiveGoodDocument::where('po_no',$purchaseno)->get();
@@ -551,7 +551,7 @@ class ActionController extends Controller
             $received_sums = getReceivedSums($purchaseno);
             
             $filtered_products = $products->map(function ($product) use ($received_sums) {
-                $received_qty = $received_sums[$product->bar_code] ?? 0;
+                $received_qty = $received_sums[$product->bar_code][$product->price] ?? 0;
                 $product->remaining_qty = $product->qty - $received_qty;
                 return $product;
             })->filter(function ($product) {

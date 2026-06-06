@@ -6,6 +6,7 @@ use App\Models\Document;
 use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
 use App\Models\Product;
+use App\Models\PurchaseOrderItem;
 use App\Models\ReceiveGoodDocument;
 use App\Models\ReceiveGoodProduct;
 use App\Models\RemoveTrack;
@@ -806,7 +807,10 @@ use Illuminate\Support\Facades\DB;
 
         $po_no = $receive_good_document->po_no;
         $document = $receive_good_document->document;
-        $products = Product::where('document_id',$document->id)->get();
+        // $products = Product::where('document_id',$document->id)->get();
+        $products = PurchaseOrderItem::where('document_id',$document->id)
+            ->orderBy('id','desc')
+            ->get();
 
         // $rg_doc_ids = ReceiveGoodDocument::where('po_no',$po_no)->pluck('id');
         // $received_sums = ReceiveGoodProduct::whereIn('receive_good_document_id', $rg_doc_ids)
@@ -824,7 +828,7 @@ use Illuminate\Support\Facades\DB;
 
         foreach ($products as $product) {
 
-            $receivedQty = $received_sums[$product->bar_code] ?? 0;
+            $receivedQty = $received_sums[$product->bar_code][$product->price] ?? 0;
 
             if ($receivedQty < $product->qty) {
                 $isComplete = false;
@@ -866,7 +870,7 @@ use Illuminate\Support\Facades\DB;
     function getPOHistory($po_no){
         $conn = DB::connection('master_product');
         $data = $conn->select("
-            select purchaseno,rg.receive_no,product_code,product_name,approve_quantity,receive_quantity
+            select purchaseno,rg.receive_no,product_code,product_name,approve_quantity,approve_price,receive_quantity
             from purchaseorder.po_purchaseorderhd po
             inner join purchaseorder.receive_hd rg
             on po.purchaseno=rg.purchase_no
@@ -889,10 +893,18 @@ use Illuminate\Support\Facades\DB;
         // ->groupBy('product_code')
         // ->pluck('total_received', 'product_code');
 
-        $received_sums = $po_histories
-                        ->groupBy('product_code')
-                        ->map(fn ($items) => $items->sum('receive_quantity'));
+        // => Can use for different code in PO
+        // $received_sums = $po_histories
+        //                 ->groupBy('product_code');
+                        // ->map(fn ($items) => $items->sum('receive_quantity'));
 
-        // dd($received_sums);
+        $received_sums = $po_histories
+        ->groupBy(['product_code', 'approve_price'])
+        ->map(function ($priceGroups) {
+            return $priceGroups->map(function ($items) {
+                return $items->sum('receive_quantity');
+            });
+        });
+
         return $received_sums;
     }

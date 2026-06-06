@@ -36,6 +36,10 @@ class ReceiveGoodDocument extends Model
         return $this->belongsTo(Document::class,'po_no','document_no');
     }
 
+    public function good_receive(){
+        return $this->belongsTo(GoodsReceive::class,'document_id','id');
+    }
+
     public function receive_good_products()
     {
         return $this->hasMany(ReceiveGoodProduct::class, 'receive_good_document_id', 'id');
