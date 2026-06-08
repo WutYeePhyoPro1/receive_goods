@@ -32,4 +32,9 @@ class Document extends Model
     {
         return $this->hasMany(PurchaseOrderItem::class, 'document_id', 'id');
     }
+
+    public function branch(){
+        return $this->belongsTo(Branch::class);
+    }
+
 }

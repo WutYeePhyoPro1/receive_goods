@@ -809,6 +809,7 @@ use Spatie\Permission\Models\Role;
 
         $po_no = $receive_good_document->po_no;
         $document = $receive_good_document->document;
+
         // $products = Product::where('document_id',$document->id)->get();
         $products = PurchaseOrderItem::where('document_id',$document->id)
             ->orderBy('id','desc')
@@ -927,4 +928,28 @@ use Spatie\Permission\Models\Role;
                         && $user->branch_id == $data->branch_id;
 
         return $isManager;
+    }
+
+    function cancelRGDoc($data, $receive_good_document){
+        $conn = DB::connection('master_product');
+
+        $po_no = $receive_good_document->po_no;
+        $rg_no =  $receive_good_document->receive_good_files->first()->file;
+
+        // $modified = null;
+        $modified = $conn->update("
+            update purchaseorder.receive_hd set receive_status='C' where receive_no='$rg_no' ; --- RG Cancel
+        ");
+
+
+        // To reset the po document as new and use again
+        $poModified = $conn->update("
+            update purchaseorder.po_purchaseorderhd set statusflag='Y' where purchaseno='$po_no';
+        "); 
+
+        $stockcardDeleted = $conn->delete("
+            delete from	inventory.stc_stockcard where	docuno = '$rg_no';
+        ");
+
+        return $modified;
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customize\Common;
+use App\Interfaces\ActionRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Models\Branch;
 use App\Models\CarGate;
@@ -22,6 +23,7 @@ use App\Models\Truck;
 use App\Models\UploadImage;
 use App\Models\User;
 use App\Models\UserBranch;
+use App\Repositories\ActionRepository;
 use App\Repositories\UserRepository;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -30,6 +32,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Milon\Barcode\DNS1D;
@@ -41,10 +44,13 @@ use Symfony\Component\CssSelector\Node\FunctionNode;
 class userController extends Controller
 {
     private UserRepositoryInterface $repository;
+    private ActionRepositoryInterface $actionRepository;
 
-    public function __construct(UserRepository $repository)
+    public function __construct(UserRepository $repository, ActionRepository $actionRepository)
     {
         $this->repository = $repository;
+        $this->actionRepository = $actionRepository;
+
         $this->middleware('auth');
         $this->middleware(PermissionMiddleware::class . ':user-management')->only(['user', 'store_user', 'edit_user', 'update_user', 'del_user']);
         // $this->middleware(PermissionMiddleware::class . ':role-management')->only(['role', 'store_role', 'edit_role', 'update_role', 'del_role']);
@@ -529,6 +535,121 @@ class userController extends Controller
         $rg_no = $receive_good_document?->receive_good_files->first()?->file;
         return redirect()->route('r008s.create')
                 ->with('rg_no', $rg_no);
+    }
+
+    public function approve_form($id,Request $request){
+        
+        DB::beginTransaction();
+        DB::connection('master_product')->beginTransaction();
+        try {
+
+            $receive_good_document = ReceiveGoodDocument::find($id);
+
+            $status = $request->status;
+
+            $user = auth()->user();
+            $user_id = $user->id;
+
+            if ($request->status == "Cancel") {
+                $origianl_status = $receive_good_document->status;
+                $receive_good_document->update(['status' => $request->status]);
+                
+                if ($origianl_status == 'Default') {
+                   
+
+                    $receive_good_document->update([
+                        'rejected_by'=> $user_id,
+                        'rejected_at' => now()
+                    ]);
+                }
+
+                // Start RG Cancel In ERP
+                $updated_rg_document_count = cancelRGDoc($request->all(),$receive_good_document);
+                // End RG Cancel In EERP
+
+            }
+            // throw new \Exception("RG Document Update Error: ");
+
+                
+            DB::commit();
+            DB::connection('master_product')->commit();
+            return back();
+        } catch (\Exception $e) {
+            Logger::info($e->getMessage());
+            DB::rollBack();
+            DB::connection('master_product')->rollBack();
+
+            return back()
+            ->with('fails', "There is an error in processing RG Form.");
+        }
+    }
+
+    public function po_documents(Request $request){
+        $docuno =  $request->form_doc_no;
+        $branch = $request->branch_id;
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
+
+        $results = Document::query();
+
+        if ($docuno) {
+            $results = $results->where(function ($query) use ($docuno) {
+                    $query->where('po_no', 'like', '%' . $docuno . '%')
+                    ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
+                        $q->where('file', 'like', '%' . $docuno . '%');
+                    });
+                    // ->orWhere('remark', 'like', '%' . $docuno . '%');
+            });
+        }
+        
+        if ($branch) {
+            $results = $results->where(function ($q) use ($branch) {
+                $q->where('from_branch', $branch);
+            });
+        } 
+
+        if($start_date || $end_date){
+            $start_date = $request->start_date
+                        ? Carbon::parse($request->start_date)->startOfDay()
+                        : Carbon::createFromTimestamp(0)->startOfDay();
+            $end_date = $request->end_date
+                        ? Carbon::parse($request->end_date)->endOfDay()
+                        : Carbon::today()->endOfDay();
+            $results = $results->whereBetween('created_at', [$start_date , $end_date]);
+        }else{
+            $results->whereDate('created_at','>=',now()->subMonth());
+        }
+            
+
+        $data = $results->orderBy('created_at','desc')->paginate(15);
+
+
+        // foreach($data as $item){
+        //     $purchaseno = $item->document_no;
+        //     $purchase_orders = getPODocument($purchaseno);
+        //     if ($purchase_orders) {
+        //         $request['purchaseno'] = $purchaseno;
+        //         $request['id'] = $item->received_goods_id;
+
+        //         $this->actionRepository->sync_doc($purchase_orders, $request);
+        //     }
+        // }
+          
+
+        return view('user.receive_goods.documents.index',compact("data"));
+
+    }
+
+    public function detail_po($id){
+        // dd('hay');
+
+        $po_document = Document::find($id);
+
+
+        return view('user.receive_goods.documents.show',compact(
+            'po_document',
+        ));
     }
 
     // End RG Document

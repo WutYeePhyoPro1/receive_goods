@@ -71,7 +71,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('receive_goods/rg_documents/{id}','detail_rg')->name('detail_rg');
             route::get('receive_goods/rg_documents/{id}/r008','r008_rg')->name('r008_rg');
             route::get('receive_goods/rg_documents/{id}/print-pdf','printPDF')->name('rg_documents.print-pdf');
+            Route::post('receive_goods/rg_document/{id}/approve','approve_form')->name('rg_approve_form');
 
+            route::get('documents','po_documents')->name('documents.index');
+            route::get('documents/{id}','detail_po')->name('documents.show');
         });
 
         Route::group(['controller'=>R008SController::class],function(){

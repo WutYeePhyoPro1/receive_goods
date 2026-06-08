@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::table('receive_good_documents', function (Blueprint $table) {
             $table->string('status')->nullable()->default('Default');
+            $table->unsignedBigInteger('rejected_by')->nullable();
+            $table->timestamp('rejected_at')->nullable();
         });
     }
 
@@ -23,6 +25,8 @@ return new class extends Migration
     {
         Schema::table('receive_good_documents', function (Blueprint $table) {
             $table->dropColumn("status");
+            $table->dropColumn("rejected_by");
+            $table->dropColumn("rejected_at");
         });
     }
 };

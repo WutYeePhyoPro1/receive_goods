@@ -125,10 +125,8 @@
 
                             <th class="px-4 py-3 text-left font-bold">No</th>
 
-                            <th class="px-4 py-3 text-left font-bold">Scan Document No.</th>
-
                             <th class="px-4 py-3 text-left font-bold">
-                                RG Document No
+                                Document No.
                             </th>
 
                             <th class="px-4 py-3 text-left font-bold">
@@ -136,12 +134,11 @@
                             </th>
 
                             <th class="px-4 py-3 text-left font-bold">
-                                PO Doc No
+                                Purchase Date
                             </th>
 
-
                             <th class="px-4 py-3 text-left font-bold">
-                                Document Date
+                                Vendor Code
                             </th>
 
                             <th class="px-4 py-3 text-left font-bold">
@@ -149,11 +146,11 @@
                             </th>
 
                             <th class="px-4 py-3 text-left font-bold">
-                                R008
+                                Credit(Day)
                             </th>
- 
-                            <th class="px-4 py-3 text-left font-bold">
-                                R8 Doc No
+
+                             <th class="px-4 py-3 text-left font-bold">
+                                Amount
                             </th>
 
                         </tr>
@@ -162,86 +159,15 @@
 
                     <!-- TABLE BODY -->
                     <tbody class="divide-y divide-slate-100 text-[13px] text-slate-700">
-
-                        <!-- <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer">
-
-                            <td class="px-4 py-3 font-medium text-slate-500">
-                                1
-                            </td>
-
-                            <td class="px-4 py-3 font-semibold text-blue-700">
-                                RGMM250527-0001
-                            </td>
-
-                            <td class="px-4 py-3">
-                                POHTY1260318-0001
-                            </td>
-
-                            <td class="px-4 py-3">
-                                INV-2026052701
-                            </td>
-
-                            <td class="px-4 py-3">
-                                2026-05-27
-                            </td>
-
-                            <td class="px-4 py-3">
-                                ABC Trading Co., Ltd
-                            </td>
-
-                        </tr>
-
-                        <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer">
-
-                            <td class="px-4 py-3 font-medium text-slate-500">
-                                2
-                            </td>
-
-                            <td class="px-4 py-3 font-semibold text-blue-700">
-                                RGMM250527-0002
-                            </td>
-
-                            <td class="px-4 py-3">
-                                POHTY1260318-0002
-                            </td>
-
-                            <td class="px-4 py-3">
-                                INV-2026052702
-                            </td>
-
-                            <td class="px-4 py-3">
-                                2026-05-27
-                            </td>
-
-                            <td class="px-4 py-3">
-                                Myanmar Distribution Group
-                            </td>
-
-                        </tr> -->
-                        @php 
-                            
-                        @endphp
                         @foreach ($data as $idx=>$item)
-                            <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer"  onClick='window.location.href = "{{ route("detail_rg",$item->id) }}"' >
+                            <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer"  onClick='window.location.href = "{{ route("documents.show",$item->id) }}"' >
 
                                 <td class="px-4 py-3 font-medium text-slate-500">
                                     {{$idx + $data->firstItem()}}
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    {{ $item->good_receive->document_no }}
-                                </td>
-
-                                <td class="px-4 py-3 font-semibold text-blue-700">
-                                    {{ $item->receive_good_files->first()->file }}
-                                      <button
-                                        type="button"
-                                        class="ml-2 inline-flex items-center text-gray-400 hover:text-blue-600"
-                                        onclick="event.stopPropagation(); copyDocumentNo(this, '{{  $item->receive_good_files->first()->file }}')"
-                                        title="Copy"
-                                    >
-                                        <i class="fa-regular fa-copy"></i>
-                                    </button>
+                                    {{ $item->document_no }}
                                 </td>
 
                                 <td class="px-4 py-3">
@@ -254,33 +180,26 @@
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    {{ $item->po_no }}
-                                    @php
-                                        $status = strtolower($item->document->status ?? 'draft');
-                                    @endphp
-                                    <!-- <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
-                                        {{ $item->document->status }}
-                                    </span> -->
+                                    {{ $item->purchasedate }}
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    {{ $item->created_at->format("Y-m-d") }}
+                                    {{ $item->vendor_code }}
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    {{ $item?->vendor?->vendor_name }}
+                                    {{ $item->vendor_name }}
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    {{-- $item->r008 --}}
-                                    <input name="r008" type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded" {{ $item->r008 ? 'checked' : '' }}>
+                                    {{ $item->creditday }}
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    {{ $item->receive_good_files->where('name','R008')->first()?->file ?? "-" }}
+                                    {{ $item->total_amount }}
                                 </td>
+
                             </tr>
-
                         @endforeach
 
                     </tbody>
@@ -289,60 +208,6 @@
                 {{-- $data->links('pagination::tailwind') --}}
                 {{ $data->links('vendors.pagination.custom-rg') }}
             </div>
-
-            <!-- PAGINATION -->
-            <!-- <div class="px-4 py-3 border-t border-slate-100 flex items-center justify-between bg-white">
-
-                <div class="text-[12px] text-slate-500">
-                    Showing
-                    <span class="font-semibold text-slate-700">1</span>
-                    to
-                    <span class="font-semibold text-slate-700">10</span>
-                    of
-                    <span class="font-semibold text-slate-700">120</span>
-                    entries
-                </div>
-
-                <div class="flex items-center gap-1">
-
-                    <button
-                        class="h-8 px-3 border border-slate-300 rounded-md
-                            text-[12px] text-slate-600 hover:bg-slate-100"
-                    >
-                        Prev
-                    </button>
-
-                    <button
-                        class="h-8 min-w-[32px] px-2 rounded-md
-                            bg-amber-500 text-white text-[12px] font-semibold"
-                    >
-                        1
-                    </button>
-
-                    <button
-                        class="h-8 min-w-[32px] px-2 rounded-md border border-slate-300
-                            text-[12px] text-slate-700 hover:bg-slate-100"
-                    >
-                        2
-                    </button>
-
-                    <button
-                        class="h-8 min-w-[32px] px-2 rounded-md border border-slate-300
-                            text-[12px] text-slate-700 hover:bg-slate-100"
-                    >
-                        3
-                    </button>
-
-                    <button
-                        class="h-8 px-3 border border-slate-300 rounded-md
-                            text-[12px] text-slate-600 hover:bg-slate-100"
-                    >
-                        Next
-                    </button>
-
-                </div>
-
-            </div> -->
 
         </div>
 

@@ -84,6 +84,18 @@
                 </div>
             </li>
 
+            <li class="sidebar_items" onclick="javascript:window.location.href='/documents'">
+                {{-- @if (request()->is('list'))
+                    <div class=""
+                        style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
+                    </div>
+                @endif --}}
+                <div class="sidebar_text">
+                    <i class="bx bx-receipt"></i>
+                    <span>Purchase Orders</span>
+                </div>
+            </li>
+
             <li class="sidebar_items" onclick="javascript:window.location.href='/receive_goods/rg_documents/list'">
                 {{-- @if (request()->is('list'))
                     <div class=""

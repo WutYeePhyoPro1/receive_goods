@@ -9,6 +9,7 @@ use App\Models\changeTruckProduct;
 use App\Models\Document;
 use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
+use App\Models\Log;
 use App\Models\printTrack;
 use App\Models\Product;
 use App\Models\PurchaseOrderItem;
@@ -28,7 +29,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
@@ -248,7 +248,7 @@ class ActionController extends Controller
         $unit   = preg_replace("/[^A-Za-z].*/", '', $all);
         $unit   = $unit == '' ? 'S' : $unit;
         $poi    = false;
-        \Log::info(['AT' => 'hiii']);
+        Loger::info(['AT' => 'hiii']);
         if (strtoupper(substr($all, 0, 2)) == 'PO' || strtoupper(substr($all, 0, 2)) == 'IC' || strtoupper(substr($all, 0, 2)) == 'AT') {
             $reg = get_branch_truck()[2];
 
@@ -636,6 +636,7 @@ class ActionController extends Controller
             // Start PO Status Update
             $updated_po_document_count = updatePOStatus($request->all(),$receive_good_document);
             // End PO Status Update
+
 
             DB::commit();
             DB::connection('master_product')->commit();

@@ -7,9 +7,30 @@
     $manager = isManager($receive_good_document);
     @endphp
     <div class="md:w-[80%] pb-16 px-4 pt-4 mx-auto">
-        <form id="rg_form" action="" method="POST">
+        @if (Session::has('fails'))
+            <div class="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 shadow-sm" role="alert">
+                <div class="mt-0.5">
+                    <i class="bi bi-exclamation-octagon"></i>
+                </div>
+
+                <div class="flex-1 text-sm font-medium">
+                    {{ Session::get('fails') }}
+                </div>
+
+                <button type="button"
+                    class="ml-3 inline-flex h-5 w-5 items-center justify-center rounded text-red-500 hover:bg-red-100 hover:text-red-700"
+                    onclick="this.closest('[role=alert]').remove()"
+                    aria-label="Close">
+                    &times;
+                </button>
+            </div>
+        @endif
+
+        <form id="rg_form" action="{{ route('rg_approve_form', $receive_good_document->id ) }}" method="POST">
             @csrf
             <!-- UNIFIED CARD CONTAINER -->
+            <div id="btn_status"></div>
+
             <div class="bg-white rounded-lg shadow-sm border border-slate-200 text-slate-800 text-xs">
                 
                 <input type="hidden" id="receive_id" value="{{-- $good_receive->id --}}">
@@ -131,6 +152,12 @@
                                     readonly
                                     value="{{ $receive_good_document->receive_good_files->first()->file }}"
                                     class="h-9 w-[100%] px-3 rounded-lg border border-blue-300 bg-blue-100 text-blue-700 font-bold tracking-wide focus:outline-none">
+                                @php
+                                    $status = strtolower($receive_good_document->status ?? 'Default');
+                                @endphp
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
+                                    {{ $receive_good_document->status }}
+                                </span>
                             </div>
                         </div>
                         </div>
@@ -192,6 +219,7 @@
                         Back
                     </button>
 
+                    @if($receive_good_document->status !== "Cancel")
                     <button type="button" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-amber-700 text-white text-[12px] font-medium shadow-sm"
                     onClick="window.open('{{ route('rg_documents.print-pdf', $receive_good_document->id) }}', '_blank')"
                     >
@@ -203,7 +231,7 @@
                     </button>
                      --}}
 
-                     @if($receive_good_document->r008 && !($receive_good_document->receive_good_files->where('name','R008')->first()?->file))
+                    @if($receive_good_document->r008 && !($receive_good_document->receive_good_files->where('name','R008')->first()?->file))
                     <button type="button" id="r008Btn" class="h-9 px-4 rounded-lg bg-blue-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm"
                         {{-- onClick="window.location.href = '{{ route('r008_rg',$receive_good_document->id) }}';" --}}
                             onClick="window.open('{{ route('r008_rg', $receive_good_document->id) }}', '_blank')"
@@ -211,9 +239,10 @@
                         Create R008
                     </button>
                     @endif
+                    @endif
 
                     @if($manager && $receive_good_document->status !== "Cancel")
-                    <button type="button" id="cancelBtn" class="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-700 text-white text-[12px] font-medium shadow-sm"
+                    <button type="button" id="approveBtn" class="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-700 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status"
                     >
                         Cancel
                     </button>
@@ -470,92 +499,92 @@
                 $('#total_amount_input').val(total)
             }
 
-            let isSubmitting = false;
-            $('#rg_form').submit(function(e){
+            // let isSubmitting = false;
+            // $('#rg_form').submit(function(e){
 
-                e.preventDefault();
-                if (isSubmitting) return;
+            //     e.preventDefault();
+            //     if (isSubmitting) return;
 
-                if(validateForm() || false){
+            //     if(validateForm() || false){
 
-                    Swal.fire({
-                        icon: "question",
-                        text: "Are you sure to save RG to ERP?",
-                        showCancelButton: true,
-                    }).then((result) => {
-                        if(result.isConfirmed)
-                        {
+            //         Swal.fire({
+            //             icon: "question",
+            //             text: "Are you sure to save RG to ERP?",
+            //             showCancelButton: true,
+            //         }).then((result) => {
+            //             if(result.isConfirmed)
+            //             {
 
-                            isSubmitting = true;                            
-                            $(".fullloader").removeClass("hidden");
-                            // Swal.disableButtons();
-                            $('#saveBtn').prop('disabled', true)
+            //                 isSubmitting = true;                            
+            //                 $(".fullloader").removeClass("hidden");
+            //                 // Swal.disableButtons();
+            //                 $('#saveBtn').prop('disabled', true)
 
-                            console.log('submit');
+            //                 console.log('submit');
 
-                            // form submit here
-                            // console.log($('#rg_form').serialize());
+            //                 // form submit here
+            //                 // console.log($('#rg_form').serialize());
 
-                            $.ajax({
-                                url:"{{ route('save_rg') }}",
-                                type:"POST",
-                                dataType: "json",
-                                data:$("#rg_form").serialize(),
-                                success:function(response){
-                                    console.log(response);
+            //                 $.ajax({
+            //                     url:"{{ route('save_rg') }}",
+            //                     type:"POST",
+            //                     dataType: "json",
+            //                     data:$("#rg_form").serialize(),
+            //                     success:function(response){
+            //                         console.log(response);
 
-                                    const data = response;
+            //                         const data = response;
 
-                                    if(data.success){
-                                        Swal.fire({
-                                            icon: "success",
-                                            title: "RG saved successfully!",
-                                            text: data.message,
-                                        });
+            //                         if(data.success){
+            //                             Swal.fire({
+            //                                 icon: "success",
+            //                                 title: "RG saved successfully!",
+            //                                 text: data.message,
+            //                             });
                                         
-                                        const receive_good_document = data.data;
-                                        if(receive_good_document.r008){
-                                            // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
-                                        }else{
-                                            window.location.href="{{ route('rg_documents') }}"
-                                        }
+            //                             const receive_good_document = data.data;
+            //                             if(receive_good_document.r008){
+            //                                 // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
+            //                             }else{
+            //                                 window.location.href="{{ route('rg_documents') }}"
+            //                             }
 
-                                    }else{
-                                        Swal.fire({
-                                            icon: "error",
-                                            title: "RG Save Error!!",
-                                            text: "Something went wrong while saving the RG.",
-                                        });
+            //                         }else{
+            //                             Swal.fire({
+            //                                 icon: "error",
+            //                                 title: "RG Save Error!!",
+            //                                 text: "Something went wrong while saving the RG.",
+            //                             });
 
-                                        isSubmitting = false;
-                                        $(".fullloader").addClass("hidden");
-                                    }
-                                },
-                                error:function(response){
-                                    console.log("Error: ",response);
+            //                             isSubmitting = false;
+            //                             $(".fullloader").addClass("hidden");
+            //                         }
+            //                     },
+            //                     error:function(response){
+            //                         console.log("Error: ",response);
 
-                                    Swal.fire({
-                                        icon: "error",
-                                        title: "RG Save Error!!",
-                                        text: "Something went wrong while saving the RG.",
-                                    });
+            //                         Swal.fire({
+            //                             icon: "error",
+            //                             title: "RG Save Error!!",
+            //                             text: "Something went wrong while saving the RG.",
+            //                         });
 
-                                    isSubmitting = false;
-                                    $(".fullloader").addClass("hidden");
-                                },
-                                // complete:function(resopnse){
-                                //     isSubmitting = false;
+            //                         isSubmitting = false;
+            //                         $(".fullloader").addClass("hidden");
+            //                     },
+            //                     // complete:function(resopnse){
+            //                     //     isSubmitting = false;
                             
-                                //     $(".fullloader").addClass("hidden");
-                                //     console.log('complete');
-                                // }
-                            });
+            //                     //     $(".fullloader").addClass("hidden");
+            //                     //     console.log('complete');
+            //                     // }
+            //                 });
 
-                        }
-                    })
-                }
+            //             }
+            //         })
+            //     }
 
-            });
+            // });
 
 
 
@@ -602,8 +631,32 @@
             }
             showProducts();
 
-            $('#cancelBtn').click(function(){
+            let isSubmitting = false;
+            $('#approveBtn').click(function(e){
 
+                e.preventDefault();
+                if (isSubmitting) return;
+
+
+                Swal.fire({
+                    icon: "question",
+                    text: "Are you sure want to Cancel RG?",
+                    showCancelButton: true,
+                }).then((result) => {
+                    if(result.isConfirmed)
+                    {
+
+                        isSubmitting = true;                            
+                        $(".fullloader").removeClass("hidden");
+                        // Swal.disableButtons();
+                        $('#approveBtn').prop('disabled', true)
+
+                        var btn = $(this).val();
+                        $('#btn_status').append('<input type="hidden" name="status" value="' + btn + '" /> ');
+
+                        $('#rg_form').submit();
+                    }
+                })
             });
            
         </script>
