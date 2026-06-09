@@ -879,7 +879,8 @@ use Spatie\Permission\Models\Role;
             on po.purchaseno=rg.purchase_no
             inner join purchaseorder.receive_dt dt
             on rg.receive_no=dt.receive_no
-            where purchaseno='$po_no'
+            where receive_status <>'C'
+            and purchaseno='$po_no'
         ");
         return $data;
     }

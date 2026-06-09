@@ -29,6 +29,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
@@ -248,7 +249,7 @@ class ActionController extends Controller
         $unit   = preg_replace("/[^A-Za-z].*/", '', $all);
         $unit   = $unit == '' ? 'S' : $unit;
         $poi    = false;
-        Loger::info(['AT' => 'hiii']);
+        Logger::info(['AT' => 'hiii']);
         if (strtoupper(substr($all, 0, 2)) == 'PO' || strtoupper(substr($all, 0, 2)) == 'IC' || strtoupper(substr($all, 0, 2)) == 'AT') {
             $reg = get_branch_truck()[2];
 
@@ -651,7 +652,7 @@ class ActionController extends Controller
             DB::rollBack();
             DB::connection('master_product')->rollBack();
 
-            Log::info($e->getMessage());
+            Logger::info($e->getMessage());
 
             return response()->json([
                 'success'=>false,
