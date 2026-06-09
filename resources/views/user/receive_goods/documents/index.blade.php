@@ -11,7 +11,7 @@
                 <div class="flex items-center gap-2">
                     <i class='bx bx-list-ul text-amber-500 text-xl'></i>
                     <h2 class="text-sm font-bold text-slate-700 tracking-wide mb-0">
-                        Receive Goods Documents
+                        Purchase Orders (PO)
                     </h2>
                 </div>
             </div>
