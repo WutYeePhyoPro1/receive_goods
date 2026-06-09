@@ -37,4 +37,14 @@ class Document extends Model
         return $this->belongsTo(Branch::class);
     }
 
+    public function vendor(){
+        return $this->belongsTo(Vendor::class,'vendor_code','vendor_code');
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'document_id', 'id');
+    }
+
+
 }

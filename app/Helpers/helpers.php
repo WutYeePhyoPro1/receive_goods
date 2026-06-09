@@ -953,3 +953,23 @@ use Spatie\Permission\Models\Role;
 
         return $modified;
     }
+
+    function checkVCInvoice($data, $receive_good_document){
+        $conn = DB::connection('master_product');
+
+
+        $po_no = $receive_good_document->po_no;
+        $rg_no =  $receive_good_document->receive_good_files->first()->file;
+
+        $data = $conn->select("
+            select receive_status,receive_no,vcdocuno
+            from purchaseorder.receive_hd rg
+            inner join purchaseorder.vcinvoicehd vc
+            on rg.receive_no=vc.receiveno
+            where receive_status='F'
+            and receive_no='$rg_no'
+        ");
+
+        return $data;
+
+    }

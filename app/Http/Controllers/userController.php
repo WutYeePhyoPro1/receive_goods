@@ -369,6 +369,7 @@ class userController extends Controller
         $good_receive = GoodsReceive::where('id', $id)->first();
 
         $documents = Document::where('received_goods_id', $id)
+            ->where('document_no', 'like', 'PO%')
             ->orderBy('updated_at', 'desc')
             ->get();
 
@@ -551,6 +552,20 @@ class userController extends Controller
             $user_id = $user->id;
 
             if ($request->status == "Cancel") {
+
+                $resultVC = checkVCInvoice($request->all(),$receive_good_document);
+                // dd($resultVC);
+
+                if($resultVC){
+                    $vc_invoice = $resultVC[0];
+                    // dd($vc_invoice);
+                    $vcdocuno = $vc_invoice->vcdocuno;
+
+                    return back()->with('fails', "This RG have VC Invoice '$vcdocuno'. Please cancel VC Invoice first.");
+                }else{  
+                    // dd('do not has vc');
+                }
+
                 $origianl_status = $receive_good_document->status;
                 $receive_good_document->update(['status' => $request->status]);
                 
@@ -593,12 +608,14 @@ class userController extends Controller
 
         $results = Document::query();
 
+        $results = $results->where('document_no', 'like', 'PO%');
+
         if ($docuno) {
             $results = $results->where(function ($query) use ($docuno) {
-                    $query->where('po_no', 'like', '%' . $docuno . '%')
-                    ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
-                        $q->where('file', 'like', '%' . $docuno . '%');
-                    });
+                    $query->where('document_no', 'like', '%' . $docuno . '%');
+                    // ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
+                    //     $q->where('file', 'like', '%' . $docuno . '%');
+                    // });
                     // ->orWhere('remark', 'like', '%' . $docuno . '%');
             });
         }
