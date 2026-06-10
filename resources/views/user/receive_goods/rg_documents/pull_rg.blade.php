@@ -99,7 +99,7 @@
 
                         <div class="md:col-span-2 self-end">
                             <label class="block font-medium text-slate-500 mb-0.5"> </label>
-                            <input type="text" name="po_remark" readonlys id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Enter remarks details here...">
+                            <input type="text" name="po_remark" readonlys id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-alloweds" placeholder="Enter remarks details here...">
                         </div>
                         
                         <!-- Checkbox Controls Alignment -->
