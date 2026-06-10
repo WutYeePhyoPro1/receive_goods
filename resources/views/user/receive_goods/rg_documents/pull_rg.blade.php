@@ -99,7 +99,7 @@
 
                         <div class="md:col-span-2 self-end">
                             <label class="block font-medium text-slate-500 mb-0.5"> </label>
-                            <input type="text" name="po_remark" readonly id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Enter remarks details here...">
+                            <input type="text" name="po_remark" readonlys id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Enter remarks details here...">
                         </div>
                         
                         <!-- Checkbox Controls Alignment -->
@@ -233,7 +233,7 @@
                 maxDate: new Date().fp_incr(30)
             });
 
-            flatpickr("#delivery_date", {
+            var deliveryDatePicker = flatpickr("#delivery_date", {
                 defaultDate: new Date(),
                 dateFormat: "Y-m-d",
                 // minDate: "today",
@@ -246,11 +246,7 @@
             //     minDate: "today",
             //     maxDate: new Date().fp_incr(30)
             // });
-        });
 
-        // ... rest of your existing AJAX code ...
-    </script>
-        <script type="text/javascript">
             var token = $("meta[name='__token']").attr('content');
             const recieve_id = $('#receive_id').val();
 
@@ -287,7 +283,7 @@
                         $('#remark').val(document.remark);
                         $('#branch_id').val(document.branch_id);
 
-
+                        deliveryDatePicker.set('minDate', document.purchasedate);
 
                         products.forEach((product,idx) => {
                             // let key = `${product.bar_code}_${product.price}`;
@@ -532,13 +528,17 @@
                                                 reverseButtons: true,
                                             }).then((result) => {
                                                 if(result.isConfirmed){
+                                                    window.open(`/receive_goods/rg_documents/${receive_good_document.id}/print-pdf`, '_blank');
+                                                    
                                                     // // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
                                                     window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}/r008`;
                                                 }
                                             })
                                           
                                         }
-                                        setTimeout(() => {
+                                        window.open(`/receive_goods/rg_documents/${receive_good_document.id}/print-pdf`, '_blank');
+
+                                        setTimeout(() => {                                            
                                             window.location.href="{{ route('rg_documents') }}";
                                         }, 3000);
 
@@ -581,7 +581,11 @@
 
 
            
+
+        });
         </script>
+
+
     @endpush
 @endsection
 

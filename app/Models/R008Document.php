@@ -19,6 +19,9 @@ class R008Document extends Model
         "remark",
         "branch_id",
         "user_id",
+        "status",
+        "rejected_by",
+        "rejected_at"
     ];
 
     public function user(){
@@ -53,6 +56,10 @@ class R008Document extends Model
     public function vendor(){
         return $this->belongsTo(Vendor::class,'vendor_code','vendor_code');
     }
+
+    public function rejected(){
+        return $this->belongsTo(User::class,'rejected_by','id');
+    } 
 
 
 

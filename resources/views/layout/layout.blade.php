@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="{{ asset('css/selectize.bootstrap3.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}">
 
-    @if(!\Route::is('pull_rg','detail_rg','r008s.create'))
+    @if(!\Route::is('pull_rg','detail_rg','r008s.create','r008s.show'))
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     @endif
     

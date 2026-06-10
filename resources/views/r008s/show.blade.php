@@ -3,11 +3,34 @@
 
 @section('content')
       <!-- MAIN CONTENT CONTAINER -->
+    @php 
+    $manager = isManager($r008_document);
+    @endphp
     <div class="md:w-[80%] pb-16 px-4 pt-4 mx-auto">
-        <form id="r008_form" action="" method="POST">
+        @if (Session::has('fails'))
+            <div class="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 shadow-sm" role="alert">
+                <div class="mt-0.5">
+                    <i class="bi bi-exclamation-octagon"></i>
+                </div>
+
+                <div class="flex-1 text-sm font-medium">
+                    {{ Session::get('fails') }}
+                </div>
+
+                <button type="button"
+                    class="ml-3 inline-flex h-5 w-5 items-center justify-center rounded text-red-500 hover:bg-red-100 hover:text-red-700"
+                    onclick="this.closest('[role=alert]').remove()"
+                    aria-label="Close">
+                    &times;
+                </button>
+            </div>
+        @endif
+
+        <form id="r008_form" action="{{ route('r8_dapprove_form', $r008_document->id ) }}" method="POST">
             @csrf
+            <div id="btn_status"></div>
             <!-- UNIFIED CARD CONTAINER -->
-            <div class="bg-white rounded-lg shadow-sm border border-slate-200 text-slate-800 text-xs">
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 text-slate-800 text-xs overflow-hidden">
                 
                 <!-- HEADER SECTION -->
                 <div class="p-4">
@@ -81,6 +104,12 @@
                                     readonly
                                     value="{{ $r008_document->r008_files->first()->file }}"
                                     class="h-9 w-[100%] px-3 rounded-lg border border-blue-300 bg-blue-100 text-blue-700 font-bold tracking-wide focus:outline-none">
+                                @php
+                                    $status = strtolower($r008_document->status ?? 'Default');
+                                @endphp
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
+                                    {{ $r008_document->status }}
+                                </span>
                             </div>
                         </div>
 
@@ -134,6 +163,7 @@
                         Back
                     </button>
 
+                    @if($r008_document->status !== "Cancel")
                     <button type="button" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm"
                     onClick="window.open('{{ route('r008s.print-pdf', $r008_document->id) }}', '_blank')"
 
@@ -146,7 +176,46 @@
                         Save
                     </button>
                     --}}
+                    @endif
 
+                    @if($manager && $r008_document->status !== "Cancel")
+                    <button type="button" id="approveBtn" class="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-700 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status"
+                    >
+                        Cancel
+                    </button>
+                    @endif
+
+                </div>
+                
+                <div class="border-t border-gray-100 bg-neutral-50 p-5">
+                    <div class="grid grid-cols-1 gap-6 text-sm leading-7 md:grid-cols-3">
+
+                        @if($r008_document->rejected_by)
+                            <div class="md:col-span-3">
+                                <div class="relative rounded-lg border border-red-300 bg-red-100 px-4 py-3 text-red-800">
+                                    <p>
+                                        This form was cancelled by
+                                        <span class="font-bold">"{{ $r008_document->rejected->name }}"</span>.
+                                    </p>
+
+                                    <button type="button"
+                                        class="absolute right-3 top-2 text-red-700 hover:text-red-900"
+                                        aria-label="Close">
+                                        &times;
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Prepared By --}}
+                        <div class="space-y-1">
+                            <div class="text-gray-600">Prepared By</div>
+                            <div class="font-semibold text-blue-900">{{ $r008_document->user->name }}</div>
+                            <div class="font-semibold text-blue-900">({{ $r008_document->user->department->name }})</div>
+                            <div class="font-semibold text-blue-900">{{ $r008_document->created_at->format('Y-m-d H:i:s A')  }}</div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </form>
@@ -403,86 +472,86 @@
                 $('#total_amount_input').val(total)
             }
 
-            let isSubmitting = false;
-            $('#r008_form').submit(function(e){
+            // let isSubmitting = false;
+            // $('#r008_form').submit(function(e){
 
-                e.preventDefault();
-                if (isSubmitting) return;
+            //     e.preventDefault();
+            //     if (isSubmitting) return;
 
-                if(false || validateForm()){
+            //     if(false || validateForm()){
 
-                    Swal.fire({
-                        icon: "question",
-                        text: "Are you sure to save R008?", // to Defective Product 246
-                        showCancelButton: true,
-                    }).then((result) => {
-                        if(result.isConfirmed)
-                        {
+            //         Swal.fire({
+            //             icon: "question",
+            //             text: "Are you sure to save R008?", // to Defective Product 246
+            //             showCancelButton: true,
+            //         }).then((result) => {
+            //             if(result.isConfirmed)
+            //             {
 
-                            isSubmitting = true;                            
-                            $(".fullloader").removeClass("hidden");
-                            // Swal.disableButtons();
-                            $('#saveBtn').prop('disabled', true)
+            //                 isSubmitting = true;                            
+            //                 $(".fullloader").removeClass("hidden");
+            //                 // Swal.disableButtons();
+            //                 $('#saveBtn').prop('disabled', true)
 
-                            console.log('submit');
+            //                 console.log('submit');
 
-                            // form submit here
-                            // console.log($('#rg_form').serialize());
+            //                 // form submit here
+            //                 // console.log($('#rg_form').serialize());
 
-                            $.ajax({
-                                url:"{{ route('r008s.store') }}",
-                                type:"POST",
-                                dataType: "json",
-                                data:$("#r008_form").serialize(),
-                                success:function(response){
-                                    console.log(response);
+            //                 $.ajax({
+            //                     url:"{{ route('r008s.store') }}",
+            //                     type:"POST",
+            //                     dataType: "json",
+            //                     data:$("#r008_form").serialize(),
+            //                     success:function(response){
+            //                         console.log(response);
 
-                                    const data = response;
+            //                         const data = response;
 
-                                    if(data.success){
-                                        Swal.fire({
-                                            icon: "success",
-                                            title: "R008 saved successfully!",
-                                            text: data.message,
-                                        });
-                                        window.location.href="{{ route('r008s.index') }}"
+            //                         if(data.success){
+            //                             Swal.fire({
+            //                                 icon: "success",
+            //                                 title: "R008 saved successfully!",
+            //                                 text: data.message,
+            //                             });
+            //                             window.location.href="{{ route('r008s.index') }}"
 
-                                    }else{
-                                        Swal.fire({
-                                            icon: "error",
-                                            title: "R008 Save Error!!",
-                                            text: "Something went wrong while saving the RG.",
-                                        });
+            //                         }else{
+            //                             Swal.fire({
+            //                                 icon: "error",
+            //                                 title: "R008 Save Error!!",
+            //                                 text: "Something went wrong while saving the RG.",
+            //                             });
 
-                                        isSubmitting = false;
-                                        $(".fullloader").addClass("hidden");
-                                    }
-                                },
-                                error:function(response){
-                                    console.log("Error: ",response);
+            //                             isSubmitting = false;
+            //                             $(".fullloader").addClass("hidden");
+            //                         }
+            //                     },
+            //                     error:function(response){
+            //                         console.log("Error: ",response);
 
-                                    Swal.fire({
-                                        icon: "error",
-                                        title: "R008 Save Error!!",
-                                        text: "Something went wrong while saving the RG.",
-                                    });
+            //                         Swal.fire({
+            //                             icon: "error",
+            //                             title: "R008 Save Error!!",
+            //                             text: "Something went wrong while saving the RG.",
+            //                         });
 
-                                    isSubmitting = false;
-                                    $(".fullloader").addClass("hidden");
-                                },
-                                // complete:function(resopnse){
-                                //     isSubmitting = false;
+            //                         isSubmitting = false;
+            //                         $(".fullloader").addClass("hidden");
+            //                     },
+            //                     // complete:function(resopnse){
+            //                     //     isSubmitting = false;
                             
-                                //     $(".fullloader").addClass("hidden");
-                                //     console.log('complete');
-                                // }
-                            });
+            //                     //     $(".fullloader").addClass("hidden");
+            //                     //     console.log('complete');
+            //                     // }
+            //                 });
 
-                        }
-                    })
-                }
+            //             }
+            //         })
+            //     }
 
-            });
+            // });
 
             (function showProducts(){
                 const products = @json($r008_document->r008_products);
@@ -536,6 +605,36 @@
 
                 });
             })()
+
+
+
+            let isSubmitting = false;
+            $('#approveBtn').click(function(e){
+
+                e.preventDefault();
+                if (isSubmitting) return;
+
+
+                Swal.fire({
+                    icon: "question",
+                    text: "Are you sure want to Cancel R008?",
+                    showCancelButton: true,
+                }).then((result) => {
+                    if(result.isConfirmed)
+                    {
+
+                        isSubmitting = true;                            
+                        $(".fullloader").removeClass("hidden");
+                        // Swal.disableButtons();
+                        $('#approveBtn').prop('disabled', true)
+
+                        var btn = $(this).val();
+                        $('#btn_status').append('<input type="hidden" name="status" value="' + btn + '" /> ');
+
+                        $('#r008_form').submit();
+                    }
+                })
+            });
 
            
         </script>

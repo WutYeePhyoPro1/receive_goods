@@ -56,6 +56,10 @@ class ReceiveGoodDocument extends Model
         return $this->hasMany(ReceiveGoodFile::class,'receive_good_document_id','id');
     }
 
+    public function rejected(){
+        return $this->belongsTo(User::class,'rejected_by','id');
+    } 
+
 
 
 }

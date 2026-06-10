@@ -404,6 +404,8 @@ class userController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
+        $user = auth()->user();
+        $user_id = $user->id;
 
         $results = ReceiveGoodDocument::query();
 
@@ -422,6 +424,19 @@ class userController extends Controller
                 $q->where('from_branch', $branch);
             });
         } 
+
+        $role = Role::where('name','admin')->first();
+        $role_id = $role->id;
+        if($user->role != $role_id){
+            $user_branches = $user->user_branches;
+            $branch_ids = $user_branches->pluck('branch_id');
+            $branch_ids[] = $user->branch_id;
+            // dd($branch_ids);
+
+            $results = $results->whereIn('branch_id',$branch_ids);
+        }
+
+     
 
         if($start_date || $end_date){
             $start_date = $request->start_date

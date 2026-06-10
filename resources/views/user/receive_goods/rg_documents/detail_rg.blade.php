@@ -31,7 +31,7 @@
             <!-- UNIFIED CARD CONTAINER -->
             <div id="btn_status"></div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-slate-200 text-slate-800 text-xs">
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 text-slate-800 text-xs overflow-hidden">
                 
                 <input type="hidden" id="receive_id" value="{{-- $good_receive->id --}}">
                 <!-- HEADER SECTION -->
@@ -249,6 +249,55 @@
                     @endif
 
                 </div>
+
+
+                <div class="border-t border-gray-100 bg-neutral-50 p-5">
+                    <div class="grid grid-cols-1 gap-6 text-sm leading-7 md:grid-cols-3">
+
+                        @if($receive_good_document->rejected_by)
+                            <div class="md:col-span-3">
+                                <div class="relative rounded-lg border border-red-300 bg-red-100 px-4 py-3 text-red-800">
+                                    <p>
+                                        This form was cancelled by
+                                        <span class="font-bold">"{{ $receive_good_document->rejected->name }}"</span>.
+                                    </p>
+
+                                    <button type="button"
+                                        class="absolute right-3 top-2 text-red-700 hover:text-red-900"
+                                        aria-label="Close">
+                                        &times;
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Prepared By --}}
+                        <div class="space-y-1">
+                            <div class="text-gray-600">Prepared By</div>
+                            <div class="font-semibold text-blue-900">{{ $receive_good_document->user->name }}</div>
+                            <div class="font-semibold text-blue-900">({{ $receive_good_document->user->department->name }})</div>
+                            <div class="font-semibold text-blue-900">{{ $receive_good_document->created_at->format('Y-m-d H:i:s A')  }}</div>
+                        </div>
+
+                        {{-- Checked By --}}
+                        <!-- <div class="space-y-1">
+                            <div class="text-gray-600">Checked By Category Supervisor</div>
+                            <div class="font-semibold text-blue-900">Daw Hla Hla</div>
+                            <div class="font-semibold text-blue-900">(Inventory Control Department)</div>
+                            <div class="font-semibold text-blue-900">2026-06-10 10:00 AM</div>
+                        </div> -->
+
+                        {{-- Approved By --}}
+                        <!-- <div class="space-y-1">
+                            <div class="text-gray-600">Approved By Merchandising Manager</div>
+                            <div class="font-semibold text-blue-900">U Aung Aung</div>
+                            <div class="font-semibold text-blue-900">(Merchandising Department)</div>
+                            <div class="font-semibold text-blue-900">2026-06-10 10:15 AM</div>
+                        </div> -->
+
+                    </div>
+                </div>
+
             </div>
         </form>
 

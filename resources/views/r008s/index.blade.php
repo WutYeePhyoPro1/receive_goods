@@ -157,6 +157,14 @@
 
                             <td class="px-4 py-3 font-semibold text-blue-700">
                                 {{ $item->r008_files->first()->file }}
+                                @php
+                                    $status = strtolower($item->status ?? 'Default');
+                                @endphp
+                                @if($status == 'cancel')
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
+                                    {{ $item->status }}
+                                </span>
+                                @endif
                             </td>
 
                             <td class="px-4 py-3">

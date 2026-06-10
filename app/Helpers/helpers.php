@@ -924,9 +924,13 @@ use Spatie\Permission\Models\Role;
         $role = Role::where('name','manager')->first();
         $role_id = $role->id;
 
+        $user_branches = $user->user_branches;
+        $branch_ids = $user_branches->pluck('branch_id')->toArray();
+        $branch_ids[] = $user->branch_id;
+
         $isManager = $user
                         && $user->role == $role_id
-                        && $user->branch_id == $data->branch_id;
+                        && in_array($data->branch_id,$branch_ids);
 
         return $isManager;
     }
@@ -973,4 +977,26 @@ use Spatie\Permission\Models\Role;
 
         return $data;
 
+    }
+
+
+    function cancelR8Doc($data, $r008_document){
+        $conn = DB::connection('defective_product');
+        $masterConn = DB::connection('master_product');
+
+        $r8_no =  $r008_document->r008_files->first()->file;
+        $rg_no = $r008_document->rg_no;
+
+        // $modified = null;
+        $modified = $conn->update("
+            update public.r008_branch_reciverhd set r_status='5' where r_docuno='$r8_no'
+        ");
+
+        $rgModified = $masterConn->update("
+            update purchaseorder.receive_hd
+            set status_r008='', r008_docuno=''
+            where receive_no='$rg_no'
+        ");
+
+        return $modified;
     }

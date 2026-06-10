@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Role;
 
 class R008SController extends Controller
 {
@@ -23,6 +24,9 @@ class R008SController extends Controller
         $branch = $request->branch_id;
         $start_date = $request->start_date;
         $end_date = $request->end_date;
+
+        $user = auth()->user();
+        $user_id = $user->id;
 
 
         $results = R008Document::query();
@@ -41,6 +45,18 @@ class R008SController extends Controller
                 $q->where('from_branch', $branch);
             });
         } 
+
+        $role = Role::where('name','admin')->first();
+        $role_id = $role->id;
+        if($user->role != $role_id){
+            $user_branches = $user->user_branches;
+            $branch_ids = $user_branches->pluck('branch_id');
+            $branch_ids[] = $user->branch_id;
+            // dd($branch_ids);
+
+            $results = $results->whereIn('branch_id',$branch_ids);
+        }
+
 
         if($start_date || $end_date){
             $start_date = $request->start_date
@@ -234,4 +250,60 @@ class R008SController extends Controller
         // return $pdf->download('invoice.pdf');
         return $pdf->stream('r008.pdf');
     }
+
+    public function approve_form($id,Request $request){
+        DB::beginTransaction();
+        DB::connection('defective_product')->beginTransaction();
+        DB::connection('master_product')->beginTransaction();
+        try {
+
+            $r008_document = R008Document::find($id);
+
+            $status = $request->status;
+            // dd($status);
+
+            $user = auth()->user();
+            $user_id = $user->id;
+
+            if ($request->status == "Cancel") {
+
+                $origianl_status = $r008_document->status;
+                $r008_document->update(['status' => $request->status]);
+                
+                if ($origianl_status == 'Default') {
+                   
+
+                    $r008_document->update([
+                        'rejected_by'=> $user_id,
+                        'rejected_at' => now()
+                    ]);
+
+                    $r008_document->receive_good_document()->receive_good_files->where('name','R008')->first()->delete();
+
+                }
+
+                // Start RG Cancel In ERP
+                $updated_r8_document_count = cancelR8Doc($request->all(),$r008_document);
+                // End RG Cancel In EERP
+
+            }
+            // throw new \Exception("RG Document Update Error: ");
+
+                
+            DB::commit();
+            DB::connection('defective_product')->commit();
+            DB::connection('master_product')->commit();
+            return back();
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            DB::rollBack();
+            DB::connection('defective_product')->rollBack();
+            DB::connection('master_product')->rollBack();
+
+            return back()
+            ->with('fails', "There is an error in processing R008 Form.");
+        }
+
+    }
+
 }

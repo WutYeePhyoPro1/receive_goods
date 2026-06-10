@@ -135,7 +135,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white">
-                                    @foreach($po_document->products as $idx=>$product)
+                                    @foreach($po_document->purchase_order_items as $idx=>$product)
                                     <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
                                         <td class="py-1.5 px-3 font-medium text-slate-400">{{ ++$idx }}</td>
                                         <td class="py-1.5 px-3 font-mono font-medium text-slate-700">{{ $product->bar_code }}</td>

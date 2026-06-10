@@ -84,9 +84,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('r008s/create','create')->name('r008s.create');
             Route::post('r008s','store')->name('r008s.store');
             Route::get('r008s/{id}','show')->name('r008s.show');
+            Route::post('r008s/{id}/approve','approve_form')->name('r8_dapprove_form');
 
             Route::get('r008s/{id}/print-pdf','printPDF')->name('r008s.print-pdf');
-
         });
 
         route::group(['controller'=>ReportController::class],function(){
