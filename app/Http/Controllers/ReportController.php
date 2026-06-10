@@ -34,96 +34,96 @@ class ReportController extends Controller
 
     public function product_list()
     {
-        Common::Log(route('product_list'),"go to product report page");
+        Common::Log(route('product_list'), "go to product report page");
 
         $product_id = [];
         $user_branch    = getAuth()->branch_id;
-        $mgld_dc        = [17,19,20];
+        $mgld_dc        = [17, 19, 20];
         $data = get_branch_truck();
         $truck_id   = $data[0];
         $loc        = $data[1];
         $reg        = $data[2];
-        $doc = Document::whereIn('received_goods_id',$reg)->pluck('id');
+        $doc = Document::whereIn('received_goods_id', $reg)->pluck('id');
 
-        if(request('search_data') && !request('search'))
-        {
-            return back()->with('error','Please Choose Search Method');
+        if (request('search_data') && !request('search')) {
+            return back()->with('error', 'Please Choose Search Method');
         }
-        if(request('search') == 'main_no')
-        {
-            $main   = GoodsReceive::where('document_no',request('search_data'))
-                                    ->whereIn('id',$reg)
-                                    ->first();
-            if($main)
-            {
-                $doc    = Document::where('received_goods_id',$main->id)->pluck('id');
-                $product_id = Product::whereIn('document_id',$doc)->pluck('id');
+        if (request('search') == 'main_no') {
+            $main   = GoodsReceive::where('document_no', request('search_data'))
+                ->whereIn('id', $reg)
+                ->first();
+            if ($main) {
+                $doc    = Document::where('received_goods_id', $main->id)->pluck('id');
+                $product_id = Product::whereIn('document_id', $doc)->pluck('id');
             }
             // dd($main);
-        }
-        else if(request('search') == 'document_no')
-        {
-            $doc    = Document::where('document_no',request('search_data'))
-                                ->whereIn('received_goods_id',$reg)
-                                ->first();
-            if($doc){
-                $product_id= Product::where('document_id',$doc->id)->pluck('id');
+        } else if (request('search') == 'document_no') {
+            $doc    = Document::where('document_no', request('search_data'))
+                ->whereIn('received_goods_id', $reg)
+                ->first();
+            if ($doc) {
+                $product_id = Product::where('document_id', $doc->id)->pluck('id');
             }
         }
         $report = 'product';
         $url    = 'product_list';
-        if(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'))
-        {
-            $pd_ids = Product::whereIn('document_id',$doc)->pluck('id');
 
-            $product = Tracking::with('product')->whereIn('product_id',$pd_ids)
-                                ->whereIn('driver_info_id',$truck_id)
-                                ->whereDate('created_at',Carbon::today())
-                                ->paginate(15);
-            $product_sum = Tracking::whereIn('product_id',$pd_ids)
-                            ->whereIn('driver_info_id',$truck_id)
-                            ->whereDate('created_at',Carbon::today())
-                            ->get();
+        if (!request('search')  && !request('search_data') && !request('from_date') && !request('to_date')) {
+            $doc = Document::whereIn('received_goods_id', $reg)
+                ->whereDate('created_at', now()->toDateString())
+                ->pluck('id');
+            // dd($doc);
+            $pd_ids = Product::whereIn('document_id', $doc)->pluck('id');
+
+            $product = Tracking::with('product')->whereIn('product_id', $pd_ids)
+                ->whereIn('driver_info_id', $truck_id)
+                ->whereDate('created_at', Carbon::today())
+                ->paginate(15);
+
+            $product_sum = Tracking::whereIn('product_id', $pd_ids)
+                ->whereIn('driver_info_id', $truck_id)
+                ->whereDate('created_at', Carbon::today())
+                ->get();
             $all_sum['qty_sum']        = 0;
             $all_sum['scanned_sum']    = $product_sum->Sum('scanned_qty');
-        }else{
-            $product = Product::when(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'), function($q){
-                $q->whereDate('created_at',Carbon::today());
+        } else {
+            $product = Product::when(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'), function ($q) {
+                $q->whereDate('created_at', Carbon::today());
             })
-            ->when((request('search') == 'main_no' || request('search') == 'document_no') && request('search_data'),function($q) use($product_id){
-                $q->whereIn('id',$product_id);
-            })
-            ->when(request('search') == 'product_code' && request('search_data'),function($q){
-                $q->where('bar_code',request('search_data'));
-            })
-            ->when(request('from_date'),function($q){
-                $q->whereDate('created_at','>=',request('from_date'));
-            })
-            ->when(request('to_date'),function($q){
-                $q->whereDate('created_at','<=',request('to_date'));
-            })
+                ->when((request('search') == 'main_no' || request('search') == 'document_no') && request('search_data'), function ($q) use ($product_id) {
+                    $q->whereIn('id', $product_id);
+                })
+                ->when(request('search') == 'product_code' && request('search_data'), function ($q) {
+                    $q->where('bar_code', request('search_data'));
+                })
+                ->when(request('from_date'), function ($q) {
+                    $q->whereDate('created_at', '>=', request('from_date'));
+                })
+                ->when(request('to_date'), function ($q) {
+                    $q->whereDate('created_at', '<=', request('to_date'));
+                })
 
-            ->whereIn('document_id',$doc)
-            ->orderBy('id','asc')
-            ->paginate(15);
+                ->whereIn('document_id', $doc)
+                ->orderBy('id', 'asc')
+                ->paginate(15);
 
-            $product_sum = Product::when(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'), function($q){
-                $q->whereDate('created_at',Carbon::today());
+            $product_sum = Product::when(!request('search')  && !request('search_data') && !request('from_date') && !request('to_date'), function ($q) {
+                $q->whereDate('created_at', Carbon::today());
             })
-            ->when((request('search') == 'main_no' || request('search') == 'document_no') && request('search_data'),function($q) use($product_id){
-                $q->whereIn('id',$product_id);
-            })
-            ->when(request('search') == 'product_code' && request('search_data'),function($q){
-                $q->where('bar_code',request('search_data'));
-            })
-            ->when(request('from_date'),function($q){
-                $q->whereDate('created_at','>=',request('from_date'));
-            })
-            ->when(request('to_date'),function($q){
-                $q->whereDate('created_at','<=',request('to_date'));
-            })
-            ->whereIn('document_id',$doc)
-            ->get();
+                ->when((request('search') == 'main_no' || request('search') == 'document_no') && request('search_data'), function ($q) use ($product_id) {
+                    $q->whereIn('id', $product_id);
+                })
+                ->when(request('search') == 'product_code' && request('search_data'), function ($q) {
+                    $q->where('bar_code', request('search_data'));
+                })
+                ->when(request('from_date'), function ($q) {
+                    $q->whereDate('created_at', '>=', request('from_date'));
+                })
+                ->when(request('to_date'), function ($q) {
+                    $q->whereDate('created_at', '<=', request('to_date'));
+                })
+                ->whereIn('document_id', $doc)
+                ->get();
 
             $all_sum['qty_sum']        = $product_sum->Sum('qty');
             $all_sum['scanned_sum']       = $product_sum->Sum('scanned_qty');
@@ -132,15 +132,15 @@ class ReportController extends Controller
 
 
 
-            return view('user.report.report',compact('report','product','url','all_sum'));
+        return view('user.report.report', compact('report', 'product', 'url', 'all_sum'));
     }
 
     public function finished_documents()
     {
-        Common::Log(route('finished_documents'),"go to finished documents report page");
+        Common::Log(route('finished_documents'), "go to finished documents report page");
 
         $user_branch    = getAuth()->branch_id;
-        $mgld_dc        = ['17','19','20'];
+        $mgld_dc        = ['17', '19', '20'];
         $data = get_branch_truck();
         $truck_id   = $data[0];
         $loc        = $data[1];
@@ -148,55 +148,54 @@ class ReportController extends Controller
         $report = 'finish';
         $url    = 'finished_documents';
 
-        if(request('search') && !request('search_data'))
-        {
-            return back()->with('error','Please add search data');
-        }else if(!request('search') && request('search_data')){
-            return back()->with('error','Please add search method');
+        if (request('search') && !request('search_data')) {
+            return back()->with('error', 'Please add search data');
+        } else if (!request('search') && request('search_data')) {
+            return back()->with('error', 'Please add search method');
         }
-        $ids=[];
-        if(request('search') == 'truck_no' || request('search') == 'driver_name'){
-            $ids = DriverInfo::where(request('search'),request('search_data'))->pluck('received_goods_id');
+        $ids = [];
+        if (request('search') == 'truck_no' || request('search') == 'driver_name') {
+            $ids = DriverInfo::where(request('search'), request('search_data'))->pluck('received_goods_id');
         }
-        $data = GoodsReceive::when(request('search') == 'document_no' && request('search_data'),function($q){
-                            $q->where('document_no',request('search_data'));
-                            })
-                            ->when(request('search') != 'document_no' && request('search_data'),function($q) use($ids){
-                                $q->whereIn('id',$ids);
-                            })
-                            ->when(request('branch'),function($q){
-                                $q->where('branch_id',request('branch'));
-                            })
-                            ->when(request('status'),function($q){
-                                $q->where('status',request('status'));
-                            })
-                            ->when(request('from_date'),function($q){
-                                $q->where('start_date','>=',request('from_date'));
-                            })
-                            ->when(request('to_date'),function($q){
-                                $q->where('start_date','<=',request('to_date'));
-                            })
-                            ->when(!request('search') && !request('search_data') && !request('branch') && !request('status') && !request('from_date') && !request('to_date') , function($q){
-                                $q->whereDate('updated_at',Carbon::today());
-                            })
-                            ->when($loc =='dc',function($q) use($mgld_dc){
-                                $q->whereIn('branch_id',$mgld_dc);
-                            })
-                            ->when($loc == 'other',function($q) use($user_branch){
-                                $q->where('branch_id',$user_branch);
-                            })
-                            ->whereNotNull('total_duration')
-                            ->where('status','complete')
-                            ->orderBy('updated_at','desc')
-                            ->paginate(15);
+        $data = GoodsReceive::when(request('search') == 'document_no' && request('search_data'), function ($q) {
+            $q->where('document_no', request('search_data'));
+        })
+            ->when(request('search') != 'document_no' && request('search_data'), function ($q) use ($ids) {
+                $q->whereIn('id', $ids);
+            })
+            ->when(request('branch'), function ($q) {
+                $q->where('branch_id', request('branch'));
+            })
+            ->when(request('status'), function ($q) {
+                $q->where('status', request('status'));
+            })
+            ->when(request('from_date'), function ($q) {
+                $q->where('start_date', '>=', request('from_date'));
+            })
+            ->when(request('to_date'), function ($q) {
+                $q->where('start_date', '<=', request('to_date'));
+            })
+            ->when(!request('search') && !request('search_data') && !request('branch') && !request('status') && !request('from_date') && !request('to_date'), function ($q) {
+                $q->whereDate('updated_at', Carbon::today());
+            })
+            ->when($loc == 'dc', function ($q) use ($mgld_dc) {
+                $q->whereIn('branch_id', $mgld_dc);
+            })
+            ->when($loc == 'other', function ($q) use ($user_branch) {
+                $q->where('branch_id', $user_branch);
+            })
+            ->whereNotNull('total_duration')
+            ->where('status', 'complete')
+            ->orderBy('updated_at', 'desc')
+            ->paginate(15);
 
         $branch = Branch::get();
-        return view('user.report.report',compact('report','data','branch','url'));
-}
+        return view('user.report.report', compact('report', 'data', 'branch', 'url'));
+    }
 
     public function truck_list()
     {
-        Common::Log(route('truck_list'),"go to Truck report page");
+        Common::Log(route('truck_list'), "go to Truck report page");
 
         $data = get_branch_truck();
         $truck_id   = $data[0];
@@ -204,69 +203,63 @@ class ReportController extends Controller
 
         $report = 'truck';
         $url    = 'truck_list';
-        if(request('search') && !request('search_data'))
-        {
-            return back()->with('error','Please add search data');
-        }else if(!request('search') && request('search_data')){
-            return back()->with('error','Please add search method');
+        if (request('search') && !request('search_data')) {
+            return back()->with('error', 'Please add search data');
+        } else if (!request('search') && request('search_data')) {
+            return back()->with('error', 'Please add search method');
         }
 
         $truck = [];
-        if(request('search') == 'main_no' && request('search_data'))
-        {
-            $main = GoodsReceive::where('document_no',request('search_data'))->first();
-            if($main)
-            {
-         
-                $truck= DriverInfo::where('received_goods_id',$main->id)->pluck('id');
-            }
-        }elseif(request('search') == 'product_code' && request('search_data'))
-        {
+        if (request('search') == 'main_no' && request('search_data')) {
+            $main = GoodsReceive::where('document_no', request('search_data'))->first();
+            if ($main) {
 
-            $product = Product::where('bar_code',request('search_data'))->pluck('id');
-            if($product)
-            {
-                $truck   = Tracking::whereIn('product_id',$product)->pluck('driver_info_id');
+                $truck = DriverInfo::where('received_goods_id', $main->id)->pluck('id');
             }
-        }elseif((request('search') == 'truck_no' || request('search') == 'driver_name') && request('search_data'))
-        {
-            $truck = DriverInfo::where(request('search'),request('search_data'))->pluck('id');
+        } elseif (request('search') == 'product_code' && request('search_data')) {
+
+            $product = Product::where('bar_code', request('search_data'))->pluck('id');
+            if ($product) {
+                $truck   = Tracking::whereIn('product_id', $product)->pluck('driver_info_id');
+            }
+        } elseif ((request('search') == 'truck_no' || request('search') == 'driver_name') && request('search_data')) {
+            $truck = DriverInfo::where(request('search'), request('search_data'))->pluck('id');
         }
 
 
-        $truck  = Driverinfo::when(!request('search') && !request('search_data') && !request('gate') && !request('from_date') && !request('to_date') , function($q){
-                                $q->whereDate('created_at',Carbon::today());
-                        })
-                            ->when((request('search') == 'main_no' || request('search') == 'product_code' || request('search') == 'truck_no' || request('search') == 'driver_name') && request('search_data'),function($q) use($truck){
-                                $q-> whereIn('id', $truck);
-                        })
-                            ->when(request('gate'),function($q){
-                                $q-> where('gate',request('gate'));
-                            })
-                            ->when(request('from_date'),function($q){
-                                $q->whereDate('created_at', '>=', request('from_date'));
-                            })
-                            ->when(request('to_date'),function($q){
-                                $q->whereDate('created_at','<=',request('to_date'));
-                            })
-                            ->when($loc != 'ho',function($q) use($truck_id){
-                                $q->whereIn('id',$truck_id);
-                                    })
-                            ->paginate(15);
+        $truck  = Driverinfo::when(!request('search') && !request('search_data') && !request('gate') && !request('from_date') && !request('to_date'), function ($q) {
+            $q->whereDate('created_at', Carbon::today());
+        })
+            ->when((request('search') == 'main_no' || request('search') == 'product_code' || request('search') == 'truck_no' || request('search') == 'driver_name') && request('search_data'), function ($q) use ($truck) {
+                $q->whereIn('id', $truck);
+            })
+            ->when(request('gate'), function ($q) {
+                $q->where('gate', request('gate'));
+            })
+            ->when(request('from_date'), function ($q) {
+                $q->whereDate('created_at', '>=', request('from_date'));
+            })
+            ->when(request('to_date'), function ($q) {
+                $q->whereDate('created_at', '<=', request('to_date'));
+            })
+            ->when($loc != 'ho', function ($q) use ($truck_id) {
+                $q->whereIn('id', $truck_id);
+            })
+            ->paginate(15);
         $user_branch_code    = getAuth()->branch->branch_code;
         $branch = Branch::get();
-        $gate   = CarGate::when($loc == 'dc',function($q) {
-                    $q->whereIn('branch',['MM-505','MM-510','MM-515']);
-                    })
-                    ->when($loc == 'other',function($q) use($user_branch_code){
-                        $q->where('branch',$user_branch_code);
-                    })->get();
-        return view('user.report.report',compact('report','truck','branch','gate','url'));
+        $gate   = CarGate::when($loc == 'dc', function ($q) {
+            $q->whereIn('branch', ['MM-505', 'MM-510', 'MM-515']);
+        })
+            ->when($loc == 'other', function ($q) use ($user_branch_code) {
+                $q->where('branch', $user_branch_code);
+            })->get();
+        return view('user.report.report', compact('report', 'truck', 'branch', 'gate', 'url'));
     }
 
     public function remove_list()
     {
-        Common::Log(route('remove_list'),"go to Remove Lists report page");
+        Common::Log(route('remove_list'), "go to Remove Lists report page");
 
         $data = get_branch_truck();
         $truck_id   = $data[0];
@@ -276,60 +269,54 @@ class ReportController extends Controller
         $report = 'remove';
         $url = 'remove_list';
 
-        if(request('search') && !request('search_data'))
-        {
-            return back()->with('error','Please add search data');
-        }else if(!request('search') && request('search_data')){
-            return back()->with('error','Please add search method');
+        if (request('search') && !request('search_data')) {
+            return back()->with('error', 'Please add search data');
+        } else if (!request('search') && request('search_data')) {
+            return back()->with('error', 'Please add search method');
         }
         $no = [];
         $product = '';
         $user    = '';
-        if(request('search') == 'main_no' && request('search_data'))
-        {
-            $document   = GoodsReceive::where('document_no',request('search_data'))->first();
-            if($document)
-            {
-                $no       = RemoveTrack::where('received_goods_id',$document->id)->pluck('id');
+        if (request('search') == 'main_no' && request('search_data')) {
+            $document   = GoodsReceive::where('document_no', request('search_data'))->first();
+            if ($document) {
+                $no       = RemoveTrack::where('received_goods_id', $document->id)->pluck('id');
             }
-        }elseif(request('search') == 'product_code' && request('search_data'))
-        {
-            $product    = Product::where('bar_code',request('search_data'))->pluck('id');
-        }elseif(request('search') == 'user' && request('search_data'))
-        {
-            $user   = User::where('name',request('search_data'))->first();
+        } elseif (request('search') == 'product_code' && request('search_data')) {
+            $product    = Product::where('bar_code', request('search_data'))->pluck('id');
+        } elseif (request('search') == 'user' && request('search_data')) {
+            $user   = User::where('name', request('search_data'))->first();
         }
 
-        $data = RemoveTrack::when(!request('search') && !request('from_date') && !request('to_date'),function($q)
-                            {
-                                $q->whereDate('created_at',Carbon::today());
-                            })
-                            ->when(request('search') == 'main_no' && request('search_data') , function($q) use($no){
-                                $q->whereIn('id',$no);
-                            })
-                            ->when(request('search') == 'product_code' && request('search_data'),function($q) use($product){
-                                $q->where('proudct_id',$product);
-                            })
-                            ->when(request('search') == 'user' && request('search_data'),function($q) use($user){
-                                $q->where('user_id',$user);
-                            })
-                            ->when(request('from_date'),function($q){
-                                $q->whereDate('created_at', '>=', request('from_date'));
-                            })
-                            ->when(request('to_date'),function($q){
-                                $q->whereDate('created_at','<=',request('to_date'));
-                            })
-                            ->when($loc != 'ho',function($q) use($reg){
-                                $q->whereIn('received_goods_id',$reg);
-                                    })
-                            ->paginate(15);
+        $data = RemoveTrack::when(!request('search') && !request('from_date') && !request('to_date'), function ($q) {
+            $q->whereDate('created_at', Carbon::today());
+        })
+            ->when(request('search') == 'main_no' && request('search_data'), function ($q) use ($no) {
+                $q->whereIn('id', $no);
+            })
+            ->when(request('search') == 'product_code' && request('search_data'), function ($q) use ($product) {
+                $q->where('proudct_id', $product);
+            })
+            ->when(request('search') == 'user' && request('search_data'), function ($q) use ($user) {
+                $q->where('user_id', $user);
+            })
+            ->when(request('from_date'), function ($q) {
+                $q->whereDate('created_at', '>=', request('from_date'));
+            })
+            ->when(request('to_date'), function ($q) {
+                $q->whereDate('created_at', '<=', request('to_date'));
+            })
+            ->when($loc != 'ho', function ($q) use ($reg) {
+                $q->whereIn('received_goods_id', $reg);
+            })
+            ->paginate(15);
 
-        return view('user.report.report',compact('data','report','url'));
+        return view('user.report.report', compact('data', 'report', 'url'));
     }
 
     public function po_to_list()
     {
-        Common::Log(route('po_to_list'),"go to PO/TO Document report page");
+        Common::Log(route('po_to_list'), "go to PO/TO Document report page");
 
         $data = get_branch_truck();
         $truck_id   = $data[0];
@@ -339,141 +326,131 @@ class ReportController extends Controller
         $report = 'po_to';
         $url = 'po_to_list';
 
-        if(request('search') && !request('search_data'))
-        {
-            return back()->with('error','Please add search data');
-        }else if(!request('search') && request('search_data')){
-            return back()->with('error','Please add search method');
+        if (request('search') && !request('search_data')) {
+            return back()->with('error', 'Please add search data');
+        } else if (!request('search') && request('search_data')) {
+            return back()->with('error', 'Please add search method');
         }
 
         $no = [];
         $doc = [];
 
-        if(request('search') == 'main_no' && request('search_data'))
-        {
-            $document   = GoodsReceive::where('document_no',request('search_data'))->first();
-            if($document)
-            {
-                $no       = Document::where('received_goods_id',$document->id)->pluck('id');
+        if (request('search') == 'main_no' && request('search_data')) {
+            $document   = GoodsReceive::where('document_no', request('search_data'))->first();
+            if ($document) {
+                $no       = Document::where('received_goods_id', $document->id)->pluck('id');
             }
-        }elseif(request('search') == 'product_code' && request('search_data'))
-        {
-            $id = Product::where('bar_code',request('search_data'))->first();
-            $doc = Document::where('id',$id->document_id)->first();
+        } elseif (request('search') == 'product_code' && request('search_data')) {
+            $id = Product::where('bar_code', request('search_data'))->first();
+            $doc = Document::where('id', $id->document_id)->first();
         }
 
-        $docs = Document::when(!request('search') && !request('from_date') && !request('to_date'),function($q)
-                        {
-                            $q->whereDate('created_at',Carbon::today());
-                        })
-                        ->when(request('search') == 'main_no' && request('search_data'),function($q) use($no) {
+        $docs = Document::when(!request('search') && !request('from_date') && !request('to_date'), function ($q) {
+            $q->whereDate('created_at', Carbon::today());
+        })
+            ->when(request('search') == 'main_no' && request('search_data'), function ($q) use ($no) {
 
-                            $q->whereIn('id',$no);
-                        })
-                        ->when(request('search') == 'product_code' && request('search_data'),function($q) use($doc) {
+                $q->whereIn('id', $no);
+            })
+            ->when(request('search') == 'product_code' && request('search_data'), function ($q) use ($doc) {
 
-                            $q->where('id' , $doc->id);
-                        })
-                        ->when(request('search') == 'document_no' && request('search_data'),function($q) {
+                $q->where('id', $doc->id);
+            })
+            ->when(request('search') == 'document_no' && request('search_data'), function ($q) {
 
-                            $q->where('document_no' , request('search_data'));
-                        })
-                        ->when(request('from_date'),function($q){
-                            $q->whereDate('created_at', '>=', request('from_date'));
-                        })
-                        ->when(request('to_date'),function($q){
-                            $q->whereDate('created_at','<=',request('to_date'));
-                        })
-                        ->whereIn('received_goods_id',$reg)
-                        ->orderBy('id')
-                        ->paginate(15);
-        return view('user.report.report',compact('docs','report','url'));
+                $q->where('document_no', request('search_data'));
+            })
+            ->when(request('from_date'), function ($q) {
+                $q->whereDate('created_at', '>=', request('from_date'));
+            })
+            ->when(request('to_date'), function ($q) {
+                $q->whereDate('created_at', '<=', request('to_date'));
+            })
+            ->whereIn('received_goods_id', $reg)
+            ->orderBy('id')
+            ->paginate(15);
+        return view('user.report.report', compact('docs', 'report', 'url'));
     }
 
     public function shortage_list()
     {
-        Common::Log(route('shortage_list'),"go to Shortage Product report page");
+        Common::Log(route('shortage_list'), "go to Shortage Product report page");
 
         $data = get_branch_truck();
         $truck_id   = $data[0];
         $loc        = $data[1];
         $reg        = $data[2];
         $user_branch    = getAuth()->branch_id;
-        $mgld_dc        = [17,19,20];
+        $mgld_dc        = [17, 19, 20];
 
         $report = 'shortage';
         $url = 'shortage_list';
 
-        if(request('search') && !request('search_data'))
-        {
-            return back()->with('error','Please add search data');
-        }else if(!request('search') && request('search_data')){
-            return back()->with('error','Please add search method');
+        if (request('search') && !request('search_data')) {
+            return back()->with('error', 'Please add search data');
+        } else if (!request('search') && request('search_data')) {
+            return back()->with('error', 'Please add search method');
         }
 
         $pd_ids = [];
-        if(request('search') == 'main_no' && request('search_data'))
-        {
-            $document   = GoodsReceive::where('document_no',request('search_data'))->where('status','complete')->first();
-            if($document)
-            {
-                $no         = Document::where('received_goods_id',$document->id)->pluck('id');
-                $pd_ids     = Product::whereIn('document_id',$no)->where(DB::raw('qty'),'!=',DB::raw('scanned_qty'))->pluck('id');
+        if (request('search') == 'main_no' && request('search_data')) {
+            $document   = GoodsReceive::where('document_no', request('search_data'))->where('status', 'complete')->first();
+            if ($document) {
+                $no         = Document::where('received_goods_id', $document->id)->pluck('id');
+                $pd_ids     = Product::whereIn('document_id', $no)->where(DB::raw('qty'), '!=', DB::raw('scanned_qty'))->pluck('id');
             }
-        }elseif(request('search') == 'document_no' && request('search_data'))
-        {
-            $doc = Document::where('document_no',request('search_data'))->first();
-            $pd_ids = Product::where('document_id',$doc->id)->pluck('id');
+        } elseif (request('search') == 'document_no' && request('search_data')) {
+            $doc = Document::where('document_no', request('search_data'))->first();
+            $pd_ids = Product::where('document_id', $doc->id)->pluck('id');
         }
 
 
-        $reg        = GoodsReceive::where('status','complete')
-                                        ->when($loc =='dc',function($q) use($mgld_dc){
-                                            $q->whereIn('branch_id',$mgld_dc);
-                                        })
-                                        ->when($loc == 'other',function($q) use($user_branch){
-                                            $q->where('branch_id',$user_branch);
-                                        });
+        $reg        = GoodsReceive::where('status', 'complete')
+            ->when($loc == 'dc', function ($q) use ($mgld_dc) {
+                $q->whereIn('branch_id', $mgld_dc);
+            })
+            ->when($loc == 'other', function ($q) use ($user_branch) {
+                $q->where('branch_id', $user_branch);
+            });
         $reg_ids        = $reg->pluck('id');
-        $document_ids   = Document::whereIn('received_goods_id',$reg_ids)->pluck('id');
-        $data   = Product::when(!request('search') && !request('from_date') && !request('action') && !request('to_date'),function($q) use($reg)
-                        {
-                            $tdy_reg = $reg->whereDate('updated_at',Carbon::today())->pluck('id');
-                            $tdy_doc = Document::whereIn('received_goods_id',$tdy_reg)->pluck('id');
-                            $q->whereIn('document_id',$tdy_doc);
-                        })
-                        ->when(request('search') != 'product_code' && request('search_data'),function($q) use($pd_ids) {
+        $document_ids   = Document::whereIn('received_goods_id', $reg_ids)->pluck('id');
+        $data   = Product::when(!request('search') && !request('from_date') && !request('action') && !request('to_date'), function ($q) use ($reg) {
+            $tdy_reg = $reg->whereDate('updated_at', Carbon::today())->pluck('id');
+            $tdy_doc = Document::whereIn('received_goods_id', $tdy_reg)->pluck('id');
+            $q->whereIn('document_id', $tdy_doc);
+        })
+            ->when(request('search') != 'product_code' && request('search_data'), function ($q) use ($pd_ids) {
 
-                            $q->whereIn('id',$pd_ids);
-                        })
-                        ->when(request('search') == 'product_code' && request('search_data'),function($q){
+                $q->whereIn('id', $pd_ids);
+            })
+            ->when(request('search') == 'product_code' && request('search_data'), function ($q) {
 
-                            $q->where('bar_code' , request('search_data'));
-                        })
-                        ->when(request('action') == 'excess',function($q){
+                $q->where('bar_code', request('search_data'));
+            })
+            ->when(request('action') == 'excess', function ($q) {
 
-                            $q->where(DB::raw("qty"),'<',DB::raw('scanned_qty'));
-                        })
-                        ->when(request('action') == 'shortage',function($q){
+                $q->where(DB::raw("qty"), '<', DB::raw('scanned_qty'));
+            })
+            ->when(request('action') == 'shortage', function ($q) {
 
-                            $q->where(DB::raw("qty"),'>',DB::raw('scanned_qty'));
-                        })
-                        ->when(request('from_date'),function($q){
-                            $q->whereDate('created_at', '>=', request('from_date'));
-                        })
-                        ->when(request('to_date'),function($q){
-                            $q->whereDate('created_at','<=',request('to_date'));
-                        })
-                        ->whereIn('document_id',$document_ids)
-                        ->where(DB::raw("qty"),'!=',DB::raw('scanned_qty'))
-                        ->paginate(15);
+                $q->where(DB::raw("qty"), '>', DB::raw('scanned_qty'));
+            })
+            ->when(request('from_date'), function ($q) {
+                $q->whereDate('created_at', '>=', request('from_date'));
+            })
+            ->when(request('to_date'), function ($q) {
+                $q->whereDate('created_at', '<=', request('to_date'));
+            })
+            ->whereIn('document_id', $document_ids)
+            ->where(DB::raw("qty"), '!=', DB::raw('scanned_qty'))
+            ->paginate(15);
 
-        return view('user.report.report',compact('data','report','url'));
+        return view('user.report.report', compact('data', 'report', 'url'));
     }
 
     public function print_list()
     {
-        Common::Log(route('print_list'),"go to barcode Print report page");
+        Common::Log(route('print_list'), "go to barcode Print report page");
         $report = 'print';
         $url    = 'print_list';
 
@@ -482,125 +459,112 @@ class ReportController extends Controller
         $loc        = $data[1];
         $reg        = $data[2];
         $user_branch    = getAuth()->branch_id;
-        $mgld_dc        = [17,19,20];
+        $mgld_dc        = [17, 19, 20];
 
-        if(request('search') && !request('search_data'))
-        {
-            return back()->with('error','Please add search data');
-        }else if(!request('search') && request('search_data')){
-            return back()->with('error','Please add search method');
+        if (request('search') && !request('search_data')) {
+            return back()->with('error', 'Please add search data');
+        } else if (!request('search') && request('search_data')) {
+            return back()->with('error', 'Please add search method');
         }
 
-        $reg        = GoodsReceive::where('status','complete')
-                                ->when($loc =='dc',function($q) use($mgld_dc){
-                                    $q->whereIn('branch_id',$mgld_dc);
-                                })
-                                ->when($loc == 'other',function($q) use($user_branch){
-                                    $q->where('branch_id',$user_branch);
-                                });
+        $reg        = GoodsReceive::where('status', 'complete')
+            ->when($loc == 'dc', function ($q) use ($mgld_dc) {
+                $q->whereIn('branch_id', $mgld_dc);
+            })
+            ->when($loc == 'other', function ($q) use ($user_branch) {
+                $q->where('branch_id', $user_branch);
+            });
         $reg_ids        = $reg->pluck('id');
-        $document_ids   = Document::whereIn('received_goods_id',$reg_ids)->pluck('id');
-        $pd_ids = Product::whereIn('document_id',$document_ids)->pluck('id');
-        if(request('search') == 'main_no' && request('search_data'))
-        {
-            $document   = GoodsReceive::where('document_no',request('search_data'))->first();
-            if($document)
-            {
+        $document_ids   = Document::whereIn('received_goods_id', $reg_ids)->pluck('id');
+        $pd_ids = Product::whereIn('document_id', $document_ids)->pluck('id');
+        if (request('search') == 'main_no' && request('search_data')) {
+            $document   = GoodsReceive::where('document_no', request('search_data'))->first();
+            if ($document) {
 
-                $no         = Document::where('received_goods_id',$document->id)->pluck('id');
-                $pd_ids     = Product::whereIn('document_id',$no)->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))->pluck('id');
+                $no         = Document::where('received_goods_id', $document->id)->pluck('id');
+                $pd_ids     = Product::whereIn('document_id', $no)->where(DB::raw('qty'), '>', DB::raw('scanned_qty'))->pluck('id');
             }
-        }elseif(request('search') == 'document_no' && request('search_data'))
-        {
-            $doc = Document::where('document_no',request('search_data'))->first();
-            $pd_ids = Product::where('document_id',$doc->id)->pluck('id');
-        }elseif(request('search') == 'product_code' && request('search_data'))
-        {
-           $pd_ids = Product::where('bar_code',request('search_data'))->pluck('id');
-
+        } elseif (request('search') == 'document_no' && request('search_data')) {
+            $doc = Document::where('document_no', request('search_data'))->first();
+            $pd_ids = Product::where('document_id', $doc->id)->pluck('id');
+        } elseif (request('search') == 'product_code' && request('search_data')) {
+            $pd_ids = Product::where('bar_code', request('search_data'))->pluck('id');
         }
 
-        $data   = printTrack::when(!request('search') && !request('from_date') && !request('action') && !request('to_date'),function($q)
-                                {
-                                    $q->whereDate('created_at',Carbon::today());
-                                })
-                                ->when(request('from_date'),function($q){
-                                    $q->whereDate('created_at', '>=', request('from_date'));
-                                })
-                                ->when(request('to_date'),function($q){
-                                    $q->whereDate('created_at','<=',request('to_date'));
-                                })
-                                ->whereIn('product_id',$pd_ids)
-                                // ->when()
-                                ->paginate(15);
+        $data   = printTrack::when(!request('search') && !request('from_date') && !request('action') && !request('to_date'), function ($q) {
+            $q->whereDate('created_at', Carbon::today());
+        })
+            ->when(request('from_date'), function ($q) {
+                $q->whereDate('created_at', '>=', request('from_date'));
+            })
+            ->when(request('to_date'), function ($q) {
+                $q->whereDate('created_at', '<=', request('to_date'));
+            })
+            ->whereIn('product_id', $pd_ids)
+            // ->when()
+            ->paginate(15);
         // dd($data);
-        return view('user.report.report',compact('report','url','data'));
+        return view('user.report.report', compact('report', 'url', 'data'));
         // $data   = printTrack::
     }
 
     public function man_add()
     {
-        Common::Log(route('man_add'),"go to manually added page");
+        Common::Log(route('man_add'), "go to manually added page");
         $data = get_branch_truck();
         $truck_id   = $data[0];
         $loc        = $data[1];
         $reg        = $data[2];
         $user_branch    = getAuth()->branch_id;
-        $mgld_dc        = [17,19,20];
+        $mgld_dc        = [17, 19, 20];
 
         $report = 'man_add';
         $url    = 'man_add';
 
-        if(request('search') && !request('search_data'))
-        {
-            return back()->with('error','Please add search data');
-        }else if(!request('search') && request('search_data')){
-            return back()->with('error','Please add search method');
+        if (request('search') && !request('search_data')) {
+            return back()->with('error', 'Please add search data');
+        } else if (!request('search') && request('search_data')) {
+            return back()->with('error', 'Please add search method');
         }
 
-        $product_ids   = Tracking::when($loc != 'ho',function($q) use($truck_id){
-            $q->whereIn('driver_info_id',$truck_id);
-                })
+        $product_ids   = Tracking::when($loc != 'ho', function ($q) use ($truck_id) {
+            $q->whereIn('driver_info_id', $truck_id);
+        })
             ->pluck('product_id');
 
         $pd_ids = [];
-        if(request('search') == 'main_no' && request('search_data'))
-        {
-            $document   = GoodsReceive::where('document_no',request('search_data'))->first();
-            if($document)
-            {
+        if (request('search') == 'main_no' && request('search_data')) {
+            $document   = GoodsReceive::where('document_no', request('search_data'))->first();
+            if ($document) {
 
-                $no         = Document::where('received_goods_id',$document->id)->pluck('id');
-                $pd_ids     = Product::whereIn('document_id',$no)->where(DB::raw('qty'),'>',DB::raw('scanned_qty'))->pluck('id');
+                $no         = Document::where('received_goods_id', $document->id)->pluck('id');
+                $pd_ids     = Product::whereIn('document_id', $no)->where(DB::raw('qty'), '>', DB::raw('scanned_qty'))->pluck('id');
             }
-        }elseif(request('search') == 'document_no' && request('search_data'))
-        {
-            $doc = Document::where('document_no',request('search_data'))->first();
-            $pd_ids = Product::where('document_id',$doc->id)->pluck('id');
-        }elseif(request('search') == 'product_code' && request('search_data'))
-        {
-           $pd_ids = Product::where('bar_code',request('search_data'))->pluck('id');
+        } elseif (request('search') == 'document_no' && request('search_data')) {
+            $doc = Document::where('document_no', request('search_data'))->first();
+            $pd_ids = Product::where('document_id', $doc->id)->pluck('id');
+        } elseif (request('search') == 'product_code' && request('search_data')) {
+            $pd_ids = Product::where('bar_code', request('search_data'))->pluck('id');
         }
 
-        $data    = AddProductTrack::when(!request('search') && !request('from_date') && !request('action') && !request('to_date'),function($q)
-                                    {
-                                        $q->whereDate('created_at',Carbon::today());
-                                    })
-                                    ->when(request('from_date'),function($q){
-                                        $q->whereDate('created_at', '>=', request('from_date'));
-                                    })
-                                    ->when(request('to_date'),function($q){
-                                        $q->whereDate('created_at','<=',request('to_date'));
-                                    })
-                                    ->when(request('search') && request('search_data'),function($q) use($pd_ids) {
+        $data    = AddProductTrack::when(!request('search') && !request('from_date') && !request('action') && !request('to_date'), function ($q) {
+            $q->whereDate('created_at', Carbon::today());
+        })
+            ->when(request('from_date'), function ($q) {
+                $q->whereDate('created_at', '>=', request('from_date'));
+            })
+            ->when(request('to_date'), function ($q) {
+                $q->whereDate('created_at', '<=', request('to_date'));
+            })
+            ->when(request('search') && request('search_data'), function ($q) use ($pd_ids) {
 
-                                        $q->whereIn('product_id',$pd_ids);
-                                    })
-                                    ->whereNotNull('product_id')
-                                    ->whereIn('product_id',$product_ids)
-                                    ->paginate(15);
+                $q->whereIn('product_id', $pd_ids);
+            })
+            ->whereNotNull('product_id')
+            ->whereIn('product_id', $product_ids)
+            ->paginate(15);
 
-        return view('user.report.report',compact('report','url','data'));
+        return view('user.report.report', compact('report', 'url', 'data'));
     }
 
     public function excel_export(Request $request)
@@ -608,17 +572,34 @@ class ReportController extends Controller
 
         $date = Carbon::now()->format('Ymd');
         $search = $request->except('_token');
-        switch ($request->report)
-        {
-            case  'product'     :$report = 'totalpd';break;
-            case  'finish'      :$report = 'finishdoc';break;
-            case  'truck'       :$report = 'totaltruck';break;
-            case  'remove'      :$report = 'removepd';break;
-            case  'po_to'       :$report = 'potolist';break;
-            case  'shortage'    :$report = 'shortage';break;
-            case  'print'       :$report = 'print';break;
-            case  'man_add'     :$report = 'man_add';break;
-            default             :$report = '';break;
+        switch ($request->report) {
+            case  'product':
+                $report = 'totalpd';
+                break;
+            case  'finish':
+                $report = 'finishdoc';
+                break;
+            case  'truck':
+                $report = 'totaltruck';
+                break;
+            case  'remove':
+                $report = 'removepd';
+                break;
+            case  'po_to':
+                $report = 'potolist';
+                break;
+            case  'shortage':
+                $report = 'shortage';
+                break;
+            case  'print':
+                $report = 'print';
+                break;
+            case  'man_add':
+                $report = 'man_add';
+                break;
+            default:
+                $report = '';
+                break;
         }
         $log            = new Log();
         $log->user_id   = getAuth()->id;
@@ -628,7 +609,7 @@ class ReportController extends Controller
         return Excel::download(new ReportExcel($search), $report . 'report' . $date . '.xlsx');
     }
 
-    public function detail_excel_export($id,$action)
+    public function detail_excel_export($id, $action)
     {
         $date = Carbon::now()->format('Ymd');
         // $action =
@@ -648,41 +629,37 @@ class ReportController extends Controller
         // return view('user.report.detail_excel_report',compact('driver','reg','document','track'));
         $log            = new Log();
         $log->user_id   = getAuth()->id;
-        $log->history   = route('detail_excel_export',['id'=>$id,'action'=>$action]);
+        $log->history   = route('detail_excel_export', ['id' => $id, 'action' => $action]);
         $log->action    = "$action detail excel export";
         $log->save();
-        if($action == 'truck')
-        {
-            $truck = DriverInfo::where('id',$id)->first();
+        if ($action == 'truck') {
+            $truck = DriverInfo::where('id', $id)->first();
             $truck_no = $truck->truck_no;
-            return Excel::download(new DetailExcel($id,$action),$truck_no.'_'.$date.".xlsx");
-        }elseif($action == 'document')
-        {
-            $document   = Document::where('id',$id)->first();
+            return Excel::download(new DetailExcel($id, $action), $truck_no . '_' . $date . ".xlsx");
+        } elseif ($action == 'document') {
+            $document   = Document::where('id', $id)->first();
             $doc_no     = $document->document_no;
-            return Excel::download(new DetailExcel($id,$action),$doc_no.'_'.$date.".xlsx");
-        }elseif($action == 'doc')
-        {
+            return Excel::download(new DetailExcel($id, $action), $doc_no . '_' . $date . ".xlsx");
+        } elseif ($action == 'doc') {
             $document   = GoodsReceive::find($id);
             $doc_no     = $document->document_no;
-            return Excel::download(new DetailExcel($id,$action),$doc_no.'_'.$date.".xlsx");
-        }elseif($action == 'scan')
-        {
-            $driver     = DriverInfo::where('id',$id)->first();
+            return Excel::download(new DetailExcel($id, $action), $doc_no . '_' . $date . ".xlsx");
+        } elseif ($action == 'scan') {
+            $driver     = DriverInfo::where('id', $id)->first();
             $truck_no   = $driver->truck_no;
-            return Excel::download(new DetailExcel($id,$action),$truck_no . 'scan' . $date . '.xlsx');
+            return Excel::download(new DetailExcel($id, $action), $truck_no . 'scan' . $date . '.xlsx');
         }
     }
 
     public function product_pdf($id)
     {
-        Common::Log(route('product_pdf',['id'=>$id]),"PDF Generate for Product");
+        Common::Log(route('product_pdf', ['id' => $id]), "PDF Generate for Product");
 
-        $docs = Document::where('received_goods_id',$id)->pluck('id');
-        $data = Product::whereIn('document_id',$docs)->get();
-        $doc_no = GoodsReceive::where('id',$id)->first();
+        $docs = Document::where('received_goods_id', $id)->pluck('id');
+        $data = Product::whereIn('document_id', $docs)->get();
+        $doc_no = GoodsReceive::where('id', $id)->first();
         $date = Carbon::now()->format('Ymd');
-        view()->share(['data'=>$data]);
+        view()->share(['data' => $data]);
 
         $pdf = PDF::loadView('user.exports.product_pdf', compact('data'));
         return $pdf->stream("$doc_no->document_no.$date.pdf");
@@ -692,130 +669,126 @@ class ReportController extends Controller
     {
         $log            = new Log();
         $log->user_id   = getAuth()->id;
-        $log->history   = route('truck_detail_pdf',['id'=>$id]);
+        $log->history   = route('truck_detail_pdf', ['id' => $id]);
         $log->action    = "PDF Generate for Truck Detail";
         $log->save();
 
         $action = 'print';
         $detail = 'truck';
         $date = Carbon::now()->format('Ymd');
-        $driver     = DriverInfo::where('id',$id)->first();
-        $reg        = GoodsReceive::where('id',$driver->received_goods_id)->first();
+        $driver     = DriverInfo::where('id', $id)->first();
+        $reg        = GoodsReceive::where('id', $driver->received_goods_id)->first();
         $document   = [];
         $track      = Tracking::where('driver_info_id', $id)->get();
-        $scan_track = ScanTrack::where('driver_info_id',$id)->sum('count');
-        foreach($track as $item)
-        {
-            if(!in_array($item->product->doc->id,$document))
-            {
+        $scan_track = ScanTrack::where('driver_info_id', $id)->sum('count');
+        foreach ($track as $item) {
+            if (!in_array($item->product->doc->id, $document)) {
                 $document[] = $item->product->doc->id;
             }
         }
 
-        $pdf = PDF::loadView('user.report.detail_excel_report', compact('driver','reg','document','track','action','detail','scan_track'));
+        $pdf = PDF::loadView('user.report.detail_excel_report', compact('driver', 'reg', 'document', 'track', 'action', 'detail', 'scan_track'));
         return $pdf->stream("$driver->truck_no.$date.pdf");
     }
 
     public function document_detail_pdf($id)
     {
-        Common::Log(route('document_detail_pdf',['id'=>$id]),"PDF Generate for Document(REG) Detail");
+        Common::Log(route('document_detail_pdf', ['id' => $id]), "PDF Generate for Document(REG) Detail");
 
         $action = 'print';
         $date = Carbon::now()->format('Ymd');
         $detail     = 'document';
-        $document   = Document::where('id',$id)->first();
-        $reg        = GoodsReceive::where('id',$document->received_goods_id)->first();
-        $product    = Product::where('document_id',$id)->get();
-        $pd_id      = Product::where('document_id',$id)->pluck('id');
-        $track      = Tracking::whereIn('product_id',$pd_id);
+        $document   = Document::where('id', $id)->first();
+        $reg        = GoodsReceive::where('id', $document->received_goods_id)->first();
+        $product    = Product::where('document_id', $id)->get();
+        $pd_id      = Product::where('document_id', $id)->pluck('id');
+        $track      = Tracking::whereIn('product_id', $pd_id);
         $truck      = $track->distinct()->pluck('driver_info_id');
-        $truck      = DriverInfo::whereIn('id',$truck)->get();
+        $truck      = DriverInfo::whereIn('id', $truck)->get();
         $track      = $track->get();
-        $document_no= $document->document_no;
-        $pdf = PDF::loadView('user.report.detail_excel_report', compact('detail','truck','document','product','track','reg','action'));
+        $document_no = $document->document_no;
+        $pdf = PDF::loadView('user.report.detail_excel_report', compact('detail', 'truck', 'document', 'product', 'track', 'reg', 'action'));
         return $pdf->stream("$document_no$date.pdf");
     }
 
     public function doc_detail_pdf($id)
     {
-        Common::Log(route('doc_detail_pdf',['id'=>$id]),"PDF Generate for Document(PO/TO) Detail");
+        Common::Log(route('doc_detail_pdf', ['id' => $id]), "PDF Generate for Document(PO/TO) Detail");
 
         $action     = 'print';
         $date = Carbon::now()->format('Ymd');
         $detail     = 'doc';
-        $reg        = GoodsReceive::where('id',$id)->first();
-        $document   = Document::where('received_goods_id',$id)->get();
-        $driver     = DriverInfo::where('received_goods_id',$id)->get();
-        $pdf        = PDF::loadView('user.report.detail_excel_report', compact('detail','driver','document','reg','action'))->setPaper('a4', 'landscape');
+        $reg        = GoodsReceive::where('id', $id)->first();
+        $document   = Document::where('received_goods_id', $id)->get();
+        $driver     = DriverInfo::where('received_goods_id', $id)->get();
+        $pdf        = PDF::loadView('user.report.detail_excel_report', compact('detail', 'driver', 'document', 'reg', 'action'))->setPaper('a4', 'landscape');
         $doc_no    = $reg->document_no;
         return $pdf->stream("$doc_no$date.pdf");
     }
 
     public function scan_count_pdf($id)
     {
-        Common::Log(route('doc_detail_pdf',['id'=>$id]),"PDF Generate for Document(PO/TO) Detail");
+        Common::Log(route('doc_detail_pdf', ['id' => $id]), "PDF Generate for Document(PO/TO) Detail");
 
         $action     = 'print';
         $date = Carbon::now()->format('Ymd');
         $detail = 'scan';
-        $scan_track = ScanTrack::where('driver_info_id',$id)->orderBy('id')->get();
-        $pdf        = PDF::loadView('user.report.detail_excel_report', compact('detail','scan_track','action'));
+        $scan_track = ScanTrack::where('driver_info_id', $id)->orderBy('id')->get();
+        $pdf        = PDF::loadView('user.report.detail_excel_report', compact('detail', 'scan_track', 'action'));
         $truck_no    = $scan_track[0]->driver->truck_no;
         return $pdf->stream("$truck_no$date.pdf");
     }
 
     public function detail_doc($id)
     {
-        Common::Log(route('detail_doc',['id'=>$id]),"Go To Document(PO/TO) Detail Page");
+        Common::Log(route('detail_doc', ['id' => $id]), "Go To Document(PO/TO) Detail Page");
 
         $detail     = 'doc';
-        $reg        = GoodsReceive::where('id',$id)->first();
-        $document   = Document::where('received_goods_id',$id)->get();
-        $driver     = DriverInfo::where('received_goods_id',$id)->get();
-        return view('user.report.detail_report',compact('reg','document','driver','detail'));
+        $reg        = GoodsReceive::where('id', $id)->first();
+        $document   = Document::where('received_goods_id', $id)->get();
+        $driver     = DriverInfo::where('received_goods_id', $id)->get();
+        return view('user.report.detail_report', compact('reg', 'document', 'driver', 'detail'));
     }
 
     public function detail_truck($id)
     {
-        Common::Log(route('detail_truck',['id'=>$id]),"Go To Truck Detail Page");
+        Common::Log(route('detail_truck', ['id' => $id]), "Go To Truck Detail Page");
 
         $detail     = 'truck';
-        $driver     = DriverInfo::where('id',$id)->first();
-        $reg        = GoodsReceive::where('id',$driver->received_goods_id)->first();
+        $driver     = DriverInfo::where('id', $id)->first();
+        $reg        = GoodsReceive::where('id', $driver->received_goods_id)->first();
         $document   = [];
         $track      = Tracking::where('driver_info_id', $id)->get();
-        $scan_track = ScanTrack::where('driver_info_id',$id)->sum('count');
-        foreach($track as $item)
-        {
-            if(!in_array($item->product->doc->id,$document))
-            {
+        $scan_track = ScanTrack::where('driver_info_id', $id)->sum('count');
+        foreach ($track as $item) {
+            if (!in_array($item->product->doc->id, $document)) {
                 $document[] = $item->product->doc->id;
             }
         }
-        return view('user.report.detail_report',compact('reg','driver','document','detail','track','scan_track'));
+        return view('user.report.detail_report', compact('reg', 'driver', 'document', 'detail', 'track', 'scan_track'));
     }
 
     public function detail_document($id)
     {
-        Common::Log(route('detail_document',['id'=>$id]),"Go To Document(REG) Detail Page");
+        Common::Log(route('detail_document', ['id' => $id]), "Go To Document(REG) Detail Page");
 
         $detail     = 'document';
-        $document   = Document::where('id',$id)->first();
-        $reg        = GoodsReceive::where('id',$document->received_goods_id)->first();
-        $product    = Product::where('document_id',$id)->get();
-        $pd_id      = Product::where('document_id',$id)->pluck('id');
-        $track      = Tracking::whereIn('product_id',$pd_id);
+        $document   = Document::where('id', $id)->first();
+        $reg        = GoodsReceive::where('id', $document->received_goods_id)->first();
+        $product    = Product::where('document_id', $id)->get();
+        $pd_id      = Product::where('document_id', $id)->pluck('id');
+        $track      = Tracking::whereIn('product_id', $pd_id);
         $truck      = $track->distinct()->pluck('driver_info_id');
-        $truck      = DriverInfo::whereIn('id',$truck)->get();
+        $truck      = DriverInfo::whereIn('id', $truck)->get();
         $track      = $track->get();
-        return view('user.report.detail_report',compact('detail','truck','document','product','track','reg'));
+        return view('user.report.detail_report', compact('detail', 'truck', 'document', 'product', 'track', 'reg'));
     }
 
     public function Scan_count($id)
     {
         $detail     = 'scan';
-        $scan_track = ScanTrack::where('driver_info_id',$id)->orderBy('id')->get();
-        return view('user.report.detail_report',compact('detail','scan_track'));
+        $scan_track = ScanTrack::where('driver_info_id', $id)->orderBy('id')->get();
+        return view('user.report.detail_report', compact('detail', 'scan_track'));
     }
 
     public function complete_doc_print($id)

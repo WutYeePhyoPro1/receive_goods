@@ -132,6 +132,8 @@ Class ActionRepository implements ActionRepositoryInterface
                     // $pd_code->scanned_qty   = 0;
                     // $pd_code->unit          = $data[$i]->unit;
                     // $pd_code->save();
+                    \Log::info(['unit'=>$data[$i]->unit]);
+                    
                     $pd_code = Product::updateOrCreate(
                         [
                             'document_id' => $doc->id,
@@ -144,6 +146,8 @@ Class ActionRepository implements ActionRepositoryInterface
                             'unit'          => $data[$i]->unit ?? null
                         ]
                     );
+                    // dd($pd_code);
+                    info(['pd_code'=>$pd_code]);
                     $dub_pd[]    = $data[$i]->productcode ?? $data[$i]->product_code;
                 }else{
                     $search_dub = Product::where(['document_id'=>$doc->id,'bar_code'=>$data[$i]->productcode])->first();
