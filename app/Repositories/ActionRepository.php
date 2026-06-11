@@ -13,6 +13,7 @@ use App\Models\Tracking;
 use App\Models\Vendor;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 Class ActionRepository implements ActionRepositoryInterface
 {
@@ -158,6 +159,8 @@ Class ActionRepository implements ActionRepositoryInterface
     }
 
     public function sync_doc($purchase_orders,$data){
+        // dd($data);
+        Log::info($data);
         $id = $data->id;
         $purchaseno = $data->purchaseno;
 
@@ -210,14 +213,14 @@ Class ActionRepository implements ActionRepositoryInterface
             // if (!$document->purchase_order_items()->exists()) {
             // }
 
-            $purchase_order_item = PurchaseOrderItem::firstOrCreate(
+            $purchase_order_item = PurchaseOrderItem::updateOrCreate(
                 [
                     'document_id' => $document->id,
                     'bar_code' => $purchase_order->productcode,
                     'price' => $purchase_order->goodprice,
                 ],
                 [
-                    'supplier_name' => $purchase_order->vendorname,
+                    'supplier_name' => $purchase_order->productname,
                     'qty' => $purchase_order->goodqty,
                     'unit' => $purchase_order->unit,
                     'amount' => $purchase_order->sumgoodamnt,

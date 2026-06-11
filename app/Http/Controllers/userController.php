@@ -684,6 +684,44 @@ class userController extends Controller
         ));
     }
 
+    // fixed
+    public function posync(Request $request){
+        // dd('hay');
+        // $receive_good_documents = ReceiveGoodDocument::orderBy('id','desc')->get();
+        // foreach($receive_good_documents as $receive_good_document){
+        //     $purchaseno = $receive_good_document->po_no;
+        //     $purchase_orders = getPODocument($purchaseno);
+
+        //     $request['id'] = $receive_good_document->document_id;
+        //     $request['purchaseno'] = $purchaseno;
+        //     // dd($request);
+
+        //     if ($purchase_orders) {
+        //         $this->actionRepository->sync_doc($purchase_orders, $request);
+        //     }
+        // }
+
+        $po_documents = Document::orderBy('id','desc')
+                        ->where('document_no', 'like', 'PO%')
+                        ->whereDate('created_at',">=",Carbon::now()->firstOfMonth())
+                        // ->limit(1)
+                        ->get();
+        // dd($po_documents);
+        foreach($po_documents as $po_document){
+            $purchaseno = $po_document->document_no;
+            $purchase_orders = getPODocument($purchaseno);
+
+            $request['id'] = $po_document->received_goods_id;
+            $request['purchaseno'] = $purchaseno;
+            // dd($request);
+
+            if ($purchase_orders) {
+                $this->actionRepository->sync_doc($purchase_orders, $request);
+            }
+        }
+
+        return "fixed";
+    }
     // End RG Document
 
     public function join_receive($id,$car)
