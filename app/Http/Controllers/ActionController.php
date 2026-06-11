@@ -109,6 +109,7 @@ class ActionController extends Controller
             }
 
             $conn = DB::connection('dc_connection');
+            
             $data = $conn->select("
              select outbound_docuno,indock_docudate::date as date, vendor_code as frombranch,
             (select branch_name from master_data.master_branch where branch_code= outbounddoc.vendor_code) as frombranch_name,
