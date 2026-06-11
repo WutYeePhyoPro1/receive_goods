@@ -541,7 +541,9 @@ use Spatie\Permission\Models\Role;
         $document = $receive_good_document->document;
         $creditday = $document->creditday;
         $portal_mark = 'RGN-' . str_pad($receive_good_document->id, 4, '0', STR_PAD_LEFT); // marked portal receive good document id in ERP
-        $remark = $document->remark . "/(PORTAL)$portal_mark";
+        // $remark = $document->remark . "/(PORTAL)$portal_mark";
+        $remark = $receive_good_document->remark . "/(PORTAL)$portal_mark";
+
         $purchase_date = $document->purchasedate;
         // dd($document);
         
@@ -638,6 +640,8 @@ use Spatie\Permission\Models\Role;
         $approve_amount = $productRG['amount'];
         $ref_list_no = $productRG['ref_list_no'];
         $receive_no = $productRG['receive_no'];
+        $remark = $productRG['remark'];
+        $discount = $productRG['discount'];
 
 
         $result = $conn->insert("
@@ -652,6 +656,7 @@ use Spatie\Permission\Models\Role;
                 approve_amount, 
                 ref_list_no, 
                 receive_no, 
+                remark,
                 discount, 
                 r008qty
             )
@@ -666,7 +671,8 @@ use Spatie\Permission\Models\Role;
                 '$approve_amount',                            -- approve_amount (From Portal)
                 $ref_list_no,                                  -- ref_list_no  (PO က item အရေအတွက်)
                 '$receive_no',                -- receive_no (From Header)
-                0,                                  -- discount (From Portal)
+                '$remark',                      -- remark (Default Po and can edit)
+                $discount,                                  -- discount (From PO)
                 0                                    -- r008qty
             ;
         ");
@@ -764,6 +770,10 @@ use Spatie\Permission\Models\Role;
         $status = $product_r008->status_id;
         $list_no = $product_r008->list_no;
 
+        $amountdamaged = $product_r008->bdqty;
+        $amountsmalldamage = $product_r008->sdqty;
+        $remark = $product_r008->remark;
+
 
         $result = $conn->select("
             INSERT INTO public.r008_branch_receivedt(
@@ -793,11 +803,11 @@ use Spatie\Permission\Models\Role;
                 $amountinbill ,  ---amountinbill    (From ref RG )                                                          
                 $amountcount ,  ---amountcount      (From ref RG / actual)                                                          
                 $amountdifference ,  ---amountdifference  (From ref RG / diff)                                                        
-                0 ,  ---amountdamaged                                                                
+                $amountdamaged ,  ---amountdamaged                                                                
                 0 ,  ---attachs_id                                                                                                                               
                 $status ,  ---status (Fix)                                                                      
                 $list_no ,  ---list_no                                                                      
-                0 ;  ---amountsmalldamage
+                $amountsmalldamage ;  ---amountsmalldamage
         ");
 
         return $result;

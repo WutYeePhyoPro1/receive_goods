@@ -595,7 +595,8 @@ class ActionController extends Controller
                 "receive_type" => $request->receive_type,
                 "r008" => $r008, 
                 "total_amount" => $request->total_amount,
-                "user_id" => $user_id
+                "user_id" => $user_id,
+                "remark"=> $request->remark
             ]);
             // End Receive Good Document
 
@@ -612,6 +613,10 @@ class ActionController extends Controller
 
             $product_id = $request['product_id'];
 
+            $line_remark = $request['line_remark'];
+            $discount = $request['discount'];
+
+
             for($i=0; $i<count($product_code);$i++){
                 $data = [
                     'receive_good_document_id' => $receive_good_document->id,
@@ -623,6 +628,8 @@ class ActionController extends Controller
                     'price' => $price[$i],
                     'amount' => $amount[$i],
                     'product_id' => $product_id[$i],
+                    'remark' => $line_remark[$i],
+                    'discount' => $discount[$i]
                 ];
                 ReceiveGoodProduct::create($data);
             }

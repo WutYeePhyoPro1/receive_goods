@@ -99,7 +99,7 @@
 
                         <div class="md:col-span-2 self-end">
                             <label class="block font-medium text-slate-500 mb-0.5"> </label>
-                            <input type="text" name="po_remark" readonlys id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-alloweds" placeholder="Enter remarks details here...">
+                            <input type="text" name="remark" readonlys id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-alloweds" placeholder="Enter remarks details here...">
                         </div>
                         
                         <!-- Checkbox Controls Alignment -->
@@ -150,7 +150,10 @@
                                     <th class="py-2 px-3 w-auto text-right">PO Qty</th>
                                     <th class="py-2 px-3 w-auto text-right">GR Qty</th>
                                     <th class="py-2 px-3 w-auto text-right">Price</th>
+                                    <th class="py-2 px-3 w-auto text-right">Disc.</th>
                                     <th class="py-2 px-3 w-auto text-right">Amount</th>
+                                    <th class="py-2 px-3 w-40">Remark</th>
+                                    <th class="py-2 px-3 w-auto text-rights">R008 Dam.</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white">
@@ -314,10 +317,22 @@
                                             <input name="price[]" type="hidden" value="${product.price}" disabled />
                                             <input name="amount[]" id="amount_${key}_input" type="hidden" value="${product.price * product.remaining_qty}" disabled />
                                             <input name="product_id[]" type="hidden" value="${product.id}" disabled />
+                                            <input name="discount[]" type="hidden" value="${product.discount ?? 0}" disabled />
                                         </div>
                                     </td>
                                     <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
+                                    <td class="py-1.5 px-3 text-right">0</td>
                                     <td id="amount_${key}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.price * product.remaining_qty)}</td>
+                                    <td class="py-1.5 px-3">
+                                        <div id="lineremark_view_${key}" class="w-40 ms-auto line_view">
+                                            <span>${product.remark ?? ''}<span>
+                                        </div>
+
+                                        <div id="lineremark_edit_${key}" hidden class="w-40 ms-auto line_edit">
+                                            <input type="text" name="line_remark[]" class="w-40 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" disabled/>
+                                        </div>
+                                    </td>
+                                    <td class="py-1.5 px-3 text-right font-medium">0</td>
                                 </tr>
                             `;
                             $('#productTable tbody').append(html);
@@ -348,18 +363,31 @@
                                 let grEdit = $(`#gr_edit_${key}`);
                                 let qtyInput = $(`#gr_qty_${key}`);
 
+                                let lineView = $(`.line_view`);
+                                let lineEdit = $(`.line_edit`);
+
+
                                 if(isChecked){
                                     grView.hide();
                                     grEdit.show();
 
                                     qtyInput.prop('disabled', false);
                                     grEdit.find('input').prop('disabled',false);
+
+                                    lineView.hide();
+                                    lineEdit.show();
+                                    lineEdit.find('input').prop('disabled',false);
+
                                 }else{
                                     grView.show();
                                     grEdit.hide();
 
                                     qtyInput.prop('disabled', true);
                                     grEdit.find('input').prop('disabled',true);
+
+                                    lineView.show();
+                                    lineEdit.hide();
+                                    lineEdit.find('input').prop('disabled',true);
                                 }
                                 calculateTotalAmount();
                             });

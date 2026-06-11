@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('receive_good_products', function (Blueprint $table) {
-            $table->double('r8damqty');
+        Schema::table('receive_good_documents', function (Blueprint $table) {
+            $table->string('remark')->nullable();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('receive_good_products', function (Blueprint $table) {
-            $table->dropColumn("r8damqty");
+        Schema::table('receive_good_documents', function (Blueprint $table) {
+            $table->dropColumn("remark");
         });
     }
 };

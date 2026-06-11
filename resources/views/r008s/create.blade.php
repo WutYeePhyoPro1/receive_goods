@@ -105,6 +105,9 @@
                                     <th class="py-2 px-3 w-auto text-right">RG Qty</th>
                                     <th class="py-2 px-3 w-auto text-right">Physical Qty</th>
                                     <th class="py-2 px-3 w-auto text-right">Diff.</th>
+                                    <th class="py-2 px-3 w-auto text-right">Big Damage Qty</th>
+                                    <th class="py-2 px-3 w-auto text-right">Small Damage Qty</th>
+                                    <th class="py-2 px-3 w-auto text-left">Remark</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white">
@@ -251,6 +254,31 @@
                                     <td class="py-1.5 px-3 text-right font-medium">
                                         <span id="diff_${product.product_code}" >${Math.abs(product.gr_qty - product.po_qty)}</span>
                                         <input type="hidden" id="diff_input_${product.product_code}" name="diff[]" value="${product.gr_qty - product.po_qty}" />
+                                    </td>
+                                    <td class="py-1.5 px-3 text-right">
+                                        <div id="bd_view_${product.product_code}" class="w-24  ms-auto hidden">
+                                            <span>${product.gr_qty}<span>
+                                        </div>
+                                        <div id="bd_edit_${product.product_code}" hiddens class="w-24  ms-auto">
+                                            <input type="type" name="bd_qty[]" id="bd_edit_${product.gr_qty}" class="bd_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${0}">
+                                        </div>
+                                    </td>
+                                    <td class="py-1.5 px-3 text-right">
+                                        <div id="sd_view_${product.product_code}" class="w-24  ms-auto hidden">
+                                            <span>${product.gr_qty}<span>
+                                        </div>
+                                        <div id="bd_edit_${product.product_code}" hiddens class="w-24  ms-auto">
+                                            <input type="type" name="sd_qty[]" id="sd_edit_${product.gr_qty}" class="sd_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${0}">
+                                        </div>
+                                    </td>
+                                    <td class="py-1.5 px-3">
+                                        <div id="lineremark_view_${product.product_code}" class="w-40 ms-auto line_view hidden">
+                                            <span>${product.remark ?? ''}<span>
+                                        </div>
+
+                                        <div id="lineremark_edit_${product.product_code}" hiddens class="w-40 ms-auto line_edit">
+                                            <input type="text" name="line_remark[]" class="w-40 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500"/>
+                                        </div>
                                     </td>
                                 </tr>
                             `;

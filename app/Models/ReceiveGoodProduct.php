@@ -21,6 +21,7 @@ class ReceiveGoodProduct extends Model
         "price",
         "amount",
         "remark",
+        "discount",
         "r8damqty"
     ];
 }

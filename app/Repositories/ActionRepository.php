@@ -180,7 +180,7 @@ Class ActionRepository implements ActionRepositoryInterface
         // dd($purchase_orders);
 
         $document = Document::where('document_no',$purchaseno)
-                                ->where('received_goods_id',$id)->first();
+                                ->where('received_goods_id',$id)->latest()->first();
         
         $document->update([
             'creditday' => $creditday,

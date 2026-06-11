@@ -315,7 +315,7 @@
 <div class="remark-section">
     <span class="remark-title">Remark :</span>
 
-        {{ $receive_good_document->document->remark }}
+        {{ $receive_good_document->remark }}
 </div>
 
 {{-- SIGNATURE --}}

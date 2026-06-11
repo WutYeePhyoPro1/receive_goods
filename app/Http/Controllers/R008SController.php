@@ -118,6 +118,10 @@ class R008SController extends Controller
             $physical_qty = $request['physical_qty'];
             $diff = $request['diff'];
 
+            $bd_qty = $request['bd_qty'];
+            $sd_qty = $request['sd_qty'];
+            $line_remark = $request['line_remark'];
+
 
             for($i=0; $i<count($product_code);$i++){
                 $data = [
@@ -127,7 +131,10 @@ class R008SController extends Controller
                     'gr_qty' => $gr_qty[$i],
                     'physical_qty' => $physical_qty[$i],
                     'diff' => $diff[$i],
-                    'status_id' => $status_ids[$i]
+                    'status_id' => $status_ids[$i],
+                    "bdqty" => $bd_qty[$i],
+                    "sdqty" => $sd_qty[$i],
+                    "remark" => $line_remark[$i],
                 ];
                 R008Product::create($data);
             }
@@ -228,10 +235,15 @@ class R008SController extends Controller
         $receive_good_file->file = $r008_doc_no;
         $receive_good_file->save();
 
+        // Start Update R008 data to RG
+            // Start R8 Document Number Update
+            $updated_r8_document_count = updateR008No($request->all(),$r008_document);
+            // End R8 Document Number Update
 
-        // Start R8 Document Number Update
-        $updated_r8_document_count = updateR008No($request->all(),$r008_document);
-        // End R8 Document Number Update
+            
+
+        // End Updaate R008 Data to RG
+
     }
 
     public function printPDF(string $id){

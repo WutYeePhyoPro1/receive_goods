@@ -18,5 +18,8 @@ class R008Product extends Model
         "physical_qty",
         "diff",
         "status_id",
+        "bdqty",
+        "sdqty",
+        "remark"
     ];
 }
