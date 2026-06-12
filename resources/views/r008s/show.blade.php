@@ -40,82 +40,160 @@
                         </h2>
                     </div>
 
-                    <!-- 3-Column Compact Grid for Inputs -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-x-4 gap-y-2 items-end">
-                        
-                        <!-- Row 1 -->
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Document Date <span class="text-red-600">*</span> <span id="document_date_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <input type="date" name="document_date" id="document_date" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="{{ $r008_document->document_date }}">
+                    <!-- 4-Column Compact Grid for Inputs -->
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 xl:items-end">
+
+                        {{-- Document Date --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Document Date <span class="text-red-600">*</span>
+                                <span id="document_date_error" class="ml-1 text-[10px] text-red-500"></span>
+                            </label>
+
+                            <input type="date"
+                                name="document_date"
+                                id="document_date"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-300 px-2 text-sm focus:border-amber-500 focus:outline-none"
+                                value="{{ $r008_document->document_date }}">
                         </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Vendor Code <span class="text-red-600">*</span></label>
-                            <input type="text" name="vendor_code" readonly id="vendor_code" class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 cursor-not-allowed" placeholder="VEN-999999" value="{{ $r008_document->vendor_code }}">
+
+                        {{-- Vendor Code --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Vendor Code <span class="text-red-600">*</span>
+                            </label>
+
+                            <input type="text"
+                                name="vendor_code"
+                                readonly
+                                id="vendor_code"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 text-sm text-slate-500 cursor-not-allowed"
+                                placeholder="VEN-999999"
+                                value="{{ $r008_document->vendor_code }}">
                         </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Vendor Name <span class="text-red-600">*</span></label>
-                            <input type="text" name="vendor_name" readonly id="vendor_name" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Vendor Name" value="{{ $r008_document->vendor->vendor_name }}">
+
+                        {{-- Vendor Name --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Vendor Name <span class="text-red-600">*</span>
+                            </label>
+
+                            <input type="text"
+                                name="vendor_name"
+                                readonly
+                                id="vendor_name"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 text-sm text-slate-500 cursor-not-allowed"
+                                placeholder="Vendor Name"
+                                value="{{ $r008_document->vendor->vendor_name }}">
                         </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Product Type <span class="text-red-600">*</span> <span id="product_type_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <select name="product_type" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
-                                <!-- <option value="">Choose a remark type</option> -->
+
+                        {{-- Product Type --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Product Type <span class="text-red-600">*</span>
+                                <span id="product_type_error" class="ml-1 text-[10px] text-red-500"></span>
+                            </label>
+
+                            <select name="product_type"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-2 text-sm focus:border-amber-500 focus:outline-none">
                                 <option value="Local" {{ $r008_document->product_type == 'Local' ? 'selected' : '' }}>Local</option>
-                                <option value="Import"  {{ $r008_document->product_type == 'Import' ? 'selected' : '' }}>Import</option>
+                                <option value="Import" {{ $r008_document->product_type == 'Import' ? 'selected' : '' }}>Import</option>
                             </select>
                         </div>
 
-                        <!-- Row 2 -->
+                        {{-- Receive Doc No --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Receive Doc. No <span class="text-red-600">*</span>
+                                <span id="rg_no_error" class="ml-1 text-[10px] text-red-500"></span>
+                            </label>
 
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Receive Doc. No <span class="text-red-600">*</span><span id="rg_no_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <select id="rg_no" name="rg_no" class="w-full h-8 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
-                                {{-- @if(!isset($rg_no)) --}}
-                                <!-- <option value="" disabled selected>Choose RG No:</option> -->
-                                {{-- @endif --}}
+                            <select id="rg_no"
+                                name="rg_no"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-2 text-sm focus:border-amber-500 focus:outline-none">
                                 <option value="{{ $r008_document->rg_no }}">{{ $r008_document->rg_no }}</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Invoice No<span class="text-red-600">*</span></label>
-                            <input  type="text"  name="invoice_no" readonly id="invoice_no"class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" value="{{ $r008_document->receive_good_document()->delivery_note }}">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">PO No<span class="text-red-600">*</span></label>
-                            <input  type="text"  name="po_no" readonly id="po_no"class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" value="{{ $r008_document->receive_good_document()->po_no }}">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Truck/Container No. <span class="text-red-600"></span> <span id="truck_container_no_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <input type="text" name="truck_container_no" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="" value="{{ $r008_document->truck_container_no }}">
+
+                        {{-- Invoice No --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Invoice No <span class="text-red-600">*</span>
+                            </label>
+
+                            <input type="text"
+                                name="invoice_no"
+                                readonly
+                                id="invoice_no"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 text-sm text-slate-500 cursor-not-allowed"
+                                value="{{ $r008_document->receive_good_document()->delivery_note }}">
                         </div>
 
-                        <div class="col-span-4">
-                            <label class="block font-medium text-slate-500 mb-0.5">Remark <span class="text-red-600"></span></label>
-                            <textarea name="remark" rows="3" class="w-full h-auto px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="">{{ $r008_document->remark }}</textarea>
+                        {{-- PO No --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                PO No <span class="text-red-600">*</span>
+                            </label>
+
+                            <input type="text"
+                                name="po_no"
+                                readonly
+                                id="po_no"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 text-sm text-slate-500 cursor-not-allowed"
+                                value="{{ $r008_document->receive_good_document()->po_no }}">
                         </div>
 
-                        <div>
-                            <div class="flex items-center md:justify-start gap-2">
-                                <span class="text-sm font-medium text-slate-600 whitespace-nowrap">
-                                    R008 No:
-                                </span>
+                        {{-- Truck Container No --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Truck/Container No.
+                                <span id="truck_container_no_error" class="ml-1 text-[10px] text-red-500"></span>
+                            </label>
 
-                                <input type="text"
-                                    readonly
-                                    value="{{ $r008_document->r008_files->first()->file }}"
-                                    class="h-9 w-[100%] px-3 rounded-lg border border-blue-300 bg-blue-100 text-blue-700 font-bold tracking-wide focus:outline-none">
-                                @php
-                                    $status = strtolower($r008_document->status ?? 'Default');
-                                @endphp
-                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
-                                    {{ $r008_document->status }}
-                                </span>
+                            <input type="text"
+                                name="truck_container_no"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-300 px-2 text-sm focus:border-amber-500 focus:outline-none"
+                                value="{{ $r008_document->truck_container_no }}">
+                        </div>
+
+                        {{-- Remark --}}
+                        <div class="min-w-0 sm:col-span-2 xl:col-span-4">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Remark
+                            </label>
+
+                            <textarea name="remark"
+                                rows="3"
+                                class="w-full min-w-0 rounded-lg border border-slate-300 px-2 py-2 text-sm focus:border-amber-500 focus:outline-none">{{ $r008_document->remark }}</textarea>
+                        </div>
+
+                        {{-- R008 No --}}
+                        <div class="min-w-0 sm:col-span-2 xl:col-span-4">
+                            <div class="grid grid-cols-1 gap-3 xl:grid-cols-3">
+                                <div class="min-w-0 xl:col-span-1">
+                                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+                                        <span class="text-sm font-medium text-slate-600 whitespace-nowrap">
+                                            R008 No:
+                                        </span>
+
+                                        <input type="text"
+                                            readonly
+                                            value="{{ $r008_document->r008_files->first()?->file }}"
+                                            class="h-9 w-full min-w-0 rounded-lg border border-blue-300 bg-blue-100 px-3 font-bold tracking-wide text-blue-700 focus:outline-none">
+
+                                        @php
+                                            $status = strtolower($r008_document->status ?? 'default');
+                                        @endphp
+
+                                        <span class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusClasses[$status] ?? $statusClasses['default'] }}">
+                                            {{ $r008_document->status }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="hidden xl:block xl:col-span-2"></div>
                             </div>
                         </div>
-
-
-
-
 
                     </div>
                 </div>
@@ -145,6 +223,9 @@
                                     <th class="py-2 px-3 w-auto text-right">RG Qty</th>
                                     <th class="py-2 px-3 w-auto text-right">Physical Qty</th>
                                     <th class="py-2 px-3 w-auto text-right">Diff.</th>
+                                    <th class="py-2 px-3 w-auto text-right">Big Damage Qty</th>
+                                    <th class="py-2 px-3 w-auto text-right">Small Damage Qty</th>
+                                    <th class="py-2 px-3 w-auto text-left">Remark</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white">
@@ -329,6 +410,32 @@
                                         ${Math.abs(product.gr_qty - product.po_qty)}
                                         <input type="hidden" name="diff[]" value="${product.gr_qty - product.po_qty}" />
                                     </td>
+                                    <td class="py-1.5 px-3 text-right">
+                                        <div id="bd_view_${product.product_code}" class="w-24  ms-auto hidden">
+                                            <span>${product.bdqty}<span>
+                                        </div>
+                                        <div id="bd_edit_${product.product_code}" hiddens class="w-24  ms-auto">
+                                            <input type="hidden" name="bd_qty[]" id="bd_edit_${product.gr_qty}" class="bd_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${0}">
+                                        </div>
+                                    </td>
+                                    <td class="py-1.5 px-3 text-right">
+                                        <div id="sd_view_${product.product_code}" class="w-24  ms-auto hidden">
+                                            <span>${product.sdqty}<span>
+                                        </div>
+                                        <div id="bd_edit_${product.product_code}" hiddens class="w-24  ms-auto">
+                                            <input type="hidden" name="sd_qty[]" id="sd_edit_${product.gr_qty}" class="sd_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${0}">
+                                        </div>
+                                    </td>
+                                    <td class="py-1.5 px-3">
+                                        <div id="lineremark_view_${product.product_code}" class="w-40 ms-auto line_view hidden">
+                                            <span>${product.remark ?? ''}<span>
+                                        </div>
+
+                                        <div id="lineremark_edit_${product.product_code}" hiddens class="w-40 ms-auto line_edit">
+                                            <input type="hidden" name="line_remark[]" class="w-40 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500"/>
+                                        </div>
+                                    </td>
+                                    
                                 </tr>
                             `;
                             $('#productTable tbody').append(html);
@@ -597,6 +704,31 @@
                             <td class="py-1.5 px-3 text-right font-medium">
                                 ${Math.abs(product.physical_qty - product.gr_qty)}
                                 <input type="hidden" name="diff[]" value="${product.physical_qty - product.gr_qty}" />
+                            </td>
+                            <td class="py-1.5 px-3 text-right">
+                                <div id="bd_view_${product.product_code}" class="w-24  ms-auto">
+                                    <span>${product.bdqty}<span>
+                                </div>
+                                <div id="bd_edit_${product.product_code}" hiddens class="w-24  ms-auto">
+                                    <input type="hidden" name="bd_qty[]" id="bd_edit_${product.gr_qty}" class="bd_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${0}">
+                                </div>
+                            </td>
+                            <td class="py-1.5 px-3 text-right">
+                                <div id="sd_view_${product.product_code}" class="w-24  ms-auto">
+                                    <span>${product.sdqty}<span>
+                                </div>
+                                <div id="bd_edit_${product.product_code}" hiddens class="w-24  ms-auto">
+                                    <input type="hidden" name="sd_qty[]" id="sd_edit_${product.gr_qty}" class="sd_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${0}">
+                                </div>
+                            </td>
+                            <td class="py-1.5 px-3">
+                                <div id="lineremark_view_${product.product_code}" class="w-40 ms-auto line_view">
+                                    <span>${product.remark ?? ''}<span>
+                                </div>
+
+                                <div id="lineremark_edit_${product.product_code}" hiddens class="w-40 ms-auto line_edit">
+                                    <input type="hidden" name="line_remark[]" class="w-40 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500"/>
+                                </div>
                             </td>
                         </tr>
                     `;

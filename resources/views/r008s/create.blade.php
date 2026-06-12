@@ -17,64 +17,138 @@
                         </h2>
                     </div>
 
-                    <!-- 3-Column Compact Grid for Inputs -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-x-4 gap-y-2 items-end">
-                        
-                        <!-- Row 1 -->
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Document Date <span class="text-red-600">*</span> <span id="document_date_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <input type="date" name="document_date" id="document_date" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500">
+                    {{-- 4-Column Responsive Grid for Inputs --}}
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 xl:items-end">
+
+                        {{-- Document Date --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Document Date <span class="text-red-600">*</span>
+                                <span id="document_date_error" class="ml-1 text-[10px] text-red-500"></span>
+                            </label>
+
+                            <input type="date"
+                                name="document_date"
+                                id="document_date"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-300 px-2 text-sm focus:border-amber-500 focus:outline-none">
                         </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Vendor Code <span class="text-red-600">*</span></label>
-                            <input type="text" name="vendor_code" readonly id="vendor_code" class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 cursor-not-allowed" placeholder="VEN-999999" value="{{-- $good_receive->vendor_name --}}">
+
+                        {{-- Vendor Code --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Vendor Code <span class="text-red-600">*</span>
+                            </label>
+
+                            <input type="text"
+                                name="vendor_code"
+                                readonly
+                                id="vendor_code"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 text-sm text-slate-500 cursor-not-allowed"
+                                placeholder="VEN-999999"
+                                value="{{-- $good_receive->vendor_name --}}">
                         </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Vendor Name <span class="text-red-600">*</span></label>
-                            <input type="text" name="vendor_name" readonly id="vendor_name" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Vendor Name" value="{{-- $good_receive->vendor_name --}}">
+
+                        {{-- Vendor Name --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Vendor Name <span class="text-red-600">*</span>
+                            </label>
+
+                            <input type="text"
+                                name="vendor_name"
+                                readonly
+                                id="vendor_name"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 text-sm text-slate-500 cursor-not-allowed"
+                                placeholder="Vendor Name"
+                                value="{{-- $good_receive->vendor_name --}}">
                         </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Product Type <span class="text-red-600">*</span> <span id="product_type_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <select name="product_type" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
-                                <!-- <option value="">Choose a remark type</option> -->
-                                    <option value="Local">Local</option>
-                                    <option value="Import">Import</option>
+
+                        {{-- Product Type --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Product Type <span class="text-red-600">*</span>
+                                <span id="product_type_error" class="ml-1 text-[10px] text-red-500"></span>
+                            </label>
+
+                            <select name="product_type"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-2 text-sm focus:border-amber-500 focus:outline-none">
+                                <option value="Local">Local</option>
+                                <option value="Import">Import</option>
                             </select>
                         </div>
 
-                        <!-- Row 2 -->
+                        {{-- Receive Doc No --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Receive Doc. No <span class="text-red-600">*</span>
+                                <span id="rg_no_error" class="ml-1 text-[10px] text-red-500"></span>
+                            </label>
 
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Receive Doc. No <span class="text-red-600">*</span><span id="rg_no_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <select id="rg_no" name="rg_no" class="w-full h-8 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                            <select id="rg_no"
+                                name="rg_no"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-2 text-sm focus:border-amber-500 focus:outline-none">
                                 {{-- @if(!isset($rg_no)) --}}
                                 <option value="" disabled selected>Choose RG No:</option>
                                 {{-- @endif --}}
+
                                 @if(isset($rg_no))
                                     <option value="{{ $rg_no }}">{{ $rg_no }}</option>
                                 @endif
                             </select>
                         </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Invoice No<span class="text-red-600">*</span></label>
-                            <input  type="text"  name="invoice_no" readonly id="invoice_no"class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">PO No<span class="text-red-600">*</span></label>
-                            <input  type="text"  name="po_no" readonly id="po_no"class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">Truck/Container No. <span class="text-red-600"></span> <span id="truck_container_no_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                            <input type="text" name="truck_container_no" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="">
+
+                        {{-- Invoice No --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Invoice No <span class="text-red-600">*</span>
+                            </label>
+
+                            <input type="text"
+                                name="invoice_no"
+                                readonly
+                                id="invoice_no"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 text-sm text-slate-500 cursor-not-allowed">
                         </div>
 
-                        <div class="col-span-4">
-                            <label class="block font-medium text-slate-500 mb-0.5">Remark <span class="text-red-600"></span></label>
-                            <textarea name="remark" rows="3" class="w-full h-auto px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder=""></textarea>
+                        {{-- PO No --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                PO No <span class="text-red-600">*</span>
+                            </label>
+
+                            <input type="text"
+                                name="po_no"
+                                readonly
+                                id="po_no"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 text-sm text-slate-500 cursor-not-allowed">
+                        </div>
+
+                        {{-- Truck Container No --}}
+                        <div class="min-w-0">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Truck/Container No.
+                                <span id="truck_container_no_error" class="ml-1 text-[10px] text-red-500"></span>
+                            </label>
+
+                            <input type="text"
+                                name="truck_container_no"
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-300 px-2 text-sm focus:border-amber-500 focus:outline-none"
+                                placeholder="">
+                        </div>
+
+                        {{-- Remark --}}
+                        <div class="min-w-0 sm:col-span-2 xl:col-span-4">
+                            <label class="mb-1 block text-sm font-medium text-slate-500">
+                                Remark
+                            </label>
+
+                            <textarea name="remark"
+                                rows="3"
+                                class="w-full min-w-0 rounded-lg border border-slate-300 px-2 py-2 text-sm focus:border-amber-500 focus:outline-none"
+                                placeholder=""></textarea>
                         </div>
 
                         <input type="hidden" id="branch_id" name="branch_id" value="{{ $userdata->branch->id }}" />
-
 
                     </div>
                 </div>

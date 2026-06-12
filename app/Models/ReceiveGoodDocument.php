@@ -61,6 +61,26 @@ class ReceiveGoodDocument extends Model
         return $this->belongsTo(User::class,'rejected_by','id');
     } 
 
+    // public function r008_document(){
+
+    //     $r8_no = $this->receive_good_files->where('name','R008')->first()?->file;
+
+    //     if($r8_no){
+    //         $r008_document = R008Document::whereHas('r008_files', function ($q) use ($r8_no) {
+    //             $q->where('file', $r8_no);
+    //         })->first();;
+    //         return $r008_document;
+    //     }
+    //     return null;
+    // }
+
+    public function r008_document(){
+        $rg_no =  $this->receive_good_files->first()?->file;    
+
+        $r008_document = R008Document::where('rg_no',$rg_no)->where('status',"!=","Cancel")->first();
+        return $r008_document;
+    }
+
 
 
 }

@@ -559,6 +559,10 @@ class ActionController extends Controller
                 return $product->remaining_qty > 0;
             })->values(); // Reset keys
 
+
+            $purchase_orders = collect($purchase_orders);
+            $document['vatrate'] = $purchase_orders->first()?->vatrate;
+            // dd($document);
             return response()->json([
                 'message' => 'success',
                 'data' => [
@@ -719,6 +723,15 @@ class ActionController extends Controller
             $product['receive_no'] = $rg_document->receive_no;
 
             $rg_document_detail = generateRGDocDetail($product);
+
+            // Start Adding Inventory Stockcard
+            $product['docudate'] = $rg_document->receive_date;
+            $product['docuno'] = $rg_document->receive_no;
+            $product['brchcode'] = $rg_document->branch_code;
+            $product['vatrate'] = $request->vatrate;
+            dd($request->vatrate);
+            $invendoty_stockcard = generateInventoryStockCard($product);
+            // End Adding Invendoty Stockcard
         }
 
         // => Store RG Document No In Portal

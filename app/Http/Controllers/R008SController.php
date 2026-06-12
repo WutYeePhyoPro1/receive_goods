@@ -235,14 +235,32 @@ class R008SController extends Controller
         $receive_good_file->file = $r008_doc_no;
         $receive_good_file->save();
 
+
+        // Start Update R008 Data to Portal
+        foreach($r008_products as $product){
+            $receive_good_products = $receive_good_document->receive_good_products()
+                                    ->where('product_code',$product->product_code)
+                                    ->update([
+                                        'r8damqty' => $product->bdqty,
+                                    ]);
+        }
+        // End Update R008 Data to Portal
+
+
         // Start Update R008 data to RG
             // Start R8 Document Number Update
             $updated_r8_document_count = updateR008No($request->all(),$r008_document);
             // End R8 Document Number Update
 
-            
 
-        // End Updaate R008 Data to RG
+            // Start R8Qty for each items
+            foreach($r008_products as $product){
+                $product['status'] = $r008_document->status;
+                $product['rg_no'] = $r008_document->rg_no;
+                $rg_item_updated_count = updateR8DamQty($product);
+            }
+            // End R8Qty for each items
+        // End Update R008 Data to RG
 
     }
 
@@ -270,6 +288,8 @@ class R008SController extends Controller
         try {
 
             $r008_document = R008Document::find($id);
+            $r008_products = $r008_document->r008_products;
+            $receive_good_document = $r008_document->receive_good_document();
 
             $status = $request->status;
             // dd($status);
@@ -292,10 +312,27 @@ class R008SController extends Controller
 
                     $r008_document->receive_good_document()->receive_good_files->where('name','R008')->first()->delete();
 
+                    // Start Update R008 Data to Portal
+                    foreach($r008_products as $product){
+                        $receive_good_products = $receive_good_document->receive_good_products()
+                                                ->where('product_code',$product->product_code)
+                                                ->update([
+                                                    'r8damqty' => 0,
+                                                ]);
+                    }
+                    // End Update R008 Data to Portal
                 }
 
                 // Start RG Cancel In ERP
-                $updated_r8_document_count = cancelR8Doc($request->all(),$r008_document);
+                    $updated_r8_document_count = cancelR8Doc($request->all(),$r008_document);
+                
+                    // Start Zero R8Qty for each items
+                    foreach($r008_products as $product){
+                        $product['status'] = $r008_document->status;
+                        $product['rg_no'] = $r008_document->rg_no;
+                        $rg_item_updated_count = updateR8DamQty($product);
+                    }
+                    // End Zero R8Qty for each items
                 // End RG Cancel In EERP
 
             }

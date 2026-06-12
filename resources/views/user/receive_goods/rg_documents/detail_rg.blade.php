@@ -128,38 +128,73 @@
                             <input type="text" name="remark" readonly id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Enter remarks details here..." value="{{ $receive_good_document->remark }}">
                         </div>
                         
-                        <!-- Checkbox Controls Alignment -->
-
+                        {{-- Checkbox Controls Alignment --}}
                         <div class="md:col-span-3">
-                        <div class="grid grid-cols-3 gap-2 pt-4 items-center">
-                            <label class="flex items-center gap-1.5 cursor-pointer font-medium text-slate-600">
-                                <input type="checkbox" id="receive_all" class="w-3.5 h-3.5 accent-amber-500 rounded"> Select All
-                            </label>
-                            <div class="flex gap-2">
-                                <label class="flex items-center gap-1.5 cursor-pointer font-medium text-slate-600">
-                                    <input name="r008" type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded" {{ $receive_good_document->r008 ? 'checked' : '' }}> R008
-                                </label>
-                                <div>
-                                    <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 text-center cursor-not-allowed" value="{{ $receive_good_document->receive_good_files->where('name','R008')->first()?->file }}" title="">
-                                </div>
-                            </div>
-                            <div class="flex items-center md:justify-start gap-2">
-                                <span class="text-sm font-medium text-slate-600 whitespace-nowrap">
-                                    RG No:
-                                </span>
+                            <div class="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-2 xl:grid-cols-3 xl:items-center">
 
-                                <input type="text"
-                                    readonly
-                                    value="{{ $receive_good_document->receive_good_files->first()->file }}"
-                                    class="h-9 w-[100%] px-3 rounded-lg border border-blue-300 bg-blue-100 text-blue-700 font-bold tracking-wide focus:outline-none">
-                                @php
-                                    $status = strtolower($receive_good_document->status ?? 'Default');
-                                @endphp
-                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
-                                    {{ $receive_good_document->status }}
-                                </span>
+                                <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600">
+                                    <input type="checkbox" id="receive_all" class="h-4 w-4 rounded accent-amber-500">
+                                    <span>Select All</span>
+                                </label>
+
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                    <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600 sm:shrink-0">
+                                        <input name="r008" type="checkbox" class="h-4 w-4 rounded accent-amber-500"
+                                            {{ $receive_good_document->r008 ? 'checked' : '' }}>
+                                        <span>R008</span>
+
+                                        <button
+                                            type="button"
+                                            class="ml-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                            onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $receive_good_document->receive_good_files->where('name','R008')->first()?->file }}')"
+                                            title="Copy"
+                                        >
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                    </label>
+
+                                    {{-- @dd($receive_good_document->r008_document()) --}}
+                                    <input type="text"
+                                        readonly
+                                        class="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 text-centers text-sm text-slate-500 cursor-not-alloweds cursor-pointer"
+                                        value="{{ $receive_good_document->receive_good_files->where('name','R008')->first()?->file }}"
+                                        @if($receive_good_document->r008_document()?->id)
+                                        onClick="window.open('{{ route('r008s.show',$receive_good_document->r008_document()?->id) }}', '_blank')"
+                                        @endif
+                                        >
+                                </div>
+
+                                <div class="flex min-w-0 flex-col gap-2 sm:col-span-2 sm:flex-row sm:items-center xl:col-span-1">
+                                 
+                                    <span class="text-sm font-medium text-slate-600 sm:shrink-0">
+                                        RG No:    
+                                        <button
+                                            type="button"
+                                            class="ml-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                            onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $receive_good_document->receive_good_files->first()?->file }}')"
+                                            title="Copy"
+                                        >
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                    </span>
+
+                                    <input type="text"
+                                        readonly
+                                        value="{{ $receive_good_document->receive_good_files->first()?->file }}"
+                                        class="h-9 w-full min-w-0 rounded-lg border border-blue-300 bg-blue-100 px-3 font-bold tracking-wide text-blue-700 focus:outline-none">
+
+                                    @php
+                                        $status = strtolower($receive_good_document->status ?? 'default');
+                                    @endphp
+
+                                    <span class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium sm:shrink-0 {{ $statusClasses[$status] ?? $statusClasses['default'] }}">
+                                        {{ $receive_good_document->status }}
+                                    </span>
+
+                                    
+                                </div>
+
                             </div>
-                        </div>
                         </div>
 
                     </div>
@@ -339,395 +374,413 @@
 
         // ... rest of your existing AJAX code ...
     </script>
-        <script type="text/javascript">
-            var token = $("meta[name='__token']").attr('content');
-            const recieve_id = $('#receive_id').val();
+    <script type="text/javascript">
+        var token = $("meta[name='__token']").attr('content');
+        const recieve_id = $('#receive_id').val();
 
-            // console.log(formatComma(10000000));
- 
-            $('#po_no').change(function(){
-                const getpono = $(this).val();
-                $('#productTable tbody').html('');
+        // console.log(formatComma(10000000));
 
-                $.ajax({
-                    url: `/receive_po`,
-                    type: 'POST',
-                    data: {
-                        _token: token,
-                        purchaseno: getpono,
-                        id: recieve_id,
-                    },
-                    dataType:"json",
-                    success:function(response){
-                        console.log(response);
-                        let data = response.data;
+        $('#po_no').change(function(){
+            const getpono = $(this).val();
+            $('#productTable tbody').html('');
 
-                        let document = data.document;
-                        let products = data.products;
+            $.ajax({
+                url: `/receive_po`,
+                type: 'POST',
+                data: {
+                    _token: token,
+                    purchaseno: getpono,
+                    id: recieve_id,
+                },
+                dataType:"json",
+                success:function(response){
+                    console.log(response);
+                    let data = response.data;
 
-                        $('#vendor_code').val(document.vendor_code);
-                        $('#vendor_name').val(document.vendor_name);
-                        $('#purchasedate').val(document.purchasedate);
-                        // $('#total_amount').text(formatComma(document.total_amount));
-                        $('#remark').val(document.remark);
+                    let document = data.document;
+                    let products = data.products;
+
+                    $('#vendor_code').val(document.vendor_code);
+                    $('#vendor_name').val(document.vendor_name);
+                    $('#purchasedate').val(document.purchasedate);
+                    // $('#total_amount').text(formatComma(document.total_amount));
+                    $('#remark').val(document.remark);
 
 
-                        products.forEach((product,idx) => {
-                            let html = `
-                                <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                                    <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
-                                    <td class="py-1.5 px-3 text-center">
-                                        <input name="product_code[]" type="checkbox" id="pickup_${product.bar_code}" class="receive_barcode accent-amber-500 rounded" value="${product.bar_code}">
-                                    </td>
-                                    <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.bar_code}</td>
-                                    <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">${product.unit}</span></td>
-                                    <td class="py-1.5 px-3 text-right font-medium">${product.remaining_qty}</td>
-                                    <td class="py-1.5 px-3 text-right">
-                                        <div id="gr_view_${product.bar_code}" class="w-24  ms-auto">
-                                            <span>${product.remaining_qty}<span>
-                                        </div>
+                    products.forEach((product,idx) => {
+                        let html = `
+                            <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
+                                <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
+                                <td class="py-1.5 px-3 text-center">
+                                    <input name="product_code[]" type="checkbox" id="pickup_${product.bar_code}" class="receive_barcode accent-amber-500 rounded" value="${product.bar_code}">
+                                </td>
+                                <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.bar_code}</td>
+                                <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">${product.unit}</span></td>
+                                <td class="py-1.5 px-3 text-right font-medium">${product.remaining_qty}</td>
+                                <td class="py-1.5 px-3 text-right">
+                                    <div id="gr_view_${product.bar_code}" class="w-24  ms-auto">
+                                        <span>${product.remaining_qty}<span>
+                                    </div>
 
-                                        <div id="gr_edit_${product.bar_code}" hidden class="w-24  ms-auto">
-                                            <input type="number" name="gr_qty[]" id="gr_qty_${product.bar_code}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.remaining_qty}">
+                                    <div id="gr_edit_${product.bar_code}" hidden class="w-24  ms-auto">
+                                        <input type="number" name="gr_qty[]" id="gr_qty_${product.bar_code}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.remaining_qty}">
 
-                                            <input name="product_name[]" type="hidden" value="${product.supplier_name}" disabled />
-                                            <input name="unit[]" type="hidden" value="${product.unit}" disabled />
-                                            <input name="po_qty[]" type="hidden" value="${product.remaining_qty}" disabled />
-                                            <input name="price[]" type="hidden" value="${product.price}" disabled />
-                                            <input name="amount[]" id="amount_${product.bar_code}_input" type="hidden" value="${product.amount}" disabled />
-                                            <input name="product_id[]" type="hidden" value="${product.id}" disabled />
-                                        </div>
-                                    </td>
-                                    <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
-                                    <td id="amount_${product.bar_code}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.amount)}</td>
-                                </tr>
-                            `;
-                            $('#productTable tbody').append(html);
+                                        <input name="product_name[]" type="hidden" value="${product.supplier_name}" disabled />
+                                        <input name="unit[]" type="hidden" value="${product.unit}" disabled />
+                                        <input name="po_qty[]" type="hidden" value="${product.remaining_qty}" disabled />
+                                        <input name="price[]" type="hidden" value="${product.price}" disabled />
+                                        <input name="amount[]" id="amount_${product.bar_code}_input" type="hidden" value="${product.amount}" disabled />
+                                        <input name="product_id[]" type="hidden" value="${product.id}" disabled />
+                                    </div>
+                                </td>
+                                <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
+                                <td id="amount_${product.bar_code}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.amount)}</td>
+                            </tr>
+                        `;
+                        $('#productTable tbody').append(html);
 
-                            $(`#gr_qty_${product.bar_code}`).on('input', function() {
+                        $(`#gr_qty_${product.bar_code}`).on('input', function() {
 
-                                var qty = parseInt($(this).val()) || 0;
-                                var poqty = parseInt(product.remaining_qty);
-                                var price = product.price;
-                                var amount = qty * price;
-                                console.log(amount);
+                            var qty = parseInt($(this).val()) || 0;
+                            var poqty = parseInt(product.remaining_qty);
+                            var price = product.price;
+                            var amount = qty * price;
+                            console.log(amount);
 
-                                if(qty > poqty){
-                                    $(this).val(poqty)
-                                    $(`#amount_${product.bar_code}`).html(formatComma(product.amount));
-                                    $(`#amount_${product.bar_code}_input`).val(product.amount);
-                                }else{
-                                    $(`#amount_${product.bar_code}`).html(formatComma(amount));
-                                    $(`#amount_${product.bar_code}_input`).val(amount);
-                                }
-                                calculateTotalAmount()
-                            });
-
-                            $(`#pickup_${product.bar_code}`).change(function(){
-                                var isChecked = $(this).prop("checked") === true ? true : false;
-
-                                let grView = $(`#gr_view_${product.bar_code}`);
-                                let grEdit = $(`#gr_edit_${product.bar_code}`);
-                                let qtyInput = $(`#gr_qty_${product.bar_code}`);
-
-                                if(isChecked){
-                                    grView.hide();
-                                    grEdit.show();
-
-                                    qtyInput.prop('disabled', false);
-                                    grEdit.find('input').prop('disabled',false);
-                                }else{
-                                    grView.show();
-                                    grEdit.hide();
-
-                                    qtyInput.prop('disabled', true);
-                                    grEdit.find('input').prop('disabled',true);
-                                }
-                                calculateTotalAmount();
-                            });
+                            if(qty > poqty){
+                                $(this).val(poqty)
+                                $(`#amount_${product.bar_code}`).html(formatComma(product.amount));
+                                $(`#amount_${product.bar_code}_input`).val(product.amount);
+                            }else{
+                                $(`#amount_${product.bar_code}`).html(formatComma(amount));
+                                $(`#amount_${product.bar_code}_input`).val(amount);
+                            }
+                            calculateTotalAmount()
                         });
-              
 
-                    }
-                    
-                })
+                        $(`#pickup_${product.bar_code}`).change(function(){
+                            var isChecked = $(this).prop("checked") === true ? true : false;
+
+                            let grView = $(`#gr_view_${product.bar_code}`);
+                            let grEdit = $(`#gr_edit_${product.bar_code}`);
+                            let qtyInput = $(`#gr_qty_${product.bar_code}`);
+
+                            if(isChecked){
+                                grView.hide();
+                                grEdit.show();
+
+                                qtyInput.prop('disabled', false);
+                                grEdit.find('input').prop('disabled',false);
+                            }else{
+                                grView.show();
+                                grEdit.hide();
+
+                                qtyInput.prop('disabled', true);
+                                grEdit.find('input').prop('disabled',true);
+                            }
+                            calculateTotalAmount();
+                        });
+                    });
+            
+
+                }
+                
+            })
+
+        });
+
+        $('#receive_all').change(function () {
+
+            let isChecked = $(this).prop('checked');
+
+            $('.receive_barcode')
+                .prop('checked', isChecked)
+                .trigger('change');
+
+        });
+
+        function validateForm() {
+
+            let deliveryNote = $('[name="delivery_note"]').val().trim();
+            let deliveryDate = $('[name="delivery_date"]').val();
+            let shipBy = $('[name="ship_by"]').val();
+            let receiveType = $('[name="receive_type"]').val();
+            let receive_barcodes_input =  $('.receive_barcode:checked');
+
+            let isValid = true;
+
+            // clear old errors
+            $('.text-red-500').text('');
+            $('.gr_qty').removeClass('border-red-500');
+
+
+            if(deliveryNote === ''){
+                $('#delivery_note_error').text('Delivery Note Required');
+                isValid = false;
+            }
+
+            if(deliveryDate === ''){
+                $('#delivery_date_error').text('Delivery Date Required');
+                isValid = false;
+            }
+        
+            if(shipBy === '' || shipBy == null){
+                $('#ship_by_error').text('Ship By Required');
+                isValid = false;
+            }
+
+            if(receiveType === '' || receiveType == null){
+                $('#receive_type_error').text('Remark Required');
+                isValid = false;
+            }
+
+            // GR Qty
+            if(receive_barcodes_input.length == 0){
+                $('#product_error').text('Please check at least one product.');
+                isValid = false;
+            }
+
+            receive_barcodes_input.each(function(){
+
+                let row = $(this).closest('tr');
+
+                let qtyInput = row.find('.gr_qty');
+
+                let qty = qtyInput.val();
+
+                // console.log(qty);
+                if(qty === '' || qty <= 0){
+
+                    qtyInput.removeClass('border-slate-300').addClass('border-red-500');
+
+                    // row.find('.qty-error').text('Invalid qty');
+
+                    isValid = false;
+                }
 
             });
 
-            $('#receive_all').change(function () {
+            return isValid;
+        }
 
-                let isChecked = $(this).prop('checked');
+        function calculateTotalAmount() {
 
-                $('.receive_barcode')
-                    .prop('checked', isChecked)
-                    .trigger('change');
+            let total = 0;
+
+            $('.receive_barcode:checked').each(function(){
+
+                let row = $(this).closest('tr');
+
+                let qty = parseFloat(row.find('.gr_qty').val()) || 0;
+                let price = parseFloat(row.find('[name="price[]"]').val()) || 0;
+
+
+                // let price = parseFloat(
+                //     row.find('.price').data('price')
+                // ) || 0;
+
+                total += qty * price;
 
             });
 
-            function validateForm() {
+            $('#total_amount').text(formatComma(total));
+            $('#total_amount_input').val(total)
+        }
 
-                let deliveryNote = $('[name="delivery_note"]').val().trim();
-                let deliveryDate = $('[name="delivery_date"]').val();
-                let shipBy = $('[name="ship_by"]').val();
-                let receiveType = $('[name="receive_type"]').val();
-                let receive_barcodes_input =  $('.receive_barcode:checked');
+        // let isSubmitting = false;
+        // $('#rg_form').submit(function(e){
 
-                let isValid = true;
+        //     e.preventDefault();
+        //     if (isSubmitting) return;
 
-                // clear old errors
-                $('.text-red-500').text('');
-                $('.gr_qty').removeClass('border-red-500');
+        //     if(validateForm() || false){
 
+        //         Swal.fire({
+        //             icon: "question",
+        //             text: "Are you sure to save RG to ERP?",
+        //             showCancelButton: true,
+        //         }).then((result) => {
+        //             if(result.isConfirmed)
+        //             {
 
-                if(deliveryNote === ''){
-                    $('#delivery_note_error').text('Delivery Note Required');
-                    isValid = false;
-                }
+        //                 isSubmitting = true;                            
+        //                 $(".fullloader").removeClass("hidden");
+        //                 // Swal.disableButtons();
+        //                 $('#saveBtn').prop('disabled', true)
 
-                if(deliveryDate === ''){
-                    $('#delivery_date_error').text('Delivery Date Required');
-                    isValid = false;
-                }
-          
-                if(shipBy === '' || shipBy == null){
-                    $('#ship_by_error').text('Ship By Required');
-                    isValid = false;
-                }
+        //                 console.log('submit');
 
-                if(receiveType === '' || receiveType == null){
-                    $('#receive_type_error').text('Remark Required');
-                    isValid = false;
-                }
+        //                 // form submit here
+        //                 // console.log($('#rg_form').serialize());
 
-                // GR Qty
-                if(receive_barcodes_input.length == 0){
-                    $('#product_error').text('Please check at least one product.');
-                    isValid = false;
-                }
+        //                 $.ajax({
+        //                     url:"{{ route('save_rg') }}",
+        //                     type:"POST",
+        //                     dataType: "json",
+        //                     data:$("#rg_form").serialize(),
+        //                     success:function(response){
+        //                         console.log(response);
 
-                receive_barcodes_input.each(function(){
+        //                         const data = response;
 
-                    let row = $(this).closest('tr');
+        //                         if(data.success){
+        //                             Swal.fire({
+        //                                 icon: "success",
+        //                                 title: "RG saved successfully!",
+        //                                 text: data.message,
+        //                             });
+                                    
+        //                             const receive_good_document = data.data;
+        //                             if(receive_good_document.r008){
+        //                                 // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
+        //                             }else{
+        //                                 window.location.href="{{ route('rg_documents') }}"
+        //                             }
 
-                    let qtyInput = row.find('.gr_qty');
+        //                         }else{
+        //                             Swal.fire({
+        //                                 icon: "error",
+        //                                 title: "RG Save Error!!",
+        //                                 text: "Something went wrong while saving the RG.",
+        //                             });
 
-                    let qty = qtyInput.val();
+        //                             isSubmitting = false;
+        //                             $(".fullloader").addClass("hidden");
+        //                         }
+        //                     },
+        //                     error:function(response){
+        //                         console.log("Error: ",response);
 
-                    // console.log(qty);
-                    if(qty === '' || qty <= 0){
+        //                         Swal.fire({
+        //                             icon: "error",
+        //                             title: "RG Save Error!!",
+        //                             text: "Something went wrong while saving the RG.",
+        //                         });
 
-                        qtyInput.removeClass('border-slate-300').addClass('border-red-500');
+        //                         isSubmitting = false;
+        //                         $(".fullloader").addClass("hidden");
+        //                     },
+        //                     // complete:function(resopnse){
+        //                     //     isSubmitting = false;
+                        
+        //                     //     $(".fullloader").addClass("hidden");
+        //                     //     console.log('complete');
+        //                     // }
+        //                 });
 
-                        // row.find('.qty-error').text('Invalid qty');
+        //             }
+        //         })
+        //     }
 
-                        isValid = false;
-                    }
-
-                });
-
-                return isValid;
-            }
-
-            function calculateTotalAmount() {
-
-                let total = 0;
-
-                $('.receive_barcode:checked').each(function(){
-
-                    let row = $(this).closest('tr');
-
-                    let qty = parseFloat(row.find('.gr_qty').val()) || 0;
-                    let price = parseFloat(row.find('[name="price[]"]').val()) || 0;
-
-
-                    // let price = parseFloat(
-                    //     row.find('.price').data('price')
-                    // ) || 0;
-
-                    total += qty * price;
-
-                });
-
-                $('#total_amount').text(formatComma(total));
-                $('#total_amount_input').val(total)
-            }
-
-            // let isSubmitting = false;
-            // $('#rg_form').submit(function(e){
-
-            //     e.preventDefault();
-            //     if (isSubmitting) return;
-
-            //     if(validateForm() || false){
-
-            //         Swal.fire({
-            //             icon: "question",
-            //             text: "Are you sure to save RG to ERP?",
-            //             showCancelButton: true,
-            //         }).then((result) => {
-            //             if(result.isConfirmed)
-            //             {
-
-            //                 isSubmitting = true;                            
-            //                 $(".fullloader").removeClass("hidden");
-            //                 // Swal.disableButtons();
-            //                 $('#saveBtn').prop('disabled', true)
-
-            //                 console.log('submit');
-
-            //                 // form submit here
-            //                 // console.log($('#rg_form').serialize());
-
-            //                 $.ajax({
-            //                     url:"{{ route('save_rg') }}",
-            //                     type:"POST",
-            //                     dataType: "json",
-            //                     data:$("#rg_form").serialize(),
-            //                     success:function(response){
-            //                         console.log(response);
-
-            //                         const data = response;
-
-            //                         if(data.success){
-            //                             Swal.fire({
-            //                                 icon: "success",
-            //                                 title: "RG saved successfully!",
-            //                                 text: data.message,
-            //                             });
-                                        
-            //                             const receive_good_document = data.data;
-            //                             if(receive_good_document.r008){
-            //                                 // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
-            //                             }else{
-            //                                 window.location.href="{{ route('rg_documents') }}"
-            //                             }
-
-            //                         }else{
-            //                             Swal.fire({
-            //                                 icon: "error",
-            //                                 title: "RG Save Error!!",
-            //                                 text: "Something went wrong while saving the RG.",
-            //                             });
-
-            //                             isSubmitting = false;
-            //                             $(".fullloader").addClass("hidden");
-            //                         }
-            //                     },
-            //                     error:function(response){
-            //                         console.log("Error: ",response);
-
-            //                         Swal.fire({
-            //                             icon: "error",
-            //                             title: "RG Save Error!!",
-            //                             text: "Something went wrong while saving the RG.",
-            //                         });
-
-            //                         isSubmitting = false;
-            //                         $(".fullloader").addClass("hidden");
-            //                     },
-            //                     // complete:function(resopnse){
-            //                     //     isSubmitting = false;
-                            
-            //                     //     $(".fullloader").addClass("hidden");
-            //                     //     console.log('complete');
-            //                     // }
-            //                 });
-
-            //             }
-            //         })
-            //     }
-
-            // });
+        // });
 
 
 
-            function showProducts(){
-                const products = @json($receive_good_document->receive_good_products);
+        function showProducts(){
+            const products = @json($receive_good_document->receive_good_products);
 
-                products.forEach((product,idx) => {
-                        // let key = `${product.bar_code}_${product.price}`;
-                    let key = `${product.bar_code}_${idx}`;
-                    
-                    $('#total_amount').text(formatComma({{ $receive_good_document->total_amount }}));
+            products.forEach((product,idx) => {
+                    // let key = `${product.bar_code}_${product.price}`;
+                let key = `${product.bar_code}_${idx}`;
+                
+                $('#total_amount').text(formatComma({{ $receive_good_document->total_amount }}));
 
-                    let html = `
-                        <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
-                            <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
-                            {{-- <td class="py-1.5 px-3 text-center">
-                                <input name="product_code[]" type="checkbox" id="pickup_${product.bar_code}" class="receive_barcode accent-amber-500 rounded" value="${product.bar_code}">
-                            </td>
-                            --}}
-                            <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.product_code}</td>
-                            <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.supplier_name}</td>
-                            <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">${product.unit}</span></td>
-                            <td class="py-1.5 px-3 text-right font-medium">${product.po_qty}</td>
-                            <td class="py-1.5 px-3 text-right">
-                                <div id="gr_view_${product.bar_code}" class="w-24  ms-auto">
-                                    <span>${product.gr_qty}<span>
-                                </div>
+                let html = `
+                    <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
+                        <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
+                        {{-- <td class="py-1.5 px-3 text-center">
+                            <input name="product_code[]" type="checkbox" id="pickup_${product.bar_code}" class="receive_barcode accent-amber-500 rounded" value="${product.bar_code}">
+                        </td>
+                        --}}
+                        <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.product_code}</td>
+                        <td class="py-1.5 px-3 font-mono font-medium text-slate-700">${product.product_name}</td>
+                        <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">${product.unit}</span></td>
+                        <td class="py-1.5 px-3 text-right font-medium">${product.po_qty}</td>
+                        <td class="py-1.5 px-3 text-right">
+                            <div id="gr_view_${product.bar_code}" class="w-24  ms-auto">
+                                <span>${product.gr_qty}<span>
+                            </div>
 
-                                <div id="gr_edit_${product.bar_code}" hidden class="w-24  ms-auto">
-                                    <input type="number" name="gr_qty[]" id="gr_qty_${product.bar_code}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.remaining_qty}">
+                            <div id="gr_edit_${product.bar_code}" hidden class="w-24  ms-auto">
+                                <input type="number" name="gr_qty[]" id="gr_qty_${product.bar_code}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.remaining_qty}">
 
-                                    <input name="product_name[]" type="hidden" value="${product.supplier_name}" disabled />
-                                    <input name="unit[]" type="hidden" value="${product.unit}" disabled />
-                                    <input name="po_qty[]" type="hidden" value="${product.remaining_qty}" disabled />
-                                    <input name="price[]" type="hidden" value="${product.price}" disabled />
-                                    <input name="amount[]" id="amount_${product.bar_code}_input" type="hidden" value="${product.amount}" disabled />
-                                    <input name="product_id[]" type="hidden" value="${product.id}" disabled />
-                                </div>
-                            </td>
-                            <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
-                            <td class="py-1.5 px-3 text-right font-medium">0</td>
-                            <td id="amount_${product.bar_code}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.amount)}</td>
+                                <input name="product_name[]" type="hidden" value="${product.supplier_name}" disabled />
+                                <input name="unit[]" type="hidden" value="${product.unit}" disabled />
+                                <input name="po_qty[]" type="hidden" value="${product.remaining_qty}" disabled />
+                                <input name="price[]" type="hidden" value="${product.price}" disabled />
+                                <input name="amount[]" id="amount_${product.bar_code}_input" type="hidden" value="${product.amount}" disabled />
+                                <input name="product_id[]" type="hidden" value="${product.id}" disabled />
+                            </div>
+                        </td>
+                        <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
+                        <td class="py-1.5 px-3 text-right font-medium">0</td>
+                        <td id="amount_${product.bar_code}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.amount)}</td>
 
-                            <td class="py-1.5 px-3">
-                                <div id="lineremark_view_${key}" class="w-40 ms-auto line_view">
-                                    <span>${product.remark ?? ''}<span>
-                                </div>
+                        <td class="py-1.5 px-3">
+                            <div id="lineremark_view_${key}" class="w-40 ms-auto line_view">
+                                <span>${product.remark ?? ''}<span>
+                            </div>
 
-                                <div id="lineremark_edit_${key}" hidden class="w-40 ms-auto line_edit">
-                                    <input type="text" name="line_remark[]" class="w-40 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" disabled/>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                    $('#productTable tbody').append(html);
-
-
-                });
-            }
-            showProducts();
-
-            let isSubmitting = false;
-            $('#approveBtn').click(function(e){
-
-                e.preventDefault();
-                if (isSubmitting) return;
+                            <div id="lineremark_edit_${key}" hidden class="w-40 ms-auto line_edit">
+                                <input type="text" name="line_remark[]" class="w-40 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" disabled/>
+                            </div>
+                        </td>
+                        <td class="py-1.5 px-3 text-right font-medium">${product.r8damqty}</td>
+                    </tr>
+                `;
+                $('#productTable tbody').append(html);
 
 
-                Swal.fire({
-                    icon: "question",
-                    text: "Are you sure want to Cancel RG?",
-                    showCancelButton: true,
-                }).then((result) => {
-                    if(result.isConfirmed)
-                    {
-
-                        isSubmitting = true;                            
-                        $(".fullloader").removeClass("hidden");
-                        // Swal.disableButtons();
-                        $('#approveBtn').prop('disabled', true)
-
-                        var btn = $(this).val();
-                        $('#btn_status').append('<input type="hidden" name="status" value="' + btn + '" /> ');
-
-                        $('#rg_form').submit();
-                    }
-                })
             });
-           
-        </script>
+        }
+        showProducts();
+
+        let isSubmitting = false;
+        $('#approveBtn').click(function(e){
+
+            e.preventDefault();
+            if (isSubmitting) return;
+
+
+            Swal.fire({
+                icon: "question",
+                text: "Are you sure want to Cancel RG?",
+                showCancelButton: true,
+            }).then((result) => {
+                if(result.isConfirmed)
+                {
+
+                    isSubmitting = true;                            
+                    $(".fullloader").removeClass("hidden");
+                    // Swal.disableButtons();
+                    $('#approveBtn').prop('disabled', true)
+
+                    var btn = $(this).val();
+                    $('#btn_status').append('<input type="hidden" name="status" value="' + btn + '" /> ');
+
+                    $('#rg_form').submit();
+                }
+            })
+        });
+        
+    </script>
+
+    <script type="text/javascript">
+        function copyDocumentNo(button, targetId) {
+            const text = targetId.trim();
+                const icon = button.children[0];
+
+
+            navigator.clipboard.writeText(text).then(() => {
+                // icon.className = 'fa-solid fa-check text-green-600';
+                $(icon).html('<i class="fa-solid fa-check text-green-600"></i>');
+
+                setTimeout(() => {
+                    $(icon).html('<i class="fa-regular fa-copy"></i>');
+                }, 1500);
+            });
+        }
+    </script>
     @endpush
 @endsection
 

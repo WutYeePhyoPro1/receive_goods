@@ -508,7 +508,7 @@ use Spatie\Permission\Models\Role;
 
 
         $data = $conn->select("
-            select purchaseno,brchcode,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,goodprice,bb.sumgoodamnt,creditday,purchasedate,aa.remark
+            select purchaseno,brchcode,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,vatrate,goodprice,bb.discount,bb.remark as lineremark,bb.sumgoodamnt,creditday,purchasedate,aa.remark
             from purchaseorder.po_purchaseorderhd aa
             inner join purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
             left join master_data.master_branch br on aa.brchcode= br.branch_code
@@ -614,7 +614,7 @@ use Spatie\Permission\Models\Role;
                 '$purchase_date',                 --(select purchasedate from purchaseorder.po_purchaseorderhd where purchaseno='$purchase_no'),  --- purchase_date
                 'N',                            -- ismulticurrency --- (Fix)
                 0,                              -- multicurrencyrate --- (Fix)
-                'N',                            -- poststockflag (Fix)
+                'Y',                            -- poststockflag (Fix)
                 '$status_r008',                   -- status_r008 ---  N
                 '',					            -- r008_docuno --- if status_r008=N , r008_docuno = blank
                 '$employeecode',                  -- employeecode (portal login user)
@@ -678,6 +678,59 @@ use Spatie\Permission\Models\Role;
         ");
 
         return $result;
+    }
+
+    function generateInventoryStockCard($productRG){
+        $conn = DB::connection('master_product');
+
+        $list_no = $productRG['list_no'];
+        $productcode = $productRG['product_code'];
+        $product_name = $productRG['product_name'];
+        $barcode = $productRG['product_code'];
+        $docudate = $productRG['docudate'];
+        $docuno = $productRG['docuno'];
+        $brchcode = $productRG['brchcode'];
+        $goodqty = $productRG['gr_qty'];
+        $goodamnt = $productRG['amount'];
+
+        $vatrate =  $productRG['vatrate'] == 5 ? $productRG['vatrate']: 0;
+        $goodamnt = $vatrate == 5 ? $goodamnt/1.05 : $goodamnt/1; 
+
+        $result = $conn->insert("
+        insert into inventory.stc_stockcard
+		(
+		  stockid ,
+		  productcode ,
+		  barcode ,
+		  docudate ,
+		  docuno ,
+		  brchcode ,
+		  docutype ,
+		  stockflag ,
+		  listno ,
+		  goodqty ,
+		  landedcost ,
+		  goodamnt ,
+		  calcostflag 		  
+		)
+		select
+		(select coalesce(max(stockid),0)+1 from inventory.stc_stockcard), --stockid
+		'$productcode',				--productcode
+		'$barcode',				--barcode
+		'$docudate',   				--docudate
+		'$docuno',				--docuno
+		'$brchcode',					--brchcode
+		'307'::char(3),					-- docutype
+		1::integer ,					--stockflag
+		$list_no,					--listno from RG
+		'$goodqty',						--goodqty,
+		0.00::numeric(18,2),				-- as landedcost
+		$goodamnt,                           --approve_amount/1.05 or 1,			--1.05 for PO vat and 1 for PO novat goodamnt,
+		'N'::char(1)					--calcostflag,
+        ");
+
+        return $result;
+
     }
 
     function generateR008Header($data,$r008_document){
@@ -878,6 +931,7 @@ use Spatie\Permission\Models\Role;
             set r008_docuno='$r008_docuno' , status_r008='t'
             where receive_no='$receive_no'
         ");
+        return $modified;
     }
 
     function getPOHistory($po_no){
@@ -1007,6 +1061,36 @@ use Spatie\Permission\Models\Role;
             set status_r008='', r008_docuno=''
             where receive_no='$rg_no'
         ");
+
+        return $modified;
+    }
+
+
+    function updateR8DamQty($product){
+        $conn = DB::connection('master_product');
+
+        $receive_no = $product->rg_no;
+        $product_code = $product->product_code;
+
+        if($product->status == "Default"){
+            $r008qty = $product->bdqty;
+            $modified = $conn->update("
+                update purchaseorder.receive_dt
+                set r008qty='$r008qty'   --- big damage qty from R008
+                where receive_no='$receive_no'
+                and product_code='$product_code'
+                --and approve_price<>'0' --- if product code same but price diff (price 0 and price<>0)
+            ");
+        }else if($product->status = "Cancel"){
+            $modified = $conn->update("
+               ---- if R008 cancel ----
+                update purchaseorder.receive_dt
+                set r008qty='0'   --- big damage qty from R008
+                where receive_no='$receive_no'
+                and product_code='$product_code'
+                --and approve_price<>'0' --- if product code same but price diff (price 0 and price<>0)
+            ");
+        }
 
         return $modified;
     }

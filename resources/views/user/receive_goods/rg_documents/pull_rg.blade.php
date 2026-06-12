@@ -66,6 +66,8 @@
                                     @endforeach
                                 </select>
                         </div>
+                        <!-- PO Info -->
+                        <input type="hidden" id="vatrate" name="vatrate" value="0"/>
 
                         <!-- Row 3 -->
                         <div>
@@ -102,23 +104,31 @@
                             <input type="text" name="remark" readonlys id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-alloweds" placeholder="Enter remarks details here...">
                         </div>
                         
-                        <!-- Checkbox Controls Alignment -->
-
+                        {{-- Checkbox Controls Alignment --}}
                         <div class="md:col-span-3">
-                        <div class="grid grid-cols-3 gap-2 pt-4 items-center">
-                            <label class="flex items-center gap-1.5 cursor-pointer font-medium text-slate-600">
-                                <input type="checkbox" id="receive_all" class="w-3.5 h-3.5 accent-amber-500 rounded"> Select All
-                            </label>
-                            <div class="flex gap-2">
-                                <label class="flex items-center gap-1.5 cursor-pointer font-medium text-slate-600">
-                                    <input name="r008" type="checkbox" class="w-3.5 h-3.5 accent-amber-500 rounded"> R008
+                            <div class="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-2 xl:grid-cols-3 xl:items-center">
+
+                                <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600">
+                                    <input type="checkbox" id="receive_all" class="h-4 w-4 rounded accent-amber-500">
+                                    <span>Select All</span>
                                 </label>
-                                <div>
-                                    <input type="text" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded text-slate-500 text-center cursor-not-allowed" value="" title="">
+
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                    <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600 sm:shrink-0">
+                                        <input name="r008" type="checkbox" class="h-4 w-4 rounded accent-amber-500">
+                                        <span>R008</span>
+                                    </label>
+
+                                    <input type="text"
+                                        readonly
+                                        class="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-2 text-center text-sm text-slate-500 cursor-not-allowed"
+                                        value=""
+                                        title="">
                                 </div>
+
+                                <div class="hidden xl:block"></div>
+
                             </div>
-                            <div></div>
-                        </div>
                         </div>
 
                     </div>
@@ -259,6 +269,8 @@
             $('#po_no').change(function(){
                 const getpono = $(this).val();
                 $('#productTable tbody').html('');
+                $('#vendor_code, #vendor_name, #purchasedate, #remark, #branch_id, #vatrate').val('');
+                $('#total_amount').text('');
 
                 $.ajax({
                     url: `/receive_po`,
@@ -286,6 +298,7 @@
                         // $('#total_amount').text(formatComma(document.total_amount));
                         $('#remark').val(document.remark);
                         $('#branch_id').val(document.branch_id);
+                        $('#vatrate').val(document.vatrate);
 
                         deliveryDatePicker.set('minDate', document.purchasedate);
 
@@ -321,7 +334,7 @@
                                         </div>
                                     </td>
                                     <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
-                                    <td class="py-1.5 px-3 text-right">0</td>
+                                    <td class="py-1.5 px-3 text-right">${product.discount}</td>
                                     <td id="amount_${key}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.price * product.remaining_qty)}</td>
                                     <td class="py-1.5 px-3">
                                         <div id="lineremark_view_${key}" class="w-40 ms-auto line_view">
@@ -329,7 +342,7 @@
                                         </div>
 
                                         <div id="lineremark_edit_${key}" hidden class="w-40 ms-auto line_edit">
-                                            <input type="text" name="line_remark[]" class="w-40 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" disabled/>
+                                            <input type="text" name="line_remark[]" class="w-40 h-7 px-1.5 text-rights border border-slate-300 rounded focus:outline-none focus:border-amber-500" disabled value="${product.remark ?? ''}"/>
                                         </div>
                                     </td>
                                     <td class="py-1.5 px-3 text-right font-medium">0</td>
@@ -520,7 +533,7 @@
                             isSubmitting = true;                            
                             $(".fullloader").removeClass("hidden");
                             // Swal.disableButtons();
-                            $('#saveBtn').prop('disabled', true)
+                            $('#saveBtn').prop('disabled', true);
 
                             console.log('submit');
 
@@ -594,6 +607,7 @@
 
                                     isSubmitting = false;
                                     $(".fullloader").addClass("hidden");
+                                    $('#saveBtn').prop('disabled', false);
                                 },
                                 // complete:function(resopnse){
                                 //     isSubmitting = false;

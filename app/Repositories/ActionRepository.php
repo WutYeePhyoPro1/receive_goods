@@ -224,6 +224,8 @@ Class ActionRepository implements ActionRepositoryInterface
                     'qty' => $purchase_order->goodqty,
                     'unit' => $purchase_order->unit,
                     'amount' => $purchase_order->sumgoodamnt,
+                    'discount' => $purchase_order->discount,
+                    'remark' => $purchase_order->lineremark 
                 ]
             );
 
