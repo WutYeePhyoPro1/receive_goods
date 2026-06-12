@@ -1,9 +1,82 @@
 @extends('layout.layout')
 
+@section('css')
+    <!-- <style>
+        @media (max-width: 767px) {
+            .content {
+                left: 0;
+                top: 96px;
+                width: 100%;
+                padding-bottom: 150px;
+            }
+
+            .side_bar {
+                top: 12px;
+                left: 12px;
+                width: calc(100% - 24px);
+                overflow-x: auto;
+                border-radius: 12px;
+                padding: 8px;
+            }
+
+            .side_bar:hover {
+                width: calc(100% - 24px);
+            }
+
+            .sidebar_body {
+                display: flex;
+                gap: 8px;
+                width: max-content;
+                padding: 0;
+            }
+
+            .sidebar_items {
+                width: 54px;
+                flex: 0 0 54px;
+                margin-bottom: 0;
+            }
+
+            .sidebar_text > span,
+            .side_bar:hover .sidebar_text > span {
+                display: none;
+            }
+
+            .footer {
+                height: auto;
+                min-height: 76px;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .logo {
+                margin-left: 0;
+                line-height: 32px;
+            }
+
+            .logo::before {
+                display: none;
+            }
+
+            .logo > img {
+                height: 24px;
+                margin-top: 4px;
+            }
+
+            .footer .flexv {
+                width: 100%;
+                overflow-x: auto;
+                line-height: 24px !important;
+            }
+        }
+    </style> -->
+@endsection
+
 @section('content')
-    <div class="m-5">
+    <div class="px-4 py-5 sm:px-5">
         <form action="{{ route('list') }}" method="Get">
-        <div class="grid grid-cols-7 gap-4">
+        <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-7">
                 {{-- <div class="flex flex-col">
                     <label for="doc_name">Document Number :</label>
                     <input type="text" name="doc" id="doc_name" class="px-4 w-[80%] h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2">
@@ -11,8 +84,8 @@
 
                 <input type="hidden" id="user_role" value="{{ getAuth()->role }}">
                     <div class="flex flex-col">
-                        <label for="branch">Choose Branch :</label>
-                        <Select name="branch" id="branch" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                        <label for="branch" class="text-sm font-medium text-slate-700">Choose Branch :</label>
+                        <Select name="branch" id="branch" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                             <option value="">Choose Branch</option>
                             @foreach ($branch as $item)
                                 <option value="{{ $item->id }}" {{ request('branch') == $item->id ? 'selected' : '' }}>{{ $item->branch_name }}</option>
@@ -21,8 +94,8 @@
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="status">Choose Status :</label>
-                        <Select name="status" id="status" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                        <label for="status" class="text-sm font-medium text-slate-700">Choose Status :</label>
+                        <Select name="status" id="status" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                             <option value="">Choose Status</option>
                             <option value="complete" {{ request('status')== 'complete' ? 'selected' : '' }}>Complete</option>
                             <option value="incomplete" {{ request('status')== 'incomplete' ? 'selected' : '' }}>Incomplete</option>
@@ -30,18 +103,18 @@
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="from_date">From Date :</label>
-                        <input type="date" name="from_date" id="from_date" class="px-4  h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2" value="{{ request('from_date') ?? '' }}">
+                        <label for="from_date" class="text-sm font-medium text-slate-700">From Date :</label>
+                        <input type="date" name="from_date" id="from_date" class="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" value="{{ request('from_date') ?? '' }}">
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="to_date">To Date :</label>
-                        <input type="date" name="to_date" id="to_date" class="px-4  h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2" value="{{ request('to_date') ?? '' }}">
+                        <label for="to_date" class="text-sm font-medium text-slate-700">To Date :</label>
+                        <input type="date" name="to_date" id="to_date" class="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" value="{{ request('to_date') ?? '' }}">
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
-                        <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                        <label for="search" class="text-sm font-medium text-slate-700">Choose Search Method :</label>
+                        <Select name="search" id="search" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                             <option value="" selected>Choose Method</option>
                             <option value="document_no" {{ request('search')=='document_no' ? 'selected' : '' }}>Document No</option>
                             <option value="truck_no" {{ request('search')=='truck_no' ? 'selected' : '' }}>Truck No</option>
@@ -50,49 +123,49 @@
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="search_data">Search Data :</label>
-                        <input type="text" name="search_data" id="search_data" class="px-4 w-[80%] h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2" value="{{ request('search_data') ?? '' }}">
+                        <label for="search_data" class="text-sm font-medium text-slate-700">Search Data :</label>
+                        <input type="text" name="search_data" id="search_data" class="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" value="{{ request('search_data') ?? '' }}">
                     </div>
 
-                <div class="">
-                    <button class="bg-amber-400 h-10 w-[40%] rounded-lg ms-4 mt-9 hover:bg-amber-600 hover:text-white">Search</button>
+                <div class="flex items-end">
+                    <button class="h-10 w-full rounded-lg bg-amber-400 px-4 font-medium transition hover:bg-amber-600 hover:text-white">Search</button>
                 </div>
             </div>
         </form>
         @if (Session::has('error'))
-        <div class="bg-rose-200 mt-3 border-l-4 border-rose-600 py-2">
-            <small class="text-rose-600 ms-5">{{ Session::get('error') }}</small>
+        <div class="mt-3 rounded-r-md border-l-4 border-rose-600 bg-rose-100 py-2 pr-3">
+            <small class="ms-5 text-rose-600">{{ Session::get('error') }}</small>
         </div>
         @endif
 
 
-        <div class="">
-            <table class="w-full mt-4">
+        <div class="mt-4 overflow-x-auto rounded-lg border border-slate-300 bg-white shadow-sm">
+            <table class="min-w-[1100px] w-full text-sm">
                 <thead>
                     <tr class="">
-                        <th class="py-2 bg-slate-400  rounded-tl-md w-10"></th>
-                        <th class="py-2 bg-slate-400 border">Branch</th>
-                        <th class="py-2 bg-slate-400 border">Status</th>
-                        <th class="py-2 bg-slate-400 border">Document</th>
-                        <th class="py-2 bg-slate-400 border">Source</th>
-                        <th class="py-2 bg-slate-400 border">Supplier Name</th>
+                        <th class="w-12 whitespace-nowrap bg-slate-400 px-3 py-3 text-center"></th>
+                        <th class="whitespace-nowrap border border-slate-500 bg-slate-400 px-3 py-3 text-center">Branch</th>
+                        <th class="whitespace-nowrap border border-slate-500 bg-slate-400 px-3 py-3 text-center">Status</th>
+                        <th class="whitespace-nowrap border border-slate-500 bg-slate-400 px-3 py-3 text-center">Document</th>
+                        <th class="whitespace-nowrap border border-slate-500 bg-slate-400 px-3 py-3 text-center">Source</th>
+                        <th class="min-w-56 border border-slate-500 bg-slate-400 px-3 py-3 text-center">Supplier Name</th>
                         {{-- <th class="py-2 bg-slate-400 border">PO QTY</th>
                         <th class="py-2 bg-slate-400 border">Remain QTY</th>
                         <th class="py-2 bg-slate-400 border">Exceed QTY</th> --}}
-                        <th class="py-2 bg-slate-400 border">Start Date</th>
+                        <th class="whitespace-nowrap border border-slate-500 bg-slate-400 px-3 py-3 text-center">Start Date</th>
                         @can('management-document')
-                        <th class="py-2 bg-slate-400 border">Action</th>
+                        <th class="whitespace-nowrap border border-slate-500 bg-slate-400 px-3 py-3 text-center">Action</th>
                         @endcan
-                        <th class="py-2 bg-slate-400  rounded-tr-md">Total Unload Time</th>
+                        <th class="whitespace-nowrap bg-slate-400 px-3 py-3 text-center">Total Unload Time</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($data as $item)
-                        <tr>
-                            <td class="h-10 text-center border border-slate-400">{{ $data->firstItem()+$loop->index  }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->branches->branch_name }}</td>
-                            <td class="h-10 text-center border border-slate-400 {{ $item->status == 'complete' ? 'text-green-600' : 'text-amber-600' }}">{{ $item->status }}</td>
-                            <td class="h-10 text-center border border-slate-400">
+                        <tr class="odd:bg-white even:bg-slate-50">
+                            <td class="h-11 whitespace-nowrap border border-slate-300 px-3 text-center">{{ $data->firstItem()+$loop->index  }}</td>
+                            <td class="h-11 whitespace-nowrap border border-slate-300 px-3 text-center">{{ $item->branches->branch_name }}</td>
+                            <td class="h-11 whitespace-nowrap border border-slate-300 px-3 text-center font-medium {{ $item->status == 'complete' ? 'text-green-600' : 'text-amber-600' }}">{{ $item->status }}</td>
+                            <td class="h-11 whitespace-nowrap border border-slate-300 px-3 text-center">
                                 <input type="hidden" class="check_empty" value="{{ check_empty($item->id) }}">
                                 <span class="cursor-pointer hover:underline hover:font-semibold {{ $item->status == 'complete' ? 'text-emerald-600' : '' }}" onclick="$(this).parent().find('.view_goods').click();">{{ $item->document_no }}</span> &nbsp;
                                 <i class='bx bxs-show text-amber-400 cursor-pointer ms-3 text-lg view_goods hidden' title="view Document" onclick="javascript:window.location.href = '/view_goods/'+{{$item->id}}"></i>
@@ -111,32 +184,32 @@
                                 @endcan
 
                             </td>
-                            <td class="h-10 text-center border border-slate-400">{{ $item->source_good->name }}</td>
-                            <td class="h-10 text-center border border-slate-400">{{ strlen($item->vendor_name) > 50 ? substr($item->vendor_name,0,50).'...' : $item->vendor_name }}</td>
+                            <td class="h-11 whitespace-nowrap border border-slate-300 px-3 text-center">{{ $item->source_good->name }}</td>
+                            <td class="h-11 border border-slate-300 px-3 text-center">{{ strlen($item->vendor_name) > 50 ? substr($item->vendor_name,0,50).'...' : $item->vendor_name }}</td>
                             {{-- <td class="h-10 text-center border border-slate-400">{{ get_total_qty($item->id) }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->remaining_qty }}</td>
                             <td class="h-10 text-center border border-slate-400">{{ $item->exceed_qty }}</td> --}}
-                            <td class="h-10 text-center border border-slate-400">{{ $item->start_date.' '.$item->start_time }}</td>
+                            <td class="h-11 whitespace-nowrap border border-slate-300 px-3 text-center">{{ $item->start_date.' '.$item->start_time }}</td>
                             @can('management-document')
-                                <td class="h-10 text-center border border-slate-400">
+                                <td class="h-11 whitespace-nowrap border border-slate-300 px-3 text-center">
                                     @if ($item->status != 'complete')
                                         <button class="bg-rose-500 hover:bg-rose-700 px-1 rounded-md mr-1 del_doc_btn" data-id="{{ $item->id }}"><i class='bx bxs-trash-alt text-white mt-1'></i></button>
                                     @endif
                                     {{-- <button class="bg-sky-500 hover:bg-sky-700 px-1 rounded-md mr-1 edit_btn" onclick="window.location.href = '/edit/'+{{$item->id}}"><i class='bx bxs-edit text-white mt-1'></i></button> --}}
                                 </td>
                             @endcan
-                            <td class="h-10 text-center border border-slate-400">{{ $item->total_duration }}</td>
+                            <td class="h-11 whitespace-nowrap border border-slate-300 px-3 text-center">{{ $item->total_duration }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         @if (request('search') || request('search_data') || request('branch') || request('status') || request('from_date') || request('to_date'))
-        <div class="mt-2">
-            <button class="bg-sky-600 text-white px-3 py-2 rounded-md" onclick="javascirpt:window.location.href = 'list'">Back to Default</button>
+        <div class="mt-3">
+            <button class="rounded-md bg-sky-600 px-3 py-2 text-white transition hover:bg-sky-700" onclick="javascirpt:window.location.href = 'list'">Back to Default</button>
         </div>
         @endif
-        <div class="flex justify-center text-xs mt-2 bg-white mt-6">
+        <div class="mt-6 flex overflow-x-auto bg-white text-xs sm:justify-center">
             {{ $data->appends(request()->query())->links() }}
     </div>
     </div>

@@ -61,6 +61,162 @@
         color: white;
         font-weight: bold;
     }
+
+    .rg-scroll-panel {
+        min-width: 0;
+    }
+
+    .main_table,
+    .scan_parent,
+    .excess_div {
+        min-width: 100%;
+        overflow-x: auto;
+    }
+
+    .main_table table,
+    .scan_parent table,
+    .excess_div table {
+        min-width: 760px;
+    }
+
+    .main_table th,
+    .main_table td,
+    .scan_parent th,
+    .scan_parent td,
+    .excess_div th,
+    .excess_div td {
+        vertical-align: top;
+    }
+
+    .main_table td,
+    .scan_parent td,
+    .excess_div td {
+        word-break: break-word;
+    }
+
+    @media (max-width: 1024px) {
+        .rg-table-panel {
+            min-height: 360px !important;
+            max-height: none !important;
+            overflow-x: auto !important;
+        }
+
+        .rg-side-panels {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+
+        .rg-side-panel {
+            max-height: 420px !important;
+            overflow-x: auto !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .rg-toolbar .ms-40,
+        .rg-toolbar .ml-8,
+        .rg-toolbar .ml-2,
+        .rg-toolbar .ms-3,
+        .rg-toolbar .mx-3,
+        .rg-toolbar .mr-1 {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .rg-toolbar .-translate-x-6 {
+            transform: none !important;
+        }
+
+        .rg-toolbar button,
+        .rg-search-actions button,
+        .rg-search-actions a {
+            min-height: 44px;
+        }
+
+        #decision > div,
+        #car_info > div,
+        #add_car > div,
+        #alert_model > div,
+        #pass_con > div,
+        #remark_model > div,
+        #print_no > div,
+        #image_model > div,
+        #prew_img > div {
+            align-items: flex-start !important;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        #decision > div > div,
+        #car_info > div > div,
+        #add_car > div > div,
+        #alert_model > div > div,
+        #pass_con > div > div,
+        #remark_model > div > div,
+        #print_no > div > div,
+        #image_model > div > div,
+        #prew_img > div > div {
+            width: 100% !important;
+            max-width: 100% !important;
+            max-height: 92vh !important;
+        }
+
+        #car_info .grid-cols-2,
+        #add_car .grid-cols-2,
+        #pass_con .grid-cols-2 {
+            grid-template-columns: minmax(0, 1fr) !important;
+        }
+
+        #add_car .px-10,
+        #pass_con .px-10 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        #add_car .mx-10 {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        #add_car .car_auto {
+            width: 100% !important;
+        }
+
+        #car_info .text-xl,
+        #add_car .text-xl,
+        #alert_model .text-2xl,
+        #pass_con .text-2xl,
+        #remark_model .text-2xl,
+        #print_no .text-2xl {
+            font-size: 1rem !important;
+            line-height: 1.5rem !important;
+        }
+
+        #decision .min-w-80,
+        #car_info .min-w-80,
+        #add_car .min-w-80,
+        #alert_model .min-w-80,
+        #pass_con .min-w-80,
+        #remark_model .min-w-80,
+        #print_no .min-w-80,
+        #image_model .min-w-80,
+        #prew_img .min-w-80 {
+            min-width: 0 !important;
+        }
+
+        #remark_card_body textarea,
+        #ipt_remark {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        #image_container img,
+        #prew_img img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+    }
 </style>
 @if (session('error_message'))
     <script>
@@ -83,13 +239,13 @@
             })
         </script>
     @endif
-    <div class="flex justify-between">
-        <div class="flex">
+    <div class="rg-toolbar flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+        <div class="flex flex-wrap items-center gap-2">
             {{-- <div class="flex {{ $main->duration ? 'invisible pointer-events-none' : '' }}"> --}}
 
             @if ($main->status != 'complete' && $status != 'view')
                 <input type="text" id="docu_ipt"
-                    class="w-80 h-1/2 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none"
+                    class="w-full sm:w-80 h-1/2 min-h-12 shadow-lg border-slate-400 border rounded-xl pl-5 focus:border-b-4 focus:outline-none"
                     placeholder="PO/POI/TO Document...">
                 <button class="h-12 bg-amber-400 text-white px-8 ml-8 rounded-lg hover:bg-amber-500" id="search_btn"
                     hidden>Search</button>
@@ -113,7 +269,7 @@
                     title="Edit Image" onclick="$('#car_choose').show()"><i class='bx bxs-image-add mt-2 ms-1'></i></button>
             @endif
         </div>
-        <div class="flex">
+        <div class="flex flex-col gap-3 xl:flex-row xl:items-start">
             <div class="flex flex-col">
                 <span class=" mt-2 -translate-x-6  mx-3">Document No : <b class="text-xl"
                         id="doc_no">{{ $main->document_no ?? '' }}</b></span>
@@ -126,7 +282,7 @@
                 @endif
             </div>
             @if ($main->status == 'complete')
-                <span class="text-emerald-600 font-bold text-3xl ms-40 underline">Complete</span>
+                <span class="text-emerald-600 font-bold text-2xl md:text-3xl ms-40 underline">Complete</span>
                 <!-- <a href="{{ route('complete_doc_print', ['id' => $main->id]) }}" target="_blank" title="print"><button type="button" class="bg-rose-400 text-white text-xl h-10 px-3 rounded-lg ms-4 hover:bg-rose-600 hover:text-white"><i class='bx bxs-printer'></i></button></a> -->
             @endif
 
@@ -170,7 +326,7 @@
 
         @if ($cur_driver)
             <!-- <span
-                    class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
+                    class="mr-0 text-3xl md:text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
                     id="time_count">
                     @if ($main->status == 'complete')
     {{ $main->total_duration }}
@@ -180,7 +336,7 @@
                 </span> -->
             @if (isset($cur_driver->start_date) || dc_staff() || $status != 'scan' || $main->status == 'complete')
                 <span
-                    class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
+                    class="mr-0 text-3xl md:text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
                     id="time_count">
                     @if ($main->status == 'complete')
                         {{ $main->total_duration }}
@@ -194,13 +350,13 @@
                 </span>
             @else
                 <span
-                    class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
+                    class="mr-0 text-3xl md:text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
                 </span>
             @endif
         @elseif($driver_last)
             @if (isset($status) && $status == 'view')
                 <span
-                    class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
+                    class="mr-0 text-3xl md:text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
                     {{ $main->total_duration }}
                 </span>
             @elseif(isset($status) &&
@@ -208,24 +364,24 @@
                     $main->status == 'incomplete' &&
                     ($main->scan_user_id == getAuth()->id || $driver_last->scan_user_id == getAuth()->id))
                 <span
-                    class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
+                    class="mr-0 text-3xl md:text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2"
                     id="time_count_pause">
                     {{ $driver_last->duration }}
                 </span>
             @elseif(request()->has('from_join'))
                 <span
-                    class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
+                    class="mr-0 text-3xl md:text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
                 </span>
             @else
                 <span
-                    class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
+                    class="mr-0 text-3xl md:text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
 
                     {{ $driver_last->duration }}
                 </span>
             @endif
         @else
             <span
-                class="mr-0 text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
+                class="mr-0 text-3xl md:text-5xl font-semibold tracking-wider select-none text-amber-400 whitespace-nowrap ml-2 2xl:ml-2">
             </span>
         @endif
 
@@ -249,9 +405,9 @@
 
     {{-- @endif --}}
 
-    <div class="flex flex-wrap -mx-2">
-        <div class="w-1/2 px-2 mt-4">
-            <div class="form-group flex items-center space-x-4">
+    <div class="flex flex-wrap gap-y-3 lg:-mx-2">
+        <div class="w-full xl:w-1/2 lg:px-2 mt-4">
+            <div class="form-group flex flex-col gap-3 sm:flex-row sm:items-center sm:space-x-4 sm:gap-0">
                 <select id="documentNoSelect" class="form-select block w-full mt-1">
                     <option value="">search document no</option>
                     @foreach ($scan_document_no as $documentNo)
@@ -271,12 +427,12 @@
                 </select>
                 <input id="idInput" type="hidden" name="id" value="{{ $id }}">
                 <button id="document_no_search"
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded sm:shrink-0">
                     Search
                 </button>
                 <button id="back"
                     onclick="javascript:window.location.href = '{{ $page == 'receive' ? '/receive_goods/' : '/view_goods/' }}{{ $id }}'"
-                    class="bg-blue-500 bg-big hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Back</button>
+                    class="bg-blue-500 bg-big hover:bg-blue-700 text-white font-bold py-2 px-4 rounded sm:shrink-0">Back</button>
             </div>
             <p id="resultCount" class="mt-2">Not result found</p>
         </div>
@@ -293,13 +449,13 @@
 
         </div> --}}
 
-        <div class="w-1/2 px-2 flex justify-between my-4">
+        <div class="rg-search-actions w-full xl:w-1/2 lg:px-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between my-4">
            <a href="{{ route('pull_rg', $main->id ?? '' ) }}" 
             class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg no-underline transition-colors duration-200 ease-in-out">
             Go To RG
             </a>
 
-            <button class="bg-red-500 hover:bg-red-700 text-white font-bold rounded py-3 px-4 mr-2" data-bs-toggle="modal"
+            <button class="bg-red-500 hover:bg-red-700 text-white font-bold rounded py-3 px-4 mr-2 sm:ml-auto" data-bs-toggle="modal"
                 data-bs-target="#trashProducts" style="position: relative">
                 <i class="fa-solid fa-trash-can"></i>
                 <span id="badage" class="text-center"
@@ -333,9 +489,9 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-2" style="margin-top:-50px">
-        <div class="mt-5 border border-slate-400 rounded-md main_product_table"
-            style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:hidden;overflow-y:auto">
+    <div class="rg-table-grid grid grid-cols-1 2xl:grid-cols-2 gap-3 mt-4s 2xl:-mt-[50px]">
+        <div class="rg-scroll-panel rg-table-panel mt-5 border border-slate-400 rounded-md main_product_table"
+            style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:auto;overflow-y:auto">
             <div class="border border-b-slate-400 h-10 bg-sky-50">
                 <span class="font-semibold leading-9 ml-3">
                     List Of Products
@@ -362,8 +518,8 @@
             ])
 
         </div>
-        <div class="mt-5 grid grid-rows-2 gap-2" style="max-height: 83vh;width:100%; overflow:hidden">
-            <div class="border border-slate-400 rounded-md overflow-y-auto overflow-x-hidden main_product_table"
+        <div class="rg-side-panels mt-5 grid grid-rows-2 gap-3" style="max-height: 83vh;width:100%; overflow:hidden">
+            <div class="rg-scroll-panel rg-side-panel border border-slate-400 rounded-md overflow-y-auto overflow-x-auto main_product_table"
                 style="max-height: 42.5vh;width:100%;">
                 <div class="border border-b-slate-400 h-10 bg-sky-50">
                     <span class="font-semibold leading-9 ml-3">
@@ -374,10 +530,10 @@
                 @include('user.receive_goods.partials.scan_parent', ['scan_document' => $scan_document])
             </div>
             <input type="hidden" id="user_role" value="{{ getAuth()->role }}">
-            <div class="border border-slate-400 rounded-md overflow-x-hidden overflow-y-auto main_product_table"
+            <div class="rg-scroll-panel rg-side-panel border border-slate-400 rounded-md overflow-x-auto overflow-y-auto main_product_table"
                 style="max-height: 42.5vh;width:100%">
-                <div class="border border-b-slate-400 h-10 bg-sky-50">
-                    <span class="font-semibold leading-9 ml-3">
+                <div class="border border-b-slate-400 min-h-10 bg-sky-50 px-3 py-2">
+                    <span class="font-semibold leading-5 break-words">
                         List Of Scanned Products (excess / shortage)
                     </span>
                 </div>
