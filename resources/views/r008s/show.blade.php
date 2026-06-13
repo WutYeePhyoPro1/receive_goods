@@ -106,6 +106,25 @@
                             <label class="mb-1 block text-sm font-medium text-slate-500">
                                 Receive Doc. No <span class="text-red-600">*</span>
                                 <span id="rg_no_error" class="ml-1 text-[10px] text-red-500"></span>
+
+                                <button
+                                    type="button"
+                                    class="ms-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                    onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $r008_document->rg_no }}')"
+                                    title="Copy"
+                                >
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+
+
+                                @php
+                                    $status = strtolower($r008_document->receive_good_document()->status ?? 'Default');
+                                @endphp
+                                @if($status == 'cancel')
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
+                                    {{ $r008_document->receive_good_document()->status }}
+                                </span>
+                                @endif
                             </label>
 
                             <select id="rg_no"
@@ -174,6 +193,14 @@
                                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
                                         <span class="text-sm font-medium text-slate-600 whitespace-nowrap">
                                             R008 No:
+                                            <button
+                                                type="button"
+                                                class="ms-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                                onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $r008_document->r008_files->first()?->file  }}')"
+                                                title="Copy"
+                                            >
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
                                         </span>
 
                                         <input type="text"
@@ -184,10 +211,11 @@
                                         @php
                                             $status = strtolower($r008_document->status ?? 'default');
                                         @endphp
-
+                                        @if($status == 'cancel')
                                         <span class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusClasses[$status] ?? $statusClasses['default'] }}">
                                             {{ $r008_document->status }}
                                         </span>
+                                        @endif
                                     </div>
                                 </div>
 

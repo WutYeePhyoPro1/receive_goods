@@ -157,6 +157,17 @@
 
                             <td class="px-4 py-3 font-semibold text-blue-700">
                                 {{ $item->r008_files->first()->file }}
+
+
+                                <button
+                                    type="button"
+                                    class="ms-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                    onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $item->r008_files->first()->file }}')"
+                                    title="Copy"
+                                >
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+
                                 @php
                                     $status = strtolower($item->status ?? 'Default');
                                 @endphp

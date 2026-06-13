@@ -620,6 +620,8 @@ class userController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
+        $user = auth()->user();
+        $user_id = $user->id;
 
         $results = Document::query();
 
@@ -640,6 +642,18 @@ class userController extends Controller
                 $q->where('from_branch', $branch);
             });
         } 
+
+
+        $role = Role::where('name','admin')->first();
+        $role_id = $role->id;
+        if($user->role != $role_id){
+            $user_branches = $user->user_branches;
+            $branch_ids = $user_branches->pluck('branch_id');
+            $branch_ids[] = $user->branch_id;
+            // dd($branch_ids);
+
+            $results = $results->whereIn('branch_id',$branch_ids);
+        }
 
         if($start_date || $end_date){
             $start_date = $request->start_date
@@ -673,15 +687,83 @@ class userController extends Controller
 
     }
 
-    public function detail_po($id){
+    public function detail_po($id,Request $request){
         // dd('hay');
 
         $po_document = Document::find($id);
 
+        if(!$po_document->purchase_order_items()->exists()) {
+            // Logger::info("First Purchase Order Loaded");
+            // foreach($data as $item){
+                $purchaseno = $po_document->document_no;
+                $purchase_orders = getPODocument($purchaseno);
+                if ($purchase_orders) {
+                    $request['purchaseno'] = $purchaseno;
+                    $request['id'] = $po_document->received_goods_id;
+
+                    $this->actionRepository->sync_doc($purchase_orders, $request);
+                }
+            // }
+        }
+
+
+        $po_document->refresh();
 
         return view('user.receive_goods.documents.show',compact(
             'po_document',
         ));
+    }
+
+    public function po_approve_form($id,Request $request){
+        DB::beginTransaction();
+        DB::connection('master_product')->beginTransaction();
+        try {
+
+            $po_document = Document::find($id);
+            // dd($po_document);
+            $po_no = $po_document->document_no;
+
+            $status = $request->status;
+
+            $user = auth()->user();
+            $user_id = $user->id;
+
+            if ($request->status == "Cancel") {
+
+                $po_histories = collect(getPOHistory($po_no));
+                if(count($po_histories) > 0){
+                    return back()->with('fails', "This PO have RG Transactions. Please cancel related RG Documents first.");
+                }
+
+                $origianl_status = $po_document->status;
+                $po_document->update(['status' => $request->status]);
+                
+                // if ($origianl_status == 'Default') {
+                
+                    $po_document->update([
+                        'rejected_by'=> $user_id,
+                        'rejected_at' => now()
+                    ]);
+                // }
+
+                // Start RG Cancel In ERP
+                $updated_po_document_count = cancelPODoc($request->all(),$po_document);
+                // End RG Cancel In EERP
+            }
+            // throw new \Exception("PO Document Update Error: ");
+
+                
+            DB::commit();
+            DB::connection('master_product')->commit();
+            return back();
+        } catch (\Exception $e) {
+            Logger::info($e->getMessage());
+            DB::rollBack();
+            DB::connection('master_product')->rollBack();
+
+            return back()
+            ->with('fails', "There is an error in processing PO Form.");
+        }
     }
 
     // fixed

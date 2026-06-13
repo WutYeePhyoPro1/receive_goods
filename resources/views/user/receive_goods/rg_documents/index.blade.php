@@ -131,9 +131,9 @@
                                 RG Document No
                             </th>
 
-                            <th class="px-4 py-3 text-left font-bold">
+                            <!-- <th class="px-4 py-3 text-left font-bold">
                                 Status
-                            </th>
+                            </th> -->
 
                             <th class="px-4 py-3 text-left font-bold">
                                 PO Doc No
@@ -234,7 +234,8 @@
 
                                 <td class="px-4 py-3 font-semibold text-blue-700">
                                     {{ $item->receive_good_files->first()->file }}
-                                      <button
+
+                                    <button
                                         type="button"
                                         class="ml-2 inline-flex items-center text-gray-400 hover:text-blue-600"
                                         onclick="event.stopPropagation(); copyDocumentNo(this, '{{  $item->receive_good_files->first()->file }}')"
@@ -242,19 +243,30 @@
                                     >
                                         <i class="fa-regular fa-copy"></i>
                                     </button>
-                                </td>
 
-                                <td class="px-4 py-3">
                                     @php
                                         $status = strtolower($item->status ?? 'Default');
                                     @endphp
-                                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
+                                    @if($status == 'cancel')
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
                                         {{ $item->status }}
                                     </span>
+                                    @endif
                                 </td>
+
 
                                 <td class="px-4 py-3">
                                     {{ $item->po_no }}
+
+                                    <button
+                                        type="button"
+                                        class="ms-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                        onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $item->po_no }}')"
+                                        title="Copy"
+                                    >
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
+
                                     @php
                                         $status = strtolower($item->document->status ?? 'draft');
                                     @endphp

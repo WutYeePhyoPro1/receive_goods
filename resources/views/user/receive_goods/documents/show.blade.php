@@ -3,7 +3,9 @@
 
 @section('content')
     <!-- MAIN CONTENT CONTAINER -->
-  
+    @php 
+    $manager = isManager($po_document);
+    @endphp
     <div class="md:w-[80%] pb-16 px-4 pt-4 mx-auto">
         @if (Session::has('fails'))
             <div class="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 shadow-sm" role="alert">
@@ -24,7 +26,7 @@
             </div>
         @endif
 
-        <form id="rg_form" action="" method="POST">
+        <form id="po_form" action="{{ route('po_approve_form', $po_document->id ) }}" method="POST">
             @csrf
             <!-- UNIFIED CARD CONTAINER -->
             <div id="btn_status"></div>
@@ -43,7 +45,23 @@
                         
                         <!-- Row 1  -->
                         <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">PO No <span class="text-red-600">*</span></label>
+                            <label class="block font-medium text-slate-500 mb-0.5">PO No <span class="text-red-600">*</span>
+
+                            <button
+                                type="button"
+                                class="mx-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $po_document->document_no }}')"
+                                title="Copy"
+                            >
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                            @php
+                                $status = strtolower($po_document->status ?? 'default');
+                            @endphp
+                            <span class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $statusClasses[$status] ?? $statusClasses['default'] }}">
+                                {{ $po_document->status }}
+                            </span>
+                            </label>
                             <select id="po_no" name="po_no" class="w-full h-8 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                 {{--
                                 <option value="" disabled selected>Choose PO No:</option>
@@ -53,6 +71,7 @@
                                 --}}
                                 <option value="{{ $po_document->document_no }}" selected>{{ $po_document->document_no }}</option>
                             </select>
+                          
                         </div>
 
                         <div>
@@ -171,6 +190,13 @@
                     </button>
 
 
+                    @if($manager && $po_document->status !== "Cancel")
+                    <button type="button" id="approveBtn" class="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-700 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status"
+                    >
+                        Cancel
+                    </button>
+                    @endif
+
                 </div>
             </div>
         </form>
@@ -205,12 +231,56 @@
             //     minDate: "today",
             //     maxDate: new Date().fp_incr(30)
             // });
+
+
+
+            let isSubmitting = false;
+            $('#approveBtn').click(function(e){
+
+                e.preventDefault();
+                if (isSubmitting) return;
+
+
+                Swal.fire({
+                    icon: "question",
+                    text: "Are you sure want to Cancel Purchase Order?",
+                    showCancelButton: true,
+                }).then((result) => {
+                    if(result.isConfirmed)
+                    {
+
+                        isSubmitting = true;                            
+                        $(".fullloader").removeClass("hidden");
+                        // Swal.disableButtons();
+                        $('#approveBtn').prop('disabled', true)
+
+                        var btn = $(this).val();
+                        $('#btn_status').append('<input type="hidden" name="status" value="' + btn + '" /> ');
+
+                        $('#po_form').submit();
+                    }
+                })
+            });
         });
 
         // ... rest of your existing AJAX code ...
     </script>
-        <script type="text/javascript">
-            </script>
+    <script type="text/javascript">
+    function copyDocumentNo(button, targetId) {
+        const text = targetId.trim();
+            const icon = button.children[0];
+
+
+        navigator.clipboard.writeText(text).then(() => {
+            // icon.className = 'fa-solid fa-check text-green-600';
+            $(icon).html('<i class="fa-solid fa-check text-green-600"></i>');
+
+            setTimeout(() => {
+                $(icon).html('<i class="fa-regular fa-copy"></i>');
+            }, 1500);
+        });
+    }
+    </script>
 
     @endpush
 @endsection

@@ -20,7 +20,9 @@ class Document extends Model
         'remark',
         'total_amount',
         'status',
-        'branch_id'
+        'branch_id',
+        "rejected_by",
+        "rejected_at"
     ];
 
     public function received()

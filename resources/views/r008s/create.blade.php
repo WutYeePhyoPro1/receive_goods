@@ -586,6 +586,7 @@
 
                                     isSubmitting = false;
                                     $(".fullloader").addClass("hidden");
+                                    $('#saveBtn').prop('disabled', false);
                                 },
                                 // complete:function(resopnse){
                                 //     isSubmitting = false;

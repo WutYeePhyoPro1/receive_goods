@@ -39,7 +39,7 @@
                         <!-- Row 2 -->
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">PO No <span class="text-red-600">*</span></label>
-                            <select id="po_no" name="po_no" class="w-full h-8 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                            <select id="po_no" name="po_no" class="w-full h-8 px-2s bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                 <option value="" disabled selected>Choose PO No:</option>
                                 @foreach($documents as $document)
                                 <option value="{{ $document->document_no }}">{{ $document->document_no }}</option>
@@ -260,6 +260,11 @@
             //     minDate: "today",
             //     maxDate: new Date().fp_incr(30)
             // });
+
+
+            new TomSelect("#po_no", {
+                selectOnTab: true
+            });
 
             var token = $("meta[name='__token']").attr('content');
             const recieve_id = $('#receive_id').val();

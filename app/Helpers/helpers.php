@@ -1094,3 +1094,16 @@ use Spatie\Permission\Models\Role;
 
         return $modified;
     }
+
+
+    function cancelPODoc($data, $po_document){
+        $conn = DB::connection('master_product');
+
+        $po_no = $po_document->document_no;
+
+        $modified = $conn->update("
+            update purchaseorder.po_purchaseorderhd set statusflag='C' where purchaseno='$po_no'; --- when RG was Cancelled (receive_status='C') and also want to  Cancel PO
+        ");
+
+        return $modified;
+    }

@@ -168,6 +168,15 @@
 
                                 <td class="px-4 py-3">
                                     {{ $item->document_no }}
+
+                                    <button
+                                        type="button"
+                                        class="ms-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                        onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $item->document_no }}')"
+                                        title="Copy"
+                                    >
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
                                 </td>
 
                                 <td class="px-4 py-3">

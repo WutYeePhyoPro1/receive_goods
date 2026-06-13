@@ -62,7 +62,24 @@
 
                         <!-- Row 2 -->
                         <div>
-                            <label class="block font-medium text-slate-500 mb-0.5">PO No <span class="text-red-600">*</span></label>
+                            <label class="block font-medium text-slate-500 mb-0.5">PO No <span class="text-red-600">*</span>
+                            <button
+                                type="button"
+                                class="ms-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $receive_good_document->po_no }}')"
+                                title="Copy"
+                            >
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+
+                            @php
+                                $status = strtolower($receive_good_document->document->status ?? 'draft');
+                            @endphp
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
+                                {{ $receive_good_document->document->status }}
+                            </span>
+
+                            </label>
                             <select id="po_no" name="po_no" class="w-full h-8 px-2 bg-slate-100  border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                 {{--
                                 <option value="" disabled selected>Choose PO No:</option>
@@ -186,10 +203,11 @@
                                     @php
                                         $status = strtolower($receive_good_document->status ?? 'default');
                                     @endphp
-
+                                    @if($status == 'cancel')
                                     <span class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium sm:shrink-0 {{ $statusClasses[$status] ?? $statusClasses['default'] }}">
                                         {{ $receive_good_document->status }}
                                     </span>
+                                    @endif
 
                                     
                                 </div>

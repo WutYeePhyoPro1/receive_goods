@@ -478,6 +478,22 @@
         })
     })
 </script>
+<script type="text/javascript">
+    function copyDocumentNo(button, targetId) {
+        const text = targetId.trim();
+            const icon = button.children[0];
+
+
+        navigator.clipboard.writeText(text).then(() => {
+            // icon.className = 'fa-solid fa-check text-green-600';
+            $(icon).html('<i class="fa-solid fa-check text-green-600"></i>');
+
+            setTimeout(() => {
+                $(icon).html('<i class="fa-regular fa-copy"></i>');
+            }, 1500);
+        });
+    }
+</script>
 @stack('js')
 
 </html>
