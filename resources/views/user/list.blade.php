@@ -74,9 +74,19 @@
 @endsection
 
 @section('content')
-    <div class="px-4 py-5 sm:px-5">
+    <div class="px-4 py-2 sm:px-5">
         <form action="{{ route('list') }}" method="Get">
-        <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-7">
+        <div class="rounded-xl border border-slate-200 bg-white/80 shadow-sm">
+            <div class="flex items-center justify-center border-b border-slate-100 px-5 py-2">
+                <div class="flex items-center gap-2">
+                    <i class='bx bx-list-ul text-xl text-amber-500'></i>
+                    <h2 class="mb-0 text-sm font-bold tracking-wide text-slate-700">
+                        Scanned Document List
+                    </h2>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-7">
                 {{-- <div class="flex flex-col">
                     <label for="doc_name">Document Number :</label>
                     <input type="text" name="doc" id="doc_name" class="px-4 w-[80%] h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2">
@@ -131,6 +141,7 @@
                     <button class="h-10 w-full rounded-lg bg-amber-400 px-4 font-medium transition hover:bg-amber-600 hover:text-white">Search</button>
                 </div>
             </div>
+        </div>
         </form>
         @if (Session::has('error'))
         <div class="mt-3 rounded-r-md border-l-4 border-rose-600 bg-rose-100 py-2 pr-3">

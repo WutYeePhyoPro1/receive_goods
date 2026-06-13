@@ -1,24 +1,49 @@
 @extends('layout.layout')
 
+@php
+    $reportTitles = [
+        'product' => 'Total Scanned Products',
+        'po_to' => 'PO/TO Documents',
+        'finish' => 'Completed Documents',
+        'truck' => 'Unloading Trucks',
+        'remove' => 'Adjust(-) Products',
+        'man_add' => 'Non Scanned Product',
+        'print' => 'BarCode Printed Products',
+        'shortage' => 'Shortage Products (Completed)',
+    ];
+
+    $reportTitle = $reportTitles[$report] ?? 'Report';
+@endphp
+
 @section('content')
-    <div class="m-5">
+    <div class="px-4 py-2 sm:px-5">
         <form action="" method="Get">
-        <div class="grid grid-cols-7 gap-4">
+        <div class="rounded-xl border border-slate-200 bg-white/80 shadow-sm">
+            <div class="flex items-center justify-center border-b border-slate-100 px-5 py-2">
+                <div class="flex items-center gap-2">
+                    <i class='bx bx-list-ul text-xl text-amber-500'></i>
+                    <h2 class="mb-0 text-sm font-bold tracking-wide text-slate-700">
+                        {{ $reportTitle }}
+                    </h2>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-7">
                 <input type="hidden" id="user_role" value="{{ getAuth()->role }}">
 
                     <div class="flex flex-col">
-                        <label for="from_date">From Date :</label>
-                        <input type="date" name="from_date" id="from_date" class="px-4  h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2" value="{{ request('from_date') ?? '' }}">
+                        <label for="from_date" class="text-sm font-medium text-slate-700">From Date :</label>
+                        <input type="date" name="from_date" id="from_date" class="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" value="{{ request('from_date') ?? '' }}">
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="to_date">To Date :</label>
-                        <input type="date" name="to_date" id="to_date" class="px-4  h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2" value="{{ request('to_date') ?? '' }}">
+                        <label for="to_date" class="text-sm font-medium text-slate-700">To Date :</label>
+                        <input type="date" name="to_date" id="to_date" class="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" value="{{ request('to_date') ?? '' }}">
                     </div>
                     @if ($report == 'finish')
                     <div class="flex flex-col">
-                        <label for="branch">Choose Branch :</label>
-                        <Select name="branch" id="branch" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                        <label for="branch" class="text-sm font-medium text-slate-700">Choose Branch :</label>
+                        <Select name="branch" id="branch" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                             <option value="">Choose Branch</option>
                             @foreach ($branch as $item)
                                 <option value="{{ $item->id }}" {{ request('branch') == $item->id ? 'selected' : '' }}>{{ $item->branch_name }}</option>
@@ -27,8 +52,8 @@
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="status">Choose Status :</label>
-                        <Select name="status" id="status" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                        <label for="status" class="text-sm font-medium text-slate-700">Choose Status :</label>
+                        <Select name="status" id="status" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                             <option value="">Choose Status</option>
                             <option value="complete" {{ request('status')== 'complete' ? 'selected' : '' }}>Complete</option>
                             <option value="incomplete" {{ request('status')== 'incomplete' ? 'selected' : '' }}>Incomplete</option>
@@ -36,8 +61,8 @@
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
-                        <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                        <label for="search" class="text-sm font-medium text-slate-700">Choose Search Method :</label>
+                        <Select name="search" id="search" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                             <option value="" selected>Choose Method</option>
                             <option value="document_no" {{ request('search')=='document_no' ? 'selected' : '' }}>Document No</option>
                             <option value="truck_no" {{ request('search')=='truck_no' ? 'selected' : '' }}>Truck No</option>
@@ -47,8 +72,8 @@
 
                     @elseif ($report == 'product')
                         <div class="flex flex-col">
-                            <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
-                            <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                            <label for="search" class="text-sm font-medium text-slate-700">Choose Search Method :</label>
+                            <Select name="search" id="search" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                                 <option value="" selected>Choose Method</option>
                                 <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
                                 <option value="document_no" {{ request('search')=='document_no' ? 'selected' : '' }}>Document No</option>
@@ -58,8 +83,8 @@
                     @elseif($report == 'truck')
 
                         <div class="flex flex-col">
-                            <label for="gate">Choose Gate :</label>
-                            <Select name="gate" id="gate" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                            <label for="gate" class="text-sm font-medium text-slate-700">Choose Gate :</label>
+                            <Select name="gate" id="gate" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                                 <option value="">Choose Gate</option>
                                 @foreach ($gate as $item)
                                     <option value="{{ $item->id }}" {{ request('gate') == $item->id ? 'selected' : '' }}>{{ $item->name.'('.$item->branches->branch_name.')' }}</option>
@@ -68,8 +93,8 @@
                         </div>
 
                         <div class="flex flex-col">
-                            <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
-                            <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                            <label for="search" class="text-sm font-medium text-slate-700">Choose Search Method :</label>
+                            <Select name="search" id="search" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                                 <option value="" selected>Choose Method</option>
                                 <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
                                 <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Scanned Bar Code</option>
@@ -79,8 +104,8 @@
                         </div>
                     @elseif ($report == 'remove')
                         <div class="flex flex-col">
-                            <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
-                            <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                            <label for="search" class="text-sm font-medium text-slate-700">Choose Search Method :</label>
+                            <Select name="search" id="search" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                                 <option value="" selected>Choose Method</option>
                                 <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
                                 <option value="product_code" {{ request('search')=='product_code' ? 'selected' : '' }}>Bar Code</option>
@@ -89,8 +114,8 @@
                         </div>
                     @elseif ($report == 'po_to')
                         <div class="flex flex-col">
-                            <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
-                            <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                            <label for="search" class="text-sm font-medium text-slate-700">Choose Search Method :</label>
+                            <Select name="search" id="search" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                                 <option value="" selected>Choose Method</option>
                                 <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
                                 <option value="document_no" {{ request('search')=='document_no' ? 'selected' : '' }}>Document No</option>
@@ -100,8 +125,8 @@
                     @elseif ($report == 'shortage' || $report == 'print' || $report == 'man_add')
                     @if ($report == 'shortage')
                         <div class="flex flex-col">
-                            <label for="action" class="whitespace-nowrap">Choose excess/shortage :</label>
-                            <Select name="action" id="action" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                            <label for="action" class="text-sm font-medium text-slate-700">Choose excess/shortage :</label>
+                            <Select name="action" id="action" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                                 <option value="" selected>Choose excess/shortage</option>
                                 <option value="excess" {{ request('action')=='excess' ? 'selected' : '' }}>Excess</option>
                                 <option value="shortage" {{ request('action')=='shortage' ? 'selected' : '' }}>Shortage</option>
@@ -111,8 +136,8 @@
 
 
                         <div class="flex flex-col">
-                            <label for="search" class="whitespace-nowrap">Choose Search Method :</label>
-                            <Select name="search" id="search" class="h-10 mt-3 rounded-t-lg px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2" style="appearance: none;">
+                            <label for="search" class="text-sm font-medium text-slate-700">Choose Search Method :</label>
+                            <Select name="search" id="search" class="mt-2 h-10 w-full rounded-md border border-slate-300 bg-white px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" style="appearance: none;">
                                 <option value="" selected>Choose Method</option>
                                 <option value="main_no" {{ request('search')=='main_no' ? 'selected' : '' }}>Document No(RG)</option>
                                 <option value="document_no" {{ request('search')=='document_no' ? 'selected' : '' }}>Document No</option>
@@ -122,29 +147,29 @@
                     @endif
 
                     <div class="flex flex-col">
-                        <label for="search_data">Search Data :</label>
-                        <input type="text" name="search_data" id="search_data" class="px-4 w-[80%] h-10 border border-slate-400 rounded-md mt-3 focus:outline-none focus:ring-2 focus:ring-offset-2" value="{{ request('search_data') ?? '' }}">
+                        <label for="search_data" class="text-sm font-medium text-slate-700">Search Data :</label>
+                        <input type="text" name="search_data" id="search_data" class="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300" value="{{ request('search_data') ?? '' }}">
                     </div>
 
-                <div class="">
-                    <button type="submit" class="bg-amber-400 h-10 w-[40%] rounded-lg ms-4 mt-9 hover:bg-amber-600 hover:text-white">Search</button>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="h-10 flex-1 rounded-lg bg-amber-400 px-4 font-medium transition hover:bg-amber-600 hover:text-white">Search</button>
                     @if (($report == 'product' && count($product) > 0) || ($report == 'shortage' && count($data) > 0) || ($report == 'finish' && count($data) > 0) || ($report == 'truck' && count($truck) > 0) || ($report == 'remove' && count($data) > 0) || ($report == 'po_to' && count($docs) > 0) || ($report == 'print' && count($data) > 0) || ($report == 'man_add' && count($data) > 0))
-                        <button type="button" class="bg-sky-400 text-white text-xl h-10 w-[20%] rounded-lg ms-4 mt-9 hover:bg-sky-600 hover:text-white" title="export excel" onclick="$('#excel_form').submit()"><i class='bx bx-export'></i></button>
+                        <button type="button" class="h-10 w-12 rounded-lg bg-sky-400 text-xl text-white transition hover:bg-sky-600" title="export excel" onclick="$('#excel_form').submit()"><i class='bx bx-export'></i></button>
                     @endif
                 </div>
             </div>
+        </div>
         </form>
 
         @if (Session::has('error'))
-        <div class="bg-rose-200 mt-3 border-l-4 border-rose-600 py-2">
-            <small class="text-rose-600 ms-5">{{ Session::get('error') }}</small>
+        <div class="mt-3 rounded-r-md border-l-4 border-rose-600 bg-rose-100 py-2 pr-3">
+            <small class="ms-5 text-rose-600">{{ Session::get('error') }}</small>
         </div>
         @endif
 
-        <div class="">
-            <table class="w-full mt-4">
+        <div class="mt-4 overflow-x-auto rounded-lg border border-slate-300 bg-white shadow-sm">
+            <table class="min-w-[1100px] w-full text-sm">
                 <thead>
-                    {{ $report }}
                     @if ($report == 'product')
                             @if (dc_staff() || getAuth()->can('user-management'))
                                 <tr class="">
@@ -463,11 +488,11 @@
             <input type="hidden" name="{{ request('search_data') ? 'search_data' : '' }}" value="{{ request('search_data') ? request('search_data') : '' }}">
         </form>
         @if (request('search') || request('search_data')  || request('branch') || request('gate') || request('status') || request('from_date') || request('to_date'))
-        <div class="mt-2">
-            <button class="bg-sky-600 text-white px-3 py-2 rounded-md" onclick="javascript:window.location.href = '{{$url}}';">Back to Default</button>
+        <div class="mt-3">
+            <button class="rounded-md bg-sky-600 px-3 py-2 text-white transition hover:bg-sky-700" onclick="javascript:window.location.href = '{{$url}}';">Back to Default</button>
         </div>
         @endif
-        <div class="flex justify-center text-xs mt-2 bg-white mt-6">
+        <div class="mt-6 flex overflow-x-auto bg-white text-xs sm:justify-center">
             @if ($report == 'product')
                 {{ $product->appends(request()->query())->links() }}
             @elseif ($report == 'truck')

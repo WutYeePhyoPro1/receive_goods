@@ -30,6 +30,76 @@
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     @endif
     
+        <style>
+        @media (max-width: 767px) {
+            .content {
+                left: 0;
+                top: 96px;
+                width: 100%;
+                padding-bottom: 140px;
+            }
+
+            .side_bar {
+                top: 12px;
+                left: 12px;
+                width: calc(100% - 24px);
+                overflow-x: auto;
+                border-radius: 12px;
+                padding: 8px;
+            }
+
+            .side_bar:hover {
+                width: calc(100% - 24px);
+            }
+
+            .sidebar_body {
+                display: flex;
+                gap: 8px;
+                width: max-content;
+                padding: 0;
+            }
+
+            .sidebar_items {
+                width: 54px;
+                flex: 0 0 54px;
+                margin-bottom: 0;
+            }
+
+            .sidebar_text > span,
+            .side_bar:hover .sidebar_text > span {
+                display: none;
+            }
+
+            .footer {
+                height: auto;
+                min-height: 76px;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .logo {
+                margin-left: 0;
+                line-height: 32px;
+            }
+
+            .logo::before {
+                display: none;
+            }
+
+            .logo > img {
+                height: 24px;
+                margin-top: 4px;
+            }
+
+            .footer .flexv {
+                width: 100%;
+                overflow-x: auto;
+                line-height: 24px !important;
+            }
+        }
+    </style>
     @yield('css')
 
 </head>
@@ -60,7 +130,7 @@
 
             @can('barcode-scan')
                 <li class="sidebar_items" onclick="javascript:window.location.href='/car_info'">
-                    @if (request()->is('receive_good*') || request()->is('car_info*') || request()->is('view_goods*'))
+                    @if (request()->is('receive_goodss*') || request()->is('car_info*') || request()->is('view_goods*') || request()->routeIs('receive_goods'))
                         <div class=""
                             style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
@@ -85,11 +155,11 @@
             </li>
 
             <li class="sidebar_items" onclick="javascript:window.location.href='/documents'">
-                {{-- @if (request()->is('list'))
+                @if (request()->is('documents*'))
                     <div class=""
                         style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                     </div>
-                @endif --}}
+                @endif
                 <div class="sidebar_text">
                     <i class="bx bx-receipt"></i>
                     <span>Purchase Orders</span>
@@ -97,11 +167,11 @@
             </li>
 
             <li class="sidebar_items" onclick="javascript:window.location.href='/receive_goods/rg_documents/list'">
-                {{-- @if (request()->is('list'))
+                @if (request()->routeIs('rg_documents.index', 'rg_documents.*','rg_documents','detail_rg'))
                     <div class=""
                         style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                     </div>
-                @endif --}}
+                @endif
                 <div class="sidebar_text">
                     <svg style="font-size: 2rem;margin: 10px 0 0 10px;" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-boxes" viewBox="0 0 16 16">
                     <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z"/>
@@ -111,11 +181,11 @@
             </li>
 
             <li class="sidebar_items" onclick="javascript:window.location.href='/r008s'">
-                {{-- @if (request()->is('list'))
+                @if (request()->is('r008s*'))
                     <div class=""
                         style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                     </div>
-                @endif --}}
+                @endif
                 <div class="sidebar_text">
                     <svg style="font-size: 2rem;margin: 10px 0 0 10px;" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-shield-slash-fill" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M1.093 3.093c-.465 4.275.885 7.46 2.513 9.589a11.8 11.8 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7 7 0 0 0 1.048-.625 11.3 11.3 0 0 0 1.733-1.525zm12.215 8.215L3.128 1.128A61 61 0 0 1 5.073.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.483 3.626-.332 6.491-1.551 8.616m.338 3.046-13-13 .708-.708 13 13z"/>
@@ -174,8 +244,8 @@
                 </div>
             </li>
 
-            <li style="margin:50px 0;border-bottom:1px solid rgb(110, 109, 109)">
-            </li>
+            <!-- <li style="margin:50px 0;border-bottom:1px solid rgb(110, 109, 109)">
+            </li> -->
 
             <li class="sidebar_items" style="margin-bottom:10px" onclick="$('#log_out').submit()">
                 <div class="sidebar_text">
@@ -188,7 +258,7 @@
             </li>
         </ul>
     </div>
-    <div class="content pb-16">
+    <div class="content pb-16 p-2">
         @yield('content')
     </div>
     <div class="footer flex justify-between align-items-center">
