@@ -729,7 +729,7 @@ class ActionController extends Controller
             $product['docuno'] = $rg_document->receive_no;
             $product['brchcode'] = $rg_document->branch_code;
             $product['vatrate'] = $request->vatrate;
-            dd($request->vatrate);
+            // dd($request->vatrate);
             $invendoty_stockcard = generateInventoryStockCard($product);
             // End Adding Invendoty Stockcard
         }
