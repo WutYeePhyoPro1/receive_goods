@@ -286,8 +286,10 @@
                 <span
                     class=" {{ count(multi_br()) > 1 ? 'bg-amber-200 p-2 cursor-pointer rounded ch_br' : '' }} ">{{ getAuth()->branch->branch_name }}</span>
                 @if (count(multi_br()) > 1)
-                    <ul class="absolute max-h-48 w-32 bg-rose-600 hidden rounded-lg shadow-lg" id="change_br"
-                        style="bottom:155%;left:45%;overflow-y:auto">
+                    <ul
+    id="change_br"
+    class="fixed z-[9999] hidden max-h-48 w-40 overflow-y-auto rounded-lg bg-rose-600 shadow-lg"
+>
                         @foreach (multi_br() as $item)
                             @if (getAuth()->branch_id != $item->branch_id)
                                 <li class="ps-2 bg-amber-200 hover:bg-white cursor-pointer py-0"
@@ -468,14 +470,50 @@
         })
 
         $(document).on('click', '.ch_br', function(e) {
-            $('#change_br').toggle();
-        })
+            e.stopPropagation();
+
+            const branch = this.getBoundingClientRect();
+            const menu = $('#change_br');
+
+            menu.css({
+                display: 'block',
+                visibility: 'hidden',
+                top: '0px',
+                left: '0px'
+            });
+
+            const menuWidth = menu.outerWidth();
+            const menuHeight = menu.outerHeight();
+
+            let left = branch.left;
+            let top = branch.top - menuHeight - 8;
+
+            if (left + menuWidth > window.innerWidth - 8) {
+                left = window.innerWidth - menuWidth - 8;
+            }
+
+            if (left < 8) {
+                left = 8;
+            }
+
+            if (top < 8) {
+                top = branch.bottom + 8;
+            }
+
+            menu.css({
+                top: top + 'px',
+                left: left + 'px',
+                right: 'auto',
+                bottom: 'auto',
+                visibility: 'visible'
+            });
+        });
 
         $(document).on('click', function(e) {
-            if (!e.target.matches('.ch_br')) {
+            if (!$(e.target).closest('.ch_br, #change_br').length) {
                 $('#change_br').hide();
             }
-        })
+        });
     })
 </script>
 <script type="text/javascript">
