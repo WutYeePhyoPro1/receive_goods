@@ -663,7 +663,8 @@ class ActionController extends Controller
             DB::rollBack();
             DB::connection('master_product')->rollBack();
 
-            Logger::info($e->getMessage());
+            Logger::info($e);
+            Logger::info("There is an error in saving RG Document.".$e->getMessage());
 
             return response()->json([
                 'success'=>false,

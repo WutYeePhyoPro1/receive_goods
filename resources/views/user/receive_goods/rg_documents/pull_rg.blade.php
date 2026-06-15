@@ -381,8 +381,8 @@
                                 let grEdit = $(`#gr_edit_${key}`);
                                 let qtyInput = $(`#gr_qty_${key}`);
 
-                                let lineView = $(`.line_view`);
-                                let lineEdit = $(`.line_edit`);
+                                let lineView = $(`#lineremark_view_${key}`);
+                                let lineEdit = $(`#lineremark_edit_${key}`);
 
 
                                 if(isChecked){
