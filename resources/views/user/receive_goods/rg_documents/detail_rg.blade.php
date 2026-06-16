@@ -73,7 +73,7 @@
                             </button>
 
                             @php
-                                $status = strtolower($receive_good_document->document->status ?? 'draft');
+                                $status = strtolower($receive_good_document->document->status ?? 'default');
                             @endphp
                             <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
                                 {{ $receive_good_document->document->status }}
