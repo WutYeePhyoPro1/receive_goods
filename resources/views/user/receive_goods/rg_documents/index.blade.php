@@ -271,7 +271,7 @@
                                         $status = strtolower($item->document->status ?? 'default');
                                     @endphp
                                     <!-- <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
-                                        {{ $item->document->status }}
+                                        {{ $item?->document?->status }}
                                     </span> -->
                                 </td>
 

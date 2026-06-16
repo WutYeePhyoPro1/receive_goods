@@ -73,10 +73,10 @@
                             </button>
 
                             @php
-                                $status = strtolower($receive_good_document->document->status ?? 'default');
+                                $status = strtolower($receive_good_document?->document?->status ?? 'default');
                             @endphp
                             <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
-                                {{ $receive_good_document->document->status }}
+                                {{ $receive_good_document?->document?->status }}
                             </span>
 
                             </label>
@@ -92,7 +92,7 @@
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">PO Date <span class="text-red-600">*</span></label>
-                            <input name="po_date" readonly id="purchasedate" type="date" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" value="{{ $receive_good_document->document->purchasedate }}">
+                            <input name="po_date" readonly id="purchasedate" type="date" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" value="{{ $receive_good_document?->document?->purchasedate }}">
                         </div>
                         <div>
                             <label  class="block font-medium text-slate-500 mb-0.5">Branch <span class="text-red-600">*</span></label>
