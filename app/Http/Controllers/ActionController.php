@@ -552,7 +552,9 @@ class ActionController extends Controller
             $received_sums = getReceivedSums($purchaseno);
             
             $filtered_products = $products->map(function ($product) use ($received_sums) {
-                $received_qty = $received_sums[$product->bar_code][$product->price] ?? 0;
+
+                $price = number_format($product->price, 2, '.', '');
+                $received_qty = $received_sums[$product->bar_code][$price] ?? 0;
                 $product->remaining_qty = $product->qty - $received_qty;
                 return $product;
             })->filter(function ($product) {

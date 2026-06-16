@@ -893,8 +893,8 @@ use Spatie\Permission\Models\Role;
         $isComplete = true;
 
         foreach ($products as $product) {
-
-            $receivedQty = $received_sums[$product->bar_code][$product->price] ?? 0;
+            $price = number_format($product->price, 2, '.', '');
+            $receivedQty = $received_sums[$product->bar_code][$price] ?? 0;
 
             if ($receivedQty < $product->qty) {
                 $isComplete = false;
@@ -967,13 +967,18 @@ use Spatie\Permission\Models\Role;
                         // ->map(fn ($items) => $items->sum('receive_quantity'));
 
         $received_sums = $po_histories
-        ->groupBy(['product_code', 'approve_price'])
+        ->map(function ($item) {
+            $item->approve_price_key = number_format((float) $item->approve_price, 2, '.', '');
+            return $item;
+        })
+        ->groupBy(['product_code', 'approve_price_key'])
         ->map(function ($priceGroups) {
             return $priceGroups->map(function ($items) {
                 return $items->sum('receive_quantity');
             });
         });
 
+        // dd($received_sums);
         return $received_sums;
     }
 
