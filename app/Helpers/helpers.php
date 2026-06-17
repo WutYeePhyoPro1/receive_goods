@@ -928,7 +928,7 @@ use Spatie\Permission\Models\Role;
 
         $modified = $conn->update("
             update purchaseorder.receive_hd
-            set r008_docuno='$r008_docuno' , status_r008='t'
+            set r008_docuno='$r008_docuno' , status_r008='F'
             where receive_no='$receive_no'
         ");
         return $modified;
