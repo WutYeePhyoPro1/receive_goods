@@ -78,6 +78,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('documents','po_documents')->name('documents.index');
             route::get('documents/{id}','detail_po')->name('documents.show');
             Route::post('documents/{id}/approve','po_approve_form')->name('po_approve_form');
+            route::get('documents/{id}/history','history_po')->name('documents.history_po');
         });
 
         Route::group(['controller'=>R008SController::class],function(){

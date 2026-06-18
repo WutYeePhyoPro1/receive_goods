@@ -205,7 +205,7 @@
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    {{ $item->total_amount }}
+                                    {{ number_format($item->total_amount,2) }}
                                 </td>
 
                             </tr>

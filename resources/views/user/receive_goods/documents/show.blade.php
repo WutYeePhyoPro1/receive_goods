@@ -189,6 +189,12 @@
                         Back
                     </button>
 
+                    <button type="button" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-amber-700 text-white text-[12px] font-medium shadow-sm"
+                    onClick="window.location.href='{{ route('documents.history_po',$po_document->id ) }}'"
+                    >
+                        PO History
+                    </button>
+
 
                     @if($manager && $po_document->status !== "Cancel")
                     <button type="button" id="approveBtn" class="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-700 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status"

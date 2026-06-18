@@ -714,6 +714,17 @@ class userController extends Controller
         ));
     }
 
+    public function history_po($id,Request $request){
+        $po_document = Document::find($id);
+
+        $po_no = $po_document->document_no;
+        $po_histories = collect(getPOHistory($po_no));
+
+        // dd($po_histories);
+
+        return view('user.receive_goods.documents.history', compact('po_document','po_histories'));
+    }
+
     public function po_approve_form($id,Request $request){
         DB::beginTransaction();
         DB::connection('master_product')->beginTransaction();
