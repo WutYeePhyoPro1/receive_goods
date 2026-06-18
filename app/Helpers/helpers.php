@@ -937,7 +937,7 @@ use Spatie\Permission\Models\Role;
     function getPOHistory($po_no){
         $conn = DB::connection('master_product');
         $data = $conn->select("
-            select purchaseno,rg.receive_no,product_code,product_name,approve_quantity,approve_price,receive_quantity
+            select purchaseno,rg.receive_no,product_code,product_name,approve_quantity,approve_price,dt.approve_amount,receive_quantity
             from purchaseorder.po_purchaseorderhd po
             inner join purchaseorder.receive_hd rg
             on po.purchaseno=rg.purchase_no

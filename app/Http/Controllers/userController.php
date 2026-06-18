@@ -719,10 +719,36 @@ class userController extends Controller
 
         $po_no = $po_document->document_no;
         $po_histories = collect(getPOHistory($po_no));
+        // dd($po_histories);
+
+        // $searchBy = $request->search_by;
+        $searchData = trim($request->search_data ?? '');
+        // if ($searchBy && $searchData !== '') {
+        //     $po_histories = $po_histories->filter(function ($item) use ($searchBy, $searchData) {
+        //         $value = strtolower((string) ($item->{$searchBy} ?? ''));
+        //         return str_contains($value, strtolower($searchData));
+        //     })->values();
+        // }
+        if($searchData !== ''){
+            $po_histories = $po_histories->filter(function ($item) use ($searchData) {
+                return str_contains(strtolower((string) $item->product_code), strtolower($searchData))
+                    || str_contains(strtolower((string) $item->product_name), strtolower($searchData))
+                    || str_contains(strtolower((string) $item->receive_no), strtolower($searchData));
+            })->values();
+        }
 
         // dd($po_histories);
 
-        return view('user.receive_goods.documents.history', compact('po_document','po_histories'));
+        $groupedHistories = $po_histories->groupBy('product_code');
+        // dd($groupedHistories);
+
+        return view('user.receive_goods.documents.history', compact(
+            'po_document',
+            'po_histories',
+            'groupedHistories',
+            // 'searchBy',
+            'searchData'
+        ));
     }
 
     public function po_approve_form($id,Request $request){
