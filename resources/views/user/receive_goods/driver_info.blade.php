@@ -17,15 +17,15 @@
         }
     </style>
 
-    <div class="px-20 mt-20">
+    <div class="mx-auto mt-6 w-full max-w-6xl px-4 pb-24 sm:px-6 lg:mt-10 lg:px-8">
         @if (session('fails'))
-            <div class="my-4 bg-rose-200 h-10 font-medium text-lg ps-5 pt-1 rounded-lg text-red-600" style="width:99%">
+            <div class="my-4 rounded-lg border border-rose-200 bg-rose-100 px-4 py-3 text-sm font-medium text-red-600 sm:text-base">
                 {{ session('fails') }}
             </div>
         @endif
-        <fieldset class="mt-3 border border-slate-500 rounded-md p-5">
+        <fieldset class="mt-3 rounded-lg border border-slate-300 bg-white p-4 shadow-sm sm:p-5">
 
-            <legend class="px-4 text-2xl font-serif"> {{ isset($main) ? 'Driver Info' : 'Document Info' }} </legend>
+            <legend class="px-3 text-xl font-serif text-slate-700 sm:px-4 sm:text-2xl"> {{ isset($main) ? 'Driver Info' : 'Document Info' }} </legend>
             
             <form action="{{ isset($main) ? route('store_car_info') : route('store_doc_info') }}" id="driver_form"
                 method="POST" enctype="multipart/form-data">
@@ -34,12 +34,12 @@
                     <input type="hidden" name="{{ isset($main) ? 'main_id' : '' }}"
                         value="{{ isset($main) ? $main->id : '' }}">
                     <input type="hidden" id="no_car" name="{{ !dc_staff() ? 'no_car' : '' }}">
-                    <div class="grid grid-cols-2 gap-5 my-5">
-                        <div class="flex flex-col px-10">
+                    <div class="my-5 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+                        <div class="flex flex-col md:px-4 lg:px-10">
                             <label for="truck_type">Type of Truck<span
                                     class="text-rose-600">{{ dc_staff() ? '*' : '' }}</span> :</label>
                             <Select name="truck_type" id="truck_type"
-                                class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2"
+                                class="mt-2 h-10 w-full rounded-t-lg border border-slate-300 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2 sm:mt-3"
                                 style="appearance: none;">
                                 <?php
                                 $name = ['Other', 'Bicycle'];
@@ -57,10 +57,10 @@
                             @enderror
                         </div>
 
-                        <div class="flex flex-col px-10">
+                        <div class="flex flex-col md:px-4 lg:px-10">
                             <label for="driver_name">Driver Name<span class="text-rose-600">*</span> :</label>
                             <input type="text" name="driver_name" id="driver_name"
-                                class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none"
+                                class="mt-2 w-full rounded-lg border-2 border-slate-600 py-2 ps-5 focus:border-b-4 focus:outline-none sm:mt-3"
                                 placeholder="name..." value="{{ old('driver_name') }}">
                             @error('driver_name')
                                 <small class="text-rose-500 ms-1">{{ $message }}</small>
@@ -69,21 +69,21 @@
                     </div>
 
                     @if (dc_staff())
-                        <div class="grid grid-cols-2 gap-5 my-5">
-                            <div class="flex flex-col px-10">
+                        <div class="my-5 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+                            <div class="flex flex-col md:px-4 lg:px-10">
                                 <label for="driver_nrc">Driver NRC<span class="text-rose-600">*</span> :</label>
                                 <input type="text" name="driver_nrc" id="driver_nrc"
-                                    class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none"
+                                    class="mt-2 w-full rounded-lg border-2 border-slate-600 py-2 ps-5 focus:border-b-4 focus:outline-none sm:mt-3"
                                     value="{{ old('driver_nrc') }}" placeholder="nrc...">
                                 @error('driver_nrc')
                                     <small class="text-rose-500 ms-1">{{ $message }}</small>
                                 @enderror
                             </div>
 
-                            <div class="flex flex-col px-10">
+                            <div class="flex flex-col md:px-4 lg:px-10">
                                 <label for="driver_phone">Driver Phone<span class="text-rose-600">*</span> :</label>
                                 <input type="number" name="driver_phone" id="driver_phone"
-                                    class="mt-3 border-2 border-slate-600 rounded-lg ps-5 py-2 focus:border-b-4 focus:outline-none"
+                                    class="mt-2 w-full rounded-lg border-2 border-slate-600 py-2 ps-5 focus:border-b-4 focus:outline-none sm:mt-3"
                                     value="{{ old('driver_phone') }}" placeholder="09*********">
                                 @error('driver_phone')
                                     <small class="text-rose-500 ms-1">{{ $message }}</small>
@@ -91,14 +91,14 @@
                             </div>
                         </div>
                     @endif
-                    <div class="grid grid-cols-2 gap-5 my-5">
+                    <div class="my-5 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
 
-                        <div class="flex flex-col px-10 relative truck_div">
+                        <div class="relative flex flex-col md:px-4 lg:px-10 truck_div">
                             <label for="truck_no">Truck No<span class="text-rose-600" id="tru_imp">*</span> :</label>
                             <input type="text" name="truck_no" id="truck_no"
-                                class="mt-3 border-2 border-slate-600 rounded-t-lg ps-5 py-2 focus:border-b-4 focus:outline-none truck_div"
+                                class="mt-2 w-full rounded-t-lg border-2 border-slate-600 py-2 ps-5 focus:border-b-4 focus:outline-none sm:mt-3 truck_div"
                                 value="{{ old('truck_no') }}" placeholder="xx-xxxx" autocomplete="off">
-                            <ul class="2xl:w-[89.5%] w-[85%] bg-white shadow-lg max-h-40 overflow-auto absolute car_auto truck_div"
+                            <ul class="absolute z-20 max-h-40 w-full overflow-auto bg-white shadow-lg md:left-4 md:w-[calc(100%-2rem)] lg:left-10 lg:w-[calc(100%-5rem)] car_auto truck_div"
                                 style="top: 100%">
                             </ul>
                             <span id="truck_alert" class="text-rose-500 hidden">Please first choose type of truck</span>
@@ -125,10 +125,10 @@
                         </div> --}}
 
                         @if (dc_staff() || gate_exist(getAuth()->branch_id))
-                            <div class="flex flex-col px-10">
+                            <div class="flex flex-col md:px-4 lg:px-10">
                                 <label for="gate">Gate<span class="text-rose-600">*</span> :</label>
                                 <Select name="gate" id="gate"
-                                    class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2"
+                                    class="mt-2 h-10 w-full rounded-t-lg border border-slate-300 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2 sm:mt-3"
                                     style="appearance: none;">
                                     <option value="">Choose Gate</option>
                                     @foreach ($gate as $item)
@@ -144,24 +144,24 @@
                         @endif
                     </div>
 
-                    <div class="grid grid-cols-2 gap-5 my-5">
+                    <div class="my-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
 
 
-                        <div class="grid grid-cols-3 gap-10  mx-10">
+                        <div class="mx-0 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5 lg:mx-10">
                             <div class="flex flex-col">
-                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex"
+                                <div class="mx-auto flex w-full max-w-32 cursor-pointer justify-center rounded-lg py-5 text-center text-xl font-semibold font-serif shadow-xl hover:bg-slate-100 sm:w-24 sm:text-2xl img_btn"
                                     onclick="$('#img1').click()" title="image 1"><small
                                         class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">1</span></div>
 
                             </div>
                             <div class="flex flex-col">
-                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex"
+                                <div class="mx-auto flex w-full max-w-32 cursor-pointer justify-center rounded-lg py-5 text-center text-xl font-semibold font-serif shadow-xl hover:bg-slate-100 sm:w-24 sm:text-2xl img_btn"
                                     onclick="$('#img2').click()" title="image 2"><small
                                         class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">2</span></div>
 
                             </div>
                             <div class="flex flex-col">
-                                <div class="w-24  mx-auto text-center py-5 text-2xl font-semibold font-serif cursor-pointer hover:bg-slate-100 rounded-lg shadow-xl img_btn flex"
+                                <div class="mx-auto flex w-full max-w-32 cursor-pointer justify-center rounded-lg py-5 text-center text-xl font-semibold font-serif shadow-xl hover:bg-slate-100 sm:w-24 sm:text-2xl img_btn"
                                     onclick="$('#img3').click()" title="image 3"><small
                                         class="ms-5 -translate-y-1">Image</small><span class="translate-y-2">3</span>
                                 </div>
@@ -171,7 +171,7 @@
                                     <small class="text-rose-500 ms-1">{{ $message }}</small>
                                 @enderror
                             @else
-                                <small class="text-rose-400 -translate-y-7 ms-12">i : ပုံမထည့်လဲ ရပါတယ် ခင်ဗျ</small>
+                                <small class="text-rose-400 sm:-translate-y-7 sm:ms-12">i : ပုံမထည့်လဲ ရပါတယ် ခင်ဗျ</small>
                             @endif
 
                         </div>
@@ -182,10 +182,10 @@
                         <input type="file" class="car_img" accept="image/*" name="image_3" hidden value="null"
                             id="img3">
 
-                        <div class="">
+                        <div class="flex items-end justify-end">
                             <button type="{{ isset($main) || dc_staff() ? 'submit' : 'button' }}"
                                 id="{{ isset($main) || dc_staff() ? '' : 'deci_btn' }}"
-                                class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">
+                                class="mt-2 w-full rounded-md bg-emerald-400 px-10 py-2 text-white sm:w-auto lg:mr-10">
 
                                 {{-- Save --}}
                                 <span class="submit-text">Save</span>
@@ -199,12 +199,12 @@
                         </div>
                     </div>
                 @else
-                    <div class="grid grid-cols-2 gap-5 my-5">
+                    <div class="my-5 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
 
-                        <div class="flex flex-col px-10">
+                        <div class="flex flex-col md:px-4 lg:px-10">
                             <label for="source">Source<span class="text-rose-600">*</span> :</label>
                             <Select name="source" id="source"
-                                class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2"
+                                class="mt-2 h-10 w-full rounded-t-lg border border-slate-300 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2 sm:mt-3"
                                 style="appearance: none;">
                                 <option value="">Choose Source</option>
                                 @foreach ($source as $index => $item)
@@ -218,10 +218,10 @@
                             @enderror
                         </div>
 
-                        <div class="flex flex-col px-10">
+                        <div class="flex flex-col md:px-4 lg:px-10">
                             <label for="branch">branch<span class="text-rose-600">*</span> :</label>
                             <Select name="branch" id="branch"
-                                class="h-10 rounded-t-lg mt-3 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2"
+                                class="mt-2 h-10 w-full rounded-t-lg border border-slate-300 px-3 shadow-md focus:outline-none focus:border-0 focus:ring-2 focus:ring-offset-2 sm:mt-3"
                                 style="appearance: none;">
                                 <option value="">Choose branch</option>
                                 @foreach ($branch as $index => $item)
@@ -237,14 +237,14 @@
                     </div>
 
 
-                    <div class="grid grid-cols-2 gap-5 my-5">
-                        <div class="">
+                    <div class="my-5 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+                        <div class="hidden md:block">
 
                         </div>
-                        <div class="">
+                        <div class="flex justify-end">
                             <button type="{{ isset($main) || dc_staff() ? 'submit' : 'button' }}"
                                 id="{{ isset($main) || dc_staff() ? '' : 'deci_btn' }}"
-                                class="bg-emerald-400 text-white px-10 py-2 rounded-md float-end mt-7 mr-10">Save</button>
+                                class="mt-2 w-full rounded-md bg-emerald-400 px-10 py-2 text-white sm:w-auto md:mr-10">Save</button>
                             {{-- <span class="loading-overlay">Processing...</span> --}}
                         </div>
                     </div>
@@ -258,13 +258,13 @@
     </div>
 
     <div class="hidden" id="deci_model">
-        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 "
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-75 px-4"
             style="z-index:99999 !important">
-            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+            <div class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md bg-gray-100 p-4 shadow-lg sm:p-8">
                 <!-- Modal content -->
                 <div class="card rounded">
-                    <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
-                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl">Save နှိပ်ပြီး
+                    <div class="flex min-w-0 items-center justify-center px-4 py-2">
+                        <h3 class="ml-0 text-center text-lg font-bold text-slate-900 sm:flex sm:text-2xl font-serif">Save နှိပ်ပြီး
                             အချိန်စမှတ်မလားရွေးချယ်ပေးပါ &nbsp;<span id="show_doc_no"></span>&nbsp;<svg
                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="w-6 h-6 hidden svgclass">
@@ -282,7 +282,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="grid grid-cols-2 gap-20">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-8 lg:gap-20">
                         <button class="bg-emerald-300 pt-2 pb-3 px-3 rounded-lg save_btn relative" value="count">
                             <span class="button-text">Save ပြီးတာနဲ့ အချိန် စ မှတ်ပါမည်</span>
                             <span class="loading-overlay">Processing...</span>
@@ -298,13 +298,13 @@
     </div>
 
     <div class="hidden" id="prew_img">
-        <div class="flex items-center fixed inset-0 justify-center z-50 bg-gray-500 bg-opacity-75 "
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-75 px-4"
             style="z-index:99999 !important">
-            <div class="bg-gray-100 rounded-md shadow-lg overflow-y-auto p-4 sm:p-8 relative" style="max-height: 600px;">
+            <div class="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-md bg-gray-100 p-4 shadow-lg sm:p-8">
                 <!-- Modal content -->
                 <div class="card rounded">
-                    <div class="flex px-4 py-2 justify-center items-center min-w-80 ">
-                        <h3 class="font-bold text-gray-50 text-slate-900 ml-5 sm:flex font-serif text-2xl"><span
+                    <div class="flex min-w-0 items-center justify-center px-4 py-2">
+                        <h3 class="ml-0 text-center text-lg font-bold text-slate-900 sm:flex sm:text-2xl font-serif"><span
                                 id="show_doc_no"></span>&nbsp;<svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                 class="w-6 h-6 hidden svgclass">
@@ -322,7 +322,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <img src="" id="pr_im" alt="" style="width: 800px">
+                    <img src="" id="pr_im" alt="" class="max-h-[70vh] w-full object-contain">
                 </div>
             </div>
         </div>
