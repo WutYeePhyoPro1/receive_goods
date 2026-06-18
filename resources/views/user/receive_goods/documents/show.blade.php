@@ -39,6 +39,20 @@
                         <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
                             <i class='bx bx-receipt text-amber-500 text-base'></i> Purchase Order (PO)
                         </h2>
+
+                        <div class="flex flex-wrap gap-2">
+                            <!-- <button type="button"
+                                class="h-8 rounded border border-slate-300 bg-white px-3 text-[12px] font-medium text-slate-700 hover:bg-slate-100"
+                                onclick="">
+                                Purchase Order
+                            </button> -->
+                            <button type="button"
+                                class="h-8 rounded bg-green-600 px-3 text-[12px] font-medium text-white shadow-sm"
+                                onclick="window.location.href='{{ route('documents.history_po',$po_document->id ) }}'"
+                                >
+                                History
+                            </button>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 items-end">
@@ -188,13 +202,6 @@
                     >
                         Back
                     </button>
-
-                    <button type="button" class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-amber-700 text-white text-[12px] font-medium shadow-sm"
-                    onClick="window.location.href='{{ route('documents.history_po',$po_document->id ) }}'"
-                    >
-                        PO History
-                    </button>
-
 
                     @if($manager && $po_document->status !== "Cancel")
                     <button type="button" id="approveBtn" class="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-700 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status"

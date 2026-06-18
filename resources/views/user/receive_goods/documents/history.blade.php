@@ -56,14 +56,14 @@
 
                     <div class="flex flex-wrap gap-2">
                         <button type="button"
-                            class="h-8 rounded border border-slate-300 bg-white px-3 text-[12px] font-medium text-slate-700 hover:bg-slate-100"
+                            class="h-8 rounded bg-blue-500 px-3 text-[12px] font-medium text-white shadow-sm"
                             onclick="window.location.href='{{ route('documents.show', $po_document->id) }}'">
                             Purchase Order
                         </button>
-                        <button type="button"
+                        <!-- <button type="button"
                             class="h-8 rounded bg-amber-500 px-3 text-[12px] font-medium text-white shadow-sm">
                             History
-                        </button>
+                        </button> -->
                     </div>
                 </div>
 
