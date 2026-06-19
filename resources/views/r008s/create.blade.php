@@ -555,6 +555,7 @@
                                     console.log(response);
 
                                     const data = response;
+                                    const r008document = data.data;
 
                                     if(data.success){
                                         Swal.fire({
@@ -562,6 +563,8 @@
                                             title: "R008 saved successfully!",
                                             text: data.message,
                                         });
+                                        window.open(`/r008s/${r008document.id}/print-pdf`, '_blank');
+                                        
                                         window.location.href="{{ route('r008s.index') }}"
 
                                     }else{

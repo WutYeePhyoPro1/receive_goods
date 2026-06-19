@@ -17,3 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+Route::get('/server-time', function () {
+    return response()->json([
+        'time' => now()->format('Y-m-d H:i:s')
+    ]);
+});

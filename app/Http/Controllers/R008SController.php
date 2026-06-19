@@ -145,6 +145,8 @@ class R008SController extends Controller
             $this->r8_document($r008_document_id, $request);
             // // End Auto RG To ERP
 
+            
+            // throw new \Exception("RG Document Update Error: ");
 
             DB::commit();
             DB::connection('defective_product')->commit();
