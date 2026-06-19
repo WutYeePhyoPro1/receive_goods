@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -68,6 +69,28 @@ class User extends Authenticatable
     public function roleName()
     {
         return $this->roles->first()->name;
+    }
+
+    public function getGRBy(){
+        $user = $this;
+
+        $role = Role::where('name','user')->first();
+        $role_id = $role->id;
+
+        $user_branches = $user->user_branches;
+        $branch_ids = $user_branches->pluck('branch_id')->toArray();
+        $branch_ids[] = $user->branch_id;
+
+        $users = User::where('role',$role_id)
+                    ->whereIn('branch_id',$branch_ids)
+                    ->orWhereHas('user_branches',function($query) use($branch_ids){
+                        $query->where('branch_id',$branch_ids);
+                    })
+                    ->get();
+
+        // dd($users);
+
+        return $users;
     }
 
 

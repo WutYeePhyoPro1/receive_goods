@@ -389,12 +389,16 @@ class userController extends Controller
 
         $branches = Branch::orderBy('id','asc')->get();
 
+        $user = auth()->user();
+        $users = $user->getGRBy();
+
         return view('user.receive_goods.rg_documents.pull_rg', compact(
             'good_receive',
             'documents',
             'transportations',
             'receives',
-            'branches'
+            'branches',
+            'users'
         ));
     }
 
@@ -479,12 +483,16 @@ class userController extends Controller
             LIMIT 100
         ");
 
+        $user = auth()->user();
+        $users = $user->getGRBy();
+
         return view('user.receive_goods.rg_documents.detail_rg',compact(
             'receive_good_document',
             'good_receive',
             'documents',
             'transportations',
-            'receives'
+            'receives',
+            'users'
         ));
     }
 

@@ -44,12 +44,31 @@
 
                     <!-- 3-Column Compact Grid for Inputs -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 items-end">
+
+                        <div class="md:col-span-3">
+                            <div class="flex flex-col gap-0.5 rounded-sm border border-slate-200 bg-slate-100/80 px-3 py-1.5 text-xs text-slate-700 sm:flex-row sm:items-center sm:gap-2">
+                                <span class="shrink-0 font-bold">
+                                    Scanned No:
+                                </span>
+
+                                <span class="break-all font-semibold text-slate-800 sm:truncate">
+                                    {{ $good_receive->document_no }}
+                                </span>
+                            </div>
+
+                            <input type="hidden" name="scan_document_no" value="{{ $good_receive->document_no }}">
+                            <input type="hidden" name="scan_id" value="{{ $good_receive->id }}">
+                        </div>
                         
                         <!-- Row 1 -->
-                        <div>
+                        <!-- <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Scan Document No. <span class="text-red-600">*</span></label>
                             <input type="text" name="scan_document_no" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive->document_no }}">
                             <input type="text" name="scan_id" readonly hidden class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive->id }}">
+                        </div> -->
+                        <div>
+                            <label class="block font-medium text-slate-500 mb-0.5">Document Date<span class="text-red-600">*</span></label>
+                            <input name="form_doc_date" id="form_doc_date" type="date" class="w-full h-8 px-2 bg-slate-50s border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="{{ $receive_good_document->date ?? $receive_good_document->created_at->format('Y-m-d') }}">
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Vendor Code <span class="text-red-600">*</span></label>
@@ -147,12 +166,23 @@
                         
                         {{-- Checkbox Controls Alignment --}}
                         <div class="md:col-span-3">
-                            <div class="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-2 xl:grid-cols-3 xl:items-center">
+                            <div class="grid grid-cols-1 gap-3 pt-4s sm:grid-cols-2 xl:grid-cols-3 items-end xl:items-centers">
 
-                                <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600">
+                                <!-- <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600">
                                     <input type="checkbox" id="receive_all" class="h-4 w-4 rounded accent-amber-500">
                                     <span>Select All</span>
-                                </label>
+                                </label> -->
+
+                                <div>
+                                    <label class="block font-medium text-slate-500 mb-0.5">GR By <span class="text-red-600">*</span> <span id="ship_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
+                                    <select id="gr_by" name="gr_by" class="w-full h-8 px-2s border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                                            <option value="">Choose GR Staff</option>
+                                            @foreach($users as $user)
+                                            <option value="{{ $user->id }}" {{ $user->id == $receive_good_document->gr_by ? 'selected' : '' }}>{{ $user->name }}</option>
+                                            @endforeach
+                                    </select>
+                                </div>
+                                
 
                                 <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
                                     <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600 sm:shrink-0">
@@ -383,11 +413,11 @@
             });
 
 
-            // $("#purchasedate").flatpickr({
-            //     dateFormat: "Y-m-d",
-            //     minDate: "today",
-            //     maxDate: new Date().fp_incr(30)
-            // });
+            flatpickr("#form_doc_date", {
+                dateFormat: "Y-m-d",
+                // minDate: "today",
+                maxDate: new Date().fp_incr(30)
+            });
         });
 
         // ... rest of your existing AJAX code ...

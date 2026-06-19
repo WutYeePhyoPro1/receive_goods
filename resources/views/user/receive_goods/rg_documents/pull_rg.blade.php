@@ -127,12 +127,15 @@
                         
                         {{-- Checkbox Controls Alignment --}}
                         <div class="md:col-span-3">
-                            <div class="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-2 xl:grid-cols-3 xl:items-center">
+                            <div class="grid grid-cols-1 gap-3 pt-4s sm:grid-cols-2 xl:grid-cols-3 items-end xl:items-centers">
 
                                 <div>
                                     <label class="block font-medium text-slate-500 mb-0.5">GR By <span class="text-red-600">*</span> <span id="ship_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                                    <select name="gr_by" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                                    <select id="gr_by" name="gr_by" class="w-full h-8 px-2s border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                             <option value="">Choose GR Staff</option>
+                                            @foreach($users as $user)
+                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                            @endforeach
                                     </select>
                                 </div>
                                 
@@ -165,12 +168,12 @@
 
                 <!-- PRODUCT DETAILS SECTION -->
                 <div class="p-4">
-                    <div class="flex items-center justify-between mb-2">
+                    <!-- <div class="flex items-center justify-between mb-2">
                         <h3 class="text-sm font-bold text-slate-700 flex items-center gap-2">
                             <i class='bx bx-box text-amber-500 text-base'></i> Product Details
                             <div id="product_error" class="text-red-500 text-[10px] mt-0.5"></div>
                         </h3>
-                    </div>
+                    </div> -->
 
                     <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600">
                         <input type="checkbox" id="receive_all" class="h-4 w-4 rounded accent-amber-500">
@@ -311,6 +314,10 @@
 
 
             new TomSelect("#po_no", {
+                selectOnTab: true
+            });
+
+            new TomSelect("#gr_by", {
                 selectOnTab: true
             });
 
