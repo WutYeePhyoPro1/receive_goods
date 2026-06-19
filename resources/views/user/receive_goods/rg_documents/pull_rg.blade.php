@@ -129,11 +129,14 @@
                         <div class="md:col-span-3">
                             <div class="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-2 xl:grid-cols-3 xl:items-center">
 
-                                <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600">
-                                    <input type="checkbox" id="receive_all" class="h-4 w-4 rounded accent-amber-500">
-                                    <span>Select All</span>
-                                </label>
-
+                                <div>
+                                    <label class="block font-medium text-slate-500 mb-0.5">GR By <span class="text-red-600">*</span> <span id="ship_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
+                                    <select name="gr_by" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
+                                            <option value="">Choose GR Staff</option>
+                                    </select>
+                                </div>
+                                
+                          
                                 <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
                                     <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600 sm:shrink-0">
                                         <input name="r008" type="checkbox" class="h-4 w-4 rounded accent-amber-500">
@@ -148,12 +151,7 @@
                                 </div>
 
                                 <div class="hiddens xl:block">
-                                    <div>
-                                        <label class="block font-medium text-slate-500 mb-0.5">GR By <span class="text-red-600">*</span> <span id="ship_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
-                                        <select name="gr_by" class="w-full h-8 px-2 border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
-                                                <option value="">Choose GR Staff</option>
-                                        </select>
-                                    </div>
+                               
                                 </div>
 
                             </div>
@@ -173,6 +171,12 @@
                             <div id="product_error" class="text-red-500 text-[10px] mt-0.5"></div>
                         </h3>
                     </div>
+
+                    <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600">
+                        <input type="checkbox" id="receive_all" class="h-4 w-4 rounded accent-amber-500">
+                        <span>Select All</span>
+                    </label>
+
 
                     <!-- STICKY HEADER & SCROLLABLE TABLE CONTAINER -->
                     <div class="border border-slate-200 rounded overflow-hidden max-h-[320px] overflow-y-auto overflow-x-auto relative shadow-inner">
