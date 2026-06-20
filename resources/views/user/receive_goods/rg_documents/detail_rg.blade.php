@@ -362,98 +362,67 @@
                 </div>
 
                 <div class="border-t border-gray-100 bg-neutral-50 p-5">
-                       @if($manager || true)
-                        <div class="mt-5s mb-3">
-                            <!-- Reject Request with remark -->
-                            @if($receive_good_document->receive_good_reject)
-                                @php
-                                    $rejectRequest = $receive_good_document->receive_good_reject;
-                                @endphp
+                    <!-- Cancel Request -->
+                    @if($receive_good_document->receive_good_reject)
+    @php
+        $rejectRequest = $receive_good_document->receive_good_reject;
+    @endphp
 
-                                <div class="rounded-lg border border-red-200 bg-white shadow-sm">
-                                    <div class="flex flex-col gap-2 border-b border-red-100 bg-red-50 px-4 py-2 sm:flex-row sm:items-center sm:justify-between">
-                                        <div class="flex items-center gap-2">
-                                            <i class="bx bx-error-circle text-lg text-red-500"></i>
-                                            <div>
-                                                <div class="text-sm font-bold text-red-800">RG Cancel Request</div>
-                                                <div class="text-[11px] text-red-600">
-                                                    Requested by {{ $rejectRequest->user?->name ?? '-' }}
-                                                    @if($rejectRequest->created_at)
-                                                        on {{ $rejectRequest->created_at->format('Y-m-d H:i A') }}
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
+    <div class="mt-3 border-t border-slate-200 pt-3 text-xs">
+        <div class="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span class="font-bold text-slate-700">
+                RG Cancel Request
+            </span>
 
-                                        @if($rejectRequest->approved_user_id)
-                                            <span class="inline-flex w-fit items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
-                                                Approved
-                                            </span>
-                                        @else
-                                            <span class="inline-flex w-fit items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
-                                                Pending Manager Review
-                                            </span>
-                                        @endif
-                                    </div>
+            <span class="text-slate-400">|</span>
 
-                                    <div class="grid grid-cols-1 gap-3 p-4 md:grid-cols-3">
-                                        <div>
-                                            <label class="block font-medium text-slate-500 mb-0.5">RG No</label>
-                                            <input type="text"
-                                                readonly
-                                                class="h-8 w-full rounded border border-blue-300 bg-blue-100 px-3 text-sm font-bold tracking-wide text-blue-700 focus:outline-none"
-                                                value="{{ $receive_good_document->receive_good_files->first()?->file }}">
-                                        </div>
+            <span class="text-slate-500">
+                Prepared By:
+                <b class="text-slate-700">{{ $rejectRequest->user?->name ?? '-' }}</b>
+            </span>
 
-                                        <div class="md:col-span-2">
-                                            <label class="block font-medium text-slate-500 mb-0.5">Cancel Reason</label>
-                                            <div class="min-h-8 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm leading-5 text-slate-700">
-                                                {{ $rejectRequest->remark }}
-                                            </div>
-                                        </div>
+            <span class="text-slate-400">|</span>
 
-                                        @if($rejectRequest->image)
-                                            <div class="md:col-span-3">
-                                                <label class="block font-medium text-slate-500 mb-1">Attached File</label>
-                                                <a href="{{ asset('storage/' . $rejectRequest->image) }}"
-                                                    target="_blank"
-                                                    class="inline-flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100">
-                                                    <i class="bx bx-paperclip text-base text-slate-500"></i>
-                                                    View attachment
-                                                </a>
-                                            </div>
-                                        @endif
-                                    </div>
+            <span class="text-slate-500">
+                Date:
+                <b class="text-slate-700">
+                    {{ $rejectRequest->created_at?->format('Y-m-d H:i A') }}
+                </b>
+            </span>
+        </div>
 
-                                    @if(!$rejectRequest->approved_user_id)
-                                        <div class="flex flex-col gap-2 border-t border-slate-100 px-4 py-3 sm:flex-row sm:justify-end">
-                                            <button type="submit"
-                                                form="rg_cancel_request_reject_form"
-                                                class="h-8 rounded border border-red-300 bg-white px-4 text-xs font-medium text-red-600 hover:bg-red-50">
-                                                Reject Request
-                                            </button>
-                                            <button type="submit"
-                                                form="rg_cancel_request_approve_form"
-                                                class="h-8 rounded bg-red-500 px-4 text-xs font-medium text-white shadow-sm hover:bg-red-600">
-                                                Approve Cancel Request
-                                            </button>
-                                        </div>
-                                    @else
-                                        <div class="border-t border-slate-100 px-4 py-2 text-xs text-slate-500">
-                                            Approved by {{ $rejectRequest->approved_user?->name ?? '-' }}
-                                            @if($rejectRequest->approved_datetime)
-                                                on {{ \Carbon\Carbon::parse($rejectRequest->approved_datetime)->format('Y-m-d H:i A') }}
-                                            @endif
-                                        </div>
-                                    @endif
-                                </div>
-                            @else
-                                <div class="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
-                                    No RG cancel request.
-                                </div>
-                            @endif
-                        </div>
-                        @endif
+        <div class="grid grid-cols-1 gap-2 md:grid-cols-3 md:items-start">
+            <div>
+                <label class="block font-medium text-slate-500 mb-0.5">RG No</label>
+                <input type="text"
+                    readonly
+                    class="h-8 w-full rounded border border-slate-300 bg-slate-50 px-2 text-sm font-semibold text-slate-700"
+                    value="{{ $receive_good_document->receive_good_files->first()?->file }}">
+            </div>
+
+            <div class="md:col-span-2">
+                <label class="block font-medium text-slate-500 mb-0.5">Cancel Remark</label>
+                <div class="min-h-8 rounded border border-slate-300 bg-slate-50 px-2 py-1.5 text-sm text-slate-700">
+                    {{ $rejectRequest->remark }}
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-2 flex justify-end gap-2">
+            <button type="submit"
+                form="rg_cancel_request_reject_form"
+                class="h-8 rounded border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 hover:bg-slate-100">
+                Reject
+            </button>
+
+            <button type="submit"
+                form="rg_cancel_request_approve_form"
+                class="h-8 rounded bg-red-500 px-3 text-xs font-medium text-white hover:bg-red-600">
+                Approve
+            </button>
+        </div>
+    </div>
+@endif
                     <div class="grid grid-cols-1 gap-6 text-sm leading-7 md:grid-cols-3">
 
                         @if($receive_good_document->rejected_by)
@@ -498,7 +467,6 @@
                         </div> -->
 
                     </div>
-
                  
                 </div>
 
