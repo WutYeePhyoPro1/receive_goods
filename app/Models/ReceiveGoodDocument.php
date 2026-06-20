@@ -84,5 +84,8 @@ class ReceiveGoodDocument extends Model
     }
 
 
+    public function receive_good_reject(){
+        return $this->hasOne(ReceiveGoodReject::class,'receive_good_document_id','id');
+    }
 
 }

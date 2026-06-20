@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\authenticateController;
 use App\Http\Controllers\R008SController;
+use App\Http\Controllers\ReceiveGoodRejectsController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UnavailableScannedProductController;
 use App\Http\Controllers\userController;
@@ -72,7 +73,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('receive_goods/rg_documents/{id}/r008','r008_rg')->name('r008_rg');
             route::get('receive_goods/rg_documents/{id}/print-pdf','printPDF')->name('rg_documents.print-pdf');
             Route::post('receive_goods/rg_document/{id}/approve','approve_form')->name('rg_approve_form');
-            Route::post('receive_goods/rg_document/{id}/cancel-request','request_rg_cancel')->name('rg_cancel_request');
+            // Route::post('receive_goods/rg_document/{id}/cancel-request','request_rg_cancel')->name('rg_cancel_request');
             Route::get('rg_documentsposync','posync')->name('rg_posync');
 
 
@@ -92,6 +93,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('r008s/{id}/approve','approve_form')->name('r8_dapprove_form');
 
             Route::get('r008s/{id}/print-pdf','printPDF')->name('r008s.print-pdf');
+        });
+
+        Route::group(['controller'=>ReceiveGoodRejectsController::class],function(){
+            Route::get('receive_good_rejects','index')->name('receive_good_rejects.index');
+            // Route::get('receive_good_rejects/create','create')->name('receive_good_rejects.create');
+            Route::post('receive_good_rejects','store')->name('receive_good_rejects.store');
+            // Route::get('receive_good_rejects/{id}','show')->name('receive_good_rejects.show');
+            Route::post('receive_good_rejects/{id}/approve','approve_form')->name('receive_good_rejects_approve_form');
         });
 
         route::group(['controller'=>ReportController::class],function(){

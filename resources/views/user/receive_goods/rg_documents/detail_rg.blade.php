@@ -27,9 +27,9 @@
         @endif
 
         @if (Session::has('success'))
-            <div class="mb-4 flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700 shadow-sm" role="alert">
+            <div class="mb-4 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-700 shadow-sm" role="alert">
                 <div class="mt-0.5">
-                    <i class="bi bi-check-circle"></i>
+                    <i class="bi bi-exclamation-octagon"></i>
                 </div>
 
                 <div class="flex-1 text-sm font-medium">
@@ -37,13 +37,14 @@
                 </div>
 
                 <button type="button"
-                    class="ml-3 inline-flex h-5 w-5 items-center justify-center rounded text-emerald-500 hover:bg-emerald-100 hover:text-emerald-700"
+                    class="ml-3 inline-flex h-5 w-5 items-center justify-center rounded text-green-500 hover:bg-green-100 hover:text-green-700"
                     onclick="this.closest('[role=alert]').remove()"
                     aria-label="Close">
                     &times;
                 </button>
             </div>
         @endif
+
 
         <form id="rg_form" action="{{ route('rg_approve_form', $receive_good_document->id ) }}" method="POST">
             @csrf
@@ -315,7 +316,6 @@
                     </div>
 
                 </div>
-
                
                 <div class="flex items-center gap-2 p-4">
 
@@ -354,11 +354,12 @@
                     </button> -->
                     @endif
 
+                    @if(!$manager && !$receive_good_document->receive_good_reject)
                     <button type="button" id="cancelRequestBtn" class="h-9 px-4 rounded-lg bg-red-300 hover:bg-red-400 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status">
                         Send Cancel Request
                     </button>
+                    @endif
                 </div>
-
 
                 <div class="border-t border-gray-100 bg-neutral-50 p-5">
                     <div class="grid grid-cols-1 gap-6 text-sm leading-7 md:grid-cols-3">
@@ -405,6 +406,10 @@
                         </div> -->
 
                     </div>
+
+                    <div>
+                        <!-- Reject Request with remark -->
+                    </div>
                 </div>
 
             </div>
@@ -419,8 +424,18 @@
                     </button>
                 </div>
 
-                <form action="{{ route('rg_cancel_request', $receive_good_document->id) }}" method="POST" class="px-4 py-3">
+                <form id="rg_cancel_form" action="{{ route('receive_good_rejects.store') }}" method="POST" class="px-4 py-3">
                     @csrf
+
+                    <div id="errormessages" class="my-2">
+                        <!-- <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                            <strong class="font-bold">Holy smokes!</strong>
+                            <span class="block sm:inline">Something seriously bad happened.</span>
+                            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                                <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                            </span>
+                        </div> -->
+                    </div>
 
                     <div class="mb-3">
                         <label class="block font-medium text-slate-500 mb-0.5">RG No</label>
@@ -428,12 +443,18 @@
                             readonly
                             class="h-8 w-full rounded border border-blue-300 bg-blue-100 px-3 text-sm font-bold tracking-wide text-blue-700 focus:outline-none"
                             value="{{ $receive_good_document->receive_good_files->first()?->file }}">
+                        <input type="text"
+                            hidden
+                            name="receive_good_document_id"
+                            class="h-8 w-full rounded border border-blue-300 bg-blue-100 px-3 text-sm font-bold tracking-wide text-blue-700 focus:outline-none"
+                            value="{{ $receive_good_document->receive_good_files->first()?->receive_good_document_id }}">
                     </div>
 
                     <div class="mb-4">
-                        <label class="block font-medium text-slate-500 mb-0.5">Cancel Reason <span class="text-red-600">*</span></label>
-                        <textarea name="remark"
-                            required
+                        <label class="block font-medium text-slate-500 mb-0.5">Cancel Remark <span class="text-red-600">*</span></label>
+                        <textarea 
+                            id="cancel_remark"
+                            name="remark"
                             rows="4"
                             class="w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
                             placeholder="Enter cancel request reason...">{{ old('remark') }}</textarea>
@@ -887,6 +908,44 @@
                 }
             })
         });
+
+    
+    const cancel_remark = document.querySelector('#cancel_remark');
+    const errormessages = document.querySelector('#errormessages');
+    $(document).on('submit', '#rg_cancel_form', function (e) {
+        e.preventDefault();
+
+        console.log('cancel form submit event attached');
+
+        const getinputval = cancel_remark.value.trim();
+
+        if(!getinputval){
+            newErrorMessage('Cancel Remark is required!');
+            return;
+        }
+
+        $('#rg_cancel_form').submit();
+    });
+
+    let newErrorMessage = (msg)=>{
+        const div = document.createElement('div');
+        div.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative';
+        div.innerHTML  = `
+            <span class="block sm:inline">${msg}</span>
+            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+            </span>
+        `;
+        errormessages.appendChild(div);
+    }
+    // <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+    // <strong class="font-bold">Holy smokes!</strong>
+    // <span class="block sm:inline">Something seriously bad happened.</span>
+    // <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+    //     <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+    // </span>
+    // </div>
+
         
     </script>
 
