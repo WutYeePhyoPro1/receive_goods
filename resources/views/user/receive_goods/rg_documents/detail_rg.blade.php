@@ -26,6 +26,25 @@
             </div>
         @endif
 
+        @if (Session::has('success'))
+            <div class="mb-4 flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700 shadow-sm" role="alert">
+                <div class="mt-0.5">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+
+                <div class="flex-1 text-sm font-medium">
+                    {{ Session::get('success') }}
+                </div>
+
+                <button type="button"
+                    class="ml-3 inline-flex h-5 w-5 items-center justify-center rounded text-emerald-500 hover:bg-emerald-100 hover:text-emerald-700"
+                    onclick="this.closest('[role=alert]').remove()"
+                    aria-label="Close">
+                    &times;
+                </button>
+            </div>
+        @endif
+
         <form id="rg_form" action="{{ route('rg_approve_form', $receive_good_document->id ) }}" method="POST">
             @csrf
             <!-- UNIFIED CARD CONTAINER -->
@@ -335,7 +354,7 @@
                     </button> -->
                     @endif
 
-                    <button type="button" id="" class="h-9 px-4 rounded-lg bg-red-300 hover:bg-red-400 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status">
+                    <button type="button" id="cancelRequestBtn" class="h-9 px-4 rounded-lg bg-red-300 hover:bg-red-400 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status">
                         Send Cancel Request
                     </button>
                 </div>
@@ -391,6 +410,47 @@
             </div>
         </form>
 
+        <div id="rgCancelRequestModal" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-slate-900/50 px-4">
+            <div class="w-full max-w-md rounded-lg bg-white shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                    <h3 class="mb-0 text-sm font-bold text-slate-700">RG Cancel Request</h3>
+                    <button type="button" class="text-xl leading-none text-slate-400 hover:text-slate-700" data-close-rg-cancel>
+                        &times;
+                    </button>
+                </div>
+
+                <form action="{{ route('rg_cancel_request', $receive_good_document->id) }}" method="POST" class="px-4 py-3">
+                    @csrf
+
+                    <div class="mb-3">
+                        <label class="block font-medium text-slate-500 mb-0.5">RG No</label>
+                        <input type="text"
+                            readonly
+                            class="h-8 w-full rounded border border-blue-300 bg-blue-100 px-3 text-sm font-bold tracking-wide text-blue-700 focus:outline-none"
+                            value="{{ $receive_good_document->receive_good_files->first()?->file }}">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block font-medium text-slate-500 mb-0.5">Cancel Reason <span class="text-red-600">*</span></label>
+                        <textarea name="remark"
+                            required
+                            rows="4"
+                            class="w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+                            placeholder="Enter cancel request reason...">{{ old('remark') }}</textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-2 border-t border-slate-100 pt-3">
+                        <button type="button" class="h-8 rounded border border-slate-300 bg-white px-4 text-xs font-medium text-slate-700 hover:bg-slate-100" data-close-rg-cancel>
+                            Close
+                        </button>
+                        <button type="submit" class="h-8 rounded bg-red-500 px-4 text-xs font-medium text-white shadow-sm hover:bg-red-600">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
 
 
@@ -420,6 +480,20 @@
                 dateFormat: "Y-m-d",
                 // minDate: "today",
                 maxDate: new Date().fp_incr(30)
+            });
+
+            $('#cancelRequestBtn').on('click', function () {
+                $('#rgCancelRequestModal').removeClass('hidden').addClass('flex');
+            });
+
+            $('[data-close-rg-cancel]').on('click', function () {
+                $('#rgCancelRequestModal').addClass('hidden').removeClass('flex');
+            });
+
+            $('#rgCancelRequestModal').on('click', function (e) {
+                if (e.target === this) {
+                    $(this).addClass('hidden').removeClass('flex');
+                }
             });
         });
 
