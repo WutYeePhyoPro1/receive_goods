@@ -25,7 +25,9 @@ class ReceiveGoodDocument extends Model
         "status",
         "rejected_by",
         "rejected_at",
-        "remark"
+        "remark",
+        "date",
+        "gr_by"
     ];
 
     public function user(){

@@ -130,7 +130,7 @@
                             <div class="grid grid-cols-1 gap-3 pt-4s sm:grid-cols-2 xl:grid-cols-3 items-end xl:items-centers">
 
                                 <div>
-                                    <label class="block font-medium text-slate-500 mb-0.5">GR By <span class="text-red-600">*</span> <span id="ship_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
+                                    <label class="block font-medium text-slate-500 mb-0.5">GR By <span class="text-red-600">*</span> <span id="gr_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
                                     <select id="gr_by" name="gr_by" class="w-full h-8 px-2s border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                             <option value="">Choose GR Staff</option>
                                             @foreach($users as $user)
@@ -177,7 +177,7 @@
 
                     <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600">
                         <input type="checkbox" id="receive_all" class="h-4 w-4 rounded accent-amber-500">
-                        <span>Select All</span>
+                        <span>Select All</span> <div id="product_error" class="text-red-500 text-[10px] mt-0.5"></div>
                     </label>
 
 
@@ -318,7 +318,8 @@
             });
 
             new TomSelect("#gr_by", {
-                selectOnTab: true
+                selectOnTab: true,
+                dropdownParent: "body"
             });
 
             var token = $("meta[name='__token']").attr('content');
@@ -493,6 +494,7 @@
                 let shipBy = $('[name="ship_by"]').val();
                 let receiveType = $('[name="receive_type"]').val();
                 let receive_barcodes_input =  $('.receive_barcode:checked');
+                let gr_by = $('[name="gr_by"]').val();
 
                 let isValid = true;
 
@@ -518,6 +520,11 @@
 
                 if(receiveType === '' || receiveType == null){
                     $('#receive_type_error').text('Remark Required');
+                    isValid = false;
+                }
+
+                if(gr_by === '' || gr_by == null){
+                    $('#gr_by_error').text('GR By Required');
                     isValid = false;
                 }
 

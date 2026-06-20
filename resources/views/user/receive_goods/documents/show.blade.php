@@ -204,10 +204,10 @@
                     </button>
 
                     @if($manager && $po_document->status !== "Cancel")
-                    <button type="button" id="approveBtn" class="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-700 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status"
+                    <!-- <button type="button" id="approveBtn" class="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-700 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status"
                     >
                         Cancel
-                    </button>
+                    </button> -->
                     @endif
 
                 </div>

@@ -547,6 +547,7 @@ use Spatie\Permission\Models\Role;
         $purchase_date = $document->purchasedate;
         // dd($document);
         
+        $receive_date = $receive_good_document->date ?? Carbon::now();
 
         $result = $conn->select("
             INSERT INTO purchaseorder.receive_hd (
@@ -580,24 +581,24 @@ use Spatie\Permission\Models\Role;
                     case
                     when
                     (
-                                select count(receive_no) from purchaseorder.receive_hd where receive_date::date = now()::date and branch_code='$branch_code'
+                                select count(receive_no) from purchaseorder.receive_hd where receive_date::date = '$receive_date'::date and branch_code='$branch_code'
                     ) = 0
                     then
                     (
                         select doc_no||'-0001' as rgno from
                         (
                         select replace((select 'RG'||(select branch_short_name from master_data.master_branch where branch_code='$branch_code')||
-                                (select right((select (now()::date)::text),8)::text)), '-', '') as doc_no
+                                (select right((select ('$receive_date'::date)::text),8)::text)), '-', '') as doc_no
                         ) aa
                     )
                     else
                     (
-                        select (left((select max(receive_no) as max_date from purchaseorder.receive_hd where receive_date::date = now()::date and branch_code='$branch_code'),-3)||
-                        TO_CHAR(((right((select max(receive_no) as max_date from purchaseorder.receive_hd where receive_date::date = now()::date and branch_code='$branch_code'),3)::integer +1)), 'fm000')) as doc_no
+                        select (left((select max(receive_no) as max_date from purchaseorder.receive_hd where receive_date::date = '$receive_date'::date and branch_code='$branch_code'),-3)||
+                        TO_CHAR(((right((select max(receive_no) as max_date from purchaseorder.receive_hd where receive_date::date ='$receive_date'::date and branch_code='$branch_code'),3)::integer +1)), 'fm000')) as doc_no
                     )
                     end as receive_no
                 ),
-                NOW(),                          -- receive_date (complete နှိပ်လိုက်တဲ့အချိန်)
+                '$receive_date',                          -- receive_date (complete နှိပ်လိုက်တဲ့အချိန်)
                 '$invoice_date',                  -- invoice_date
                 '$receive_employee_code',         -- receive_employee_code (portal login user)
                 '$transportation_by',             -- transportation_by -- purchaseorder.po_transportation ကယူ

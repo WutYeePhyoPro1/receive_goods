@@ -602,7 +602,9 @@ class ActionController extends Controller
                 "r008" => $r008, 
                 "total_amount" => $request->total_amount,
                 "user_id" => $user_id,
-                "remark"=> $request->remark
+                "remark"=> $request->remark,
+                "date" => $request->form_doc_date,
+                "gr_by" => $request->gr_by
             ]);
             // End Receive Good Document
 
