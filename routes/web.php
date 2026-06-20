@@ -73,7 +73,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('receive_goods/rg_documents/{id}/r008','r008_rg')->name('r008_rg');
             route::get('receive_goods/rg_documents/{id}/print-pdf','printPDF')->name('rg_documents.print-pdf');
             Route::post('receive_goods/rg_document/{id}/approve','approve_form')->name('rg_approve_form');
-            // Route::post('receive_goods/rg_document/{id}/cancel-request','request_rg_cancel')->name('rg_cancel_request');
             Route::get('rg_documentsposync','posync')->name('rg_posync');
 
 

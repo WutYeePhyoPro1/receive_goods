@@ -16,7 +16,6 @@ use App\Models\Log;
 use App\Models\PrintReason;
 use App\Models\Product;
 use App\Models\ReceiveGoodDocument;
-use App\Models\ReceiveGoodReject;
 use App\Models\RemoveTrack;
 use App\Models\Source;
 use App\Models\Tracking;

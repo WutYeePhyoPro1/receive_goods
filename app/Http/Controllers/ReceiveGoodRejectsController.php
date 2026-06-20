@@ -34,5 +34,26 @@ class ReceiveGoodRejectsController extends Controller
         return back()->with('success', 'RG cancel request submitted successfully.');
     }
 
+    public function approve_form($id, Request $request)
+    {
+        $request->validate([
+            'status' => ['required', 'in:Approve,Reject'],
+        ]);
+
+        $receive_good_reject = ReceiveGoodReject::findOrFail($id);
+
+        if ($request->status === 'Reject') {
+            $receive_good_reject->delete();
+
+            return back()->with('success', 'RG cancel request rejected successfully.');
+        }
+
+        $receive_good_reject->update([
+            'approved_user_id' => auth()->id(),
+            'approved_datetime' => now(),
+        ]);
+
+        return back()->with('success', 'RG cancel request approved successfully.');
+    }
 
 }
