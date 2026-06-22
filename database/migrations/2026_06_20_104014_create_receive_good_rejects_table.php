@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('approved_user_id')->nullable();
             $table->dateTime('approved_datetime')->nullable();
+            $table->string('status')->nullable()->default('Pending Mgr Review');
             $table->timestamps();
         });
     }

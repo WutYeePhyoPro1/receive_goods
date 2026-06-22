@@ -361,114 +361,213 @@
                     @endif
                 </div>
 
-                <div class="border-t border-gray-100 bg-neutral-50 p-5">
-                    <!-- Cancel Request -->
-                    @if($receive_good_document->receive_good_reject)
-    @php
-        $rejectRequest = $receive_good_document->receive_good_reject;
-    @endphp
+                @if($receive_good_document->receive_good_reject)
+                    @php
+                        $rejectRequest = $receive_good_document->receive_good_reject;
+                    @endphp
+                    <div class="p-4">
+                        <hr class="my-1" />
+                        <h3 class="mb-2 text-sm font-bold text-slate-700 my-2">
+                            RG Cancel Request
+                            @php
+                                $status = strtolower($rejectRequest?->status ?? 'default');
+                            @endphp
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] ?? $statusClasses['default'] }}">
+                                {{ $rejectRequest?->status }}
+                            </span>
+                        </h3>
 
-    <div class="mt-3 border-t border-slate-200 pt-3 text-xs">
-        <div class="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span class="font-bold text-slate-700">
-                RG Cancel Request
-            </span>
+                        {{-- 
+                        <div id="comment-box-1" class="mb-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+                            <!-- normal view mode -->
+                            <div id="comment-view-1">
+                                <div class="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                    <strong class="text-sm font-semibold text-slate-800">
+                                        Mg Mg
+                                    </strong>
 
-            <span class="text-slate-400">|</span>
+                                    <small class="text-xs text-slate-400">
+                                        6/22/2026, 10:25:30 AM
+                                    </small>
+                                </div>
 
-            <span class="text-slate-500">
-                Prepared By:
-                <b class="text-slate-700">{{ $rejectRequest->user?->name ?? '-' }}</b>
-            </span>
+                                <div id="comment-text-1" class="text-sm leading-5 text-slate-700">
+                                    This is a sample comment message. The layout stays clean and readable on mobile.
+                                </div>
 
-            <span class="text-slate-400">|</span>
+                                <div class="mt-2 flex justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        class="h-8 rounded bg-blue-500 px-3 text-xs font-medium text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                    >
+                                        Edit
+                                    </button>
 
-            <span class="text-slate-500">
-                Date:
-                <b class="text-slate-700">
-                    {{ $rejectRequest->created_at?->format('Y-m-d H:i A') }}
-                </b>
-            </span>
-        </div>
+                                    <form action="/comments/1/delete" method="POST">
+                                        <button
+                                            type="submit"
+                                            class="h-8 rounded bg-red-500 px-3 text-xs font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                                        >
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        --}}
 
-        <div class="grid grid-cols-1 gap-2 md:grid-cols-3 md:items-start">
-            <div>
-                <label class="block font-medium text-slate-500 mb-0.5">RG No</label>
-                <input type="text"
-                    readonly
-                    class="h-8 w-full rounded border border-slate-300 bg-slate-50 px-2 text-sm font-semibold text-slate-700"
-                    value="{{ $receive_good_document->receive_good_files->first()?->file }}">
-            </div>
+                        <div id="comment-box-1" class="mb-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+                            <!-- normal view mode -->
+                            <div id="comment-view-1">
+                                <div class="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                    <strong class="text-sm font-semibold text-slate-800">
+                                        {{ $rejectRequest->user?->name ?? '-' }}
+                                    </strong>
 
-            <div class="md:col-span-2">
-                <label class="block font-medium text-slate-500 mb-0.5">Cancel Remark</label>
-                <div class="min-h-8 rounded border border-slate-300 bg-slate-50 px-2 py-1.5 text-sm text-slate-700">
-                    {{ $rejectRequest->remark }}
-                </div>
-            </div>
-        </div>
+                                    <small class="text-xs text-slate-400">
+                                        {{ $rejectRequest->created_at?->format('Y-m-d, H:i:s A') }}
+                                    </small>
+                                </div>
 
-        <div class="mt-2 flex justify-end gap-2">
-            <button type="submit"
-                form="rg_cancel_request_reject_form"
-                class="h-8 rounded border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 hover:bg-slate-100">
-                Reject
-            </button>
+                                <div id="comment-text-1" class="text-sm leading-5 text-slate-700">
+                                    {{ $rejectRequest->remark }}
+                                </div>
 
-            <button type="submit"
-                form="rg_cancel_request_approve_form"
-                class="h-8 rounded bg-red-500 px-3 text-xs font-medium text-white hover:bg-red-600">
-                Approve
-            </button>
-        </div>
-    </div>
-@endif
-                    <div class="grid grid-cols-1 gap-6 text-sm leading-7 md:grid-cols-3">
+                                @if($manager && $receive_good_document->status !== "Cancel")
+                                <div class="mt-2 flex justify-end gap-2">
+                               
+                                    <button
+                                        type="button"
+                                        class="h-8 rounded bg-slate-500 px-3 text-xs font-medium text-white hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                    >
+                                        Reject
+                                    </button>
 
-                        @if($receive_good_document->rejected_by)
-                            <div class="md:col-span-3">
-                                <div class="relative rounded-lg border border-red-300 bg-red-100 px-4 py-3 text-red-800">
-                                    <p>
-                                        This form was cancelled by
-                                        <span class="font-bold">"{{ $receive_good_document->rejected->name }}"</span>.
-                                    </p>
+                                    <button
+                                        type="submit"
+                                        class="h-8 rounded bg-red-500 px-3 text-xs font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                                    >
+                                        Accept Cancel
+                                    </button>
+                                    
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
-                                    <button type="button"
-                                        class="absolute right-3 top-2 text-red-700 hover:text-red-900"
-                                        aria-label="Close">
-                                        &times;
+
+                    <div class="border-t border-gray-100 bg-neutral-50 p-5">
+                        {{--
+                        <!-- Cancel Request -->
+                        @if($receive_good_document->receive_good_reject)
+                            @php
+                                $rejectRequest = $receive_good_document->receive_good_reject;
+                            @endphp
+
+                            <div class="mt-3 border-t border-slate-200 pt-3 text-xs">
+                                <div class="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <span class="font-bold text-slate-700">
+                                        RG Cancel Request
+                                    </span>
+
+                                    <span class="text-slate-400">|</span>
+
+                                    <span class="text-slate-500">
+                                        Prepared By:
+                                        <b class="text-slate-700">{{ $rejectRequest->user?->name ?? '-' }}</b>
+                                    </span>
+
+                                    <span class="text-slate-400">|</span>
+
+                                    <span class="text-slate-500">
+                                        Date:
+                                        <b class="text-slate-700">
+                                            {{ $rejectRequest->created_at?->format('Y-m-d H:i A') }}
+                                        </b>
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-1 gap-2 md:grid-cols-3 md:items-start">
+                                    <div>
+                                        <label class="block font-medium text-slate-500 mb-0.5">RG No</label>
+                                        <input type="text"
+                                            readonly
+                                            class="h-8 w-full rounded border border-slate-300 bg-slate-50 px-2 text-sm font-semibold text-slate-700"
+                                            value="{{ $receive_good_document->receive_good_files->first()?->file }}">
+                                    </div>
+
+                                    <div class="md:col-span-2">
+                                        <label class="block font-medium text-slate-500 mb-0.5">Cancel Remark</label>
+                                        <div class="min-h-8 rounded border border-slate-300 bg-slate-50 px-2 py-1.5 text-sm text-slate-700">
+                                            {{ $rejectRequest->remark }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-2 flex justify-end gap-2">
+                                    <button type="submit"
+                                        form="rg_cancel_request_reject_form"
+                                        class="h-8 rounded border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 hover:bg-slate-100">
+                                        Reject
+                                    </button>
+
+                                    <button type="submit"
+                                        form="rg_cancel_request_approve_form"
+                                        class="h-8 rounded bg-red-500 px-3 text-xs font-medium text-white hover:bg-red-600">
+                                        Approve
                                     </button>
                                 </div>
                             </div>
                         @endif
+                        --}}
+                        <div class="grid grid-cols-1 gap-6 text-sm leading-7 md:grid-cols-3">
 
-                        {{-- Prepared By --}}
-                        <div class="space-y-1">
-                            <div class="text-gray-600">Prepared By</div>
-                            <div class="font-semibold text-blue-900">{{ $receive_good_document->user->name }}</div>
-                            <div class="font-semibold text-blue-900">({{ $receive_good_document->user->department->name }})</div>
-                            <div class="font-semibold text-blue-900">{{ $receive_good_document->created_at->format('Y-m-d H:i:s A')  }}</div>
+                            @if($receive_good_document->rejected_by)
+                                <div class="md:col-span-3">
+                                    <div class="relative rounded-lg border border-red-300 bg-red-100 px-4 py-3 text-red-800">
+                                        <p>
+                                            This form was cancelled by
+                                            <span class="font-bold">"{{ $receive_good_document->rejected->name }}"</span>.
+                                        </p>
+
+                                        <button type="button"
+                                            class="absolute right-3 top-2 text-red-700 hover:text-red-900"
+                                            aria-label="Close">
+                                            &times;
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Prepared By --}}
+                            <div class="space-y-1">
+                                <div class="text-gray-600">Prepared By</div>
+                                <div class="font-semibold text-blue-900">{{ $receive_good_document->user->name }}</div>
+                                <div class="font-semibold text-blue-900">({{ $receive_good_document->user->department->name }})</div>
+                                <div class="font-semibold text-blue-900">{{ $receive_good_document->created_at->format('Y-m-d H:i:s A')  }}</div>
+                            </div>
+
+                            {{-- Checked By --}}
+                            <!-- <div class="space-y-1">
+                                <div class="text-gray-600">Checked By Category Supervisor</div>
+                                <div class="font-semibold text-blue-900">Daw Hla Hla</div>
+                                <div class="font-semibold text-blue-900">(Inventory Control Department)</div>
+                                <div class="font-semibold text-blue-900">2026-06-10 10:00 AM</div>
+                            </div> -->
+
+                            {{-- Approved By --}}
+                            <!-- <div class="space-y-1">
+                                <div class="text-gray-600">Approved By Merchandising Manager</div>
+                                <div class="font-semibold text-blue-900">U Aung Aung</div>
+                                <div class="font-semibold text-blue-900">(Merchandising Department)</div>
+                                <div class="font-semibold text-blue-900">2026-06-10 10:15 AM</div>
+                            </div> -->
+
                         </div>
-
-                        {{-- Checked By --}}
-                        <!-- <div class="space-y-1">
-                            <div class="text-gray-600">Checked By Category Supervisor</div>
-                            <div class="font-semibold text-blue-900">Daw Hla Hla</div>
-                            <div class="font-semibold text-blue-900">(Inventory Control Department)</div>
-                            <div class="font-semibold text-blue-900">2026-06-10 10:00 AM</div>
-                        </div> -->
-
-                        {{-- Approved By --}}
-                        <!-- <div class="space-y-1">
-                            <div class="text-gray-600">Approved By Merchandising Manager</div>
-                            <div class="font-semibold text-blue-900">U Aung Aung</div>
-                            <div class="font-semibold text-blue-900">(Merchandising Department)</div>
-                            <div class="font-semibold text-blue-900">2026-06-10 10:15 AM</div>
-                        </div> -->
-
+                    
                     </div>
-                 
-                </div>
 
             </div>
         </form>

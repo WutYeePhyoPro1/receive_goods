@@ -4,11 +4,62 @@ namespace App\Http\Controllers;
 
 use App\Models\ReceiveGoodDocument;
 use App\Models\ReceiveGoodReject;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class ReceiveGoodRejectsController extends Controller
 {
     
+    public function index(Request $request)
+    {
+        $docuno =  $request->form_doc_no;
+        $branch = $request->branch_id;
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
+        $user = auth()->user();
+        $user_id = $user->id;
+
+
+        $results = ReceiveGoodReject::query();
+        
+        if ($branch) {
+            $results = $results->where(function ($q) use ($branch) {
+                $q->where('from_branch', $branch);
+            });
+        } 
+
+        $role = Role::where('name','admin')->first();
+        $role_id = $role->id;
+        if($user->role != $role_id){
+            $user_branches = $user->user_branches;
+            $branch_ids = $user_branches->pluck('branch_id');
+            $branch_ids[] = $user->branch_id;
+            // dd($branch_ids);
+
+            $results = $results->whereIn('branch_id',$branch_ids);
+        }
+
+
+        if($start_date || $end_date){
+            $start_date = $request->start_date
+                        ? Carbon::parse($request->start_date)->startOfDay()
+                        : Carbon::createFromTimestamp(0)->startOfDay();
+            $end_date = $request->end_date
+                        ? Carbon::parse($request->end_date)->endOfDay()
+                        : Carbon::today()->endOfDay();
+            $results = $results->whereBetween('created_at', [$start_date , $end_date]);
+        }else{
+            $results->whereDate('created_at','>=',now()->subMonth());
+        }
+
+        $data = $results->orderBy('created_at','desc')->paginate(15);
+        // dd($data);
+
+        return view('receive_good_rejects.index',compact("data"));
+    }
+
     public function store(Request $request)
     {
         // dd($request);
@@ -42,18 +93,17 @@ class ReceiveGoodRejectsController extends Controller
 
         $receive_good_reject = ReceiveGoodReject::findOrFail($id);
 
-        if ($request->status === 'Reject') {
-            $receive_good_reject->delete();
-
-            return back()->with('success', 'RG cancel request rejected successfully.');
-        }
-
         $receive_good_reject->update([
             'approved_user_id' => auth()->id(),
             'approved_datetime' => now(),
+            'status' => $request->status
         ]);
 
-        return back()->with('success', 'RG cancel request approved successfully.');
+        if ($request->status === 'Accept') {
+            // continue to run rg_approve_form 
+        }
+
+        return back()->with('success', "RG cancel request $status successfully.");
     }
 
 }
