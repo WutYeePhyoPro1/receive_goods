@@ -923,6 +923,24 @@ use Spatie\Permission\Models\Role;
         
     }
 
+    function updatePOFull($data, $receive_good_document){
+        $conn = DB::connection('master_product');
+
+        $po_no = $receive_good_document->po_no;
+        $document = $receive_good_document->document;
+
+        $isComplete = true; // After R008, we assume po document is completed and nothing to do more.
+        if($isComplete){
+            $modified = $conn->update("
+                update purchaseorder.po_purchaseorderhd set statusflag='F' where purchaseno='$po_no'; --- when PO full
+            ");
+
+            $document->update(['status'=>'Already RG']);
+        }
+
+        return $modified;
+    }
+
     function updateR008No($data, $r008_document){
         $conn = DB::connection('master_product');
 

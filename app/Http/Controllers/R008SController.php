@@ -145,6 +145,10 @@ class R008SController extends Controller
             $this->r8_document($r008_document_id, $request);
             // // End Auto RG To ERP
 
+            // Start PO Full Update
+            $receive_good_document = $r008_document->receive_good_document();
+            $updated_po_document_count = updatePOFull($request->all(),$receive_good_document);
+            // End PO Full Update
             
             // throw new \Exception("RG Document Update Error: ");
 
