@@ -549,17 +549,24 @@ class ActionController extends Controller
 
             
             // => To Prevent Manual RG in ERP , (cuz we don't know user type rg in ERP)
-            $received_sums = getReceivedSums($purchaseno);
+            $po_histories = collect(getPOHistory($purchaseno));
+            // dd($po_histories);
+            $received_sums = getReceivedSums($purchaseno,$po_histories);
+            $r008_products = $po_histories->whereIn('status_r008',['N','F'])->pluck('product_code')->toArray();
+            // dd($r008_products);
             
             $filtered_products = $products->map(function ($product) use ($received_sums) {
-
                 $price = number_format($product->price, 2, '.', '');
                 $received_qty = $received_sums[$product->bar_code][$price] ?? 0;
                 $product->remaining_qty = $product->qty - $received_qty;
                 return $product;
             })->filter(function ($product) {
                 return $product->remaining_qty > 0;
-            })->values(); // Reset keys
+            })
+            ->filter(function ($product) use($r008_products){
+                return !in_array($product->bar_code,$r008_products);
+            })
+            ->values(); // Reset keys
 
 
             $purchase_orders = collect($purchase_orders);
@@ -699,7 +706,7 @@ class ActionController extends Controller
 
         $rg_products = $receive_good_document
         ->receive_good_products()
-        // ->whereColumn('po_qty', '!=', 'gr_qty')
+        ->whereColumn('po_qty', '!=', 'gr_qty')
         ->get();
         return response()->json([
             'message' => 'success',

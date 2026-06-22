@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\UserBranch;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
     function getAuth()
@@ -756,6 +757,7 @@ use Spatie\Permission\Models\Role;
         $truck_con_no = $r008_document->truck_container_no;
         $product_type = $r008_document->product_type;
 
+        $r_docudate = $r008_document->document_date ?? Carbon::now();
 
         $result = $conn->select("
             INSERT INTO public.r008_branch_reciverhd (
@@ -776,20 +778,20 @@ use Spatie\Permission\Models\Role;
                             case
                             when
                     (
-                            select count(r_docuno) from r008_branch_reciverhd where r_docudate::date = now()::date and r_brchcode='$r_brchcode'
+                            select count(r_docuno) from r008_branch_reciverhd where r_docudate::date = '$r_docudate'::date and r_brchcode='$r_brchcode'
                     ) = 0
                             then
                     (
                             select doc_no||'-0001' as r_docuno from
                     (
                             select replace((select 'R008RG'||(select brchshortname from masterdata.master_branch where brchcode='$r_brchcode')||
-                                (select right((select (now()::date)::text),8)::text)), '-', '') as doc_no
+                                (select right((select ('$r_docudate'::date)::text),8)::text)), '-', '') as doc_no
                         ) aa
                             )
                         else
                         (
-                        select (left((select max(r_docuno) as max_date from r008_branch_reciverhd where r_docudate::date = now()::date and r_brchcode='$r_brchcode'),-3)||
-                        TO_CHAR(((right((select max(r_docuno) as max_date from r008_branch_reciverhd where r_docudate::date = now()::date and r_brchcode='$r_brchcode'),3)::integer +1)), 'fm000')) as doc_no
+                        select (left((select max(r_docuno) as max_date from r008_branch_reciverhd where r_docudate::date = '$r_docudate'::date and r_brchcode='$r_brchcode'),-3)||
+                        TO_CHAR(((right((select max(r_docuno) as max_date from r008_branch_reciverhd where r_docudate::date = '$r_docudate'::date and r_brchcode='$r_brchcode'),3)::integer +1)), 'fm000')) as doc_no
                         )
                 end as r_docuno,
                 2,                        -- r_doc_type(fix)
@@ -800,7 +802,7 @@ use Spatie\Permission\Models\Role;
                 '$remark',                       -- remark(From R008 - remark)
                 '$r_usersave',             		  -- r_usersave (portal)
                 '$r_brchcode',                 -- r_brchcode
-                NOW(),                    -- r_docudate
+                '$r_docudate',                    -- r_docudate
                 '$truck_con_no',                   -- truck_con_no 
                 '$product_type'                  -- product_type (User's Choice)
                 RETURNING *;
@@ -938,7 +940,7 @@ use Spatie\Permission\Models\Role;
     function getPOHistory($po_no){
         $conn = DB::connection('master_product');
         $data = $conn->select("
-            select purchaseno,rg.receive_no,product_code,product_name,approve_quantity,approve_price,dt.approve_amount,receive_quantity
+            select purchaseno,rg.receive_no,product_code,product_name,approve_quantity,approve_price,dt.approve_amount,receive_quantity,status_r008
             from purchaseorder.po_purchaseorderhd po
             inner join purchaseorder.receive_hd rg
             on po.purchaseno=rg.purchase_no
@@ -947,12 +949,14 @@ use Spatie\Permission\Models\Role;
             where receive_status <>'C'
             and purchaseno='$po_no'
         ");
+        Log::info('Get PO History Called.');
         return $data;
     }
 
 
-    function getReceivedSums($po_no){
-        $po_histories = collect(getPOHistory($po_no));
+    function getReceivedSums($po_no,$po_histories_cached=null){
+        
+        $po_histories = $po_histories_cached ? collect($po_histories_cached) : collect(getPOHistory($po_no));
         // dd($po_histories);
 
         // Error: Method Illuminate\Support\Collection::selectRaw does not exist.",…}

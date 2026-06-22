@@ -17,7 +17,7 @@
             </div>
 
             <!-- SEARCH FILTER -->
-            <form action="{{ route('r008s.index') }}" method="GET">
+            <form action="{{ route('receive_good_rejects.index') }}" method="GET">
                 <div class="p-4 border-b border-slate-100 bg-slate-50/40">
 
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">

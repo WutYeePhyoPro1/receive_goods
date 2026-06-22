@@ -365,163 +365,71 @@
                     @php
                         $rejectRequest = $receive_good_document->receive_good_reject;
                     @endphp
-                    <div class="p-4">
-                        <hr class="my-1" />
-                        <h3 class="mb-2 text-sm font-bold text-slate-700 my-2">
-                            RG Cancel Request
-                            @php
-                                $status = strtolower($rejectRequest?->status ?? 'default');
-                            @endphp
-                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] ?? $statusClasses['default'] }}">
-                                {{ $rejectRequest?->status }}
-                            </span>
-                        </h3>
 
-                        {{-- 
-                        <div id="comment-box-1" class="mb-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                            <!-- normal view mode -->
-                            <div id="comment-view-1">
-                                <div class="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                                    <strong class="text-sm font-semibold text-slate-800">
-                                        Mg Mg
-                                    </strong>
+                    <form id="" action="{{ route('receive_good_rejects_approve_form',$rejectRequest->id) }}" method="POST">
+                        @csrf
+                        <div class="p-4">
+                            <hr class="my-1" />
+                            <h3 class="mb-2 text-sm font-bold text-slate-700 my-2">
+                                RG Cancel Request
+                                @php
+                                    $status = strtolower($rejectRequest?->status ?? 'default');
+                                @endphp
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] ?? $statusClasses['default'] }}">
+                                    {{ $rejectRequest?->status }}
+                                </span>
+                            </h3>
 
-                                    <small class="text-xs text-slate-400">
-                                        6/22/2026, 10:25:30 AM
-                                    </small>
-                                </div>
 
-                                <div id="comment-text-1" class="text-sm leading-5 text-slate-700">
-                                    This is a sample comment message. The layout stays clean and readable on mobile.
-                                </div>
+                            <div id="comment-box-1" class="mb-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+                                <!-- normal view mode -->
+                                <div id="comment-view-1">
+                                    <div class="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                        <strong class="text-sm font-semibold text-slate-800">
+                                            {{ $rejectRequest->user?->name ?? '-' }}
+                                        </strong>
 
-                                <div class="mt-2 flex justify-end gap-2">
-                                    <button
-                                        type="button"
-                                        class="h-8 rounded bg-blue-500 px-3 text-xs font-medium text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                                    >
-                                        Edit
-                                    </button>
+                                        <small class="text-xs text-slate-400">
+                                            {{ $rejectRequest->created_at?->format('Y-m-d, H:i:s A') }}
+                                        </small>
+                                    </div>
 
-                                    <form action="/comments/1/delete" method="POST">
+                                    <div id="comment-text-1" class="text-sm leading-5 text-slate-700">
+                                        {{ $rejectRequest->remark }}
+                                    </div>
+
+                                    @if($manager && $receive_good_document->status !== "Cancel" && !in_array($receive_good_document->receive_good_reject->status,['Rejected','Accepted']))
+                                    <div class="mt-2 flex justify-end gap-2">
+                                
                                         <button
                                             type="submit"
-                                            class="h-8 rounded bg-red-500 px-3 text-xs font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                                            name="btn_status"
+                                            value="Rejected"
+                                            class="h-8 rounded bg-slate-500 px-3 text-xs font-medium text-white hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                            onclick = 'approveHandler(event,this)'
                                         >
-                                            Delete
+                                            Reject
                                         </button>
-                                    </form>
+
+                                        <button
+                                            type="submit"
+                                            name="btn_status"
+                                            value="Accepted"
+                                            class="h-8 rounded bg-red-500 px-3 text-xs font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                                            onclick = 'approveHandler(event,this)'
+                                        >
+                                            Accept Cancel
+                                        </button>
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
-                        --}}
-
-                        <div id="comment-box-1" class="mb-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-                            <!-- normal view mode -->
-                            <div id="comment-view-1">
-                                <div class="mb-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                                    <strong class="text-sm font-semibold text-slate-800">
-                                        {{ $rejectRequest->user?->name ?? '-' }}
-                                    </strong>
-
-                                    <small class="text-xs text-slate-400">
-                                        {{ $rejectRequest->created_at?->format('Y-m-d, H:i:s A') }}
-                                    </small>
-                                </div>
-
-                                <div id="comment-text-1" class="text-sm leading-5 text-slate-700">
-                                    {{ $rejectRequest->remark }}
-                                </div>
-
-                                @if($manager && $receive_good_document->status !== "Cancel")
-                                <div class="mt-2 flex justify-end gap-2">
-                               
-                                    <button
-                                        type="button"
-                                        class="h-8 rounded bg-slate-500 px-3 text-xs font-medium text-white hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                                    >
-                                        Reject
-                                    </button>
-
-                                    <button
-                                        type="submit"
-                                        class="h-8 rounded bg-red-500 px-3 text-xs font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300"
-                                    >
-                                        Accept Cancel
-                                    </button>
-                                    
-                                </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                 @endif
 
 
                     <div class="border-t border-gray-100 bg-neutral-50 p-5">
-                        {{--
-                        <!-- Cancel Request -->
-                        @if($receive_good_document->receive_good_reject)
-                            @php
-                                $rejectRequest = $receive_good_document->receive_good_reject;
-                            @endphp
-
-                            <div class="mt-3 border-t border-slate-200 pt-3 text-xs">
-                                <div class="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-                                    <span class="font-bold text-slate-700">
-                                        RG Cancel Request
-                                    </span>
-
-                                    <span class="text-slate-400">|</span>
-
-                                    <span class="text-slate-500">
-                                        Prepared By:
-                                        <b class="text-slate-700">{{ $rejectRequest->user?->name ?? '-' }}</b>
-                                    </span>
-
-                                    <span class="text-slate-400">|</span>
-
-                                    <span class="text-slate-500">
-                                        Date:
-                                        <b class="text-slate-700">
-                                            {{ $rejectRequest->created_at?->format('Y-m-d H:i A') }}
-                                        </b>
-                                    </span>
-                                </div>
-
-                                <div class="grid grid-cols-1 gap-2 md:grid-cols-3 md:items-start">
-                                    <div>
-                                        <label class="block font-medium text-slate-500 mb-0.5">RG No</label>
-                                        <input type="text"
-                                            readonly
-                                            class="h-8 w-full rounded border border-slate-300 bg-slate-50 px-2 text-sm font-semibold text-slate-700"
-                                            value="{{ $receive_good_document->receive_good_files->first()?->file }}">
-                                    </div>
-
-                                    <div class="md:col-span-2">
-                                        <label class="block font-medium text-slate-500 mb-0.5">Cancel Remark</label>
-                                        <div class="min-h-8 rounded border border-slate-300 bg-slate-50 px-2 py-1.5 text-sm text-slate-700">
-                                            {{ $rejectRequest->remark }}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mt-2 flex justify-end gap-2">
-                                    <button type="submit"
-                                        form="rg_cancel_request_reject_form"
-                                        class="h-8 rounded border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 hover:bg-slate-100">
-                                        Reject
-                                    </button>
-
-                                    <button type="submit"
-                                        form="rg_cancel_request_approve_form"
-                                        class="h-8 rounded bg-red-500 px-3 text-xs font-medium text-white hover:bg-red-600">
-                                        Approve
-                                    </button>
-                                </div>
-                            </div>
-                        @endif
-                        --}}
                         <div class="grid grid-cols-1 gap-6 text-sm leading-7 md:grid-cols-3">
 
                             @if($receive_good_document->rejected_by)
@@ -530,6 +438,7 @@
                                         <p>
                                             This form was cancelled by
                                             <span class="font-bold">"{{ $receive_good_document->rejected->name }}"</span>.
+                                            {{ $receive_good_document->rejected_at ? \Carbon\Carbon::parse($receive_good_document->rejected_at)->format('Y-m-d h:i:s A') : '-' }}
                                         </p>
 
                                         <button type="button"
@@ -573,14 +482,9 @@
         </form>
 
         @if($manager && $receive_good_document->receive_good_reject && !$receive_good_document->receive_good_reject->approved_user_id)
-            <form id="rg_cancel_request_approve_form" action="{{ route('receive_good_rejects_approve_form', $receive_good_document->receive_good_reject->id) }}" method="POST" class="hidden">
+            <form id="receive_good_rejects_approve_form" action="{{ route('receive_good_rejects_approve_form', $receive_good_document->receive_good_reject->id) }}" method="POST" class="hidden">
                 @csrf
-                <input type="hidden" name="status" value="Approve">
-            </form>
-
-            <form id="rg_cancel_request_reject_form" action="{{ route('receive_good_rejects_approve_form', $receive_good_document->receive_good_reject->id) }}" method="POST" class="hidden">
-                @csrf
-                <input type="hidden" name="status" value="Reject">
+                <div id="rgreject_btn_status"></div>
             </form>
         @endif
 
@@ -1079,41 +983,70 @@
         });
 
     
-    const cancel_remark = document.querySelector('#cancel_remark');
-    const errormessages = document.querySelector('#errormessages');
-    $(document).on('submit', '#rg_cancel_form', function (e) {
-        e.preventDefault();
+        const cancel_remark = document.querySelector('#cancel_remark');
+        const errormessages = document.querySelector('#errormessages');
+        $(document).on('submit', '#rg_cancel_form', function (e) {
+            e.preventDefault();
 
-        console.log('cancel form submit event attached');
+            console.log('cancel form submit event attached');
 
-        const getinputval = cancel_remark.value.trim();
+            const getinputval = cancel_remark.value.trim();
 
-        if(!getinputval){
-            newErrorMessage('Cancel Remark is required!');
-            return;
+            if(!getinputval){
+                newErrorMessage('Cancel Remark is required!');
+                return;
+            }
+
+            $('#rg_cancel_form').submit();
+        });
+
+        let newErrorMessage = (msg)=>{
+            const div = document.createElement('div');
+            div.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative';
+            div.innerHTML  = `
+                <span class="block sm:inline">${msg}</span>
+                <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                    <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                </span>
+            `;
+            errormessages.appendChild(div);
         }
+        // <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        // <strong class="font-bold">Holy smokes!</strong>
+        // <span class="block sm:inline">Something seriously bad happened.</span>
+        // <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+        //     <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+        // </span>
+        // </div>
 
-        $('#rg_cancel_form').submit();
-    });
+        
+        function approveHandler(e,btn){
 
-    let newErrorMessage = (msg)=>{
-        const div = document.createElement('div');
-        div.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative';
-        div.innerHTML  = `
-            <span class="block sm:inline">${msg}</span>
-            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
-            </span>
-        `;
-        errormessages.appendChild(div);
-    }
-    // <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-    // <strong class="font-bold">Holy smokes!</strong>
-    // <span class="block sm:inline">Something seriously bad happened.</span>
-    // <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-    //     <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
-    // </span>
-    // </div>
+            e.preventDefault();
+
+            const value = btn.value;
+            const text = btn.textContent;
+
+            // console.log(value,text);
+     
+            Swal.fire({
+                icon: "question",
+                text: `Are you sure want to ${text} RG Cancel?`,
+                showCancelButton: true,
+            }).then((result) => {
+                if(result.isConfirmed)
+                {
+
+                    $(".fullloader").removeClass("hidden");
+                    // // Swal.disableButtons();
+                    btn.disabled = true;
+
+                    $('#rgreject_btn_status').append('<input type="hidden" name="status" value="' + value + '" /> ');
+                    
+                    $('#receive_good_rejects_approve_form').submit();
+                }
+            })
+        }
 
         
     </script>

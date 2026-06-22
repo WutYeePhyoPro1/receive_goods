@@ -18,6 +18,7 @@ class ReceiveGoodReject extends Model
         "user_id",
         "approved_user_id",
         "approved_datetime",
+        "status"
     ];
 
     public function user()

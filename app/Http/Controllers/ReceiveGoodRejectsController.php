@@ -23,6 +23,17 @@ class ReceiveGoodRejectsController extends Controller
 
 
         $results = ReceiveGoodReject::query();
+
+        if ($docuno) {
+            $results = $results->where(function ($query) use ($docuno) {
+                $query->orWhereHas('receive_good_document', function ($q) use ($docuno) {
+                    $q->orWhereHas('receive_good_files', function ($q) use ($docuno) {
+                        $q->where('file', 'like', '%' . $docuno . '%');
+                    });
+                });
+                // ->orWhere('remark', 'like', '%' . $docuno . '%');
+            });
+        }
         
         if ($branch) {
             $results = $results->where(function ($q) use ($branch) {
@@ -87,11 +98,13 @@ class ReceiveGoodRejectsController extends Controller
 
     public function approve_form($id, Request $request)
     {
-        $request->validate([
-            'status' => ['required', 'in:Approve,Reject'],
-        ]);
+        // dd($request);
+        // $request->validate([
+        //     'status' => ['required', 'in:Accepted,Rejected'],
+        // ]);
 
         $receive_good_reject = ReceiveGoodReject::findOrFail($id);
+        $status = $request->status;
 
         $receive_good_reject->update([
             'approved_user_id' => auth()->id(),
@@ -99,8 +112,14 @@ class ReceiveGoodRejectsController extends Controller
             'status' => $request->status
         ]);
 
-        if ($request->status === 'Accept') {
+        if ($request->status === 'Accepted') {
             // continue to run rg_approve_form 
+            $receive_good_document = $receive_good_reject->receive_good_document;
+            $cancelRequest = new Request([
+                'status' => 'Cancel',
+            ]);
+            return app(\App\Http\Controllers\userController::class)
+                ->approve_form($receive_good_document->id, $cancelRequest);
         }
 
         return back()->with('success', "RG cancel request $status successfully.");
