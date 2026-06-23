@@ -197,8 +197,11 @@
                                     <label class="block font-medium text-slate-500 mb-0.5">GR By <span class="text-red-600">*</span> <span id="ship_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
                                     <select id="gr_by" name="gr_by" class="w-full h-8 px-2s border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                             <option value="">Choose GR Staff</option>
-                                            @foreach($users as $user)
+                                            {{-- @foreach($users as $user)
                                             <option value="{{ $user->id }}" {{ $user->id == $receive_good_document->gr_by ? 'selected' : '' }}>{{ $user->name }}</option>
+                                            @endforeach --}}
+                                            @foreach($employees as $employee)
+                                            <option value="{{ $employee->employeeid }}" {{ $employee->employeeid == $receive_good_document->gr_by ? 'selected' : '' }}>{{ $employee->employeename }}</option>
                                             @endforeach
                                     </select>
                                 </div>
@@ -555,6 +558,12 @@
     <script type="text/javascript">
         $(document).ready(function() {
 
+            new TomSelect("#gr_by", {
+                selectOnTab: true,
+                dropdownParent: "body",
+                // maxOptions: 6220
+            });
+
             flatpickr("#purchasedate", {
                 dateFormat: "Y-m-d",
                 // minDate: "today",
@@ -598,6 +607,7 @@
         const recieve_id = $('#receive_id').val();
 
         // console.log(formatComma(10000000));
+
 
         $('#po_no').change(function(){
             const getpono = $(this).val();

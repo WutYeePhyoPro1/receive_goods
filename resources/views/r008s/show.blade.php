@@ -5,6 +5,7 @@
       <!-- MAIN CONTENT CONTAINER -->
     @php 
     $manager = isManager($r008_document);
+    $approver = isAuthorizedUser($r008_document);
     @endphp
     <div class="md:w-[80%] pb-16 px-4 pt-4 mx-auto">
         @if (Session::has('fails'))
@@ -287,7 +288,7 @@
                     --}}
                     @endif
 
-                    @if($manager && $r008_document->status !== "Cancel")
+                    @if($approver && $r008_document->status !== "Cancel")
                     <button type="button" id="approveBtn" class="h-9 px-4 rounded-lg bg-red-500 hover:bg-red-700 text-white text-[12px] font-medium shadow-sm" value="Cancel"  name="status"
                     >
                         Cancel
@@ -305,6 +306,7 @@
                                     <p>
                                         This form was cancelled by
                                         <span class="font-bold">"{{ $r008_document->rejected->name }}"</span>.
+                                        {{ $r008_document->rejected_at ? \Carbon\Carbon::parse($r008_document->rejected_at)->format('Y-m-d h:i:s A') : '-' }}
                                     </p>
 
                                     <button type="button"

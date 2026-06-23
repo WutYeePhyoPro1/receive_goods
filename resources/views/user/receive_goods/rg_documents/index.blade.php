@@ -153,7 +153,7 @@
                             </th>
  
                             <th class="px-4 py-3 text-left font-bold">
-                                R8 Doc No
+                                R008 Doc No
                             </th>
 
                         </tr>

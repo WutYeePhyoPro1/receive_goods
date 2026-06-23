@@ -32,8 +32,8 @@ class R008SController extends Controller
         $results = R008Document::query();
         if ($docuno) {
             $results = $results->where(function ($query) use ($docuno) {
-                    $query->where('po_no', 'like', '%' . $docuno . '%')
-                    ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
+                    $query->where('rg_no', 'like', '%' . $docuno . '%')
+                    ->orWhereHas('r008_files', function ($q) use ($docuno) {
                         $q->where('file', 'like', '%' . $docuno . '%');
                     });
                     // ->orWhere('remark', 'like', '%' . $docuno . '%');
@@ -316,7 +316,7 @@ class R008SController extends Controller
                         'rejected_at' => now()
                     ]);
 
-                    $r008_document->receive_good_document()->receive_good_files->where('name','R008')->first()->delete();
+                    $r008_document->receive_good_document()->receive_good_files->where('name','R008')->first()?->delete();
 
                     // Start Update R008 Data to Portal
                     foreach($r008_products as $product){
@@ -326,6 +326,13 @@ class R008SController extends Controller
                                                     'r8damqty' => 0,
                                                 ]);
                     }
+
+                    $receive_good_document = $r008_document->receive_good_document();
+                    $document = $receive_good_document->document;
+                    $document->update(['status'=>'PO Partial']);
+
+
+                    $receive_good_document->update(['r008'=>false]);
                     // End Update R008 Data to Portal
                 }
 

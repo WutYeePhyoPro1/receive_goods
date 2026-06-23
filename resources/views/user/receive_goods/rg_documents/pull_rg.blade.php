@@ -133,8 +133,13 @@
                                     <label class="block font-medium text-slate-500 mb-0.5">GR By <span class="text-red-600">*</span> <span id="gr_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
                                     <select id="gr_by" name="gr_by" class="w-full h-8 px-2s border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                             <option value="">Choose GR Staff</option>
-                                            @foreach($users as $user)
+                                            {{-- @foreach($users as $user)
                                             <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                            @endforeach
+                                            --}}
+
+                                            @foreach($employees as $employee)
+                                            <option value="{{ $employee->employeeid }}">{{ $employee->employeename }}</option>
                                             @endforeach
                                     </select>
                                 </div>
@@ -319,7 +324,8 @@
 
             new TomSelect("#gr_by", {
                 selectOnTab: true,
-                dropdownParent: "body"
+                dropdownParent: "body",
+                // maxOptions: 6220
             });
 
             var token = $("meta[name='__token']").attr('content');

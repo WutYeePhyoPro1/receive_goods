@@ -25,7 +25,7 @@
                         <!-- Document No -->
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
-                                Document No (RG | PO)
+                                Document No (R008 | RG)
                             </label>
 
                             <input

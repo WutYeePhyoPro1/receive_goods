@@ -1027,6 +1027,57 @@ use Spatie\Permission\Models\Role;
         return $isManager;
     }
 
+    // function isAuthorizedUser($data, $roleNames)
+    // {
+    //     $user = auth()->user();
+
+    //     if (!$user) {
+    //         return false;
+    //     }
+
+    //     $roleNames = is_array($roleNames) ? $roleNames : [$roleNames];
+    //     $roleIds = Role::whereIn('name', $roleNames)
+    //         ->pluck('id')
+    //         ->toArray();
+
+    //     $user_branches = $user->user_branches;
+    //     $branch_ids = $user_branches->pluck('branch_id')->toArray();
+    //     $branch_ids[] = $user->branch_id;
+
+    //     $isAuthorizedUser = in_array($user->role, $roleIds)
+    //         && in_array($data->branch_id, $branch_ids);
+
+    //     dd($isAuthorizedUser);
+    //     return $isAuthorizedUser;
+    // }
+
+    function isAuthorizedUser($data, $roleNames = null)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return false;
+        }
+
+        $user_branches = $user->user_branches;
+        $branch_ids = $user_branches->pluck('branch_id')->toArray();
+        $branch_ids[] = $user->branch_id;
+
+        $isBranchAllowed = in_array($data->branch_id, $branch_ids);
+
+        if (!$roleNames) {
+            return $isBranchAllowed;
+        }
+
+        $roleNames = is_array($roleNames) ? $roleNames : [$roleNames];
+
+        $roleIds = Role::whereIn('name', $roleNames)
+            ->pluck('id')
+            ->toArray();
+
+        return in_array($user->role, $roleIds) && $isBranchAllowed;
+    }
+
     function cancelRGDoc($data, $receive_good_document){
         $conn = DB::connection('master_product');
 
@@ -1079,6 +1130,9 @@ use Spatie\Permission\Models\Role;
         $r8_no =  $r008_document->r008_files->first()->file;
         $rg_no = $r008_document->rg_no;
 
+        $receive_good_document = $r008_document->receive_good_document();
+        $po_no = $receive_good_document->po_no;
+
         // $modified = null;
         $modified = $conn->update("
             update public.r008_branch_reciverhd set r_status='5' where r_docuno='$r8_no'
@@ -1089,6 +1143,10 @@ use Spatie\Permission\Models\Role;
             set status_r008='', r008_docuno=''
             where receive_no='$rg_no'
         ");
+
+        $poModified = $masterConn->update("
+            update purchaseorder.po_purchaseorderhd set statusflag='P' where purchaseno='$po_no';
+        "); 
 
         return $modified;
     }

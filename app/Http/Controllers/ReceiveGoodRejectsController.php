@@ -82,6 +82,11 @@ class ReceiveGoodRejectsController extends Controller
         $receive_good_document = ReceiveGoodDocument::findOrFail($receive_good_document_id);
         $user = auth()->user();
 
+        $r008_file = $receive_good_document->receive_good_files->where('name','R008')->first()?->file;
+        if($r008_file){
+            return back()->with('fails', "This RG have R008 '$r008_file'. Please cancel R008 first.");
+        }
+
         $receive_good_reject = ReceiveGoodReject::updateOrCreate(
             [
                 'receive_good_document_id' => $receive_good_document->id,

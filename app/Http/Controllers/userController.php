@@ -392,13 +392,20 @@ class userController extends Controller
         $user = auth()->user();
         $users = $user->getGRBy();
 
+        $employees = $conn->select("
+            SELECT * FROM hremployee.employee
+            ORDER BY employeeid DESC, employeecode DESC, employeename DESC, emptype DESC, empstatus DESC 
+        ");
+        // dd($employees);
+
         return view('user.receive_goods.rg_documents.pull_rg', compact(
             'good_receive',
             'documents',
             'transportations',
             'receives',
             'branches',
-            'users'
+            'users',
+            'employees'
         ));
     }
 
@@ -486,13 +493,19 @@ class userController extends Controller
         $user = auth()->user();
         $users = $user->getGRBy();
 
+        $employees = $conn->select("
+            SELECT * FROM hremployee.employee
+            ORDER BY employeeid DESC, employeecode DESC, employeename DESC, emptype DESC, empstatus DESC 
+        ");
+
         return view('user.receive_goods.rg_documents.detail_rg',compact(
             'receive_good_document',
             'good_receive',
             'documents',
             'transportations',
             'receives',
-            'users'
+            'users',
+            'employees'
         ));
     }
 
@@ -522,12 +535,19 @@ class userController extends Controller
             LIMIT 100
         ");
 
+        $employees = $conn->select("
+            SELECT * FROM hremployee.employee
+            ORDER BY employeeid DESC, employeecode DESC, employeename DESC, emptype DESC, empstatus DESC 
+        ");
+        $employees = collect($employees)->keyBy('employeeid');
+
         view()->share([
             'receive_good_document' => $receive_good_document,
             'good_receive' => $good_receive,
             'documents' => $documents,
             'transportations' => $transportations,
             'receives' => $receives,
+            'employees' => $employees
         ]);
 
         $pdf = Pdf::loadView('user.receive_goods.rg_documents.pdf');
@@ -599,6 +619,9 @@ class userController extends Controller
                         'rejected_by'=> $user_id,
                         'rejected_at' => now()
                     ]);
+
+                    $document = $receive_good_document->document;
+                    $document->update(['status'=>'PO Partial']);
                 }
 
                 // Start RG Cancel In ERP
