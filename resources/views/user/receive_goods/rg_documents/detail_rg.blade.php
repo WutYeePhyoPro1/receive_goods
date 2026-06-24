@@ -201,7 +201,7 @@
                                             <option value="{{ $user->id }}" {{ $user->id == $receive_good_document->gr_by ? 'selected' : '' }}>{{ $user->name }}</option>
                                             @endforeach --}}
                                             @foreach($employees as $employee)
-                                            <option value="{{ $employee->employeeid }}" {{ $employee->employeeid == $receive_good_document->gr_by ? 'selected' : '' }}>{{ $employee->employeename }}</option>
+                                            <option value="{{ $employee->employeeid }}" {{ $employee->employeeid == $receive_good_document->gr_by ? 'selected' : '' }}>{{ $employee->employeename }} . ({{ $employee->employeecode }})</option>
                                             @endforeach
                                     </select>
                                 </div>

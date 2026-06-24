@@ -139,7 +139,7 @@
                                             --}}
 
                                             @foreach($employees as $employee)
-                                            <option value="{{ $employee->employeeid }}">{{ $employee->employeename }}</option>
+                                            <option value="{{ $employee->employeeid }}" class="d-flex justify-content-between">{{ $employee->employeename }} . ({{ $employee->employeecode }})</option>
                                             @endforeach
                                     </select>
                                 </div>
