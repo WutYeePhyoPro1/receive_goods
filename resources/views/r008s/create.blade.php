@@ -196,7 +196,7 @@
                 <div class="flex items-center gap-2 p-4">
 
                     <button type="button" class="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[12px] font-medium"
-                    onclick="window.location.href='{{-- route('receive_goods', $good_receive->id) --}}'"
+                    onclick="window.location.href='{{ route('r008s.index') }}'"
                     >
                         Back
                     </button>
