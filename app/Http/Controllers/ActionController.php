@@ -110,20 +110,21 @@ class ActionController extends Controller
 
             $conn = DB::connection('dc_connection');
             $data = $conn->select("
-            select outbound_docuno,indock_docudate::date as date, vendor_code as frombranch,
+             select outbound_docuno,indock_docudate::date as date, vendor_code as frombranch,
             (select branch_name from master_data.master_branch where branch_code= outbounddoc.vendor_code) as frombranch_name,
             tpdoc.branch_code as Tobranch,
             (select branch_name from  master_data.master_branch where branch_code= tpdoc.branch_code)as Tobranch_name,
             ----,transfer_docuno,
             transfer_out_docno,
-            product_code,product_name,
+            tpdoc.product_code,tpdoc.product_name,
             ---product_quantity,
-            product_quantity_transfer as Qty
+            product_quantity_transfer as Qty,mp.product_unit_code as unit
             ---, product_unit_pack
             --* ---docid,outboundid, TPdocno, productcode,
             from global_logistics.outbound_logistic as outbounddoc
             left join global_logistics.outbound_import as tpdoc
             on outbounddoc.outbound_id= tpdoc.outbound_id
+			left join master_data.master_product mp on tpdoc.product_code=mp.product_code
             where outbound_docuno in ('$val')-- and transfer_out_docno ilike 'PO%
 				and tpdoc.branch_code='$user_brch'
             Union all
@@ -133,7 +134,7 @@ class ActionController extends Controller
             --- aa.barcode_pallet_docuno,
                 aa.branch_code::text AS Tobranch,
                 (select branch_name from  master_data.master_branch where branch_code= aa.branch_code)as Tobranch_name,
-                    bb.poinvoiceno as transfer_out_docno,po.product_code,product_name1 as product_name,product_quantity as qty
+                    bb.poinvoiceno as transfer_out_docno,po.product_code,product_name1 as product_name,product_quantity as qty,prod.product_unit_code
             FROM global_logistics.outbound_domestic aa
                 LEFT JOIN global_logistics.inbound_onetime_barcode bb ON aa.barcode_pallet_docuno::text = bb.barcodepallet_docuno::text AND aa.onetime_barcode::text = bb.onetime_barcode::text
                 LEFT JOIN master_data.master_branch br ON aa.branch_code::text = br.branch_code::text
@@ -143,7 +144,6 @@ class ActionController extends Controller
 				po.product_code= prod.product_code
                 where x.outbound_docuno in ('$val')
 				and aa.branch_code::text='$user_brch'
-				--and prod.product_code='0404016017006'
                 order by transfer_out_docno
             ");
 
