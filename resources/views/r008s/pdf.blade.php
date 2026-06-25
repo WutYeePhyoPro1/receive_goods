@@ -217,10 +217,10 @@
             <td class="text-right">{{ $product->physical_qty }}</td>
             <td class="text-right">{{ $product->diff }}</td>
 
-            <td class="text-right">0</td>
-            <td class="text-right">0</td>
+            <td class="text-right">{{ $product->bdqty }}</td>
+            <td class="text-right">{{ $product->sdqty }}</td>
 
-            <td></td>
+            <td>{{ $product->remark }}</td>
         </tr> 
         @endforeach
 

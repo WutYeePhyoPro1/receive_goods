@@ -291,7 +291,7 @@
                 <td>{{ $product->product_name }}</td>
                 <td>{{ $product->unit }}</td>
                 <td class="qty text-right">{{ $product->gr_qty }}</td>
-                <td></td>
+                <td>{{ $product->remark }}</td>
             </tr>
         @endforeach
 
