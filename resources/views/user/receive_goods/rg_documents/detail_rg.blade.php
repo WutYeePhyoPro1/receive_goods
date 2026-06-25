@@ -373,7 +373,8 @@
                         @csrf
                         <div class="p-4">
                             <hr class="my-1" />
-                            <h3 class="mb-2 text-sm font-bold text-slate-700 my-2">
+                            <h3 class="flex items-center gap-2 text-sm font-bold text-red-700 mb-2 my-2">
+                                <i class='bx bx-block text-red-500 text-base'></i> 
                                 RG Cancel Request
                                 @php
                                     $status = strtolower($rejectRequest?->status ?? 'default');
@@ -397,7 +398,7 @@
                                         </small>
                                     </div>
 
-                                    <div id="comment-text-1" class="text-sm leading-5 text-slate-700">
+                                    <div id="comment-text-1" class="text-sm leading-5 text-red-700">
                                         {{ $rejectRequest->remark }}
                                     </div>
 

@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
             'po partial' => 'bg-blue-100 text-blue-800',
             'cancel' => 'bg-red-100 text-red-800',
             'default' => 'bg-gray-100 text-gray-800',
+            'accepted' => 'bg-amber-100 text-amber-800',
+            'rejected' => 'bg-violet-100 text-violet-800',
+            'pending mgr review' => 'bg-rose-100 text-rose-800',
         ]);
 
         View::composer('*',function($view){
