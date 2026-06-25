@@ -9,8 +9,8 @@
         }
 
         body {
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 10px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
             color: #000;
             margin: 0;
             padding: 0;
@@ -64,14 +64,15 @@
             vertical-align: top;
         }
 
-        .label {
+        /* .label {
             width: 90px;
             white-space: nowrap;
         }
+        */
 
         .value {
             padding-left: 3px;
-        }
+        } 
 
         .product-table {
             margin-top: 8px;
@@ -199,11 +200,11 @@
 <table class="detail-table">
 
     <tr>
-        <td class="label">Vendor Code</td>
-        <td class="value">: {{ $receive_good_document->vendor_code }}</td>
+        <td class="label" width="15%">Vendor Code</td>
+        <td class="value" width="45%">: {{ $receive_good_document->vendor_code }}</td>
 
-        <td class="label">Doc.No.</td>
-        <td class="value">: {{ $receive_good_document->receive_good_files->first()->file }}</td>
+        <td class="label" width="15%">Doc.No.</td>
+        <td class="value" width="25%">: {{ $receive_good_document->receive_good_files->first()->file }}</td>
     </tr>
 
     <tr>
