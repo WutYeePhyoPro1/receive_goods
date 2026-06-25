@@ -17,6 +17,7 @@ class ReceiveGoodRejectsController extends Controller
         $branch = $request->branch_id;
         $start_date = $request->start_date;
         $end_date = $request->end_date;
+        $status = $request->status;
 
         $user = auth()->user();
         $user_id = $user->id;
@@ -40,6 +41,10 @@ class ReceiveGoodRejectsController extends Controller
                 $q->where('from_branch', $branch);
             });
         } 
+
+        if($status){
+            $results = $results->where('status',$status);
+        }
 
         $role = Role::where('name','admin')->first();
         $role_id = $role->id;

@@ -72,6 +72,7 @@
                         </div>
 
                         <!-- Branch -->
+                         {{-- 
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                                 Branch
@@ -96,6 +97,37 @@
                                         rounded-lg text-[13px] text-slate-500 cursor-not-allowed"
                                 > -->
 
+                                <button
+                                    type="submit"
+                                    class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-amber-600
+                                        text-white text-[12px] font-semibold shadow-sm
+                                        whitespace-nowrap transition"
+                                >
+                                    Search
+                                </button>
+
+                            </div>
+                        </div>
+                         --}}
+
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                                Status
+                            </label>
+
+                            <div class="flex gap-2">
+
+                                <select
+                                    name="status"
+                                    class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
+                                    focus:outline-none focus:ring-2 focus:ring-amber-400/30
+                                    focus:border-amber-500 bg-white"
+                                >
+                                    <option value="" selected disabled>Choose Status</option>
+                                    <option value="Pending Mgr Review">Pending Mgr Review</option>
+                                    <option value="Accepted">Accepted</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
                                 <button
                                     type="submit"
                                     class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-amber-600
@@ -174,17 +206,23 @@
                                 >
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
-
                             </td>
 
                             <td class="px-4 py-3">
-
                                 @php
                                     $status = strtolower($item->status ?? 'Default');
                                 @endphp
                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4s {{ $statusClasses[$status] ??  $statusClasses['default']}}">
                                     {{ $item->status }}
                                 </span>
+
+                                @if($status == 'pending mgr review')
+                                    <svg class="inline text-rose-800"  xmlns="http://www.w3.org/2000/svg" width="18" height="18"  
+                                    fill="currentColor" viewBox="0 0 24 24" >
+                                    <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
+                                    <path d="M8 11a1 1 0 1 0 0 2 1 1 0 1 0 0-2m4 0a1 1 0 1 0 0 2 1 1 0 1 0 0-2m4 0a1 1 0 1 0 0 2 1 1 0 1 0 0-2"></path><path d="M12 2C6.49 2 2 6.49 2 12c0 2.12.68 4.19 1.93 5.9l-1.75 2.53c-.21.31-.24.7-.06 1.03.17.33.51.54.89.54h9c5.51 0 10-4.49 10-10S17.51 2 12 2m0 18H4.91L6 18.43c.26-.37.23-.88-.06-1.22A7.98 7.98 0 0 1 4.01 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8Z"></path>
+                                    </svg>
+                                @endif
                             </td>
 
                             <td class="px-4 py-3">
