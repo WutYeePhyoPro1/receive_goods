@@ -6,8 +6,8 @@
 
     <style>
         body{
-            font-family: DejaVu Sans, sans-serif;
-            font-size:10px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
             color:#000;
         }
 

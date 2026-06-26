@@ -533,19 +533,86 @@
     })
 </script>
 <script type="text/javascript">
+    // function copyDocumentNo(button, targetId) {
+    //     const text = targetId.trim();
+    //         const icon = button.children[0];
+
+
+    //     navigator.clipboard.writeText(text).then(() => {
+    //         // icon.className = 'fa-solid fa-check text-green-600';
+    //         $(icon).html('<i class="fa-solid fa-check text-green-600"></i>');
+
+    //         setTimeout(() => {
+    //             $(icon).html('<i class="fa-regular fa-copy"></i>');
+    //         }, 1500);
+    //     });
+    // }
+
+    // function copyDocumentNo(button, targetId) {
+    //     const text = String(targetId || '').trim();
+    //     const icon = button.querySelector('i');
+
+    //     function copied() {
+    //         icon.className = 'fa-solid fa-check text-green-600';
+
+    //         setTimeout(() => {
+    //             icon.className = 'fa-regular fa-copy';
+    //         }, 1500);
+    //     }
+
+    //     if (navigator.clipboard && window.isSecureContext) {
+    //         navigator.clipboard.writeText(text).then(copied);
+    //         return;
+    //     }
+
+    //     const textarea = document.createElement('textarea');
+    //     textarea.value = text;
+    //     textarea.style.position = 'fixed';
+    //     textarea.style.left = '-9999px';
+    //     textarea.style.top = '-9999px';
+
+    //     document.body.appendChild(textarea);
+    //     textarea.focus();
+    //     textarea.select();
+
+    //     document.execCommand('copy');
+    //     document.body.removeChild(textarea);
+
+    //     copied();
+    // }
+
+
     function copyDocumentNo(button, targetId) {
-        const text = targetId.trim();
-            const icon = button.children[0];
+        const text = String(targetId || '').trim();
+        const icon = button.children[0];
 
-
-        navigator.clipboard.writeText(text).then(() => {
-            // icon.className = 'fa-solid fa-check text-green-600';
+        function copied() {
             $(icon).html('<i class="fa-solid fa-check text-green-600"></i>');
 
             setTimeout(() => {
                 $(icon).html('<i class="fa-regular fa-copy"></i>');
             }, 1500);
-        });
+        }
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(copied);
+            return;
+        }
+
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '-9999px';
+
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        copied();
     }
 </script>
 @stack('js')
