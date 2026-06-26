@@ -26,6 +26,7 @@ use App\Models\UserBranch;
 use App\Repositories\ActionRepository;
 use App\Repositories\UserRepository;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as MPDF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -550,7 +551,7 @@ class userController extends Controller
             'employees' => $employees
         ]);
 
-        $pdf = Pdf::loadView('user.receive_goods.rg_documents.pdf');
+        $pdf = MPDF::loadView('user.receive_goods.rg_documents.pdf');
 
         // return $pdf->download('invoice.pdf');
         return $pdf->stream('rg.pdf');

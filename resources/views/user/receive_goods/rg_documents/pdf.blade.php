@@ -146,6 +146,10 @@
             margin: 0px 20px;
             padding: 0px 40px;
         }
+
+        .myanmarfonts{
+            font-family: Tharlon, sans-serif !important;
+        }
     </style>
 </head>
 <body>
@@ -230,7 +234,7 @@
         <td class="value">: {{ $receive_good_document?->vendor?->vendor_ph }}</td>
 
         <td class="label">Delivery Note</td>
-        <td class="value">: {{ $receive_good_document->delivery_note }}</td>
+        <td class="value myanmarfonts">: {{ $receive_good_document->delivery_note }}</td>
     </tr>
 
     <tr>
@@ -292,7 +296,7 @@
                 <td>{{ $product->product_name }}</td>
                 <td>{{ $product->unit }}</td>
                 <td class="qty text-right">{{ $product->gr_qty }}</td>
-                <td>{{ $product->remark }}</td>
+                <td class="myanmarfonts">{{ $product->remark }}</td>
             </tr>
         @endforeach
 
@@ -314,7 +318,7 @@
 
 {{-- REMARK --}}
 <div class="remark-section">
-    <span class="remark-title">Remark :</span>
+    <span class="remark-title myanmarfonts">Remark :</span>
 
         {{ $receive_good_document->remark }}
 </div>
