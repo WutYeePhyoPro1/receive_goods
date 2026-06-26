@@ -317,8 +317,8 @@
 </table>
 
 {{-- REMARK --}}
-<div class="remark-section">
-    <span class="remark-title myanmarfonts">Remark :</span>
+<div class="remark-section myanmarfonts">
+    <span class="remark-title">Remark :</span>
 
         {{ $receive_good_document->remark }}
 </div>

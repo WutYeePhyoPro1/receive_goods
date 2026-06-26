@@ -65,6 +65,10 @@
         .footer{
             margin-top:15px;
         }
+
+        .myanmarfonts{
+            font-family: Tharlon, sans-serif !important;
+        }
     </style>
 </head>
 <body>
@@ -220,7 +224,7 @@
             <td class="text-right">{{ $product->bdqty }}</td>
             <td class="text-right">{{ $product->sdqty }}</td>
 
-            <td>{{ $product->remark }}</td>
+            <td class="myanmarfonts">{{ $product->remark }}</td>
         </tr> 
         @endforeach
 
@@ -228,7 +232,7 @@
 </table>
 
 {{-- Remark --}}
-<div class="remark-box mt-20">
+<div class="remark-box mt-20 myanmarfonts">
     <strong style="display: inline-block;margin-right: 50px;">Remark</strong>
 
     {{ $r008_document->remark }}
