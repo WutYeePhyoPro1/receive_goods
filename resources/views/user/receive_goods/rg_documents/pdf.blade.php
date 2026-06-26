@@ -312,6 +312,20 @@
             <td></td>
         </tr>
 
+        @php 
+            $products = $receive_good_document->receive_good_products;
+        @endphp
+        @for ($i = $products->count(); $i < 30; $i++)
+            <tr class="empty-row">
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+        @endfor
+
     </tbody>
 
 </table>

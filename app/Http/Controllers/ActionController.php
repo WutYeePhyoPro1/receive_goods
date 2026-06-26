@@ -532,7 +532,7 @@ class ActionController extends Controller
             //             ->orderBy('id','desc')
             //             ->get();
             $products = PurchaseOrderItem::where('document_id',$document->id)
-                        ->orderBy('id','desc')
+                        ->orderBy('id','asc')
                         ->get();
 
             // => Only know RG from portal
