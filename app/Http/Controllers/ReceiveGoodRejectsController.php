@@ -116,21 +116,33 @@ class ReceiveGoodRejectsController extends Controller
         $receive_good_reject = ReceiveGoodReject::findOrFail($id);
         $status = $request->status;
 
-        $receive_good_reject->update([
-            'approved_user_id' => auth()->id(),
-            'approved_datetime' => now(),
-            'status' => $request->status
-        ]);
-
         if ($request->status === 'Accepted') {
             // continue to run rg_approve_form 
             $receive_good_document = $receive_good_reject->receive_good_document;
             $cancelRequest = new Request([
                 'status' => 'Cancel',
             ]);
-            return app(\App\Http\Controllers\userController::class)
+            $response = app(\App\Http\Controllers\userController::class)
                 ->approve_form($receive_good_document->id, $cancelRequest);
+
+            if ($response->getSession()?->has('fails')) {
+                return $response;
+            }
+
+            // $receive_good_reject->update([
+            //     'approved_user_id' => auth()->id(),
+            //     'approved_datetime' => now(),
+            //     'status' => $request->status
+            // ]);
+
+            // return $response->with('success', "RG cancel request $status successfully.");
         }
+
+        $receive_good_reject->update([
+            'approved_user_id' => auth()->id(),
+            'approved_datetime' => now(),
+            'status' => $request->status
+        ]);
 
         return back()->with('success', "RG cancel request $status successfully.");
     }

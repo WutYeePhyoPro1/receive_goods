@@ -3,6 +3,42 @@
 @section('content')
 
     <div class="md:w-[100%] mx-auto px-4 pt-4 pb-10">
+        @if (Session::has('fails'))
+            <div class="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 shadow-sm" role="alert">
+                <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                    <i class="fa-solid fa-circle-exclamation text-sm"></i>
+                </div>
+                <div class="flex-1 text-sm font-medium">
+                    {{ Session::get('fails') }}
+                </div>
+                <button
+                    type="button"
+                    class="text-red-400 hover:text-red-600"
+                    onclick="this.closest('[role=alert]').remove()"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        @endif
+
+        @if (Session::has('success'))
+            <div class="mb-4 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-700 shadow-sm" role="alert">
+                <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600">
+                    <i class="fa-solid fa-circle-check text-sm"></i>
+                </div>
+                <div class="flex-1 text-sm font-medium">
+                    {{ Session::get('success') }}
+                </div>
+                <button
+                    type="button"
+                    class="text-green-400 hover:text-green-600"
+                    onclick="this.closest('[role=alert]').remove()"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        @endif
+
         <!-- PAGE CARD -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 

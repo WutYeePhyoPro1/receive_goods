@@ -605,6 +605,9 @@ class userController extends Controller
                     // dd($vc_invoice);
                     $vcdocuno = $vc_invoice->vcdocuno;
 
+                    DB::rollBack();
+                    DB::connection('master_product')->rollBack();
+
                     return back()->with('fails', "This RG have VC Invoice '$vcdocuno'. Please cancel VC Invoice first.");
                 }else{  
                     // dd('do not has vc');
