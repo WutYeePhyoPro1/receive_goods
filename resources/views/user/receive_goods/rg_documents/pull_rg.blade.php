@@ -83,7 +83,9 @@
                                         focus:outline-none"
                                 >
                                     @foreach($branches as $branch)
-                                        <option value="{{ $branch->id }}" {{ $branch->id == $userdata->branch->id  ? "selected" : "" }}>{{ $branch->branch_name }}</option>
+                                        <option value="{{ $branch->id }}" {{ $branch->id == $userdata->branch->id  ? "selected" : "" }}
+                                        data-short-name="{{ $branch->branch_short_name }}"
+                                        >{{ $branch->branch_name }}</option>
                                     @endforeach
                                 </select>
                         </div>
@@ -594,10 +596,21 @@
                 if (isSubmitting) return;
 
                 if(validateForm() || false){
+                    let form_doc_date = $('#form_doc_date').val();
+                    let branch_short_name = $('#branch_id option:selected').data('short-name');
+                    console.log(form_doc_date,branch_short_name);
+                    let today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    let docDate = new Date(form_doc_date);
+                    docDate.setHours(0, 0, 0, 0);
+
+                    let isBackDate = docDate < today; // Supplier Direct
 
                     Swal.fire({
                         icon: "question",
-                        text: "Are you sure to save RG to ERP?",
+                        title: "Are you sure to save RG to ERP?",
+                        text: `Branch: ${branch_short_name} | Date: ${form_doc_date} ${isBackDate ? "(Back-Date)" : ''}`,
                         showCancelButton: true,
                     }).then((result) => {
                         if(result.isConfirmed)

@@ -129,6 +129,7 @@
                             <option value="document_no" {{ request('search')=='document_no' ? 'selected' : '' }}>Document No</option>
                             <option value="truck_no" {{ request('search')=='truck_no' ? 'selected' : '' }}>Truck No</option>
                             <option value="driver_name" {{ request('search')=='driver_name' ? 'selected' : '' }}>Driver_name</option>
+                            <option value="docu_dt" {{ request('search')=='docu_dt' ? 'selected' : '' }}>PO/POI/TO</option>
                         </Select>
                     </div>
 

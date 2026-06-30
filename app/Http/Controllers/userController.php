@@ -127,7 +127,13 @@ class userController extends Controller
             ->when(request('search') == 'document_no' && request('search_data'), function($q) {
                 $q->where('document_no', request('search_data'));
             })
-            ->when(request('search') != 'document_no' && request('search_data'), function($q) use($ids) {
+            ->when(request('search') == 'docu_dt' && request('search_data'), function ($q) {
+                $q->whereHas('documentdts', function ($query) {
+                    // $query->where('document_no', request('search_data'));
+                    $query->where('document_no', 'like', '%' . request('search_data') . '%');
+                });
+            })
+            ->when(request('search') != 'document_no' && request('search_data') && request('search') != 'docu_dt', function($q) use($ids) {
                 $q->whereIn('id', $ids);
             })
             ->when(request('branch'), function($q) {
@@ -148,7 +154,7 @@ class userController extends Controller
             ->when($loc == 'other', function($q) use($user_branch) {
                 $q->where('branch_id', $user_branch);
             })
-            ->whereNotNull('status')
+            // ->whereNotNull('status')
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 

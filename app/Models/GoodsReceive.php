@@ -35,5 +35,10 @@ class GoodsReceive extends Model
     //     return $this->hasMany(Document::class, 'received_goods_id');
     // }
 
+    public function documentdts()
+    {
+        return $this->hasMany(Document::class, 'received_goods_id', 'id');
+    }
+
 
 }
