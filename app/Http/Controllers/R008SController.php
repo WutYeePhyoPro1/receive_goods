@@ -8,6 +8,7 @@ use App\Models\R008Product;
 use App\Models\ReceiveGoodDocument;
 use App\Models\ReceiveGoodFile;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as MPDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -281,7 +282,7 @@ class R008SController extends Controller
         ");
 
         view()->share(['r008_document' => $r008_document, 'statuses' => $statuses]);
-        $pdf = Pdf::loadView('r008s.pdf');
+        $pdf = MPDF::loadView('r008s.pdf');
 
         // return $pdf->download('invoice.pdf');
         return $pdf->stream('r008.pdf');

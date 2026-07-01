@@ -236,6 +236,7 @@
     <strong style="display: inline-block;margin-right: 50px;">Remark</strong>
 
     {{ $r008_document->remark }}
+    <!-- မြန်မာစာစမ်းသပ်ခြင်း -->
 
     <!-- <div style="margin-top:10px;">
         BAHOINV-006565
