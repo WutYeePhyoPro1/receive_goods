@@ -76,7 +76,20 @@
 
         .product-table {
             margin-top: 8px;
-            min-height: 600px;
+            page-break-inside: auto;
+        }
+
+        .product-table thead {
+            display: table-header-group;
+        }
+
+        .product-table tfoot {
+            display: table-row-group;
+        }
+
+        .product-table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
 
         .product-table th {
@@ -99,6 +112,12 @@
             border-top: 1px solid #000;
             font-weight: bold;
             padding-top: 5px;
+        }
+
+        .spacer-row td {
+            padding: 0;
+            line-height: 0;
+            font-size: 0;
         }
 
         .remark-section {
@@ -135,6 +154,10 @@
 
         .footer {
             margin-top: 10px;
+        }
+
+        .footer-block {
+            page-break-inside: avoid;
         }
 
         .footer td {
@@ -191,7 +214,7 @@
         </td>
 
         <td width="15%" class="text-right">
-            Page 1/1
+            Page {PAGENO}/{nbpg}
         </td>
     </tr>
 </table>
@@ -222,7 +245,8 @@
     <tr>
         <td class="label">Address</td>
         <td class="value">
-            : {{ $receive_good_document?->vendor?->vendor_address }}
+            : {{ $receive_good_document?->vendor?->vendor_address }}  
+            <!-- Lorem Ipsum is simply dummy text of the printing and typesetting industry. -->
         </td>
 
         <td class="label">PO No.</td>
@@ -256,6 +280,15 @@
 </table>
 
 {{-- PRODUCT TABLE --}}
+@php
+    $products = $receive_good_document->receive_good_products;
+    $rowsPerPage = 25;
+    $productCount = $products->count();
+    $lastPageRows = $productCount % $rowsPerPage;
+    $lastPageRows = $lastPageRows === 0 && $productCount > 0 ? $rowsPerPage : $lastPageRows;
+    $emptyRows = max(0, $rowsPerPage - $lastPageRows);
+    $spacerHeight = $emptyRows * 18;
+@endphp
 <table class="product-table">
 
     <thead>
@@ -289,7 +322,7 @@
             <td></td>
         </tr> -->
 
-        @foreach($receive_good_document->receive_good_products as $idx=>$product)
+        @foreach($products as $idx=>$product)
             <tr>
                 <td>{{ ++$idx }}</td>
                 <td>{{ $product->product_code }}</td>
@@ -306,90 +339,84 @@
             </td>
 
             <td class="qty">
-                {{ $receive_good_document->receive_good_products->sum('gr_qty') }}
+                {{ $products->sum('gr_qty') }}
             </td>
 
             <td></td>
         </tr>
 
-        @php 
-            $products = $receive_good_document->receive_good_products;
-        @endphp
-        @for ($i = $products->count(); $i < 30; $i++)
-            <tr class="empty-row">
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
+        @if($spacerHeight > 0)
+            <tr class="spacer-row">
+                <td colspan="6" style="height: {{ $spacerHeight }}px;">&nbsp;</td>
             </tr>
-        @endfor
+        @endif
 
     </tbody>
 
 </table>
 
-{{-- REMARK --}}
-<div class="remark-section myanmarfonts">
-    <span class="remark-title">Remark :</span>
+<div class="footer-block">
+    {{-- REMARK --}}
+    <div class="remark-section myanmarfonts">
+        <span class="remark-title">Remark :</span>
 
-        {{ $receive_good_document->remark }}
-</div>
+            {{ $receive_good_document->remark }}
+    </div>
 
-{{-- SIGNATURE --}}
-<table class="signature-table">
+    {{-- SIGNATURE --}}
+    <table class="signature-table">
 
-    <tr>
-        <td class="bold">Record By</td>
-        <td class="bold">Received By</td>
-        <td class="bold">Checked By</td>
-    </tr>
+        <tr>
+            <td class="bold">Record By</td>
+            <td class="bold">Received By</td>
+            <td class="bold">Checked By</td>
+        </tr>
 
-    <tr>
-        <td><span  class="user-label">{{ $receive_good_document->user->name }}</span></td>
+        <tr>
+            <td><span  class="user-label">{{ $receive_good_document->user->name }}</span></td>
 
-        @php
-            $grByEmployee = $employees->get($receive_good_document->gr_by);
-        @endphp
-        @if($grByEmployee?->employeename)
-            <td><span class="user-label">{{ $grByEmployee?->employeename }}</span></td>
-        @else
+            @php
+                $grByEmployee = $employees->get($receive_good_document->gr_by);
+            @endphp
+            @if($grByEmployee?->employeename)
+                <td><span class="user-label">{{ $grByEmployee?->employeename }}</span></td>
+            @else
+                <td>.........,..........,.........,.........</td>
+            @endif
+
             <td>.........,..........,.........,.........</td>
-        @endif
+        </tr>
 
-        <td>.........,..........,.........,.........</td>
-    </tr>
+        <tr>
+            <td class="signature-line">
+                ........./........../.........
+            </td>
 
-    <tr>
-        <td class="signature-line">
-            ........./........../.........
-        </td>
+            <td class="signature-line">
+                ........./........../.........
+            </td>
 
-        <td class="signature-line">
-            ........./........../.........
-        </td>
+            <td class="signature-line">
+                ........./........../.........
+            </td>
+        </tr>
 
-        <td class="signature-line">
-            ........./........../.........
-        </td>
-    </tr>
+    </table>
 
-</table>
+    {{-- FOOTER --}}
+    <table class="footer text-right">
+        <tr>
+            <td width="33%"></td>
 
-{{-- FOOTER --}}
-<table class="footer text-right">
-    <tr>
-        <td width="33%"></td>
-
-        <td width="33%" >
-            Print by : {{ $userdata->name }}<brs>
-        </td>
-        <td width="33%">
-            {{ now() }}
-        </td>
-    </tr>
-</table>
+            <td width="33%" >
+                Print by : {{ $userdata->name }}<brs>
+            </td>
+            <td width="33%">
+                {{ now() }}
+            </td>
+        </tr>
+    </table>
+</div>
 
 
 </body>
