@@ -517,6 +517,7 @@ use Spatie\Permission\Models\Role;
             and statusflag in ('P','Y') 
             $brch_con
             and purchaseno= '$val'
+            order by listno
         ");
         // dd($data);
         return $data;

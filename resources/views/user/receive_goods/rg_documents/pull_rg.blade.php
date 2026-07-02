@@ -46,7 +46,10 @@
 
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Document Date<span class="text-red-600">*</span></label>
-                            <input name="form_doc_date" id="form_doc_date" type="date" class="w-full h-8 px-2 bg-slate-50s border border-slate-300 rounded focus:outline-none focus:border-amber-500">
+                            <input name="form_doc_date" id="form_doc_date" type="date" class="w-full h-8 px-2 bg-slate-50s border border-slate-300 rounded focus:outline-none focus:border-amber-500" 
+                            value="{{ old('form_doc_date',$gettoday) }}"
+                            min="{{ now()->startOfMonth()->format('Y-m-d') }}"
+                            >
                         </div>
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Vendor Code <span class="text-red-600">*</span></label>
@@ -289,21 +292,28 @@
                 maxDate: new Date().fp_incr(30)
             });
 
-            flatpickr("#form_doc_date", {
+            const formDocDatePicker = flatpickr("#form_doc_date", {
                 dateFormat: "Y-m-d",
                 // minDate: "today",
+                minDate: new Date('{{ now()->startOfMonth()->format('Y-m-d') }}'),
                 maxDate: new Date().fp_incr(30)
             });
 
-            (async function setDocumentDate(){
-                const data = await fetch('/api/server-time').then(res => res.json());
-                const now = new Date(data.time);
+            // (async function setDocumentDate(){
+            //     const data = await fetch('/api/server-time').then(res => res.json());
+            //     const now = new Date(data.time);
 
-                const todayString = now.toISOString().slice(0,10);
-                console.log(todayString);
+            //     const todayString = now.toISOString().slice(0,10);
+            //     console.log(todayString);
 
-                $('#form_doc_date').val(todayString)
-            })();
+
+            //     // Start Setting Min Date
+            //     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            //     formDocDatePicker.set("minDate", firstDayOfMonth);
+            //     // End Setting Min Date
+
+            //     $('#form_doc_date').val(todayString)
+            // })();
 
             var deliveryDatePicker = flatpickr("#delivery_date", {
                 defaultDate: new Date(),

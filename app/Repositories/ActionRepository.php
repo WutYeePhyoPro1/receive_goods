@@ -242,8 +242,8 @@ Class ActionRepository implements ActionRepositoryInterface
                 Vendor::create([
                     'vendor_code'   => $ven_info->vendor_code,
                     'vendor_name'   => $ven_info->vendor_name,
-                    'vendor_address'=> $ven_info->vendor_addr,
-                    'vendor_ph'     => $ven_info->vendor_conttel
+                    'vendor_address'=> $ven_info->vendor_addr ?? '',
+                    'vendor_ph'     => $ven_info->vendor_conttel ?? ''
                 ]);
             }
         }

@@ -405,6 +405,7 @@ class userController extends Controller
         ");
         // dd($employees);
 
+        $gettoday = Carbon::today()->format("Y-m-d");
         return view('user.receive_goods.rg_documents.pull_rg', compact(
             'good_receive',
             'documents',
@@ -412,7 +413,8 @@ class userController extends Controller
             'receives',
             'branches',
             'users',
-            'employees'
+            'employees',
+            'gettoday'
         ));
     }
 
