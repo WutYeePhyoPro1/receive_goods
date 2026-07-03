@@ -86,6 +86,9 @@
                                     focus:border-amber-500 bg-white"
                                 >
                                     <option value="" selected disabled>Choose User Branch</option>
+                                    @foreach($assigned_branches as $branch)
+                                        <option value="{{ $branch->id }}" {{ request()->get('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->branch_name }}</option>
+                                    @endforeach
                                 </select>
 
                                 <!-- <input
@@ -105,6 +108,15 @@
                                     Search
                                 </button>
 
+                                @if(request()->query())
+                                    <a href="{{ url()->current() }}"
+                                        style="text-decoration: none;"
+                                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-400 bg-slate-500 text-white shadow-sm transition hover:bg-slate-600 hover:text-white"
+                                        title="Reset"
+                                    >
+                                        <i class="bx bx-refresh text-lg"></i>
+                                    </a>
+                                @endif
                             </div>
                         </div>
 
@@ -142,6 +154,10 @@
 
                             <th class="px-4 py-3 text-left font-bold">
                                 Document Date
+                            </th>
+                            
+                            <th class="px-4 py-3 text-left font-bold">
+                                Branch
                             </th>
 
                             <th class="px-4 py-3 text-left font-bold">
@@ -277,6 +293,10 @@
 
                                 <td class="px-4 py-3">
                                     {{ $item->created_at->format("Y-m-d") }}
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    {{ $item->branch?->branch_name }}
                                 </td>
 
                                 <td class="px-4 py-3">

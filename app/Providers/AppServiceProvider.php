@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Branch;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
@@ -35,6 +36,19 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('*',function($view){
             $view->with("userdata",Auth::user());
+
+
+            // Start User Branches
+            $user = auth()->user();
+
+            $user_branches = $user->user_branches;
+            $branch_ids = $user_branches->pluck('branch_id')->toArray();
+            $branch_ids[] = $user->branch_id;
+            $assigned_branches = Branch::whereIn('id',$branch_ids)->get(); 
+            
+            $view->with("assigned_branches",$assigned_branches);
+            // dd($assigned_branches);
+            // End User Branches
         });
 
         Paginator::useBootstrapFive();

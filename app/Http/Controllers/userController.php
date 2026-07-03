@@ -441,7 +441,7 @@ class userController extends Controller
         
         if ($branch) {
             $results = $results->where(function ($q) use ($branch) {
-                $q->where('from_branch', $branch);
+                $q->where('branch_id', $branch);
             });
         } 
 
@@ -683,7 +683,7 @@ class userController extends Controller
         
         if ($branch) {
             $results = $results->where(function ($q) use ($branch) {
-                $q->where('from_branch', $branch);
+                $q->where('branch_id', $branch);
             });
         } 
 

@@ -119,9 +119,11 @@ Class ActionRepository implements ActionRepositoryInterface
                     ]);
                 }
             }
-            $doc = Document::create([
+            $doc = Document::updateOrCreate([
                 'document_no'       => $data[0]->purchaseno ?? $data[0]->to_docno,
                 'received_goods_id'  => $id
+            ],[
+                'updated_at' => now()
             ]);
             $dub_pd = [];
             for($i = 0 ; $i < count($data) ; $i++){

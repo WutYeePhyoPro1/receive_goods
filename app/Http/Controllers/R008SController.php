@@ -43,7 +43,7 @@ class R008SController extends Controller
         
         if ($branch) {
             $results = $results->where(function ($q) use ($branch) {
-                $q->where('from_branch', $branch);
+                $q->where('branch_id', $branch);
             });
         } 
 
