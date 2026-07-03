@@ -610,10 +610,10 @@ use Spatie\Permission\Models\Role;
                 '$branch_code',                   -- branch_code --- From Portal
                 '$creditday',                     --(select creditday from purchaseorder.po_purchaseorderhd where purchaseno='$purchase_no') , --- credits
                 $approve_amount,                -- approve_amount -- from Portal Ma Wut Yee--
-                '$remark',                       --(select remark from purchaseorder.po_purchaseorderhd where purchaseno='$purchase_no'),    -- remark -- from Portal--
+                ?,                       --(select remark from purchaseorder.po_purchaseorderhd where purchaseno='$purchase_no'),    -- remark -- from Portal--
                 'N',                            -- receive_status (Fix)
                 NOW(),                          -- process_date (complete နှိပ်လိုက်တဲ့အချိန်)
-                '$invoice_no',                    -- invoice_no --- from Portal ?
+                ?,                    -- invoice_no --- from Portal ?
                 '$purchase_date',                 --(select purchasedate from purchaseorder.po_purchaseorderhd where purchaseno='$purchase_no'),  --- purchase_date
                 'N',                            -- ismulticurrency --- (Fix)
                 0,                              -- multicurrencyrate --- (Fix)
@@ -623,7 +623,10 @@ use Spatie\Permission\Models\Role;
                 '$employeecode',                  -- employeecode (portal login user)
                 '$remark_id'                     -- remark_id --- purchaseorder.receive_type ကယူ
                 RETURNING *;
-            ");
+            ",[
+                $remark,
+                $invoice_no
+            ]);
 
         // dd($result);
         return $result;
@@ -674,11 +677,13 @@ use Spatie\Permission\Models\Role;
                 '$approve_amount',                            -- approve_amount (From Portal)
                 $ref_list_no,                                  -- ref_list_no  (PO က item အရေအတွက်)
                 '$receive_no',                -- receive_no (From Header)
-                '$remark',                      -- remark (Default Po and can edit)
+                ?,                      -- remark (Default Po and can edit)
                 $discount,                                  -- discount (From PO)
                 0                                    -- r008qty
             ;
-        ");
+        ",[
+            $remark
+        ]);
 
         return $result;
     }
@@ -799,15 +804,19 @@ use Spatie\Permission\Models\Role;
                 1,                        -- r_status (fix)
                 '$vendor_code',             -- vendorcode (From RG)
                 '$r_poinvioce',    -- r_poinvioce (From RG)
-                '$r_invioce_tax',                       -- r_invioce_tax (From RG- delivery Note)
-                '$remark',                       -- remark(From R008 - remark)
+                ?,                       -- r_invioce_tax (From RG- delivery Note)
+                ?,                       -- remark(From R008 - remark)
                 '$r_usersave',             		  -- r_usersave (portal)
                 '$r_brchcode',                 -- r_brchcode
                 '$r_docudate',                    -- r_docudate
-                '$truck_con_no',                   -- truck_con_no 
+                ?,                   -- truck_con_no 
                 '$product_type'                  -- product_type (User's Choice)
                 RETURNING *;
-        ");
+        ",[
+            $r_invioce_tax,
+            $remark,
+            $truck_con_no
+        ]);
         // dd($result);
         return $result;
     }
