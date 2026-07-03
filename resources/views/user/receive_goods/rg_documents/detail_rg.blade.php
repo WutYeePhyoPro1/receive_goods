@@ -209,7 +209,7 @@
 
                                 <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
                                     <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600 sm:shrink-0">
-                                        <input name="r008" type="checkbox" class="h-4 w-4 rounded accent-amber-500"
+                                        <input name="r008" type="checkbox" class="h-4 w-4 rounded accent-amber-500 change-btn" data-id="{{ $receive_good_document->id }}"
                                             {{ $receive_good_document->r008 ? 'checked' : '' }}>
                                         <span>R008</span>
 
@@ -348,6 +348,7 @@
                         Create R008
                     </button>
                     @endif
+                    <div id="r008BtnWrapper"></div>
                     @endif
 
                     @if($manager && $receive_good_document->status !== "Cancel")
@@ -1058,6 +1059,63 @@
                 }
             })
         }
+
+         
+        //Start change-btn
+        $(document).on("change",".change-btn",function(){
+
+            var getid = $(this).data("id");
+            // console.log(getid); // 1 2
+
+            var setstatus = $(this).prop("checked") === true ? 3 : 4;
+            console.log(setstatus); // 3 4
+
+            $.ajax({
+                    url:"/receivegoodsr8status",
+                    type:"GET",
+                    dataType:"json",
+                    data:{"id":getid,"status_id":setstatus},
+                    success:function(response){
+                        console.log(response); // {success: 'Status Change Successfully'}
+                        console.log(response.success); // Status Change Successfully
+
+                        let data = response;
+
+                        if(data.success == false){
+                            Swal.fire({
+                                title: "R008 Ticking Error!",
+                                text: `${data.message}`,
+                                icon: "error"
+                            });
+                            return;
+                        }
+                    
+                        Swal.fire({
+                            title: "R008 Ticking Success!",
+                            text: "R008 Status Updated Successfully",
+                            icon: "success"
+                        });
+
+                        if (setstatus == 3) {
+                            $('#r008BtnWrapper').html(`
+                                <button
+                                    type="button"
+                                    id="r008Btn"
+                                    class="h-9 px-4 rounded-lg bg-blue-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm"
+                                    onclick="window.open('/receive_goods/rg_documents/${getid}/r008', '_blank')"
+                                >
+                                    Create R008
+                                </button>
+                            `);
+                        } else {
+                            $('#r008BtnWrapper').empty();
+                        }
+
+                    }
+            });
+        });
+        // End change btn
+
 
         
     </script>

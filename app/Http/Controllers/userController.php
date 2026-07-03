@@ -657,6 +657,60 @@ class userController extends Controller
         }
     }
 
+    // public function typestatus(Request $request){
+    //     $category = Category::findOrFail($request["id"]);
+    //     $category->status_id = $request["status_id"];
+    //     $category->save();
+    
+    //     return response()->json(["success"=>"Status Change Successfully"]);
+    // }
+
+    public function r8status(Request $request){
+        // dd($request);
+        // $receive_good_document = ReceiveGoodDocument::find($id)
+
+        DB::beginTransaction();
+        DB::connection('master_product')->beginTransaction();
+        try {
+            $receive_good_document = ReceiveGoodDocument::findOrFail($request["id"]);
+
+            if($receive_good_document->r008 && ($receive_good_document->receive_good_files->where('name','R008')->first()?->file)){
+                $r008_file = $receive_good_document->receive_good_files->where('name','R008')->first()?->file;
+                return response()->json([
+                    'success' => false,
+                    // 'message' => "This RG have R008 '$r008_file'. Please cancel R008 first."
+                    'message' => "R008 document '$r008_file' already exists for this RG. You cannot uncheck the R008 status."
+                ]);
+            }
+
+            // Start r8 ticking
+            $status_id = $request["status_id"];
+            $r008 = $status_id == 3 ? true : false;
+            $receive_good_document->r008 =  $r008;
+            $receive_good_document->save();
+            // End r8 ticking
+
+            $request['r008'] = $r008;
+            $updated_rg_document_count = updateR008Status($request->all(),$receive_good_document);
+
+            DB::commit();
+            DB::connection('master_product')->commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status Change Successfully!',
+            ]);
+        }catch (\Exception $e) {
+            Logger::info($e->getMessage());
+            DB::rollBack();
+            DB::connection('master_product')->rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'There is an error in ticking r008 status of RG Form.'
+            ]);
+        }
+    }
 
     public function po_documents(Request $request){
         $docuno =  $request->form_doc_no;

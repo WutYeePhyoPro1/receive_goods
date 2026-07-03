@@ -1203,3 +1203,28 @@ use Spatie\Permission\Models\Role;
 
         return $modified;
     }
+
+
+    function updateR008Status($data, $receive_good_document){
+        $conn = DB::connection('master_product');
+
+        $rg_no =  $receive_good_document->receive_good_files->first()->file;
+        
+        $r008 = $data['r008'];
+        // dd($rg_no);
+        if($r008){
+            $modified = $conn->update("
+                update purchaseorder.receive_hd
+                set status_r008='N'
+                where receive_no='$rg_no'
+            ");
+        }else{
+            $modified = $conn->update("
+                update purchaseorder.receive_hd
+                set status_r008=''
+                where receive_no='$rg_no'
+            ");
+        }
+       
+        return $modified;
+    }

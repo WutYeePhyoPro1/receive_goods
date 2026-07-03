@@ -74,6 +74,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::get('receive_goods/rg_documents/{id}/print-pdf','printPDF')->name('rg_documents.print-pdf');
             Route::post('receive_goods/rg_document/{id}/approve','approve_form')->name('rg_approve_form');
             Route::get('rg_documentsposync','posync')->name('rg_posync');
+            Route::get('/receivegoodsr8status','r8status')->name('receivegoodsr8status');
 
 
             route::get('documents','po_documents')->name('documents.index');
