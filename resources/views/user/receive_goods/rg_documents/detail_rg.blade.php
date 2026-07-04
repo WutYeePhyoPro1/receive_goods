@@ -341,12 +341,14 @@
                      --}}
 
                     @if($receive_good_document->r008 && !($receive_good_document->receive_good_files->where('name','R008')->first()?->file))
+                    <div id="r008Div">
                     <button type="button" id="r008Btn" class="h-9 px-4 rounded-lg bg-blue-500 hover:bg-blue-700 text-white text-[12px] font-medium shadow-sm"
                         {{-- onClick="window.location.href = '{{ route('r008_rg',$receive_good_document->id) }}';" --}}
                             onClick="window.open('{{ route('r008_rg', $receive_good_document->id) }}', '_blank')"
                     >
                         Create R008
                     </button>
+                    </div>
                     @endif
                     <div id="r008BtnWrapper"></div>
                     @endif
@@ -1109,6 +1111,7 @@
                             `);
                         } else {
                             $('#r008BtnWrapper').empty();
+                            $('#r008Div').hide();
                         }
 
                     }
