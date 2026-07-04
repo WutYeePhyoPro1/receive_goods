@@ -669,7 +669,7 @@ use Spatie\Permission\Models\Role;
             SELECT 
                 '$list_no',                 				-- Ma Wut Yee --
                 '$product_code',                    -- product_code (From Portal)
-                '$product_name',     -- product_name (From Portal) 
+                ?,     -- product_name (From Portal) 
                 '$unit_count',                               -- unit_count (From Portal)
                 '$approve_quantity',                               -- approve_quantity (From PO)
                 '$receive_quantity',                               -- receive_quantity (From Portal)
@@ -682,6 +682,7 @@ use Spatie\Permission\Models\Role;
                 0                                    -- r008qty
             ;
         ",[
+            $product_name,
             $remark
         ]);
 
@@ -865,7 +866,7 @@ use Spatie\Permission\Models\Role;
                 NOW() ,  --- r8date                                                           
                 '$r8itembranch' , ---r8itembranch                                                         
                 '$goodcode', ---goodcode                                                     
-                '$goodname',  ---goodname                       
+                ?,  ---goodname                       
                 $amountinbill ,  ---amountinbill    (From ref RG )                                                          
                 $amountcount ,  ---amountcount      (From ref RG / actual)                                                          
                 $amountdifference ,  ---amountdifference  (From ref RG / diff)                                                        
@@ -874,7 +875,9 @@ use Spatie\Permission\Models\Role;
                 $status ,  ---status (Fix)                                                                      
                 $list_no ,  ---list_no                                                                      
                 $amountsmalldamage ;  ---amountsmalldamage
-        ");
+        ",[
+            $goodname
+        ]);
 
         return $result;
 

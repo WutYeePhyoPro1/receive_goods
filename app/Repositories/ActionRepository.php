@@ -237,8 +237,10 @@ Class ActionRepository implements ActionRepositoryInterface
                 $conn = DB::connection('master_product');
                 $ven_info = $conn->select("
                     select vendor_name,vendor_code,vendor_addr,vendor_conttel from configure.setap_vendor where
-                    vendor_name = '$vendor_name'
-                ");
+                    vendor_name = ?
+                ",[
+                    $vendor_name
+                ]);
                 $ven_info = $ven_info[0];
                 // dd($ven_info);
                 Vendor::create([
