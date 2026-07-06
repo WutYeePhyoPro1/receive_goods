@@ -1,7 +1,7 @@
 @extends('layout.layout')
 
 @section('content')
-    <div class="rg-readable mx-auto px-4 pt-4 pb-16 md:w-[90%] xl:w-[82%]">
+    <div class="rg-readable mx-auto px-4 pt-4 pb-16 md:w-[98%] xl:w-[98%]">
         <div class="overflow-hidden rounded-lg border border-slate-200 bg-white text-xs text-slate-800 shadow-sm">
             <div class="border-b border-slate-100 p-4">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

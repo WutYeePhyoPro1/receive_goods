@@ -1,5 +1,6 @@
 .rg-readable {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    /* font-family: Arial, Helvetica, sans-serif; */
     color: #0f172a;
     font-size: 15px;
     line-height: 1.45;
@@ -23,7 +24,7 @@
 .rg-readable input,
 .rg-readable select,
 .rg-readable textarea{
-    font-size: 15px !important;
+    font-size: 16px !important;
     /* font-weight: 400 !important; */
 }
 
@@ -34,7 +35,7 @@
 }
 
 .rg-readable td {
-    font-size: 14px !important;
+    font-size: 16px !important;
     font-weight: 600;
 }
 .rg-readable td:not([class*="text-"]) {
@@ -44,7 +45,7 @@
 .rg-readable h2,
 .rg-readable h3 {
     color: #0f172a !important;
-    font-size: 16px !important;
+    font-size: 17px !important;
     font-weight: 800 !important;
 }
 

@@ -6,7 +6,7 @@
     @php 
     $manager = isManager($receive_good_document);
     @endphp
-    <div class="rg-readable md:w-[80%] pb-16 px-4 pt-4 mx-auto">
+    <div class="rg-readable md:w-[98%] pb-16 px-4 pt-4 mx-auto">
         @if (Session::has('fails'))
             <div class="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 shadow-sm" role="alert">
                 <div class="mt-0.5">
