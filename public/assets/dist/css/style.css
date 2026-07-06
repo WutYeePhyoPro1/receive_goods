@@ -1,0 +1,63 @@
+.rg-readable {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    color: #0f172a;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.rg-readable label {
+    color: #1e293b !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0 !important;
+}
+
+.rg-readable th {
+    color: #1e293b !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.02em !important;
+}
+
+.rg-readable input,
+.rg-readable select,
+.rg-readable textarea {
+    color: #0f172a !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+}
+
+.rg-readable td {
+    color: #0f172a !important;
+    font-size: 14px !important;
+    font-weight: 600;
+}
+
+.rg-readable h2,
+.rg-readable h3 {
+    color: #0f172a !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+}
+
+.rg-readable .font-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-weight: 800;
+}
+
+.rg-readable .text-slate-400,
+.rg-readable .text-slate-500,
+.rg-readable .text-gray-400,
+.rg-readable .text-gray-500 {
+    color: #475569 !important;
+}
+
+.rg-readable button,
+.rg-readable a {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+}
+
+.rg-readable table {
+    font-size: 14px;
+}

@@ -3,7 +3,7 @@
 
 @section('content')
       <!-- MAIN CONTENT CONTAINER -->
-    <div class="md:w-[80%] pb-16 px-4 pt-4 mx-auto">
+    <div class="rg-readable md:w-[80%] pb-16 px-4 pt-4 mx-auto">
         <form id="rg_form" action="" method="POST">
             @csrf
             <!-- UNIFIED CARD CONTAINER -->
@@ -738,4 +738,5 @@
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/libs/flatpickrv4/flatpickr.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/dist/css/style.css') }}">
 @endsection

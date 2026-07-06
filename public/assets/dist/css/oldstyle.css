@@ -1,0 +1,32 @@
+.rg-readable {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.rg-readable label,
+.rg-readable th {
+    color: #334155 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
+
+.rg-readable input,
+.rg-readable select,
+.rg-readable textarea,
+.rg-readable td {
+    color: #1e293b !important;
+    font-size: 14px !important;
+}
+
+.rg-readable h2,
+.rg-readable h3 {
+    color: #0f172a !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+}
+
+.rg-readable .font-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-weight: 700;
+}
