@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="md:w-[100%] mx-auto px-4 pt-4 pb-10">
+    <div class="rg-readable md:w-[100%] mx-auto px-4 pt-4 pb-10">
         <!-- PAGE CARD -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
@@ -238,3 +238,7 @@
 
 
 <!-- php artisan vendor:publish --tag=laravel-pagination -->
+
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/dist/css/style.css') }}">
+@endsection

@@ -139,9 +139,9 @@
 
                             <th class="px-4 py-3 text-left font-bold">Scan Document No.</th>
 
-                            <th class="px-4 py-3 text-left font-bold">
+                            <!-- <th class="px-4 py-3 text-left font-bold">
                                 RG Document No
-                            </th>
+                            </th> -->
 
                             <!-- <th class="px-4 py-3 text-left font-bold">
                                 Status
@@ -244,9 +244,9 @@
                                     {{$idx + $data->firstItem()}}
                                 </td>
 
-                                <td class="px-4 py-3">
+                                <!-- <td class="px-4 py-3">
                                     {{ $item->good_receive->document_no }}
-                                </td>
+                                </td> -->
 
                                 <td class="px-4 py-3 font-semibold text-blue-700">
                                     {{ $item->receive_good_files->first()->file }}

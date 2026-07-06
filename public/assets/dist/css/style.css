@@ -7,7 +7,8 @@
 
 .rg-readable label {
     color: #1e293b !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
+    line-height: 1.35 !important;
     font-weight: 800 !important;
     letter-spacing: 0 !important;
 }
@@ -21,16 +22,23 @@
 
 .rg-readable input,
 .rg-readable select,
-.rg-readable textarea {
-    color: #0f172a !important;
+.rg-readable textarea{
     font-size: 15px !important;
-    font-weight: 600 !important;
+    /* font-weight: 400 !important; */
+}
+
+.rg-readable input:not([class*="text-"]),
+.rg-readable select:not([class*="text-"]),
+.rg-readable textarea:not([class*="text-"]) {
+    color: #0f172a !important;
 }
 
 .rg-readable td {
-    color: #0f172a !important;
     font-size: 14px !important;
     font-weight: 600;
+}
+.rg-readable td:not([class*="text-"]) {
+    color: #0f172a;
 }
 
 .rg-readable h2,
@@ -52,8 +60,7 @@
     color: #475569 !important;
 }
 
-.rg-readable button,
-.rg-readable a {
+.rg-readable button {
     font-size: 13px !important;
     font-weight: 700 !important;
 }

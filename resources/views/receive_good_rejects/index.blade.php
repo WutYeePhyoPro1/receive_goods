@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="md:w-[100%] mx-auto px-4 pt-4 pb-10">
+    <div class="rg-readable md:w-[100%] mx-auto px-4 pt-4 pb-10">
         @if (Session::has('fails'))
             <div class="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 shadow-sm" role="alert">
                 <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
@@ -298,3 +298,7 @@
 
 
 <!-- php artisan vendor:publish --tag=laravel-pagination -->
+
+@section('css')
+    <link rel="stylesheet" href="{{ asset('assets/dist/css/style.css') }}">
+@endsection
