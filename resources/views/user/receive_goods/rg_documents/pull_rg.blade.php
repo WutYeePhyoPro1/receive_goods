@@ -401,7 +401,7 @@
                                         </div>
 
                                         <div id="gr_edit_${key}" hidden class="w-24  ms-auto">
-                                            <input type="number" name="gr_qty[]" id="gr_qty_${key}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.remaining_qty}">
+                                            <input type="number" step="any" name="gr_qty[]" id="gr_qty_${key}" disabled class="gr_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.remaining_qty}">
 
                                             <input name="product_name[]" type="hidden" value="${product.supplier_name}" disabled />
                                             <input name="unit[]" type="hidden" value="${product.unit}" disabled />
@@ -431,16 +431,21 @@
 
                             $(`#gr_qty_${key}`).on('input', function() {
 
-                                var qty = parseInt($(this).val()) || 0;
-                                var poqty = parseInt(product.remaining_qty);
-                                var price = product.price;
-                                var amount = qty * price;
-                                console.log(amount);
+                                var qty = parseFloat($(this).val()) || 0;
+                                var poqty = parseFloat(product.remaining_qty);
+                                var price = parseFloat(product.price);
+                                // var amount = qty * price;
+                                var amount = parseFloat((qty * price).toFixed(2));
+                                console.log(qty,poqty,price,amount);
 
                                 if(qty > poqty){
                                     $(this).val(poqty)
-                                    $(`#amount_${key}`).html(formatComma(product.amount));
-                                    $(`#amount_${key}_input`).val(product.amount);
+                                    
+                                    // $(`#amount_${key}`).html(formatComma(product.amount));
+                                    // $(`#amount_${key}_input`).val(product.amount);
+
+                                    $(`#amount_${key}`).html(formatComma(product.price * product.remaining_qty));
+                                    $(`#amount_${key}_input`).val(product.price * product.remaining_qty);
                                 }else{
                                     $(`#amount_${key}`).html(formatComma(amount));
                                     $(`#amount_${key}_input`).val(amount);

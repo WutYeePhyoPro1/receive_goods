@@ -239,7 +239,10 @@
         <td class="value">: {{ $receive_good_document?->vendor?->vendor_name }}</td>
 
         <td class="label">Doc.Date</td>
-        <td class="value">: {{-- 29/05/2026 --}} {{ $receive_good_document->created_at->format('Y-m-d') }}</td>
+        <td class="value">: 
+            {{ \Carbon\Carbon::parse($receive_good_document->date)->format('Y-m-d') }}
+            {{-- 29/05/2026 --}} {{-- $receive_good_document->created_at->format('Y-m-d') --}}
+        </td>
     </tr>
 
     <tr>

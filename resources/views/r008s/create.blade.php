@@ -322,12 +322,20 @@
                                             <span>${product.gr_qty}<span>
                                         </div>
                                         <div id="physical_edit_${product.product_code}" hiddens class="w-24  ms-auto">
-                                            <input type="type" name="physical_qty[]" id="physical_qty_${product.gr_qty}" class="physical_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.gr_qty}">
+                                            <input type="number" step="any" name="physical_qty[]" id="physical_qty_${product.gr_qty}" class="physical_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.gr_qty}">
                                         </div>
                                     </td>
                                     <td class="py-1.5 px-3 text-right font-medium">
-                                        <span id="diff_${product.product_code}" >${Math.abs(product.gr_qty - product.po_qty)}</span>
-                                        <input type="hidden" id="diff_input_${product.product_code}" name="diff[]" value="${product.gr_qty - product.po_qty}" />
+                                        <span id="diff_${product.product_code}">
+                                            ${Math.abs(Number(product.gr_qty) - Number(product.po_qty)).toFixed(2)}
+                                        </span>
+
+                                        <input
+                                            type="hidden"
+                                            id="diff_input_${product.product_code}"
+                                            name="diff[]"
+                                            value="${(Number(product.gr_qty) - Number(product.po_qty)).toFixed(2)}"
+                                        />
                                     </td>
                                     <td class="py-1.5 px-3 text-right">
                                         <div id="bd_view_${product.product_code}" class="w-24  ms-auto hidden">
@@ -358,61 +366,21 @@
                             `;
                             $('#productTable tbody').append(html);
 
-                            // $(`#gr_qty_${product.bar_code}`).on('input', function() {
 
-                            //     var qty = parseInt($(this).val()) || 0;
-                            //     var poqty = parseInt(product.remaining_qty);
-                            //     var price = product.price;
-                            //     var amount = qty * price;
-                            //     console.log(amount);
+                            $('.physical_qty').on('input', function () {
+                                var qty = parseFloat($(this).val()) || 0;
+                                var rgqty = parseFloat(product.po_qty) || 0;
 
-                            //     if(qty > poqty){
-                            //         $(this).val(poqty)
-                            //         $(`#amount_${product.bar_code}`).html(formatComma(product.amount));
-                            //         $(`#amount_${product.bar_code}_input`).val(product.amount);
-                            //     }else{
-                            //         $(`#amount_${product.bar_code}`).html(formatComma(amount));
-                            //         $(`#amount_${product.bar_code}_input`).val(amount);
-                            //     }
-                            //     calculateTotalAmount()
-                            // });
+                                var diff = Math.abs(qty - rgqty).toFixed(2);
+                                var signedDiff = (qty - rgqty).toFixed(2);
 
-                            // $(`#pickup_${product.bar_code}`).change(function(){
-                            //     var isChecked = $(this).prop("checked") === true ? true : false;
-
-                            //     let grView = $(`#gr_view_${product.bar_code}`);
-                            //     let grEdit = $(`#gr_edit_${product.bar_code}`);
-                            //     let qtyInput = $(`#gr_qty_${product.bar_code}`);
-
-                            //     if(isChecked){
-                            //         grView.hide();
-                            //         grEdit.show();
-
-                            //         qtyInput.prop('disabled', false);
-                            //         grEdit.find('input').prop('disabled',false);
-                            //     }else{
-                            //         grView.show();
-                            //         grEdit.hide();
-
-                            //         qtyInput.prop('disabled', true);
-                            //         grEdit.find('input').prop('disabled',true);
-                            //     }
-                            //     calculateTotalAmount();
-                            // });
-
-
-                            $('.physical_qty').on('input',function(){
-                                console.log('hay');
-                                var qty = parseInt($(this).val()) || 0;
-                                var rgqty = parseInt(product.po_qty);
-
-                                var diff = Math.abs(qty - rgqty);
+                                console.log(qty, rgqty, diff);
 
                                 let diffView = $(`#diff_${product.product_code}`);
                                 let diffInput = $(`#diff_input_${product.product_code}`);
 
                                 diffView.text(diff);
-                                diffInput.val(qty - rgqty);
+                                diffInput.val(signedDiff);
                             });
                             
 

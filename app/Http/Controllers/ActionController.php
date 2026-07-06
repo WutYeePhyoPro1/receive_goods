@@ -558,7 +558,8 @@ class ActionController extends Controller
             $filtered_products = $products->map(function ($product) use ($received_sums) {
                 $price = number_format($product->price, 2, '.', '');
                 $received_qty = $received_sums[$product->bar_code][$price] ?? 0;
-                $product->remaining_qty = $product->qty - $received_qty;
+                // $product->remaining_qty = $product->qty - $received_qty;
+                $product->remaining_qty = (string) ($product->qty - $received_qty);
                 return $product;
             })->filter(function ($product) {
                 return $product->remaining_qty > 0;
@@ -567,11 +568,12 @@ class ActionController extends Controller
                 return !in_array($product->bar_code,$r008_products);
             })
             ->values(); // Reset keys
+            // dd($filtered_products);
 
 
             $purchase_orders = collect($purchase_orders);
             $document['vatrate'] = $purchase_orders->first()?->vatrate;
-            // dd($document);
+            // dd($products);
             return response()->json([
                 'message' => 'success',
                 'data' => [
