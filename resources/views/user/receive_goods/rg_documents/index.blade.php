@@ -300,7 +300,8 @@
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    {{ $item?->vendor?->vendor_name }}
+                                    {{-- $item?->vendor?->vendor_name --}}
+                                    {{Str::limit($item?->vendor?->vendor_name,20)}}
                                 </td>
 
                                 <td class="px-4 py-3">
