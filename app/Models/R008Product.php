@@ -20,6 +20,7 @@ class R008Product extends Model
         "status_id",
         "bdqty",
         "sdqty",
-        "remark"
+        "remark",
+        "r8item_id"
     ];
 }

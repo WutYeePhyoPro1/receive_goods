@@ -122,6 +122,7 @@ class R008SController extends Controller
             $bd_qty = $request['bd_qty'];
             $sd_qty = $request['sd_qty'];
             $line_remark = $request['line_remark'];
+            $r8item_ids = $request['r8item_ids'];
 
 
             for($i=0; $i<count($product_code);$i++){
@@ -136,6 +137,7 @@ class R008SController extends Controller
                     "bdqty" => $bd_qty[$i],
                     "sdqty" => $sd_qty[$i],
                     "remark" => $line_remark[$i],
+                    "r8item_id" => $r8item_ids[$i],
                 ];
                 R008Product::create($data);
             }

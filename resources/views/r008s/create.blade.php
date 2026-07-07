@@ -283,6 +283,8 @@
                         $('#branch_id').val(rg_document.branch_id);
 
                         rg_products.forEach((product,idx) => {
+                            if(product.po_qty == product.gr_qty) return;
+
                             let html = `
                                 <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
                                     <td class="py-1.5 px-3">
@@ -362,6 +364,7 @@
                                             <input type="text" name="line_remark[]" class="w-40 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500"/>
                                         </div>
                                     </td>
+                                    <input type="hidden" name="r8item_ids[]" value="${idx++}" />
                                 </tr>
                             `;
                             $('#productTable tbody').append(html);
