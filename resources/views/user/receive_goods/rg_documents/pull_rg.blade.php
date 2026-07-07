@@ -3,7 +3,7 @@
 
 @section('content')
       <!-- MAIN CONTENT CONTAINER -->
-    <div class="rg-readable md:w-[80%] pb-16 px-4 pt-4 mx-auto">
+    <div class="rg-readable md:w-[98%] pb-16 px-4 pt-4 mx-auto">
         <form id="rg_form" action="" method="POST">
             @csrf
             <!-- UNIFIED CARD CONTAINER -->
@@ -410,6 +410,7 @@
                                             <input name="amount[]" id="amount_${key}_input" type="hidden" value="${product.price * product.remaining_qty}" disabled />
                                             <input name="product_id[]" type="hidden" value="${product.id}" disabled />
                                             <input name="discount[]" type="hidden" value="${product.discount ?? 0}" disabled />
+                                            <input name="ref_list_no[]" type="hidden" value="${product.listno}" disabled />
                                         </div>
                                     </td>
                                     <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>

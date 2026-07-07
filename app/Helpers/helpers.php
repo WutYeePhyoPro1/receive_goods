@@ -509,7 +509,7 @@ use Spatie\Permission\Models\Role;
 
 
         $data = $conn->select("
-            select purchaseno,brchcode,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,vatrate,goodprice,bb.discount,bb.remark as lineremark,bb.sumgoodamnt,creditday,purchasedate,aa.remark
+            select purchaseno,brchcode,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,vatrate,goodprice,bb.discount,bb.remark as lineremark,bb.sumgoodamnt,creditday,purchasedate,aa.remark,bb.listno
             from purchaseorder.po_purchaseorderhd aa
             inner join purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
             left join master_data.master_branch br on aa.brchcode= br.branch_code
@@ -891,6 +891,7 @@ use Spatie\Permission\Models\Role;
 
         // $products = Product::where('document_id',$document->id)->get();
         $products = PurchaseOrderItem::where('document_id',$document->id)
+            ->whereNotNull('listno')
             ->orderBy('id','desc')
             ->get();
 
@@ -909,8 +910,8 @@ use Spatie\Permission\Models\Role;
         $isComplete = true;
 
         foreach ($products as $product) {
-            $price = number_format($product->price, 2, '.', '');
-            $receivedQty = $received_sums[$product->bar_code][$price] ?? 0;
+            $listno = $product->listno;
+            $receivedQty = $received_sums[$product->bar_code][$listno] ?? 0;
 
             if ($receivedQty < $product->qty) {
                 $isComplete = false;
@@ -971,7 +972,7 @@ use Spatie\Permission\Models\Role;
     function getPOHistory($po_no){
         $conn = DB::connection('master_product');
         $data = $conn->select("
-            select purchaseno,rg.receive_no,product_code,product_name,approve_quantity,approve_price,dt.approve_amount,receive_quantity,status_r008
+            select purchaseno,rg.receive_no,product_code,product_name,approve_quantity,approve_price,dt.approve_amount,receive_quantity,status_r008,dt.ref_list_no
             from purchaseorder.po_purchaseorderhd po
             inner join purchaseorder.receive_hd rg
             on po.purchaseno=rg.purchase_no
@@ -985,29 +986,46 @@ use Spatie\Permission\Models\Role;
     }
 
 
+    // function getReceivedSums($po_no,$po_histories_cached=null){
+        
+    //     $po_histories = $po_histories_cached ? collect($po_histories_cached) : collect(getPOHistory($po_no));
+    //     // dd($po_histories);
+
+    //     // Error: Method Illuminate\Support\Collection::selectRaw does not exist.",…}
+    //     // $received_sums = $po_histories::selectRaw(
+    //     //     'product_code, SUM(receive_quantity) as total_received'
+    //     // )
+    //     // ->groupBy('product_code')
+    //     // ->pluck('total_received', 'product_code');
+
+    //     // => Can use for different code in PO
+    //     // $received_sums = $po_histories
+    //     //                 ->groupBy('product_code');
+    //                     // ->map(fn ($items) => $items->sum('receive_quantity'));
+
+    //     $received_sums = $po_histories
+    //     ->map(function ($item) {
+    //         $item->approve_price_key = number_format((float) $item->approve_price, 2, '.', '');
+    //         return $item;
+    //     })
+    //     ->groupBy(['product_code', 'approve_price_key'])
+    //     ->map(function ($priceGroups) {
+    //         return $priceGroups->map(function ($items) {
+    //             return $items->sum('receive_quantity');
+    //         });
+    //     });
+
+    //     // dd($received_sums);
+    //     return $received_sums;
+    // }
+
     function getReceivedSums($po_no,$po_histories_cached=null){
         
         $po_histories = $po_histories_cached ? collect($po_histories_cached) : collect(getPOHistory($po_no));
         // dd($po_histories);
 
-        // Error: Method Illuminate\Support\Collection::selectRaw does not exist.",…}
-        // $received_sums = $po_histories::selectRaw(
-        //     'product_code, SUM(receive_quantity) as total_received'
-        // )
-        // ->groupBy('product_code')
-        // ->pluck('total_received', 'product_code');
-
-        // => Can use for different code in PO
-        // $received_sums = $po_histories
-        //                 ->groupBy('product_code');
-                        // ->map(fn ($items) => $items->sum('receive_quantity'));
-
         $received_sums = $po_histories
-        ->map(function ($item) {
-            $item->approve_price_key = number_format((float) $item->approve_price, 2, '.', '');
-            return $item;
-        })
-        ->groupBy(['product_code', 'approve_price_key'])
+        ->groupBy(['product_code', 'ref_list_no'])
         ->map(function ($priceGroups) {
             return $priceGroups->map(function ($items) {
                 return $items->sum('receive_quantity');
@@ -1038,6 +1056,26 @@ use Spatie\Permission\Models\Role;
                         && in_array($data->branch_id,$branch_ids);
 
         return $isManager;
+    }
+
+    function isDCUser(){
+        $dc_branches = [16, 17, 18, 19, 20];
+        
+        $user = auth()->user();
+
+        if (!$user) {
+            return false;
+        }
+
+
+        $user_branches = $user->user_branches;
+        $branch_ids = $user_branches->pluck('branch_id')->toArray();
+        $branch_ids[] = $user->branch_id;
+
+
+        $branch_ids = array_filter(array_unique($branch_ids));
+
+        return !empty(array_intersect($branch_ids, $dc_branches));
     }
 
     // function isAuthorizedUser($data, $roleNames)

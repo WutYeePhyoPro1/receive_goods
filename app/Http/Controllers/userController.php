@@ -447,7 +447,7 @@ class userController extends Controller
 
         $role = Role::where('name','admin')->first();
         $role_id = $role->id;
-        if($user->role != $role_id){
+        if($user->role != $role_id && !isDCUser()){
             $user_branches = $user->user_branches;
             $branch_ids = $user_branches->pluck('branch_id');
             $branch_ids[] = $user->branch_id;
@@ -744,7 +744,8 @@ class userController extends Controller
 
         $role = Role::where('name','admin')->first();
         $role_id = $role->id;
-        if($user->role != $role_id){
+        // dd(!isDCUser());
+        if($user->role != $role_id && !isDCUser()){
             $user_branches = $user->user_branches;
             $branch_ids = $user_branches->pluck('branch_id');
             $branch_ids[] = $user->branch_id;

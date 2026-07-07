@@ -532,6 +532,7 @@ class ActionController extends Controller
             //             ->orderBy('id','desc')
             //             ->get();
             $products = PurchaseOrderItem::where('document_id',$document->id)
+                        ->whereNotNull('listno')
                         ->orderBy('id','asc')
                         ->get();
 
@@ -552,20 +553,21 @@ class ActionController extends Controller
             $po_histories = collect(getPOHistory($purchaseno));
             // dd($po_histories);
             $received_sums = getReceivedSums($purchaseno,$po_histories);
-            $r008_products = $po_histories->whereIn('status_r008',['N','F'])->pluck('product_code')->toArray();
-            // dd($r008_products);
+            $r008_lists = $po_histories->whereIn('status_r008',['N','F'])->pluck('ref_list_no')->toArray();
+            // dd($r008_lists);
             
             $filtered_products = $products->map(function ($product) use ($received_sums) {
-                $price = number_format($product->price, 2, '.', '');
-                $received_qty = $received_sums[$product->bar_code][$price] ?? 0;
+                $listno = $product->listno;
+                $received_qty = $received_sums[$product->bar_code][$listno] ?? 0;
                 // $product->remaining_qty = $product->qty - $received_qty;
                 $product->remaining_qty = (string) ($product->qty - $received_qty);
                 return $product;
-            })->filter(function ($product) {
+            })
+            ->filter(function ($product) {
                 return $product->remaining_qty > 0;
             })
-            ->filter(function ($product) use($r008_products){
-                return !in_array($product->bar_code,$r008_products);
+            ->filter(function ($product) use($r008_lists){
+                return !in_array($product->listno,$r008_lists);
             })
             ->values(); // Reset keys
             // dd($filtered_products);
@@ -632,6 +634,7 @@ class ActionController extends Controller
 
             $line_remark = $request['line_remark'];
             $discount = $request['discount'];
+            $ref_list_no = $request['ref_list_no'];
 
 
             for($i=0; $i<count($product_code);$i++){
@@ -646,7 +649,8 @@ class ActionController extends Controller
                     'amount' => $amount[$i],
                     'product_id' => $product_id[$i],
                     'remark' => $line_remark[$i],
-                    'discount' => $discount[$i]
+                    'discount' => $discount[$i],
+                    'ref_list_no' => $ref_list_no[$i]
                 ];
                 ReceiveGoodProduct::create($data);
             }
@@ -733,7 +737,7 @@ class ActionController extends Controller
         foreach ($receive_good_products as $product) {
             $list_no++;
             $product['list_no'] = $list_no; // Use the updated value
-            $product['ref_list_no'] = count($receive_good_products);
+            // $product['ref_list_no'] = count($receive_good_products);
             $product['receive_no'] = $rg_document->receive_no;
 
             $rg_document_detail = generateRGDocDetail($product);

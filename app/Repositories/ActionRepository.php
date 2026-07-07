@@ -220,6 +220,7 @@ Class ActionRepository implements ActionRepositoryInterface
                     'document_id' => $document->id,
                     'bar_code' => $purchase_order->productcode,
                     'price' => $purchase_order->goodprice,
+                    'listno' => $purchase_order->listno
                 ],
                 [
                     'supplier_name' => $purchase_order->productname,
