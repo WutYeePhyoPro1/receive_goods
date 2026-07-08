@@ -137,11 +137,11 @@
 
                             <th class="px-4 py-3 text-left font-bold">No</th>
 
-                            <th class="px-4 py-3 text-left font-bold">Scan Document No.</th>
+                            <!-- <th class="px-4 py-3 text-left font-bold">Scan Document No.</th> -->
 
-                            <!-- <th class="px-4 py-3 text-left font-bold">
-                                RG Document No
-                            </th> -->
+                            <th class="px-4 py-3 text-left font-bold">
+                                RG Doc No
+                            </th>
 
                             <!-- <th class="px-4 py-3 text-left font-bold">
                                 Status

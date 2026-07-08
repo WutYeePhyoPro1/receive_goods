@@ -43,7 +43,7 @@
         bottom: 0;
         left: 10%;
         right: 0;
-        opacity: 0.15;
+        /* opacity: 0.15; */
     }
 
     .footer{
@@ -54,7 +54,7 @@
 
 </style>
 <body >
-        <div class="wrapper" style="background-image: url('{{ public_path('storage/background_img/finallogo.png') }}') ;background-attachment: fixed;background-position: center;background-size: 950px 550px;background-repeat: no-repeat;opacity:0.1">
+        <div class="wrapper" style="background-image: url('{{ public_path('storage/background_img/finallogo.png') }}') ;background-attachment: fixed;background-position: center;background-size: 950px 550px;background-repeat: no-repeat;opacity:1">
             {{-- <div class="" style="width: 95%;padding:20px;display:flex;justify-content:space-between">
                     <span class="" >Document No : <b class="" >{{ $reg->document_no ?? '' }}</b></span>
                     <span class="" >Truck No : <b>{{ $driver->truck_no ?? '' }}</b></span>
