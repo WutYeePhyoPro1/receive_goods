@@ -20,7 +20,7 @@
             <form action="{{ route('documents.index') }}" method="GET">
                 <div class="p-4 border-b border-slate-100 bg-slate-50/40">
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
 
                         <!-- Document No -->
                         <div>
@@ -71,15 +71,12 @@
                             >
                         </div>
 
-                        <!-- Branch -->
                         <div>
+                        
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                                 Branch
                             </label>
-
-                            <div class="flex gap-2">
-
-                                <select
+                            <select
                                     name="branch_id"
                                     class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
                                     focus:outline-none focus:ring-2 focus:ring-amber-400/30
@@ -89,15 +86,29 @@
                                     @foreach($assigned_branches as $branch)
                                         <option value="{{ $branch->id }}" {{ request()->get('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->branch_name }}</option>
                                     @endforeach
-                                </select>
+                            </select>
+                        </div>
 
-                                <!-- <input
-                                    type="text"
-                                    readonly
-                                    value="User Branch"
-                                    class="w-full h-9 px-3 bg-slate-100 border border-slate-300
-                                        rounded-lg text-[13px] text-slate-500 cursor-not-allowed"
-                                > -->
+                        <!-- Branch -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                                Status
+                            </label>
+                            <div class="flex gap-2">
+                                @php
+                                    $statuses = ['Pending RG','PO Partial','Already RG']
+                                @endphp
+                                <select
+                                        name="status"
+                                        class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
+                                        focus:outline-none focus:ring-2 focus:ring-amber-400/30
+                                        focus:border-amber-500 bg-white"
+                                    >
+                                        <option value="" selected disabled>Choose Status</option>
+                                        @foreach($statuses as $status)
+                                            <option value="{{ $status }}" {{ request()->get('status') == $status ? 'selected' : '' }}>{{ $status }}</option>
+                                        @endforeach
+                                </select>
 
                                 <button
                                     type="submit"

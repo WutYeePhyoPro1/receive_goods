@@ -715,6 +715,7 @@ class userController extends Controller
     public function po_documents(Request $request){
         $docuno =  $request->form_doc_no;
         $branch = $request->branch_id;
+        $status = $request->status;
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
@@ -766,6 +767,12 @@ class userController extends Controller
             $results->whereDate('created_at','>=',now()->subMonth());
         }
             
+        if($status){
+            $results = $results->where(function ($q) use ($status) {
+                $q->where('status', $status);
+            });
+        }
+
 
         $data = $results->orderBy('created_at','desc')->paginate(15);
 
