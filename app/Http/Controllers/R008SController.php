@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ExecutionTimer;
 use App\Models\R008Document;
 use App\Models\R008DocumentFile;
 use App\Models\R008Product;
 use App\Models\ReceiveGoodDocument;
 use App\Models\ReceiveGoodFile;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as MPDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as MPDF;
+use RuntimeException;
 use Spatie\Permission\Models\Role;
 
 class R008SController extends Controller
@@ -86,6 +88,7 @@ class R008SController extends Controller
 
     public function store(Request $request){
         // dd($request);
+        $timer = new ExecutionTimer(55);
 
         DB::beginTransaction();
         DB::connection('defective_product')->beginTransaction();
@@ -154,6 +157,9 @@ class R008SController extends Controller
             // End PO Full Update
             
             // throw new \Exception("RG Document Update Error: ");
+            // sleep(60);
+
+            $timer->check();
 
             DB::commit();
             DB::connection('defective_product')->commit();
@@ -166,7 +172,18 @@ class R008SController extends Controller
                 'data' => $r008_document,
             ]);        
 
-        } catch (Exception $e) {
+        }catch (RuntimeException $e) {
+
+            DB::rollBack();
+            DB::connection('master_product')->rollBack();
+
+            Log::info($e);
+            return response()->json([
+                'success' => false,
+                'message' => 'R008 စာရွက် တင်သွင်းနေစဉ် အချိန်ကြာမြင့်သွားပါသည်။ အင်တာနက်လိုင်း စစ်ဆေးပြီး ထပ်မံကြိုးစားပါ။'
+            ]);
+
+        }catch (Exception $e) {
             DB::rollBack();
             DB::connection('defective_product')->rollBack();
             DB::connection('master_product')->rollBack();

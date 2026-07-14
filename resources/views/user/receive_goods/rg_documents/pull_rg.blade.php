@@ -691,7 +691,7 @@
                                         Swal.fire({
                                             icon: "error",
                                             title: "RG Save Error!!",
-                                            text: "Something went wrong while saving the RG.",
+                                            text: `${data.message}`,
                                         });
 
                                         isSubmitting = false;

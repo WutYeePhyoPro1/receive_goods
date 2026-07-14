@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customize\Common;
+use App\Helpers\ExecutionTimer;
 use App\Interfaces\ActionRepositoryInterface;
 use App\Models\AddProductTrack;
 use App\Models\changeTruckProduct;
@@ -32,6 +33,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 class ActionController extends Controller
 {
@@ -591,6 +593,8 @@ class ActionController extends Controller
     public function save_rg(Request $request){
         // dd($request);
 
+        $timer = new ExecutionTimer(55);
+        
         DB::beginTransaction();
         DB::connection('master_product')->beginTransaction();
         try {
@@ -666,7 +670,9 @@ class ActionController extends Controller
             $updated_po_document_count = updatePOStatus($request->all(),$receive_good_document);
             // End PO Status Update
 
+            // sleep(10);
 
+            $timer->check();
             DB::commit();
             DB::connection('master_product')->commit();
 
@@ -676,7 +682,18 @@ class ActionController extends Controller
                 'data' => $receive_good_document,
             ]);        
 
-        } catch (Exception $e) {
+        }catch (RuntimeException $e) {
+
+            DB::rollBack();
+            DB::connection('master_product')->rollBack();
+
+            Logger::info($e);
+            return response()->json([
+                'success' => false,
+                'message' => 'Receive Good စာရွက် တင်သွင်းနေစဉ် အချိန်ကြာမြင့်သွားပါသည်။ အင်တာနက်လိုင်း စစ်ဆေးပြီး ထပ်မံကြိုးစားပါ။'
+            ]);
+
+        }catch (Exception $e) {
             DB::rollBack();
             DB::connection('master_product')->rollBack();
 
