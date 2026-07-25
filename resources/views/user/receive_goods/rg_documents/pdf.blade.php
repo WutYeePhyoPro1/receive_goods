@@ -200,8 +200,11 @@
                 Chanmyathazi Tsp., Mandalay, Myanmar
             </div> -->
             <div>
-                No.76, Lanthit Street, Near Arleing Ngar Sint Pagoda,<brs>
-                    Insein Township, Yangon, Myanmar
+                {{ 
+                    $receive_good_document->branch?->branch_address
+                    ?? 'No.76, Lanthit Street, Near Arleing Ngar Sint Pagoda,
+                    Insein Township, Yangon, Myanmar' 
+                }}
             </div>
 
             <table style="margin-top:8px;">
