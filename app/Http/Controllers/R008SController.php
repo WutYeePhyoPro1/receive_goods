@@ -82,7 +82,9 @@ class R008SController extends Controller
     {
         $rg_no = session('rg_no');
         // dd($rg_no);
-        return view("r008s.create",compact("rg_no"));
+        $gettoday = Carbon::today()->format("Y-m-d");
+
+        return view("r008s.create",compact("rg_no","gettoday"));
     } 
 
 

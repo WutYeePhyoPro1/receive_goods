@@ -18,6 +18,10 @@
                     </div>
 
                     {{-- 4-Column Responsive Grid for Inputs --}}
+                    {{-- @dd(getMinDate()) --}} 
+                    @php
+                        $minDate = getMinDate();
+                    @endphp
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 xl:items-end">
 
                         {{-- Document Date --}}
@@ -30,7 +34,10 @@
                             <input type="date"
                                 name="document_date"
                                 id="document_date"
-                                class="h-9 w-full min-w-0 rounded-lg border border-slate-300 px-2 text-sm focus:border-amber-500 focus:outline-none">
+                                class="h-9 w-full min-w-0 rounded-lg border border-slate-300 px-2 text-sm focus:border-amber-500 focus:outline-none"
+                                value="{{ old('document_date',$gettoday) }}"
+                                min="{{ $minDate }}"
+                                >
                         </div>
 
                         {{-- Vendor Code --}}
@@ -230,6 +237,7 @@
                 defaultDate: new Date(),
                 dateFormat: "Y-m-d",
                 // minDate: "today",
+                minDate: new Date('{{ $minDate }}'),
                 maxDate: new Date().fp_incr(30)
             });
 

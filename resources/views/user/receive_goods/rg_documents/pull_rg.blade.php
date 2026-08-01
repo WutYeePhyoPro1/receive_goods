@@ -44,11 +44,15 @@
                             <input type="text" name="scan_id" readonly hidden class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive->id }}">
                         </div> -->
 
+                       {{-- @dd(getMinDate()) --}} 
+                        @php
+                            $minDate = getMinDate();
+                        @endphp
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Document Date<span class="text-red-600">*</span></label>
                             <input name="form_doc_date" id="form_doc_date" type="date" class="w-full h-8 px-2 bg-slate-50s border border-slate-300 rounded focus:outline-none focus:border-amber-500" 
                             value="{{ old('form_doc_date',$gettoday) }}"
-                            min="{{ now()->startOfMonth()->format('Y-m-d') }}"
+                            min="{{ $minDate }}"
                             >
                         </div>
                         <div>
@@ -295,7 +299,7 @@
             const formDocDatePicker = flatpickr("#form_doc_date", {
                 dateFormat: "Y-m-d",
                 // minDate: "today",
-                minDate: new Date('{{ now()->startOfMonth()->format('Y-m-d') }}'),
+                minDate: new Date('{{ $minDate }}'),
                 maxDate: new Date().fp_incr(30)
             });
 

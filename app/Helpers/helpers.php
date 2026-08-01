@@ -1269,3 +1269,20 @@ use Spatie\Permission\Models\Role;
        
         return $modified;
     }
+
+    function getMinDate(){
+        $now = now();
+        // $now = Carbon::parse('2026-08-04');
+        // dd($now);
+
+        // Current month ရဲ့ 3 ရက်နေ့ 12:00 PM // Period Close Time
+        $cutoff = now()->startOfMonth()->addDays(2)->setTime(12, 0, 0); 
+        // dd($cutoff);
+
+        if ($now->lessThanOrEqualTo($cutoff)) {
+            $minDate = now()->subMonth()->startOfMonth()->format('Y-m-d');
+        } else {
+            $minDate = now()->startOfMonth()->format('Y-m-d');
+        }
+        return $minDate;
+    }
