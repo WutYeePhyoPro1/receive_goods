@@ -2107,6 +2107,20 @@
                                 console.log($name.length);
 
                                 const new_pr = window.open("", "", "width=900,height=600");
+                                const barcodePrintUrl = @json(route('barcode.print', ['id' => '__PRODUCT_ID__']))
+                                    .replace('__PRODUCT_ID__', encodeURIComponent($id));
+                                const barcodePrintParams = new URLSearchParams({
+                                    qty: $qty,
+                                    type: $type
+                                });
+
+                                // Print the fixed-size vector PDF, following the reward system's
+                                // iframe/PDF approach. This avoids browser HTML scaling and keeps
+                                // every Code 128 bar sharp and complete.
+                                new_pr.location.href = `${barcodePrintUrl}?${barcodePrintParams.toString()}`;
+                                $('#print_no').hide();
+                                return;
+
                                 $name = $name.length > 77 ? $name.substring(0, 77) + '..' : $name;
                                 // $name = $name.length < 49 ? $name + str_repeat(' .', 50 - $name.length / 2) : $name;
                                 $name = $name.length < 45 ? $name + "<br>" + "." : $name;
