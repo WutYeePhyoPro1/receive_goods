@@ -13,7 +13,7 @@
         .name { height: 7mm; overflow: hidden; font-size: 7pt; line-height: 8pt; font-weight: 700; }
         .bar2 .name { height: 4mm; font-size: 5.4pt; line-height: 5.8pt; }
         .barcode { width: 31mm; height: 9mm; overflow: hidden; margin: .5mm auto 0; }
-        .barcode img { display: block; width: 31mm; height: 9mm; }
+        .barcode img { display: block; width: 31mm; height: 9mm; image-rendering: crisp-edges; }
         .bar2 .barcode { height: 4.2mm; margin-top: 0; }
         .bar2 .barcode img { height: 4.2mm; }
         .code-row { width: 31mm; margin: 0 auto; font-size: 6.5pt; line-height: 7pt; font-weight: 700; white-space: nowrap; }

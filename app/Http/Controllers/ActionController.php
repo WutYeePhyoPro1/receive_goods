@@ -1183,8 +1183,11 @@ class ActionController extends Controller
         ]);
 
         $barcode = new DNS1D();
-        $barcodeSvg = $barcode->getBarcodeSVG((string) ($id->bar_code ?: '1'), 'C128', 3, 100, 'black', false, true);
-        $barcodeDataUri = 'data:image/svg+xml;base64,' . base64_encode($barcodeSvg);
+        $barcodePng = $barcode->getBarcodePNG((string) ($id->bar_code ?: '1'), 'C128', 4, 120, [0, 0, 0], false);
+        if ($barcodePng === false) {
+            throw new RuntimeException('The GD or Imagick PHP extension is required to render barcode labels.');
+        }
+        $barcodeDataUri = 'data:image/png;base64,' . $barcodePng;
 
         $pdf = Pdf::loadView('user.receive_goods.barcode_pdf', [
             'product' => $id,
