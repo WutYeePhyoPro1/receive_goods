@@ -2111,6 +2111,23 @@
                                 // $name = $name.length < 49 ? $name + str_repeat(' .', 50 - $name.length / 2) : $name;
                                 $name = $name.length < 45 ? $name + "<br>" + "." : $name;
 
+                                // Keep the print document on one fixed paper format.  Without an
+                                // explicit @page size Chrome treats this about:blank popup as a new
+                                // generic document and can fall back to a different paper size.
+                                // This is the same principle used by the reward system's fixed-size
+                                // PDFs: the printer only needs to be configured once per machine.
+                                const barcodePrintPageStyle = `
+                                    @page { size: 4.33in 1.06in; margin: 0; }
+                                    html, body {
+                                        width: 4.33in;
+                                        margin: 0;
+                                        padding: 0;
+                                        -webkit-print-color-adjust: exact;
+                                        print-color-adjust: exact;
+                                    }
+                                    * { box-sizing: border-box; }
+                                `;
+
                                 // $name = $name.length < 30 ? console.log($name):
                                 //  : $name;
 
@@ -2129,7 +2146,7 @@
                                     $mar_top = $name.length > 60 ? 3 :
                                         $name.length > 30 ? 10 : 30;
                                     new_pr.document.write(
-                                        "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:12px;padding-right:25px;gap:20px}"
+                                        `<html><head><style>${barcodePrintPageStyle}#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:12px;padding-right:25px;gap:20px}`
                                     );
 
                                     new_pr.document.write(
@@ -2179,8 +2196,7 @@
                                     //     .substring(40) : $name;
                                     $mar_top = $name.length > 40 ? 0 : 10;
                                     new_pr.document.write(
-
-                                        "<html><head><style>#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:35px;gap:10px}"
+                                        `<html><head><style>${barcodePrintPageStyle}#per_div{display: grid;grid-template-columns:32% 32% 32%;margin-left:35px;gap:10px}`
                                     );
 
                                     new_pr.document.write(
@@ -2210,7 +2226,7 @@
                                     $bar = $('.bar_stick3').eq($index).html();
 
                                     new_pr.document.write(
-                                        "<html><head><style>#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:30px;gap:10px}"
+                                        `<html><head><style>${barcodePrintPageStyle}#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:30px;gap:10px}`
                                     );
 
                                     new_pr.document.write(
