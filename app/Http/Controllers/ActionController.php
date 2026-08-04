@@ -25,6 +25,7 @@ use App\Models\User;
 use App\Models\UserBranch;
 use App\Models\Vendor;
 use App\Repositories\ActionRepository;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -33,7 +34,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
-use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as MPDF;
 use Milon\Barcode\DNS1D;
 use RuntimeException;
 
@@ -1185,20 +1185,13 @@ class ActionController extends Controller
         $barcode = new DNS1D();
         $barcodeSvg = $barcode->getBarcodeSVG((string) ($id->bar_code ?: '1'), 'C128', 1, 50, 'black', false, true);
 
-        $pdf = MPDF::loadView('user.receive_goods.barcode_pdf', [
+        $pdf = Pdf::loadView('user.receive_goods.barcode_pdf', [
             'product' => $id,
             'quantity' => (int) $data['qty'],
             'type' => (int) $data['type'],
             'barcodeSvg' => $barcodeSvg,
             'printedAt' => now()->format('d/m/Y h:i:s A'),
-        ], [], [
-            'format' => [110, 26.924],
-            'orientation' => 'L',
-            'margin_left' => 0,
-            'margin_right' => 0,
-            'margin_top' => 0,
-            'margin_bottom' => 0,
-        ]);
+        ])->setPaper([0, 0, 311.76, 76.32]);
 
         return $pdf->stream('barcode-' . $id->bar_code . '.pdf');
     }
