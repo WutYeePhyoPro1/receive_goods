@@ -1183,13 +1183,14 @@ class ActionController extends Controller
         ]);
 
         $barcode = new DNS1D();
-        $barcodeSvg = $barcode->getBarcodeSVG((string) ($id->bar_code ?: '1'), 'C128', 1, 50, 'black', false, true);
+        $barcodeSvg = $barcode->getBarcodeSVG((string) ($id->bar_code ?: '1'), 'C128', 3, 100, 'black', false, true);
+        $barcodeDataUri = 'data:image/svg+xml;base64,' . base64_encode($barcodeSvg);
 
         $pdf = Pdf::loadView('user.receive_goods.barcode_pdf', [
             'product' => $id,
             'quantity' => (int) $data['qty'],
             'type' => (int) $data['type'],
-            'barcodeSvg' => $barcodeSvg,
+            'barcodeDataUri' => $barcodeDataUri,
             'printedAt' => now()->format('d/m/Y h:i:s A'),
         ])->setPaper([0, 0, 311.76, 76.32]);
 
