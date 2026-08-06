@@ -1184,7 +1184,7 @@ class ActionController extends Controller
         ]);
 
         $barcode = new DNS1D();
-        $barcodeHeight = (int) $data['type'] === 2 ? 22 : ((int) $data['type'] === 3 ? 27 : 34);
+        $barcodeHeight = (int) $data['type'] === 2 ? 14 : ((int) $data['type'] === 3 ? 27 : 34);
         $barcodeHtml = $barcode->getBarcodeHTML(
             (string) ($id->bar_code ?: '1'),
             'C128',
