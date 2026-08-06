@@ -11,7 +11,7 @@
         .label { position: absolute; width: 34mm; height: 20.49mm; padding: .7mm 1mm; overflow: hidden; }
         .bar2 .label { height: 10.245mm; padding: .25mm 1mm; }
         .name { height: 7mm; overflow: hidden; font-family: "DejaVu Sans", sans-serif; font-size: 7pt; line-height: 8pt; font-weight: 700; }
-        .bar1 .name { height: 5.2mm; font-size: 6pt; line-height: 6.7pt; }
+        .bar1 .name { height: 6mm; font-size: 6pt; line-height: 6.7pt; }
         .name.long { font-size: 6pt; line-height: 6.5pt; }
         .name.very-long { font-size: 5.2pt; line-height: 5.7pt; }
         .bar2 .name { height: 2.5mm; font-size: 4.5pt; line-height: 4.8pt; }
