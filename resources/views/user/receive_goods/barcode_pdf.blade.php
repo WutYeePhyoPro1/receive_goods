@@ -5,11 +5,10 @@
     <style>
         @page { size: 110mm 26.924mm; margin: 0; }
         * { box-sizing: border-box; }
-        * { box-sizing: border-box; }
         body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; color: #000; }
         .sheet { position: relative; width: 110mm; height: 26.924mm; overflow: hidden; page-break-after: always; }
         .sheet.last { page-break-after: auto; }
-        .label { position: absolute; width: 34.6mm; height: 20.49mm; padding: .7mm 1.2mm; overflow: hidden; }
+        .label { position: absolute; width: 34mm; height: 20.49mm; padding: .7mm 1.2mm; overflow: hidden; }
         .bar2 .label { height: 20.49mm; padding-top: .7mm; padding-bottom: .5mm; }
         .name { height: 7mm; overflow: hidden; font-size: 7pt; line-height: 8pt; font-weight: 700; }
         .bar2 .name { height: 5mm; font-size: 5.8pt; line-height: 6.2pt; }
@@ -41,7 +40,9 @@
     <div class="sheet {{ $type === 2 ? 'bar2' : 'bar' . $type }} {{ $loop->last ? 'last' : '' }}">
         @foreach($page as $index => $unused)
             @php
-                $left = $index * 37.7;
+                // 34mm sticker + 3.1mm physical die-cut gap. Start at the
+                // paper's left edge so the unused 1.8mm remains on the right.
+                $left = $index * 37.1;
                 $top = 3.217;
             @endphp
             <div class="label" style="left: {{ $left }}mm; top: {{ $top }}mm;">
