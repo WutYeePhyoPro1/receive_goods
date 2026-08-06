@@ -8,24 +8,24 @@
         body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans-serif; color: #000; }
         .sheet { position: relative; width: 110mm; height: 20.49mm; overflow: hidden; page-break-after: always; }
         .sheet.last { page-break-after: auto; }
-        .label { position: absolute; width: 34mm; height: 20.49mm; padding: .7mm 1mm; overflow: hidden; }
-        .bar2 .label { height: 10.245mm; padding: .25mm 1mm; }
+        .label { position: absolute; width: 34mm; height: 20.49mm; padding: 0.8mm 1mm; overflow: hidden; }
+        .bar2 .label { height: 10.245mm; padding: 0.25mm 1mm; }
         .name { height: 7mm; overflow: hidden; font-family: "DejaVu Sans", sans-serif; font-size: 7pt; line-height: 8pt; font-weight: 700; }
-        .bar1 .name { height: 6mm; font-size: 6pt; line-height: 6.7pt; }
+        .bar1 .name { height: 6.5mm; font-size: 6pt; line-height: 6.7pt; }
         .name.long { font-size: 6pt; line-height: 6.5pt; }
         .name.very-long { font-size: 5.2pt; line-height: 5.7pt; }
         .bar2 .name { height: 2.5mm; font-size: 4.5pt; line-height: 4.8pt; }
         .bar2 .name.long { font-size: 3.7pt; line-height: 4pt; }
         .bar2 .name.very-long { font-size: 3.2pt; line-height: 3.5pt; }
-        .barcode { width: 31mm; height: 9mm; overflow: hidden; margin: .5mm auto 0; }
+        .barcode { width: 31mm; height: 9mm; overflow: hidden; margin: 0.5mm auto 0; }
         .barcode > div { margin-left: auto; margin-right: auto; }
-        .bar1 .barcode { height: 7.5mm; margin-top: .6mm; }
-        .bar2 .barcode { height: 3.8mm; margin-top: .1mm; }
-        .code-row { width: 31mm; margin: .2mm auto 0; font-size: 5.8pt; line-height: 6.2pt; font-weight: 400; white-space: nowrap; }
-        .code { display: inline-block; width: 25mm; text-align: center; letter-spacing: .1mm; }
+        .bar1 .barcode { height: 7mm; margin-top: 0.6mm; }
+        .bar2 .barcode { height: 3.8mm; margin-top: 0.1mm; }
+        .code-row { width: 31mm; margin: 0.2mm auto 0; font-size: 5.8pt; line-height: 6.2pt; font-weight: 400; white-space: nowrap; }
+        .code { display: inline-block; width: 25mm; text-align: center; letter-spacing: 0.1mm; }
         .unit { float: right; font-size: 5pt; font-weight: 400; }
-        .date { margin-top: .4mm; font-family: "DejaVu Sans", sans-serif; font-size: 5pt; line-height: 5.4pt; font-weight: 700; white-space: nowrap; text-align: center; }
-        .bar1 .date { margin-top: .15mm; font-size: 4.8pt; line-height: 5.2pt; }
+        .date { margin-top: 0.4mm; font-family: "DejaVu Sans", sans-serif; font-size: 5pt; line-height: 5.4pt; font-weight: 700; white-space: nowrap; text-align: center; }
+        .bar1 .date { margin-top: 0.15mm; font-size: 4.8pt; line-height: 5.2pt; }
         .bar2 .code-row { font-size: 4pt; line-height: 4.2pt; }
         .bar2 .code { width: 25mm; }
         .bar2 .unit, .bar2 .date { margin-top: 0; font-size: 4.2pt; line-height: 4.5pt; }
@@ -35,12 +35,12 @@
         .bar1 .label.last .barcode, .bar1 .label.last .code-row { margin-left: auto; margin-right: auto; }
         .bar2 .label.last .barcode, .bar2 .label.last .code-row { margin-left: auto; margin-right: auto; }
         .bar3 .name { height: 5mm; font-size: 6pt; line-height: 6.5pt; }
-        .bar3 .barcode { height: 7mm; margin-top: .2mm; }
+        .bar3 .barcode { height: 7mm; margin-top: 0.2mm; }
         .bar3 .code-row { font-size: 5.5pt; line-height: 6pt; }
-        .bar3 .date { margin-top: .2mm; font-size: 4.5pt; line-height: 5pt; }
-        .checks { white-space: nowrap; margin-top: .4mm; }
-        .box-large { display: inline-block; width: 13mm; height: 3.5mm; border: .4mm solid #000; }
-        .box-small { display: inline-block; width: 3mm; height: 3mm; margin-left: 1mm; border: .4mm solid #000; }
+        .bar3 .date { margin-top: 0.2mm; font-size: 4.5pt; line-height: 5pt; }
+        .checks { white-space: nowrap; margin-top: 0.4mm; }
+        .box-large { display: inline-block; width: 13mm; height: 3.5mm; border: 0.4mm solid #000; }
+        .box-small { display: inline-block; width: 3mm; height: 3mm; margin-left: 1mm; border: 0.4mm solid #000; }
         @media screen {
             body { background: #d1d5db; padding: 12px; }
             .sheet { background: #fff; margin: 0 auto 12px; box-shadow: 0 1px 5px rgba(0, 0, 0, .3); }
