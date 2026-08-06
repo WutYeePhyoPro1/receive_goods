@@ -1171,6 +1171,7 @@ class ActionController extends Controller
                 'id' => $id->id,
                 'qty' => $data['qty'],
                 'type' => $data['type'],
+                'v' => $request->query('v', now()->timestamp),
             ]),
         ]);
     }
@@ -1183,17 +1184,21 @@ class ActionController extends Controller
         ]);
 
         $barcode = new DNS1D();
-        $barcodePng = $barcode->getBarcodePNG((string) ($id->bar_code ?: '1'), 'C128', 4, 120, [0, 0, 0], false);
-        if ($barcodePng === false) {
-            throw new RuntimeException('The GD or Imagick PHP extension is required to render barcode labels.');
-        }
-        $barcodeDataUri = 'data:image/png;base64,' . $barcodePng;
+        $barcodeHeight = (int) $data['type'] === 2 ? 16 : ((int) $data['type'] === 3 ? 27 : 34);
+        $barcodeHtml = $barcode->getBarcodeHTML(
+            (string) ($id->bar_code ?: '1'),
+            'C128',
+            0.9,
+            $barcodeHeight,
+            'black',
+            false
+        );
 
         $pdf = Pdf::loadView('user.receive_goods.barcode_pdf', [
             'product' => $id,
             'quantity' => (int) $data['qty'],
             'type' => (int) $data['type'],
-            'barcodeDataUri' => $barcodeDataUri,
+            'barcodeHtml' => $barcodeHtml,
             'printedAt' => now()->format('d/m/Y h:i:s A'),
         ])->setPaper([0, 0, 311.76, 76.32]);
 

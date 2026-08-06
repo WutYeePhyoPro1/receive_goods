@@ -2111,7 +2111,8 @@
                                     .replace('__PRODUCT_ID__', encodeURIComponent($id));
                                 const barcodePrintParams = new URLSearchParams({
                                     qty: $qty,
-                                    type: $type
+                                    type: $type,
+                                    v: Date.now()
                                 });
 
                                 // Print the fixed-size vector PDF, following the reward system's
