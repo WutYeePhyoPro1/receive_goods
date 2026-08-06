@@ -154,6 +154,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('print_track','print_track')->name('print_track');
             route::get('barcode-print/{id}','barcode_print')->name('barcode.print');
             route::get('barcode-print/{id}/pdf','barcode_print_pdf')->name('barcode.print.pdf');
+            route::get('barcode-preview/{id}','barcode_preview')->name('barcode.preview');
 
             route::get('change_branch/{id}','change_branch');
             Route::post('/barcode_not_scan','barcode_not_scan')->name('barcode_not_scan');

@@ -1205,6 +1205,36 @@ class ActionController extends Controller
         return $pdf->stream('barcode-' . $id->bar_code . '.pdf');
     }
 
+    public function barcode_preview(Request $request, Product $id)
+    {
+        $data = validator([
+            'qty' => $request->query('qty', 6),
+            'type' => $request->query('type', 1),
+        ], [
+            'qty' => ['required', 'integer', 'min:1', 'max:500'],
+            'type' => ['required', 'integer', 'in:1,2,3'],
+        ])->validate();
+
+        $barcode = new DNS1D();
+        $barcodeHeight = (int) $data['type'] === 2 ? 14 : ((int) $data['type'] === 3 ? 27 : 28);
+        $barcodeHtml = $barcode->getBarcodeHTML(
+            (string) ($id->bar_code ?: '1'),
+            'C128',
+            0.9,
+            $barcodeHeight,
+            'black',
+            false
+        );
+
+        return view('user.receive_goods.barcode_pdf', [
+            'product' => $id,
+            'quantity' => (int) $data['qty'],
+            'type' => (int) $data['type'],
+            'barcodeHtml' => $barcodeHtml,
+            'printedAt' => now()->format('d/m/Y h:i:s A'),
+        ]);
+    }
+
     public function change_branch($id)
     {
         $user = User::find(getAuth()->id);

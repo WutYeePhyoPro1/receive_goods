@@ -41,6 +41,10 @@
         .checks { white-space: nowrap; margin-top: .4mm; }
         .box-large { display: inline-block; width: 13mm; height: 3.5mm; border: .4mm solid #000; }
         .box-small { display: inline-block; width: 3mm; height: 3mm; margin-left: 1mm; border: .4mm solid #000; }
+        @media screen {
+            body { background: #d1d5db; padding: 12px; }
+            .sheet { background: #fff; margin: 0 auto 12px; box-shadow: 0 1px 5px rgba(0, 0, 0, .3); }
+        }
     </style>
 </head>
 <body>
