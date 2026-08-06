@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { size: 110mm 26.924mm; margin: 0; }
+        @page { margin: 0; }
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans-serif; color: #000; }
-        .sheet { position: relative; width: 110mm; height: 26.924mm; overflow: hidden; page-break-after: always; }
+        .sheet { position: relative; width: 110mm; height: 20.49mm; overflow: hidden; page-break-after: always; }
         .sheet.last { page-break-after: auto; }
         .label { position: absolute; width: 34mm; height: 20.49mm; padding: .7mm 1mm; overflow: hidden; }
         .bar2 .label { height: 10.245mm; padding: .25mm 1mm; }
@@ -59,11 +59,8 @@
                 $column = $index % 3;
                 $row = $type === 2 ? intdiv($index, 3) : 0;
                 $left = $column * 37.1;
-                $baseTop = $type === 2 ? 0.3 : ($type === 1 ? 1.5 : 3.217);
+                $baseTop = $type === 2 ? 0 : 0.3;
                 $top = $baseTop + ($row * 10.245);
-                if ($type === 2 && $row === 1) {
-                    $top += 1.2;
-                }
                 $edgeClass = $column === 0 ? 'first' : ($column === 2 ? 'last' : 'middle');
             @endphp
             <div class="label {{ $edgeClass }}" style="left: {{ $left }}mm; top: {{ $top }}mm;">
