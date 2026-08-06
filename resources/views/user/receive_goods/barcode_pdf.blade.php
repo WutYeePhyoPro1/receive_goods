@@ -10,11 +10,11 @@
         .sheet.last { page-break-after: auto; }
         .label { position: absolute; width: 34mm; height: 20.49mm; padding: .7mm 1mm; overflow: hidden; }
         .bar2 .label { height: 10.245mm; padding: .25mm 1mm; }
-        .name { height: 7mm; overflow: hidden; font-size: 7pt; line-height: 8pt; font-weight: 500; }
-        .bar1 .name { height: 5.2mm; font-size: 6.3pt; line-height: 7pt; }
+        .name { height: 7mm; overflow: hidden; font-family: "DejaVu Sans", sans-serif; font-size: 7pt; line-height: 8pt; font-weight: 700; }
+        .bar1 .name { height: 5.2mm; font-size: 6pt; line-height: 6.7pt; }
         .name.long { font-size: 6pt; line-height: 6.5pt; }
         .name.very-long { font-size: 5.2pt; line-height: 5.7pt; }
-        .bar2 .name { height: 2.5mm; font-size: 4.2pt; line-height: 4.5pt; }
+        .bar2 .name { height: 2.5mm; font-size: 4.5pt; line-height: 4.8pt; }
         .bar2 .name.long { font-size: 3.7pt; line-height: 4pt; }
         .bar2 .name.very-long { font-size: 3.2pt; line-height: 3.5pt; }
         .barcode { width: 31mm; height: 9mm; overflow: hidden; margin: .5mm auto 0; }
@@ -34,6 +34,8 @@
         .bar1 .label.first .barcode, .bar1 .label.first .code-row,
         .bar1 .label.last .barcode, .bar1 .label.last .code-row { margin-left: auto; margin-right: auto; }
         .bar2 .label.last .barcode, .bar2 .label.last .code-row { margin-left: auto; margin-right: auto; }
+        .bar1 .label.first > *, .bar2 .label.first > * { position: relative; left: -1mm; }
+        .bar1 .label.last > *, .bar2 .label.last > * { position: relative; left: 1.5mm; }
         .bar3 .name { height: 5mm; font-size: 6pt; line-height: 6.5pt; }
         .bar3 .barcode { height: 7mm; margin-top: .2mm; }
         .bar3 .code-row { font-size: 5.5pt; line-height: 6pt; }
@@ -59,9 +61,6 @@
                 $column = $index % 3;
                 $row = $type === 2 ? intdiv($index, 3) : 0;
                 $left = $column * 37.1;
-                if ($type === 2 && $column === 2) {
-                    $left += 1.5;
-                }
                 $baseTop = $type === 2 ? 0.3 : ($type === 1 ? 1.5 : 3.217);
                 $top = $baseTop + ($row * 10.245);
                 $edgeClass = $column === 0 ? 'first' : ($column === 2 ? 'last' : 'middle');
