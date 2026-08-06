@@ -5,23 +5,24 @@
     <style>
         @page { size: 110mm 26.924mm; margin: 0; }
         * { box-sizing: border-box; }
+        * { box-sizing: border-box; }
         body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; color: #000; }
         .sheet { position: relative; width: 110mm; height: 26.924mm; overflow: hidden; page-break-after: always; }
         .sheet.last { page-break-after: auto; }
-        .label { position: absolute; width: 36.666mm; height: 26.924mm; padding: 1.2mm 1.5mm; overflow: hidden; }
-        .bar2 .label { height: 13.462mm; padding-top: .5mm; padding-bottom: .3mm; }
+        .label { position: absolute; width: 34.6mm; height: 20.49mm; padding: .7mm 1.2mm; overflow: hidden; }
+        .bar2 .label { height: 20.49mm; padding-top: .7mm; padding-bottom: .5mm; }
         .name { height: 7mm; overflow: hidden; font-size: 7pt; line-height: 8pt; font-weight: 700; }
-        .bar2 .name { height: 4mm; font-size: 5.4pt; line-height: 5.8pt; }
+        .bar2 .name { height: 5mm; font-size: 5.8pt; line-height: 6.2pt; }
         .barcode { width: 31mm; height: 9mm; overflow: hidden; margin: .5mm auto 0; }
         .barcode > div { margin-left: auto; margin-right: auto; }
-        .bar2 .barcode { height: 4.2mm; margin-top: 0; }
+        .bar2 .barcode { height: 6mm; margin-top: .2mm; }
         .code-row { width: 31mm; margin: 0 auto; font-size: 6.5pt; line-height: 7pt; font-weight: 700; white-space: nowrap; }
         .code { display: inline-block; width: 25mm; text-align: center; letter-spacing: .15mm; }
         .unit { float: right; font-size: 5.5pt; }
         .date { margin-top: .5mm; font-size: 5.3pt; line-height: 5.5pt; font-weight: 700; white-space: nowrap; text-align: center; }
-        .bar2 .code-row { font-size: 4.6pt; line-height: 5pt; }
+        .bar2 .code-row { font-size: 5.2pt; line-height: 5.5pt; }
         .bar2 .code { width: 25mm; }
-        .bar2 .unit, .bar2 .date { font-size: 4.2pt; line-height: 4.4pt; }
+        .bar2 .unit, .bar2 .date { font-size: 4.7pt; line-height: 5pt; }
         .bar3 .name { height: 5mm; font-size: 6pt; line-height: 6.5pt; }
         .bar3 .barcode { height: 7mm; margin-top: .2mm; }
         .bar3 .code-row { font-size: 5.5pt; line-height: 6pt; }
@@ -33,15 +34,15 @@
 </head>
 <body>
 @php
-    $perPage = $type === 2 ? 6 : 3;
+    $perPage = 3;
     $items = range(1, $quantity);
 @endphp
 @foreach(array_chunk($items, $perPage) as $page)
     <div class="sheet {{ $type === 2 ? 'bar2' : 'bar' . $type }} {{ $loop->last ? 'last' : '' }}">
         @foreach($page as $index => $unused)
             @php
-                $left = ($index % 3) * 36.666;
-                $top = $type === 2 ? intdiv($index, 3) * 13.462 : 0;
+                $left = $index * 37.7;
+                $top = 3.217;
             @endphp
             <div class="label" style="left: {{ $left }}mm; top: {{ $top }}mm;">
                 <div class="name">{{ \Illuminate\Support\Str::limit($product->supplier_name, 77) }}</div>
