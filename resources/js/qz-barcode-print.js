@@ -52,18 +52,18 @@ function barcode(labelX, y, height, value) {
 
 function fullLabel(labelX, top, payload, type) {
     const left = labelX + dots(1.5);
-    const lines = splitName(payload.name, 18, 2);
+    const lines = splitName(payload.name, 24, 2);
     const commands = [];
 
     lines.forEach((line, index) => {
-        commands.push(text(left, top + 2 + (index * 21), line, '2'));
+        commands.push(text(left, top + 2 + (index * 14), line, '1'));
     });
 
-    const barcodeY = top + (lines.length > 1 ? 45 : 25);
+    const barcodeY = top + (lines.length > 1 ? 32 : 20);
     const barcodeHeight = type === 3 ? 45 : 55;
     commands.push(barcode(labelX, barcodeY, barcodeHeight, payload.barcode));
-    commands.push(text(left, barcodeY + barcodeHeight + 3, payload.barcode, '2'));
-    commands.push(text(labelX + dots(28.5), barcodeY + barcodeHeight + 3, payload.unit, '2'));
+    commands.push(text(left, barcodeY + barcodeHeight + 3, payload.barcode, '1'));
+    commands.push(text(labelX + dots(28.5), barcodeY + barcodeHeight + 3, payload.unit, '1'));
 
     if (type === 3) {
         const boxY = barcodeY + barcodeHeight + 20;
@@ -71,16 +71,16 @@ function fullLabel(labelX, top, payload, type) {
         commands.push(`BOX ${labelX + dots(20)},${boxY},${labelX + dots(23)},${boxY + dots(3)},2`);
     }
 
-    commands.push(text(left, top + dots(17.8), compactDate(payload.printedAt), '2'));
+    commands.push(text(left, top + dots(17.8), compactDate(payload.printedAt), '1'));
     return commands;
 }
 
 function halfLabel(labelX, top, payload) {
     const left = labelX + dots(1.5);
-    const name = splitName(payload.name, 18, 1)[0];
+    const name = splitName(payload.name, 24, 1)[0];
     return [
-        text(left, top, name, '2'),
-        barcode(labelX, top + 21, 29, payload.barcode),
+        text(left, top, name, '1'),
+        barcode(labelX, top + 15, 34, payload.barcode),
         text(left, top + 52, payload.barcode, '1'),
         text(labelX + dots(28.5), top + 52, payload.unit, '1'),
         text(left, top + 65, compactDate(payload.printedAt), '1'),
