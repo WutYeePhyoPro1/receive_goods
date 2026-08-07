@@ -46,8 +46,8 @@ function text(x, y, value, font = '1', xScale = 1, yScale = 1) {
 }
 
 function barcode(labelX, y, height, value) {
-    // A 1:2 module ratio produces a slimmer Code 128 symbol on 203-DPI stock.
-    return `BARCODE ${labelX + dots(2)},${y},"128",${height},0,0,1,2,"${clean(value)}"`;
+    // Two printer dots per narrow module is the reliable minimum at 203 DPI.
+    return `BARCODE ${labelX + dots(2)},${y},"128",${height},0,0,2,2,"${clean(value)}"`;
 }
 
 function fullLabel(labelX, top, payload, type) {
@@ -56,14 +56,14 @@ function fullLabel(labelX, top, payload, type) {
     const commands = [];
 
     lines.forEach((line, index) => {
-        commands.push(text(left, top + 2 + (index * 18), line, '0'));
+        commands.push(text(left, top + 2 + (index * 14), line, '1'));
     });
 
-    const barcodeY = top + (lines.length > 1 ? 41 : 23);
+    const barcodeY = top + (lines.length > 1 ? 32 : 20);
     const barcodeHeight = type === 3 ? 45 : 55;
     commands.push(barcode(labelX, barcodeY, barcodeHeight, payload.barcode));
-    commands.push(text(left, barcodeY + barcodeHeight + 3, payload.barcode, '0'));
-    commands.push(text(labelX + dots(28.5), barcodeY + barcodeHeight + 3, payload.unit, '0'));
+    commands.push(text(left, barcodeY + barcodeHeight + 3, payload.barcode, '1'));
+    commands.push(text(labelX + dots(28.5), barcodeY + barcodeHeight + 3, payload.unit, '1'));
 
     if (type === 3) {
         const boxY = barcodeY + barcodeHeight + 20;
@@ -71,7 +71,7 @@ function fullLabel(labelX, top, payload, type) {
         commands.push(`BOX ${labelX + dots(20)},${boxY},${labelX + dots(23)},${boxY + dots(3)},2`);
     }
 
-    commands.push(text(left, top + dots(17.8), compactDate(payload.printedAt), '0'));
+    commands.push(text(left, top + dots(17.8), compactDate(payload.printedAt), '1'));
     return commands;
 }
 
