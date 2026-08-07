@@ -33,54 +33,57 @@ function splitName(value, maxChars, maxLines) {
     return lines.length ? lines : [''];
 }
 
+function compactDate(value) {
+    const normalized = clean(value);
+    const match = normalized.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::\d{2})?\s+(AM|PM)$/i);
+    if (!match) return normalized.slice(0, 18);
+
+    return `${match[1]}/${match[2]}/${match[3].slice(-2)} ${match[4]}:${match[5]} ${match[6].toUpperCase()}`;
+}
+
 function text(x, y, value, font = '1', xScale = 1, yScale = 1) {
     return `TEXT ${x},${y},"${font}",0,${xScale},${yScale},"${clean(value)}"`;
 }
 
-function centeredText(labelX, y, value, fontWidth = 8, font = '1') {
-    const labelWidth = dots(34);
-    const estimatedWidth = clean(value).length * fontWidth;
-    const x = labelX + Math.max(dots(2), Math.round((labelWidth - estimatedWidth) / 2));
-    return text(x, y, value, font);
-}
-
 function barcode(labelX, y, height, value) {
     // Two printer dots per narrow module keeps Code 128 sharp at 203 DPI.
-    return `BARCODE ${labelX + dots(4)},${y},"128",${height},0,0,2,2,"${clean(value)}"`;
+    return `BARCODE ${labelX + dots(2)},${y},"128",${height},0,0,2,2,"${clean(value)}"`;
 }
 
 function fullLabel(labelX, top, payload, type) {
-    const lines = splitName(payload.name, 22, 2);
+    const left = labelX + dots(1.5);
+    const lines = splitName(payload.name, 18, 2);
     const commands = [];
 
     lines.forEach((line, index) => {
-        commands.push(text(labelX + dots(2.5), top + 4 + (index * 18), line, '1'));
+        commands.push(text(left, top + 2 + (index * 21), line, '2'));
     });
 
-    const barcodeY = top + (lines.length > 1 ? 43 : 28);
+    const barcodeY = top + (lines.length > 1 ? 45 : 25);
     const barcodeHeight = type === 3 ? 45 : 55;
     commands.push(barcode(labelX, barcodeY, barcodeHeight, payload.barcode));
-    commands.push(centeredText(labelX, barcodeY + barcodeHeight + 3, payload.barcode));
-    commands.push(text(labelX + dots(30), barcodeY + barcodeHeight + 3, payload.unit, '1'));
+    commands.push(text(left, barcodeY + barcodeHeight + 3, payload.barcode, '2'));
+    commands.push(text(labelX + dots(28.5), barcodeY + barcodeHeight + 3, payload.unit, '2'));
 
     if (type === 3) {
         const boxY = barcodeY + barcodeHeight + 20;
-        commands.push(`BOX ${labelX + dots(2.5)},${boxY},${labelX + dots(19)},${boxY + dots(3.5)},2`);
+        commands.push(`BOX ${left},${boxY},${labelX + dots(18)},${boxY + dots(3.5)},2`);
         commands.push(`BOX ${labelX + dots(20)},${boxY},${labelX + dots(23)},${boxY + dots(3)},2`);
     }
 
-    commands.push(centeredText(labelX, top + dots(17.8), payload.printedAt, 8, '1'));
+    commands.push(text(left, top + dots(17.8), compactDate(payload.printedAt), '2'));
     return commands;
 }
 
 function halfLabel(labelX, top, payload) {
-    const name = splitName(payload.name, 24, 1)[0];
+    const left = labelX + dots(1.5);
+    const name = splitName(payload.name, 18, 1)[0];
     return [
-        text(labelX + dots(2.5), top + 2, name, '1'),
-        barcode(labelX, top + 20, 30, payload.barcode),
-        centeredText(labelX, top + 52, payload.barcode, 8, '1'),
-        text(labelX + dots(30), top + 52, payload.unit, '1'),
-        centeredText(labelX, top + 65, payload.printedAt, 8, '1'),
+        text(left, top, name, '2'),
+        barcode(labelX, top + 21, 29, payload.barcode),
+        text(left, top + 52, payload.barcode, '1'),
+        text(labelX + dots(28.5), top + 52, payload.unit, '1'),
+        text(left, top + 65, compactDate(payload.printedAt), '1'),
     ];
 }
 
