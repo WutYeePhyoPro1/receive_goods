@@ -8,8 +8,12 @@
         body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans-serif; color: #000; }
         .sheet { position: relative; width: 109.9mm; height: 26.924mm; overflow: hidden; page-break-after: always; }
         .sheet.last { page-break-after: auto; }
-        .label { position: absolute; width: 34mm; height: 20.49mm; padding: 0.8mm 1mm; overflow: hidden; }
+        .label-row { position: absolute; left: 0; width: 108.2mm; height: 20.49mm; overflow: hidden; }
+        .label-row::after { display: block; clear: both; content: ""; }
+        .label { float: left; width: 34mm; height: 20.49mm; margin-right: 3.1mm; padding: 0.8mm 1mm; overflow: hidden; }
+        .label.last { margin-right: 0; }
         .bar2 .label { height: 10.245mm; padding: 0.25mm 1mm; }
+        .bar2 .label-row { height: 10.245mm; }
         .name { width: 31mm; height: 7mm; margin-left: auto; margin-right: auto; overflow: hidden; font-family: "DejaVu Sans", sans-serif; font-size: 7pt; line-height: 8pt; font-weight: 700; }
         .bar1 .name { height: 6.5mm; font-size: 5.5pt; line-height: 6.2pt; }
         .name.long { font-size: 6pt; line-height: 6.5pt; }
@@ -56,23 +60,21 @@
 @endphp
 @foreach(array_chunk($items, $perPage) as $page)
     <div class="sheet {{ $type === 2 ? 'bar2' : 'bar' . $type }} {{ $loop->last ? 'last' : '' }}">
-        @foreach($page as $index => $unused)
-            @php
-                $column = $index % 3;
-                $row = $type === 2 ? intdiv($index, 3) : 0;
-                $left = $column * 37.1;
-                $baseTop = $type === 2 ? 0 : 0.3;
-                $top = $baseTop + ($row * 10.245);
-                $edgeClass = $column === 0 ? 'first' : ($column === 2 ? 'last' : 'middle');
-            @endphp
-            <div class="label {{ $edgeClass }}" style="left: {{ $left }}mm; top: {{ $top }}mm;">
-                <div class="name {{ $nameClass }}">{{ \Illuminate\Support\Str::limit($product->supplier_name, 77) }}</div>
-                <div class="barcode">{!! $barcodeHtml !!}</div>
-                <div class="code-row"><span class="code">{{ $product->bar_code }}</span><span class="unit">{{ $product->unit }}</span></div>
-                @if($type === 3)
-                    <div class="checks"><span class="box-large"></span><span class="box-small"></span></div>
-                @endif
-                <div class="date">{{ $printedAt }}</div>
+        @foreach(array_chunk($page, 3) as $rowIndex => $row)
+            @php $rowTop = $type === 2 ? ($rowIndex * 10.245) : 0.3; @endphp
+            <div class="label-row" style="top: {{ $rowTop }}mm;">
+                @foreach($row as $column => $unused)
+                    @php $edgeClass = $column === 0 ? 'first' : ($column === 2 ? 'last' : 'middle'); @endphp
+                    <div class="label {{ $edgeClass }}">
+                        <div class="name {{ $nameClass }}">{{ \Illuminate\Support\Str::limit($product->supplier_name, 77) }}</div>
+                        <div class="barcode">{!! $barcodeHtml !!}</div>
+                        <div class="code-row"><span class="code">{{ $product->bar_code }}</span><span class="unit">{{ $product->unit }}</span></div>
+                        @if($type === 3)
+                            <div class="checks"><span class="box-large"></span><span class="box-small"></span></div>
+                        @endif
+                        <div class="date">{{ $printedAt }}</div>
+                    </div>
+                @endforeach
             </div>
         @endforeach
     </div>
