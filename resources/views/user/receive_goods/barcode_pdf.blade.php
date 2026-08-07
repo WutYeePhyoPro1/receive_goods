@@ -62,7 +62,7 @@
 @foreach(array_chunk($items, $perPage) as $page)
     <div class="sheet {{ $type === 2 ? 'bar2' : 'bar' . $type }} {{ $loop->last ? 'last' : '' }}">
         @foreach(array_chunk($page, 3) as $rowIndex => $row)
-            @php $rowTop = $type === 2 ? ($rowIndex * 10.245) : 0.3; @endphp
+            @php $rowTop = 3.155 + ($type === 2 ? ($rowIndex * 10.245) : 0); @endphp
             <div class="label-row" style="top: {{ $rowTop }}mm;">
                 @foreach($row as $column => $unused)
                     @php $edgeClass = $column === 0 ? 'first' : ($column === 2 ? 'last' : 'middle'); @endphp
