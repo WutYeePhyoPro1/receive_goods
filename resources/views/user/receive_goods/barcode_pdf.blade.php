@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { size: 110mm 20.49mm; margin: 0; }
+        @page { size: 110mm 26.924mm; margin: 0; }
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans-serif; color: #000; }
         .sheet { position: relative; width: 110mm; height: 20.49mm; overflow: hidden; page-break-after: always; }
