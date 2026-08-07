@@ -1168,13 +1168,14 @@ class ActionController extends Controller
 
         $barcode = new DNS1D();
         $barcodeHeight = (int) $data['type'] === 2 ? 14 : ((int) $data['type'] === 3 ? 27 : 28);
-        $barcodeHtml = $barcode->getBarcodeHTML(
+        $barcodeHtml = $barcode->getBarcodeSVG(
             (string) ($id->bar_code ?: '1'),
             'C128',
             0.9,
             $barcodeHeight,
             'black',
-            false
+            false,
+            true
         );
 
         return view('user.receive_goods.barcode_pdf', [
@@ -1228,13 +1229,14 @@ class ActionController extends Controller
 
         $barcode = new DNS1D();
         $barcodeHeight = (int) $data['type'] === 2 ? 14 : ((int) $data['type'] === 3 ? 27 : 28);
-        $barcodeHtml = $barcode->getBarcodeHTML(
+        $barcodeHtml = $barcode->getBarcodeSVG(
             (string) ($id->bar_code ?: '1'),
             'C128',
             0.9,
             $barcodeHeight,
             'black',
-            false
+            false,
+            true
         );
 
         return view('user.receive_goods.barcode_pdf', [

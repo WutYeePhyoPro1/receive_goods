@@ -15,25 +15,26 @@
         .label.last { left: 74.2mm; }
         .bar2 .label { height: 10.245mm; padding: 0.25mm 1mm; }
         .bar2 .label-row { height: 10.245mm; }
-        .name { width: 31mm; height: 7mm; margin-left: auto; margin-right: auto; overflow: hidden; font-family: "DejaVu Sans", sans-serif; font-size: 7pt; line-height: 8pt; font-weight: 700; }
+        .name { width: 31mm; height: 7mm; margin-left: auto; margin-right: auto; overflow: hidden; font-family: Helvetica, Arial, sans-serif; font-size: 7pt; line-height: 8pt; font-weight: 500; letter-spacing: 0.03mm; }
         .bar1 .name { height: 6.5mm; font-size: 5.5pt; line-height: 6.2pt; }
         .name.long { font-size: 6pt; line-height: 6.5pt; }
         .name.very-long { font-size: 5.2pt; line-height: 5.7pt; }
-        .bar2 .name { height: 2.5mm; font-size: 4.1pt; line-height: 4.4pt; }
-        .bar2 .name.long { font-size: 3.7pt; line-height: 4pt; }
-        .bar2 .name.very-long { font-size: 3.2pt; line-height: 3.5pt; }
+        .bar2 .name { height: 2.7mm; font-size: 4.6pt; line-height: 4.8pt; }
+        .bar2 .name.long { font-size: 4.2pt; line-height: 4.4pt; }
+        .bar2 .name.very-long { font-size: 3.8pt; line-height: 4pt; }
         .barcode { width: 31mm; height: 9mm; overflow: hidden; margin: 0.5mm auto 0; }
         .barcode > div { margin-left: auto; margin-right: auto; }
+        .barcode svg { display: block; width: 100%; height: 100%; }
         .bar1 .barcode { height: 7mm; margin-top: 0.6mm; }
         .bar2 .barcode { height: 3.8mm; margin-top: 0.1mm; }
         .code-row { width: 31mm; margin: 0.2mm auto 0; font-size: 5.8pt; line-height: 6.2pt; font-weight: 400; white-space: nowrap; }
         .code { display: inline-block; width: 25mm; text-align: center; letter-spacing: 0.1mm; }
         .unit { float: right; font-size: 5pt; font-weight: 400; }
-        .date { margin-top: 0.4mm; font-family: "DejaVu Sans", sans-serif; font-size: 5pt; line-height: 5.4pt; font-weight: 700; white-space: nowrap; text-align: center; }
+        .date { margin-top: 0.4mm; font-family: Helvetica, Arial, sans-serif; font-size: 5pt; line-height: 5.4pt; font-weight: 500; letter-spacing: 0.02mm; white-space: nowrap; text-align: center; }
         .bar1 .date { margin-top: 0.15mm; font-size: 4.8pt; line-height: 5.2pt; }
         .bar2 .code-row { font-size: 4pt; line-height: 4.2pt; }
         .bar2 .code { width: 25mm; }
-        .bar2 .unit, .bar2 .date { margin-top: 0; font-size: 4.2pt; line-height: 4.5pt; }
+        .bar2 .unit, .bar2 .date { margin-top: 0; font-size: 4.5pt; line-height: 4.7pt; }
         .label.first .barcode, .label.first .code-row { margin-left: 0; margin-right: auto; }
         .label.last .barcode, .label.last .code-row { margin-left: auto; margin-right: 0; }
         .bar1 .label.first .barcode, .bar1 .label.first .code-row,
