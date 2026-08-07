@@ -10,6 +10,7 @@
         .sheet.last { page-break-after: auto; }
         .label-row { position: absolute; left: 0; width: 108.2mm; height: 20.49mm; }
         .label { position: absolute; top: 0; width: 34mm; height: 20.49mm; padding: 0.8mm 1mm; overflow: hidden; }
+        .label > * { position: relative; left: 1mm; }
         .label.first { left: 0; }
         .label.middle { left: 37.1mm; }
         .label.last { left: 74.2mm; }
@@ -22,8 +23,9 @@
         .bar2 .name { height: 2.7mm; font-size: 4.6pt; line-height: 4.8pt; }
         .bar2 .name.long { font-size: 4.2pt; line-height: 4.4pt; }
         .bar2 .name.very-long { font-size: 3.8pt; line-height: 4pt; }
-        .barcode { width: 31mm; height: 9mm; overflow: hidden; margin: 0.5mm auto 0; }
+        .barcode { width: 28mm; height: 9mm; overflow: hidden; margin: 0.5mm auto 0; }
         .barcode > div { margin-left: auto; margin-right: auto; }
+        .barcode svg, .barcode svg rect { shape-rendering: crispEdges; }
         .barcode svg { display: block; width: 100%; height: 100%; }
         .bar1 .barcode { height: 7mm; margin-top: 0.6mm; }
         .bar2 .barcode { height: 3.8mm; margin-top: 0.1mm; }
@@ -35,11 +37,7 @@
         .bar2 .code-row { font-size: 4pt; line-height: 4.2pt; }
         .bar2 .code { width: 25mm; }
         .bar2 .unit, .bar2 .date { margin-top: 0; font-size: 4.5pt; line-height: 4.7pt; }
-        .label.first .barcode, .label.first .code-row { margin-left: 0; margin-right: auto; }
-        .label.last .barcode, .label.last .code-row { margin-left: auto; margin-right: 0; }
-        .bar1 .label.first .barcode, .bar1 .label.first .code-row,
-        .bar1 .label.last .barcode, .bar1 .label.last .code-row { margin-left: auto; margin-right: auto; }
-        .bar2 .label.last .barcode, .bar2 .label.last .code-row { margin-left: auto; margin-right: auto; }
+        .label .barcode, .label .code-row { margin-left: auto; margin-right: auto; }
         .bar3 .name { height: 5mm; font-size: 6pt; line-height: 6.5pt; }
         .bar3 .barcode { height: 7mm; margin-top: 0.2mm; }
         .bar3 .code-row { font-size: 5.5pt; line-height: 6pt; }
