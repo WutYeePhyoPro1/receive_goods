@@ -29,7 +29,7 @@
         .barcode svg { display: block; width: 100%; height: 100%; }
         .bar1 .barcode { height: 7mm; margin-top: 0.6mm; }
         .bar2 .barcode { height: 3.8mm; margin-top: 0.1mm; }
-        .code-row { width: 31mm; margin: 0.2mm auto 0; font-size: 5.8pt; line-height: 6.2pt; font-weight: 400; white-space: nowrap; }
+        .code-row { width: 28mm; margin: 0.2mm auto 0; font-size: 5.8pt; line-height: 6.2pt; font-weight: 400; white-space: nowrap; }
         .code { display: inline-block; width: 25mm; text-align: center; letter-spacing: 0.1mm; }
         .unit { float: right; font-size: 5pt; font-weight: 400; }
         .date { margin-top: 0.4mm; font-family: Helvetica, Arial, sans-serif; font-size: 5pt; line-height: 5.4pt; font-weight: 500; letter-spacing: 0.02mm; white-space: nowrap; text-align: center; }
