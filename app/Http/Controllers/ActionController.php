@@ -1200,7 +1200,7 @@ class ActionController extends Controller
             'type' => (int) $data['type'],
             'barcodeHtml' => $barcodeHtml,
             'printedAt' => now()->format('d/m/Y h:i:s A'),
-        ])->setPaper([0, 0, 311.76, 76.32]);
+        ])->setPaper([0, 0, 311.811, 76.32]);
 
         return $pdf->stream('barcode-' . $id->bar_code . '.pdf');
     }

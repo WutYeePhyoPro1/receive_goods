@@ -6,7 +6,7 @@
         @page { size: 110mm 26.924mm; margin: 0; }
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans-serif; color: #000; }
-        .sheet { position: relative; width: 110mm; height: 20.49mm; overflow: hidden; page-break-after: always; }
+        .sheet { position: relative; width: 109.9mm; height: 20.49mm; overflow: hidden; page-break-after: always; }
         .sheet.last { page-break-after: auto; }
         .label { position: absolute; width: 34mm; height: 20.49mm; padding: 0.8mm 1mm; overflow: hidden; }
         .bar2 .label { height: 10.245mm; padding: 0.25mm 1mm; }
