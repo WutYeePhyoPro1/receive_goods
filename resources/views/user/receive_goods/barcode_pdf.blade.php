@@ -3,15 +3,16 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { size: 110mm 26.924mm; margin: 0; }
+        @page { size: 109.982mm 26.924mm; margin: 0; }
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; font-family: Helvetica, Arial, sans-serif; color: #000; }
-        .sheet { position: relative; width: 109.9mm; height: 26.924mm; overflow: hidden; page-break-after: always; }
+        .sheet { position: relative; width: 109.8mm; height: 26.8mm; overflow: hidden; page-break-after: always; }
         .sheet.last { page-break-after: auto; }
-        .label-row { position: absolute; left: 0; width: 108.2mm; height: 20.49mm; overflow: hidden; }
-        .label-row::after { display: block; clear: both; content: ""; }
-        .label { float: left; width: 34mm; height: 20.49mm; margin-right: 3.1mm; padding: 0.8mm 1mm; overflow: hidden; }
-        .label.last { margin-right: 0; }
+        .label-row { position: absolute; left: 0; width: 108.2mm; height: 20.49mm; }
+        .label { position: absolute; top: 0; width: 34mm; height: 20.49mm; padding: 0.8mm 1mm; overflow: hidden; }
+        .label.first { left: 0; }
+        .label.middle { left: 37.1mm; }
+        .label.last { left: 74.2mm; }
         .bar2 .label { height: 10.245mm; padding: 0.25mm 1mm; }
         .bar2 .label-row { height: 10.245mm; }
         .name { width: 31mm; height: 7mm; margin-left: auto; margin-right: auto; overflow: hidden; font-family: "DejaVu Sans", sans-serif; font-size: 7pt; line-height: 8pt; font-weight: 700; }
