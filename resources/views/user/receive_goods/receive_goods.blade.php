@@ -1037,6 +1037,24 @@
                                 <option value="{{ $item->id }}">{{ $item->reason }}</option>
                             @endforeach
                         </Select>
+                        <select id="barcode_print_mode"
+                            class="w-full border border-slate-300 py-3 ps-2 bg-white rounded-lg appearance-none mt-2">
+                            <option value="browser">Browser Print (Fallback)</option>
+                            <option value="direct">QZ Direct Print (Clear Barcode)</option>
+                        </select>
+                        <div id="qz_printer_settings" class="hidden mt-2 rounded-lg border border-slate-300 bg-white p-2">
+                            <div class="flex gap-2">
+                                <select id="qz_printer"
+                                    class="min-w-0 flex-1 border border-slate-300 py-2 ps-2 rounded-lg">
+                                    <option value="">Gainscha printer ရွေးပါ</option>
+                                </select>
+                                <button type="button" id="qz_refresh_printers"
+                                    class="rounded-md bg-sky-500 px-3 py-1 text-white">Refresh</button>
+                                <button type="button" id="qz_test_print"
+                                    class="rounded-md bg-amber-500 px-3 py-1 text-white">Test</button>
+                            </div>
+                            <small id="qz_status" class="mt-1 block text-slate-500">QZ Tray connection မစစ်ရသေးပါ။</small>
+                        </div>
                         <input type="number" id="print_count"
                             class="appearance-none w-full border-2 border-slate-300 rounded-lg min-h-12 mt-4 ps-2 focus:outline-none focus:border-sky-200 focus:border-3"
                             placeholder="500 ထက်မပိုပါနဲ့">
@@ -2054,6 +2072,8 @@
                             $('#print_count').val('');
                             $('#print_no').show();
                             $('#print_eq').val($(this).data('index'));
+                            const printMode = window.receivedGoodsQz?.getMode() || 'browser';
+                            $('#barcode_print_mode').val(printMode).trigger('change');
                         })
 
                         $(document).on("input", '#print_count', function(e) {
@@ -2071,7 +2091,72 @@
                             return new Array(num + 1).join(str);
                         }
 
-                        $(document).on('click', '#final_print', function(e) {
+                        async function refreshQzPrinters(showError = true) {
+                            const $status = $('#qz_status');
+                            const $printer = $('#qz_printer');
+                            $status.removeClass('text-rose-600 text-emerald-600').addClass('text-slate-500')
+                                .text('QZ Tray နှင့်ချိတ်ဆက်နေသည်...');
+
+                            try {
+                                const printers = await window.receivedGoodsQz.listPrinters();
+                                const savedPrinter = window.receivedGoodsQz.getPrinter();
+                                $printer.empty().append('<option value="">Gainscha printer ရွေးပါ</option>');
+                                printers.forEach((printer) => {
+                                    $('<option>').val(printer).text(printer).appendTo($printer);
+                                });
+                                if (savedPrinter && printers.includes(savedPrinter)) $printer.val(savedPrinter);
+                                $status.removeClass('text-slate-500').addClass('text-emerald-600')
+                                    .text(printers.length ? `${printers.length} printer(s) တွေ့သည်။` : 'Gainscha printer မတွေ့ပါ။');
+                            } catch (error) {
+                                $status.removeClass('text-slate-500').addClass('text-rose-600')
+                                    .text('QZ Tray ချိတ်ဆက်မရပါ။ QZ Tray ဖွင့်ထားခြင်းရှိမရှိ စစ်ပါ။');
+                                if (showError) console.error('QZ Tray connection failed', error);
+                            }
+                        }
+
+                        $(document).on('change', '#barcode_print_mode', function() {
+                            const mode = $(this).val();
+                            window.receivedGoodsQz?.setMode(mode);
+                            $('#qz_printer_settings').toggleClass('hidden', mode !== 'direct');
+                            if (mode === 'direct' && window.receivedGoodsQz) refreshQzPrinters(false);
+                        });
+
+                        $(document).on('change', '#qz_printer', function() {
+                            window.receivedGoodsQz?.setPrinter($(this).val());
+                        });
+
+                        $(document).on('click', '#qz_refresh_printers', function() {
+                            refreshQzPrinters();
+                        });
+
+                        $(document).on('click', '#qz_test_print', async function() {
+                            const printer = $('#qz_printer').val();
+                            if (!printer) {
+                                $('#qz_status').addClass('text-rose-600').text('Printer အရင်ရွေးပါ။');
+                                return;
+                            }
+                            const $button = $(this).prop('disabled', true).text('Printing...');
+                            try {
+                                await window.receivedGoodsQz.testPrint(printer);
+                                $('#qz_status').removeClass('text-rose-600').addClass('text-emerald-600')
+                                    .text('Test print ပို့ပြီးပါပြီ။');
+                            } catch (error) {
+                                $('#qz_status').removeClass('text-emerald-600').addClass('text-rose-600')
+                                    .text(`Test print မအောင်မြင်ပါ: ${error.message || error}`);
+                            } finally {
+                                $button.prop('disabled', false).text('Test');
+                            }
+                        });
+
+                        function trackBarcodePrint(id, qty, type, reason) {
+                            $.ajax({
+                                url: "{{ route('print_track') }}",
+                                type: 'POST',
+                                data: { _token: token, id, qty, type, reason }
+                            });
+                        }
+
+                        $(document).on('click', '#final_print', async function(e) {
                             $index = $('#print_eq').val();
                             $pd_code = $('.bar_code').eq($index).text();
                             $qty = $('#print_count').val();
@@ -2091,20 +2176,32 @@
                                     2, '0')].join(':');
                                 $full_date = $date + ' ' + $time + ' ' + $period;
 
-                                $.ajax({
-                                    url: "{{ route('print_track') }}",
-                                    type: 'POST',
-                                    data: {
-                                        _token: token,
-                                        id: $id,
-                                        qty: $qty,
-                                        type: $type,
-                                        reason: $reason
-                                    },
-                                    success: function(res) {}
-                                })
-
                                 console.log($name.length);
+
+                                if (window.receivedGoodsQz?.getMode() === 'direct') {
+                                    const $button = $('#final_print').prop('disabled', true).text('Printing...');
+                                    try {
+                                        await window.receivedGoodsQz.print({
+                                            name: $name,
+                                            barcode: $pd_code,
+                                            unit: $unit,
+                                            printedAt: $full_date,
+                                            quantity: Number($qty),
+                                            type: Number($type),
+                                        });
+                                        trackBarcodePrint($id, $qty, $type, $reason);
+                                        $('#print_no').hide();
+                                    } catch (error) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Direct print မအောင်မြင်ပါ',
+                                            text: `${error.message || error} Browser Print ကို fallback အဖြစ်ရွေးနိုင်ပါတယ်။`,
+                                        });
+                                    } finally {
+                                        $button.prop('disabled', false).text('Print');
+                                    }
+                                    return;
+                                }
 
                                 const new_pr = window.open("", "", "width=900,height=600");
                                 const barcodePrintUrl = @json(route('barcode.print', ['id' => '__PRODUCT_ID__']))
@@ -2119,6 +2216,7 @@
                                 // iframe/PDF approach. This avoids browser HTML scaling and keeps
                                 // every Code 128 bar sharp and complete.
                                 new_pr.location.href = `${barcodePrintUrl}?${barcodePrintParams.toString()}`;
+                                trackBarcodePrint($id, $qty, $type, $reason);
                                 $('#print_no').hide();
                                 return;
 
