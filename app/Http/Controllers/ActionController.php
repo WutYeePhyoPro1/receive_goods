@@ -1166,13 +1166,24 @@ class ActionController extends Controller
             'type' => ['required', 'integer', 'in:1,2,3'],
         ]);
 
-        return view('user.receive_goods.barcode_print', [
-            'pdfUrl' => route('barcode.print.pdf', [
-                'id' => $id->id,
-                'qty' => $data['qty'],
-                'type' => $data['type'],
-                'v' => $request->query('v', now()->timestamp),
-            ]),
+        $barcode = new DNS1D();
+        $barcodeHeight = (int) $data['type'] === 2 ? 14 : ((int) $data['type'] === 3 ? 27 : 28);
+        $barcodeHtml = $barcode->getBarcodeHTML(
+            (string) ($id->bar_code ?: '1'),
+            'C128',
+            0.9,
+            $barcodeHeight,
+            'black',
+            false
+        );
+
+        return view('user.receive_goods.barcode_pdf', [
+            'product' => $id,
+            'quantity' => (int) $data['qty'],
+            'type' => (int) $data['type'],
+            'barcodeHtml' => $barcodeHtml,
+            'printedAt' => now()->format('d/m/Y h:i:s A'),
+            'autoPrint' => true,
         ]);
     }
 

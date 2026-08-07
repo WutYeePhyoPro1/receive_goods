@@ -80,5 +80,15 @@
         @endforeach
     </div>
 @endforeach
+@if($autoPrint ?? false)
+<script>
+    window.addEventListener('load', function () {
+        window.setTimeout(function () {
+            window.focus();
+            window.print();
+        }, 250);
+    });
+</script>
+@endif
 </body>
 </html>
