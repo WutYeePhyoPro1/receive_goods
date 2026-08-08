@@ -90,14 +90,16 @@ function bitmapText(x, y, value, options = {}) {
     context.fillText(clean(value), 0, 0, width);
 
     const pixels = context.getImageData(0, 0, canvasWidth, height).data;
+    // Gainscha TSPL BITMAP uses cleared bits for black and set bits for white.
     const bitmap = new Uint8Array(widthBytes * height);
+    bitmap.fill(0xFF);
 
     for (let row = 0; row < height; row += 1) {
         for (let column = 0; column < canvasWidth; column += 1) {
             const pixel = ((row * canvasWidth) + column) * 4;
             const luminance = (pixels[pixel] * 0.299) + (pixels[pixel + 1] * 0.587) + (pixels[pixel + 2] * 0.114);
             if (pixels[pixel + 3] > 0 && luminance < 170) {
-                bitmap[(row * widthBytes) + Math.floor(column / 8)] |= (0x80 >> (column % 8));
+                bitmap[(row * widthBytes) + Math.floor(column / 8)] &= ~(0x80 >> (column % 8));
             }
         }
     }
