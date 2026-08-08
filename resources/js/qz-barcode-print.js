@@ -121,7 +121,7 @@ function fullLabel(labelX, top, payload, type) {
     const textWidth = dots(31);
     const isBar1 = type === 1;
     const nameFontSize = isBar1 ? 14 : 13;
-    const nameTop = isBar1 ? top + 10 : top + 2;
+    const nameTop = isBar1 ? top + 18 : top + 2;
     const nameLineHeight = isBar1 ? 17 : 14;
     const lines = wrapText(payload.name, textWidth, nameFontSize, 500, 2);
     const commands = [];
@@ -135,7 +135,7 @@ function fullLabel(labelX, top, payload, type) {
     });
 
     const barcodeY = isBar1
-        ? top + (lines.length > 1 ? 47 : 38)
+        ? top + (lines.length > 1 ? 55 : 46)
         : top + (lines.length > 1 ? 32 : 20);
     const barcodeHeight = type === 3 ? 45 : 55;
     const detailsY = barcodeY + barcodeHeight + 3;
