@@ -113,7 +113,7 @@ function bitmapText(x, y, value, options = {}) {
 
 function barcode(labelX, y, height, value) {
     // Two printer dots per narrow module is the reliable minimum at 203 DPI.
-    return `BARCODE ${labelX + dots(2)},${y},"128",${height},0,0,2,2,"${clean(value)}"`;
+    return `BARCODE ${labelX + dots(1.5)},${y},"128",${height},0,0,2,2,"${clean(value)}"`;
 }
 
 function fullLabel(labelX, top, payload, type) {
@@ -145,7 +145,7 @@ function fullLabel(labelX, top, payload, type) {
         fontSize: isBar1 ? 13 : 12,
         fontWeight: 500,
     }));
-    commands.push(bitmapText(labelX + dots(28.5), detailsY, payload.unit, {
+    commands.push(bitmapText(labelX + dots(27.5), detailsY, payload.unit, {
         width: dots(4),
         fontSize: isBar1 ? 12 : 11,
         fontWeight: 500,
@@ -174,14 +174,14 @@ function halfLabel(labelX, top, payload) {
         bitmapText(left, top + 1, name, { width: textWidth, fontSize: 12, fontWeight: 500 }),
         ascii(`${barcode(labelX, top + 18, 34, payload.barcode)}\r\n`),
         bitmapText(left, top + 55, payload.barcode, { width: dots(25), fontSize: 11, fontWeight: 500 }),
-        bitmapText(labelX + dots(28.5), top + 55, payload.unit, { width: dots(4), fontSize: 11, fontWeight: 500 }),
+        bitmapText(labelX + dots(27.5), top + 55, payload.unit, { width: dots(4), fontSize: 11, fontWeight: 500 }),
         bitmapText(left, top + 68, compactDate(payload.printedAt), { width: textWidth, fontSize: 10, fontWeight: 400 }),
     ];
 }
 
 function buildPage(payload, pageItems, type) {
-    // Pull the left and center labels 0.5 mm left; keep the aligned right label unchanged.
-    const labelXs = [dots(0.5), dots(37.6), dots(74.2)];
+    // Keep a printable quiet area at each sticker's right edge, especially column three.
+    const labelXs = [dots(0), dots(37.1), dots(73.2)];
     const centeredTop = dots(3.155);
     const commands = [ascii([
         'SIZE 110 mm,26.924 mm',
