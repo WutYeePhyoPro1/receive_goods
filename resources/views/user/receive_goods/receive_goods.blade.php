@@ -1043,6 +1043,15 @@
                             <option value="direct">QZ Direct Print (Clear Barcode)</option>
                         </select>
                         <div id="qz_printer_settings" class="hidden mt-2 rounded-lg border border-slate-300 bg-white p-2">
+                            <div class="mb-2 flex gap-2">
+                                <input type="text" id="qz_server_host"
+                                    class="min-w-0 flex-1 border border-slate-300 py-2 px-2 rounded-lg"
+                                    inputmode="decimal" autocomplete="off"
+                                    placeholder="Windows IP (ဥပမာ 192.168.2.50)">
+                                <button type="button" id="qz_connect_server"
+                                    class="rounded-md bg-indigo-500 px-3 py-1 text-white">Connect</button>
+                            </div>
+                            <small class="mb-2 block text-slate-500">Windows IP မထည့်ရင် ဒီစက်ရဲ့ local QZ Tray ကိုသုံးပါမယ်။</small>
                             <div class="flex gap-2">
                                 <select id="qz_printer"
                                     class="min-w-0 flex-1 border border-slate-300 py-2 ps-2 rounded-lg">
@@ -2072,6 +2081,7 @@
                             $('#print_count').val('');
                             $('#print_no').show();
                             $('#print_eq').val($(this).data('index'));
+                            $('#qz_server_host').val(window.receivedGoodsQz?.getServerHost() || '');
                             const printMode = window.receivedGoodsQz?.getMode() || 'browser';
                             $('#barcode_print_mode').val(printMode).trigger('change');
                         })
@@ -2098,6 +2108,7 @@
                                 .text('QZ Tray နှင့်ချိတ်ဆက်နေသည်...');
 
                             try {
+                                const serverHost = window.receivedGoodsQz.getServerHost();
                                 const printers = await window.receivedGoodsQz.listPrinters();
                                 const savedPrinter = window.receivedGoodsQz.getPrinter();
                                 $printer.empty().append('<option value="">Gainscha printer ရွေးပါ</option>');
@@ -2106,10 +2117,13 @@
                                 });
                                 if (savedPrinter && printers.includes(savedPrinter)) $printer.val(savedPrinter);
                                 $status.removeClass('text-slate-500').addClass('text-emerald-600')
-                                    .text(printers.length ? `${printers.length} printer(s) တွေ့သည်။` : 'Gainscha printer မတွေ့ပါ။');
+                                    .text(printers.length
+                                        ? `${serverHost || 'Local PC'} မှာ ${printers.length} printer(s) တွေ့သည်။`
+                                        : `${serverHost || 'Local PC'} မှာ Gainscha printer မတွေ့ပါ။`);
                             } catch (error) {
+                                const serverHost = window.receivedGoodsQz.getServerHost();
                                 $status.removeClass('text-slate-500').addClass('text-rose-600')
-                                    .text('QZ Tray ချိတ်ဆက်မရပါ။ QZ Tray ဖွင့်ထားခြင်းရှိမရှိ စစ်ပါ။');
+                                    .text(`${serverHost || 'Local PC'} QZ Tray ချိတ်ဆက်မရပါ။ QZ/Firewall/IP စစ်ပါ။`);
                                 if (showError) console.error('QZ Tray connection failed', error);
                             }
                         }
@@ -2127,6 +2141,17 @@
 
                         $(document).on('click', '#qz_refresh_printers', function() {
                             refreshQzPrinters();
+                        });
+
+                        $(document).on('click', '#qz_connect_server', async function() {
+                            const $button = $(this).prop('disabled', true).text('Connecting...');
+                            try {
+                                const host = await window.receivedGoodsQz.setServerHost($('#qz_server_host').val());
+                                $('#qz_server_host').val(host);
+                                await refreshQzPrinters();
+                            } finally {
+                                $button.prop('disabled', false).text('Connect');
+                            }
                         });
 
                         $(document).on('click', '#qz_test_print', async function() {

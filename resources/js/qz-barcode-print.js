@@ -2,6 +2,7 @@ import qz from 'qz-tray';
 
 const STORAGE_PRINTER = 'received_goods_barcode_printer';
 const STORAGE_MODE = 'received_goods_barcode_print_mode';
+const STORAGE_SERVER_HOST = 'received_goods_qz_server_host';
 const DOTS_PER_MM = 203 / 25.4;
 
 window.qz = qz;
@@ -252,10 +253,39 @@ function buildPrintData(payload) {
     return data;
 }
 
-async function connect() {
-    if (!qz.websocket.isActive()) {
-        await qz.websocket.connect({ retries: 2, delay: 1 });
+function normalizeServerHost(value) {
+    return String(value || '')
+        .trim()
+        .replace(/^wss?:\/\//i, '')
+        .replace(/^https?:\/\//i, '')
+        .split('/')[0]
+        .split(':')[0];
+}
+
+function getServerHost() {
+    return normalizeServerHost(localStorage.getItem(STORAGE_SERVER_HOST));
+}
+
+async function setServerHost(value) {
+    const host = normalizeServerHost(value);
+    const previousHost = getServerHost();
+    localStorage.setItem(STORAGE_SERVER_HOST, host);
+    if (previousHost !== host && qz.websocket.isActive()) {
+        await qz.websocket.disconnect();
     }
+    return host;
+}
+
+async function connect() {
+    if (qz.websocket.isActive()) return;
+
+    const host = getServerHost();
+    const options = { retries: 2, delay: 1 };
+    if (host) {
+        options.host = host;
+        options.usingSecure = false;
+    }
+    await qz.websocket.connect(options);
 }
 
 async function listPrinters() {
@@ -304,6 +334,8 @@ async function testPrint(printer) {
 
 window.receivedGoodsQz = {
     connect,
+    getServerHost,
+    setServerHost,
     listPrinters,
     getPrinter,
     setPrinter,
