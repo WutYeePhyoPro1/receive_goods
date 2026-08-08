@@ -119,28 +119,35 @@ function barcode(labelX, y, height, value) {
 function fullLabel(labelX, top, payload, type) {
     const left = labelX + dots(1.5);
     const textWidth = dots(31);
-    const lines = wrapText(payload.name, textWidth, 13, 500, 2);
+    const isBar1 = type === 1;
+    const nameFontSize = isBar1 ? 14 : 13;
+    const nameTop = isBar1 ? top + 10 : top + 2;
+    const nameLineHeight = isBar1 ? 17 : 14;
+    const lines = wrapText(payload.name, textWidth, nameFontSize, 500, 2);
     const commands = [];
 
     lines.forEach((line, index) => {
-        commands.push(bitmapText(left, top + 2 + (index * 14), line, {
+        commands.push(bitmapText(left, nameTop + (index * nameLineHeight), line, {
             width: textWidth,
-            fontSize: 13,
+            fontSize: nameFontSize,
             fontWeight: 500,
         }));
     });
 
-    const barcodeY = top + (lines.length > 1 ? 32 : 20);
+    const barcodeY = isBar1
+        ? top + (lines.length > 1 ? 47 : 38)
+        : top + (lines.length > 1 ? 32 : 20);
     const barcodeHeight = type === 3 ? 45 : 55;
+    const detailsY = barcodeY + barcodeHeight + 3;
     commands.push(ascii(`${barcode(labelX, barcodeY, barcodeHeight, payload.barcode)}\r\n`));
-    commands.push(bitmapText(left, barcodeY + barcodeHeight + 3, payload.barcode, {
+    commands.push(bitmapText(left, detailsY, payload.barcode, {
         width: dots(25),
-        fontSize: 12,
+        fontSize: isBar1 ? 13 : 12,
         fontWeight: 500,
     }));
-    commands.push(bitmapText(labelX + dots(28.5), barcodeY + barcodeHeight + 3, payload.unit, {
+    commands.push(bitmapText(labelX + dots(28.5), detailsY, payload.unit, {
         width: dots(4),
-        fontSize: 11,
+        fontSize: isBar1 ? 12 : 11,
         fontWeight: 500,
     }));
 
@@ -150,9 +157,10 @@ function fullLabel(labelX, top, payload, type) {
         commands.push(ascii(`BOX ${labelX + dots(20)},${boxY},${labelX + dots(23)},${boxY + dots(3)},2\r\n`));
     }
 
-    commands.push(bitmapText(left, top + dots(17.8), compactDate(payload.printedAt), {
+    const dateY = isBar1 ? detailsY + 17 : top + dots(17.8);
+    commands.push(bitmapText(left, dateY, compactDate(payload.printedAt), {
         width: textWidth,
-        fontSize: 11,
+        fontSize: isBar1 ? 12 : 11,
         fontWeight: 400,
     }));
     return commands;
@@ -161,19 +169,19 @@ function fullLabel(labelX, top, payload, type) {
 function halfLabel(labelX, top, payload) {
     const left = labelX + dots(1.5);
     const textWidth = dots(31);
-    const name = wrapText(payload.name, textWidth, 11, 500, 1)[0];
+    const name = wrapText(payload.name, textWidth, 12, 500, 1)[0];
     return [
-        bitmapText(left, top, name, { width: textWidth, fontSize: 11, fontWeight: 500 }),
-        ascii(`${barcode(labelX, top + 15, 34, payload.barcode)}\r\n`),
-        bitmapText(left, top + 52, payload.barcode, { width: dots(25), fontSize: 10, fontWeight: 500 }),
-        bitmapText(labelX + dots(28.5), top + 52, payload.unit, { width: dots(4), fontSize: 10, fontWeight: 500 }),
-        bitmapText(left, top + 65, compactDate(payload.printedAt), { width: textWidth, fontSize: 9, fontWeight: 400 }),
+        bitmapText(left, top + 1, name, { width: textWidth, fontSize: 12, fontWeight: 500 }),
+        ascii(`${barcode(labelX, top + 18, 34, payload.barcode)}\r\n`),
+        bitmapText(left, top + 55, payload.barcode, { width: dots(25), fontSize: 11, fontWeight: 500 }),
+        bitmapText(labelX + dots(28.5), top + 55, payload.unit, { width: dots(4), fontSize: 11, fontWeight: 500 }),
+        bitmapText(left, top + 68, compactDate(payload.printedAt), { width: textWidth, fontSize: 10, fontWeight: 400 }),
     ];
 }
 
 function buildPage(payload, pageItems, type) {
-    // The left and center die-cuts need the same visible inset as the right one.
-    const labelXs = [dots(1), dots(38.1), dots(74.2)];
+    // Pull the left and center labels 0.5 mm left; keep the aligned right label unchanged.
+    const labelXs = [dots(0.5), dots(37.6), dots(74.2)];
     const centeredTop = dots(3.155);
     const commands = [ascii([
         'SIZE 110 mm,26.924 mm',
