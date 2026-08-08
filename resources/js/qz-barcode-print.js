@@ -169,14 +169,43 @@ function fullLabel(labelX, top, payload, type) {
 function halfLabel(labelX, top, payload) {
     const left = labelX + dots(1.5);
     const textWidth = dots(31);
-    const name = wrapText(payload.name, textWidth, 12, 500, 1)[0];
-    return [
-        bitmapText(left, top + 1, name, { width: textWidth, fontSize: 12, fontWeight: 500 }),
-        ascii(`${barcode(labelX, top + 18, 34, payload.barcode)}\r\n`),
-        bitmapText(left, top + 55, payload.barcode, { width: dots(25), fontSize: 11, fontWeight: 500 }),
-        bitmapText(labelX + dots(27.5), top + 55, payload.unit, { width: dots(4), fontSize: 11, fontWeight: 500 }),
-        bitmapText(left, top + 68, compactDate(payload.printedAt), { width: textWidth, fontSize: 10, fontWeight: 400 }),
-    ];
+    const nameLines = wrapText(payload.name, textWidth, 12, 500, 2);
+    const hasTwoNameLines = nameLines.length > 1;
+    const commands = [];
+
+    nameLines.forEach((line, index) => {
+        commands.push(bitmapText(left, top + (index * 14), line, {
+            width: textWidth,
+            height: 14,
+            fontSize: 12,
+            fontWeight: 500,
+        }));
+    });
+
+    const barcodeY = top + (hasTwoNameLines ? 29 : 18);
+    const barcodeHeight = hasTwoNameLines ? 26 : 34;
+    const detailsY = barcodeY + barcodeHeight + (hasTwoNameLines ? 2 : 3);
+    const dateY = hasTwoNameLines ? top + 70 : top + 68;
+    commands.push(ascii(`${barcode(labelX, barcodeY, barcodeHeight, payload.barcode)}\r\n`));
+    commands.push(bitmapText(left, detailsY, payload.barcode, {
+        width: dots(25),
+        height: hasTwoNameLines ? 12 : 15,
+        fontSize: hasTwoNameLines ? 10 : 11,
+        fontWeight: 500,
+    }));
+    commands.push(bitmapText(labelX + dots(27.5), detailsY, payload.unit, {
+        width: dots(4),
+        height: hasTwoNameLines ? 12 : 15,
+        fontSize: hasTwoNameLines ? 10 : 11,
+        fontWeight: 500,
+    }));
+    commands.push(bitmapText(left, dateY, compactDate(payload.printedAt), {
+        width: textWidth,
+        height: hasTwoNameLines ? 11 : 14,
+        fontSize: hasTwoNameLines ? 9 : 10,
+        fontWeight: 400,
+    }));
+    return commands;
 }
 
 function buildPage(payload, pageItems, type) {
