@@ -277,7 +277,67 @@ function getMode() {
 }
 
 function setMode(mode) {
-    localStorage.setItem(STORAGE_MODE, mode === 'direct' ? 'direct' : 'browser');
+    localStorage.setItem(STORAGE_MODE, ['direct', 'android'].includes(mode) ? mode : 'browser');
+}
+
+function androidBridge() {
+    return window.AndroidPrintAgent;
+}
+
+function parseAndroidResult(value) {
+    try {
+        return JSON.parse(value);
+    } catch (_error) {
+        return { success: false, message: 'Android Print Agent response မမှန်ပါ။' };
+    }
+}
+
+function bytesToBase64(bytes) {
+    let binary = '';
+    const chunkSize = 0x8000;
+    for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+        binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+    }
+    return btoa(binary);
+}
+
+function androidAvailable() {
+    try {
+        return Boolean(androidBridge()?.isAvailable());
+    } catch (_error) {
+        return false;
+    }
+}
+
+function listAndroidPrinters() {
+    if (!androidAvailable()) throw new Error('Received Goods Android Print Agent app ထဲမှ ဖွင့်ပါ။');
+    return JSON.parse(androidBridge().listPrinters() || '[]');
+}
+
+function selectAndroidPrinter(deviceName) {
+    if (!androidAvailable()) throw new Error('Android Print Agent မတွေ့ပါ။');
+    return parseAndroidResult(androidBridge().selectPrinter(deviceName));
+}
+
+async function printAndroid(payload) {
+    if (!androidAvailable()) throw new Error('Received Goods Android Print Agent app ထဲမှ ဖွင့်ပါ။');
+    const pages = buildPrintData(payload);
+    for (const page of pages) {
+        const result = parseAndroidResult(androidBridge().printBase64(bytesToBase64(page.data)));
+        if (!result.success) throw new Error(result.message || 'Android USB print မအောင်မြင်ပါ။');
+        await new Promise((resolve) => setTimeout(resolve, 60));
+    }
+}
+
+async function testPrintAndroid() {
+    await printAndroid({
+        name: 'RECEIVED GOODS ANDROID TEST',
+        barcode: '8850106476627',
+        unit: 'PC',
+        printedAt: new Date().toLocaleString('en-GB'),
+        quantity: 3,
+        type: 1,
+    });
 }
 
 async function print(payload) {
@@ -311,4 +371,12 @@ window.receivedGoodsQz = {
     setMode,
     print,
     testPrint,
+};
+
+window.receivedGoodsAndroid = {
+    isAvailable: androidAvailable,
+    listPrinters: listAndroidPrinters,
+    selectPrinter: selectAndroidPrinter,
+    print: printAndroid,
+    testPrint: testPrintAndroid,
 };

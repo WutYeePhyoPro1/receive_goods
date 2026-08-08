@@ -1041,6 +1041,7 @@
                             class="w-full border border-slate-300 py-3 ps-2 bg-white rounded-lg appearance-none mt-2">
                             <option value="browser">Browser Print (Fallback)</option>
                             <option value="direct">QZ Direct Print (Clear Barcode)</option>
+                            <option value="android">Android USB Direct Print</option>
                         </select>
                         <div id="qz_printer_settings" class="hidden mt-2 rounded-lg border border-slate-300 bg-white p-2">
                             <div class="flex gap-2">
@@ -1054,6 +1055,19 @@
                                     class="rounded-md bg-amber-500 px-3 py-1 text-white">Test</button>
                             </div>
                             <small id="qz_status" class="mt-1 block text-slate-500">QZ Tray connection မစစ်ရသေးပါ။</small>
+                        </div>
+                        <div id="android_printer_settings" class="hidden mt-2 rounded-lg border border-slate-300 bg-white p-2">
+                            <div class="flex gap-2">
+                                <select id="android_printer"
+                                    class="min-w-0 flex-1 border border-slate-300 py-2 ps-2 rounded-lg">
+                                    <option value="">USB printer ရွေးပါ</option>
+                                </select>
+                                <button type="button" id="android_refresh_printers"
+                                    class="rounded-md bg-sky-500 px-3 py-1 text-white">Detect</button>
+                                <button type="button" id="android_test_print"
+                                    class="rounded-md bg-amber-500 px-3 py-1 text-white">Test</button>
+                            </div>
+                            <small id="android_status" class="mt-1 block text-slate-500">Android USB printer မစစ်ရသေးပါ။</small>
                         </div>
                         <input type="number" id="print_count"
                             class="appearance-none w-full border-2 border-slate-300 rounded-lg min-h-12 mt-4 ps-2 focus:outline-none focus:border-sky-200 focus:border-3"
@@ -2114,11 +2128,40 @@
                             }
                         }
 
+                        function refreshAndroidPrinters(showError = true) {
+                            const $status = $('#android_status');
+                            const $printer = $('#android_printer');
+                            $status.removeClass('text-rose-600 text-emerald-600').addClass('text-slate-500')
+                                .text('Android USB printer ရှာနေသည်...');
+
+                            try {
+                                const printers = window.receivedGoodsAndroid.listPrinters();
+                                $printer.empty().append('<option value="">USB printer ရွေးပါ</option>');
+                                printers.forEach((printer) => {
+                                    const label = `${printer.label} (${printer.vendorId}:${printer.productId})`;
+                                    $('<option>')
+                                        .val(printer.name)
+                                        .text(label)
+                                        .data('permission', printer.hasPermission)
+                                        .appendTo($printer);
+                                    if (printer.selected) $printer.val(printer.name);
+                                });
+                                $status.removeClass('text-slate-500').addClass(printers.length ? 'text-emerald-600' : 'text-rose-600')
+                                    .text(printers.length ? `${printers.length} USB printer(s) တွေ့သည်။` : 'USB printer မတွေ့ပါ။ OTG cable စစ်ပါ။');
+                            } catch (error) {
+                                $status.removeClass('text-slate-500').addClass('text-rose-600')
+                                    .text(error.message || 'Android Print Agent app ထဲမှ software ကိုဖွင့်ပါ။');
+                                if (showError) console.error('Android Print Agent detection failed', error);
+                            }
+                        }
+
                         $(document).on('change', '#barcode_print_mode', function() {
                             const mode = $(this).val();
                             window.receivedGoodsQz?.setMode(mode);
                             $('#qz_printer_settings').toggleClass('hidden', mode !== 'direct');
+                            $('#android_printer_settings').toggleClass('hidden', mode !== 'android');
                             if (mode === 'direct' && window.receivedGoodsQz) refreshQzPrinters(false);
+                            if (mode === 'android') refreshAndroidPrinters(false);
                         });
 
                         $(document).on('change', '#qz_printer', function() {
@@ -2142,6 +2185,45 @@
                                     .text('Test print ပို့ပြီးပါပြီ။');
                             } catch (error) {
                                 $('#qz_status').removeClass('text-emerald-600').addClass('text-rose-600')
+                                    .text(`Test print မအောင်မြင်ပါ: ${error.message || error}`);
+                            } finally {
+                                $button.prop('disabled', false).text('Test');
+                            }
+                        });
+
+                        $(document).on('click', '#android_refresh_printers', function() {
+                            refreshAndroidPrinters();
+                        });
+
+                        $(document).on('change', '#android_printer', function() {
+                            const deviceName = $(this).val();
+                            if (!deviceName) return;
+                            try {
+                                const result = window.receivedGoodsAndroid.selectPrinter(deviceName);
+                                $('#android_status')
+                                    .removeClass('text-rose-600 text-emerald-600')
+                                    .addClass(result.success ? 'text-emerald-600' : 'text-rose-600')
+                                    .text(result.message);
+                            } catch (error) {
+                                $('#android_status').addClass('text-rose-600').text(error.message || error);
+                            }
+                        });
+
+                        $(document).on('click', '#android_test_print', async function() {
+                            const deviceName = $('#android_printer').val();
+                            if (!deviceName) {
+                                $('#android_status').addClass('text-rose-600').text('USB printer အရင်ရွေးပါ။');
+                                return;
+                            }
+                            const $button = $(this).prop('disabled', true).text('Printing...');
+                            try {
+                                const selected = window.receivedGoodsAndroid.selectPrinter(deviceName);
+                                if (!selected.success) throw new Error(selected.message);
+                                await window.receivedGoodsAndroid.testPrint();
+                                $('#android_status').removeClass('text-rose-600').addClass('text-emerald-600')
+                                    .text('Android USB test print ပို့ပြီးပါပြီ။');
+                            } catch (error) {
+                                $('#android_status').removeClass('text-emerald-600').addClass('text-rose-600')
                                     .text(`Test print မအောင်မြင်ပါ: ${error.message || error}`);
                             } finally {
                                 $button.prop('disabled', false).text('Test');
@@ -2178,23 +2260,29 @@
 
                                 console.log($name.length);
 
-                                if (window.receivedGoodsQz?.getMode() === 'direct') {
+                                const selectedPrintMode = window.receivedGoodsQz?.getMode() || 'browser';
+                                if (selectedPrintMode === 'direct' || selectedPrintMode === 'android') {
                                     const $button = $('#final_print').prop('disabled', true).text('Printing...');
                                     try {
-                                        await window.receivedGoodsQz.print({
+                                        const payload = {
                                             name: $name,
                                             barcode: $pd_code,
                                             unit: $unit,
                                             printedAt: $full_date,
                                             quantity: Number($qty),
                                             type: Number($type),
-                                        });
+                                        };
+                                        if (selectedPrintMode === 'android') {
+                                            await window.receivedGoodsAndroid.print(payload);
+                                        } else {
+                                            await window.receivedGoodsQz.print(payload);
+                                        }
                                         trackBarcodePrint($id, $qty, $type, $reason);
                                         $('#print_no').hide();
                                     } catch (error) {
                                         Swal.fire({
                                             icon: 'error',
-                                            title: 'Direct print မအောင်မြင်ပါ',
+                                            title: selectedPrintMode === 'android' ? 'Android USB print မအောင်မြင်ပါ' : 'Direct print မအောင်မြင်ပါ',
                                             text: `${error.message || error} Browser Print ကို fallback အဖြစ်ရွေးနိုင်ပါတယ်။`,
                                         });
                                     } finally {
