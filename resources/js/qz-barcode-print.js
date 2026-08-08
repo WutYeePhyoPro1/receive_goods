@@ -70,6 +70,67 @@ function wrapText(value, maxWidth, fontSize, fontWeight, maxLines) {
     return (lines.length ? lines : ['']).slice(0, maxLines);
 }
 
+function wrapAllText(value, maxWidth, fontSize, fontWeight) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    context.font = fontString(fontSize, fontWeight);
+    const words = clean(value).split(/\s+/).filter(Boolean);
+    const lines = [];
+    let current = '';
+
+    const pushLongWord = (word) => {
+        let segment = '';
+        Array.from(word).forEach((character) => {
+            const candidate = `${segment}${character}`;
+            if (!segment || context.measureText(candidate).width <= maxWidth) {
+                segment = candidate;
+            } else {
+                lines.push(segment);
+                segment = character;
+            }
+        });
+        current = segment;
+    };
+
+    words.forEach((word) => {
+        const candidate = current ? `${current} ${word}` : word;
+        if (context.measureText(candidate).width <= maxWidth) {
+            current = candidate;
+            return;
+        }
+
+        if (current) {
+            lines.push(current);
+            current = '';
+        }
+
+        if (context.measureText(word).width <= maxWidth) {
+            current = word;
+        } else {
+            pushLongWord(word);
+        }
+    });
+
+    if (current) {
+        lines.push(current);
+    }
+    return lines.length ? lines : [''];
+}
+
+function fitCompleteText(value, maxWidth, maxFontSize, minFontSize, maxLines, maxTextHeight, fontWeight) {
+    for (let fontSize = maxFontSize; fontSize >= minFontSize; fontSize -= 1) {
+        const lines = wrapAllText(value, maxWidth, fontSize, fontWeight);
+        if (lines.length <= maxLines && (lines.length * (fontSize + 2)) <= maxTextHeight) {
+            return { fontSize, lines };
+        }
+    }
+
+    return {
+        fontSize: minFontSize,
+        lines: wrapAllText(value, maxWidth, minFontSize, fontWeight),
+    };
+}
+
 function bitmapText(x, y, value, options = {}) {
     const fontSize = options.fontSize || 11;
     const fontWeight = options.fontWeight || 400;
@@ -120,10 +181,11 @@ function fullLabel(labelX, top, payload, type) {
     const left = labelX + dots(1.5);
     const textWidth = dots(31);
     const isBar1 = type === 1;
-    const nameFontSize = isBar1 ? 14 : 13;
-    const nameTop = isBar1 ? top + 10 : top + 2;
-    const nameLineHeight = isBar1 ? 17 : 14;
-    const lines = wrapText(payload.name, textWidth, nameFontSize, 500, 2);
+    const fittedName = fitCompleteText(payload.name, textWidth, isBar1 ? 14 : 13, 8, 4, 44, 500);
+    const nameFontSize = fittedName.fontSize;
+    const nameTop = top + 2;
+    const nameLineHeight = nameFontSize + 2;
+    const lines = fittedName.lines;
     const commands = [];
 
     lines.forEach((line, index) => {
@@ -134,10 +196,8 @@ function fullLabel(labelX, top, payload, type) {
         }));
     });
 
-    const barcodeY = isBar1
-        ? top + (lines.length > 1 ? 47 : 38)
-        : top + (lines.length > 1 ? 32 : 20);
-    const barcodeHeight = type === 3 ? 45 : 55;
+    const barcodeY = nameTop + (lines.length * nameLineHeight) + 2;
+    const barcodeHeight = type === 3 ? 30 : 50;
     const detailsY = barcodeY + barcodeHeight + 3;
     commands.push(ascii(`${barcode(labelX, barcodeY, barcodeHeight, payload.barcode)}\r\n`));
     commands.push(bitmapText(left, detailsY, payload.barcode, {
@@ -152,12 +212,12 @@ function fullLabel(labelX, top, payload, type) {
     }));
 
     if (type === 3) {
-        const boxY = barcodeY + barcodeHeight + 20;
+        const boxY = detailsY + 14;
         commands.push(ascii(`BOX ${left},${boxY},${labelX + dots(18)},${boxY + dots(3.5)},2\r\n`));
         commands.push(ascii(`BOX ${labelX + dots(20)},${boxY},${labelX + dots(23)},${boxY + dots(3)},2\r\n`));
     }
 
-    const dateY = isBar1 ? detailsY + 17 : top + dots(17.8);
+    const dateY = type === 3 ? detailsY + 44 : detailsY + 17;
     commands.push(bitmapText(left, dateY, compactDate(payload.printedAt), {
         width: textWidth,
         fontSize: isBar1 ? 12 : 11,
@@ -169,40 +229,43 @@ function fullLabel(labelX, top, payload, type) {
 function halfLabel(labelX, top, payload) {
     const left = labelX + dots(1.5);
     const textWidth = dots(31);
-    const nameLines = wrapText(payload.name, textWidth, 12, 500, 2);
-    const hasTwoNameLines = nameLines.length > 1;
+    const fittedName = fitCompleteText(payload.name, textWidth, 12, 7, 3, 27, 500);
+    const nameLines = fittedName.lines;
+    const nameFontSize = fittedName.fontSize;
+    const nameLineHeight = nameFontSize + 2;
+    const hasMultipleNameLines = nameLines.length > 1;
     const commands = [];
 
     nameLines.forEach((line, index) => {
-        commands.push(bitmapText(left, top + (index * 14), line, {
+        commands.push(bitmapText(left, top + (index * nameLineHeight), line, {
             width: textWidth,
-            height: 14,
-            fontSize: 12,
+            height: nameLineHeight,
+            fontSize: nameFontSize,
             fontWeight: 500,
         }));
     });
 
-    const barcodeY = top + (hasTwoNameLines ? 29 : 18);
-    const barcodeHeight = hasTwoNameLines ? 26 : 34;
-    const detailsY = barcodeY + barcodeHeight + (hasTwoNameLines ? 2 : 3);
-    const dateY = hasTwoNameLines ? top + 70 : top + 68;
+    const barcodeY = top + (nameLines.length * nameLineHeight) + 1;
+    const barcodeHeight = hasMultipleNameLines ? 24 : 34;
+    const detailsY = barcodeY + barcodeHeight + 2;
+    const dateY = top + 70;
     commands.push(ascii(`${barcode(labelX, barcodeY, barcodeHeight, payload.barcode)}\r\n`));
     commands.push(bitmapText(left, detailsY, payload.barcode, {
         width: dots(25),
-        height: hasTwoNameLines ? 12 : 15,
-        fontSize: hasTwoNameLines ? 10 : 11,
+        height: hasMultipleNameLines ? 11 : 15,
+        fontSize: hasMultipleNameLines ? 9 : 11,
         fontWeight: 500,
     }));
     commands.push(bitmapText(labelX + dots(27.5), detailsY, payload.unit, {
         width: dots(4),
-        height: hasTwoNameLines ? 12 : 15,
-        fontSize: hasTwoNameLines ? 10 : 11,
+        height: hasMultipleNameLines ? 11 : 15,
+        fontSize: hasMultipleNameLines ? 9 : 11,
         fontWeight: 500,
     }));
     commands.push(bitmapText(left, dateY, compactDate(payload.printedAt), {
         width: textWidth,
-        height: hasTwoNameLines ? 11 : 14,
-        fontSize: hasTwoNameLines ? 9 : 10,
+        height: 11,
+        fontSize: 9,
         fontWeight: 400,
     }));
     return commands;
