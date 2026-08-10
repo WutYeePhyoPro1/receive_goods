@@ -7,6 +7,7 @@ use App\Http\Controllers\authenticateController;
 use App\Http\Controllers\R008SController;
 use App\Http\Controllers\ReceiveGoodRejectsController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\QzSecurityController;
 use App\Http\Controllers\UnavailableScannedProductController;
 use App\Http\Controllers\userController;
 use App\Models\UnavailableScannedProduct;
@@ -35,6 +36,12 @@ route::group(['controller'=>authenticateController::class],function(){
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('/qz/certificate', [QzSecurityController::class, 'certificate'])
+            ->name('qz.certificate');
+        Route::post('/qz/sign', [QzSecurityController::class, 'sign'])
+            ->middleware('throttle:120,1')
+            ->name('qz.sign');
+
         // route::group(['controller'=>])
         route::get('/home',[authenticateController::class,'home'])->name('home');
 

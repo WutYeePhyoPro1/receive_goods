@@ -7,6 +7,36 @@ const DOTS_PER_MM = 203 / 25.4;
 
 window.qz = qz;
 
+qz.security.setCertificatePromise((resolve, reject) => {
+    fetch('/qz/certificate', {
+        credentials: 'same-origin',
+        cache: 'no-store',
+        headers: { Accept: 'text/plain' },
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`QZ certificate request failed (${response.status}).`);
+            }
+
+            return response.text();
+        })
+        .then(resolve)
+        .catch(reject);
+});
+
+qz.security.setSignatureAlgorithm('SHA512');
+qz.security.setSignaturePromise((requestToSign) => (resolve, reject) => {
+    window.axios.post('/qz/sign', { request: requestToSign })
+        .then((response) => {
+            if (!response.data?.signature) {
+                throw new Error('QZ signing response did not contain a signature.');
+            }
+
+            resolve(response.data.signature);
+        })
+        .catch(reject);
+});
+
 function dots(mm) {
     return Math.round(mm * DOTS_PER_MM);
 }
