@@ -226,7 +226,7 @@ function halfLabel(labelX, top, payload) {
     commands.push(bitmapText(left, detailsY, payload.barcode, {
         width: dots(25),
         height: hasTwoNameLines ? 12 : 15,
-        fontSize: hasTwoNameLines ? 10 : 11,
+        fontSize: hasTwoNameLines ? 11 : 12,
         fontWeight: 500,
     }));
     commands.push(bitmapText(labelX + dots(27.5), detailsY, payload.unit, {
@@ -237,8 +237,8 @@ function halfLabel(labelX, top, payload) {
     }));
     commands.push(bitmapText(left, dateY, compactDate(payload.printedAt), {
         width: textWidth,
-        height: hasTwoNameLines ? 11 : 14,
-        fontSize: hasTwoNameLines ? 9 : 10,
+        height: hasTwoNameLines ? 12 : 14,
+        fontSize: hasTwoNameLines ? 10 : 11,
         fontWeight: 400,
         textAlign: 'center',
     }));
