@@ -118,11 +118,13 @@ function bitmapText(x, y, value, options = {}) {
     context.fillStyle = '#000';
     context.font = fontString(fontSize, fontWeight);
     context.textBaseline = 'top';
-    context.textAlign = options.textAlign || 'left';
-    const textX = context.textAlign === 'center'
-        ? canvasWidth / 2
-        : (context.textAlign === 'right' ? width : 0);
-    context.fillText(clean(value), textX, 0, width);
+    context.textAlign = 'left';
+    const text = clean(value);
+    const renderedTextWidth = Math.min(context.measureText(text).width, width);
+    const textX = options.textAlign === 'center'
+        ? Math.max(0, (width - renderedTextWidth) / 2)
+        : (options.textAlign === 'right' ? Math.max(0, width - renderedTextWidth) : 0);
+    context.fillText(text, textX, 0, width);
 
     const pixels = context.getImageData(0, 0, canvasWidth, height).data;
     // Gainscha TSPL BITMAP uses cleared bits for black and set bits for white.
