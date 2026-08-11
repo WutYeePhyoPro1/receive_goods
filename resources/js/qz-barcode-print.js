@@ -118,7 +118,11 @@ function bitmapText(x, y, value, options = {}) {
     context.fillStyle = '#000';
     context.font = fontString(fontSize, fontWeight);
     context.textBaseline = 'top';
-    context.fillText(clean(value), 0, 0, width);
+    context.textAlign = options.textAlign || 'left';
+    const textX = context.textAlign === 'center'
+        ? canvasWidth / 2
+        : (context.textAlign === 'right' ? width : 0);
+    context.fillText(clean(value), textX, 0, width);
 
     const pixels = context.getImageData(0, 0, canvasWidth, height).data;
     // Gainscha TSPL BITMAP uses cleared bits for black and set bits for white.
@@ -193,6 +197,7 @@ function fullLabel(labelX, top, payload, type) {
         width: textWidth,
         fontSize: isBar1 ? 12 : 11,
         fontWeight: 400,
+        textAlign: 'center',
     }));
     return commands;
 }
@@ -235,6 +240,7 @@ function halfLabel(labelX, top, payload) {
         height: hasTwoNameLines ? 11 : 14,
         fontSize: hasTwoNameLines ? 9 : 10,
         fontWeight: 400,
+        textAlign: 'center',
     }));
     return commands;
 }
