@@ -43,6 +43,7 @@ use Spatie\Permission\Models\Role;
         {
             return Product::where('document_id',$id)
                             ->where(DB::raw('scanned_qty'), '<', DB::raw('qty'))
+                            ->orderBy('updated_at','desc')
                             ->orderBy('id','asc')
                             ->WhereNull('not_scan_remark') 
                             ->get();

@@ -253,6 +253,7 @@ class ActionController extends Controller
         $unit   = preg_replace("/[^A-Za-z].*/", '', $all);
         $unit   = $unit == '' ? 'S' : $unit;
         $poi    = false;
+        $latestProductId = null;
         Logger::info(['AT' => 'hiii']);
         if (strtoupper(substr($all, 0, 2)) == 'PO' || strtoupper(substr($all, 0, 2)) == 'IC' || strtoupper(substr($all, 0, 2)) == 'AT') {
             $reg = get_branch_truck()[2];
@@ -370,6 +371,7 @@ class ActionController extends Controller
                         'scanned_qty' => $scanned,
                         'scann_count' => $scann_count,
                     ]);
+                    $latestProductId = $product->id;
                     // product code တခုထက်ပို
                 } elseif (count($all_product) > 1) {
                     $full_pd = Product::whereIn('document_id', $doc_ids)
@@ -409,6 +411,7 @@ class ActionController extends Controller
                                     'updated_at'    => $update_time,
                                     'scann_count' => $scann_count,
                                 ]);
+                                $latestProductId = $item->id;
                                 $pd_code = $this->repository->add_track($driver_info->id, $item->id, $total_scan, $item->document_id, $update_time, $unit, $per);
                                 $count++;
                                 break;
@@ -437,6 +440,7 @@ class ActionController extends Controller
                                     'updated_at'    => $update_time,
                                     'scann_count' => $scann_count,
                                 ]);
+                                $latestProductId = $item->id;
 
                                 $pd_code = $this->repository->add_track($driver_info->id, $item->id, $added, $item->document_id, $update_time, $unit, $per);
                             } elseif ($index == count($all_product) - 1) {
@@ -454,6 +458,7 @@ class ActionController extends Controller
                                     'updated_at'    => $update_time,
                                     'scann_count' => $scann_count,
                                 ]);
+                                $latestProductId = $item->id;
                                 $pd_code = $this->repository->add_track($driver_info->id, $item->id, $total_scan, $item->document_id, $update_time, $unit, $per);
                             }
 
@@ -471,6 +476,7 @@ class ActionController extends Controller
                             Product::where('id', $exceed_pd->id)->update([
                                 'scanned_qty'   => $exceed_qty
                             ]);
+                            $latestProductId = $exceed_pd->id;
                         }
                     }
                 }
@@ -502,6 +508,13 @@ class ActionController extends Controller
                 // $product->update([
                 //     'scann_count' => $scann_count
                 // ]);
+
+                return response()->json([
+                    'message' => 'success',
+                    'product_id' => $latestProductId ?? $product->id,
+                    'bar_code' => $product->bar_code,
+                    'pd_code' => $pd_code ?? $product->bar_code,
+                ], 200);
 
                 // return response()->json([
                 //     'doc_no' => $doc_no,

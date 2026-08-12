@@ -262,7 +262,11 @@ class userController extends Controller
     {
         // Data Preparation
         $main = GoodsReceive::where('id', $id)->first();
-        $document = Document::where('received_goods_id', $id)->orderBy('updated_at', 'desc')->get();
+        $document = Document::where('received_goods_id', $id)
+            ->withMax('products', 'updated_at')
+            ->orderByDesc('products_max_updated_at')
+            ->orderByDesc('updated_at')
+            ->get();
         $driver = DriverInfo::where('received_goods_id', $id)->get();
         $cur_driver = DriverInfo::where([
             'received_goods_id' => $id,
@@ -345,8 +349,12 @@ class userController extends Controller
                 ]);
             }
         }
-        $document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
-        $scan_document = Document::where('received_goods_id',$id)->orderBy('updated_at','desc')->get();
+        $document = Document::where('received_goods_id', $id)
+            ->withMax('products', 'updated_at')
+            ->orderByDesc('products_max_updated_at')
+            ->orderByDesc('updated_at')
+            ->get();
+        $scan_document = $document;
         $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
         $gate   = CarGate::when($loc == 'dc',function($q) {
                         $q->whereIn('branch',['MM-505','MM-510','MM-511']);

@@ -49,7 +49,7 @@
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }}">{{ $tem->supplier_name }}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">{{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty  }}</td>
                                             </tr> --}}
-                                            <tr class="h-10 scanned_pd_div">
+                                            <tr class="h-10 scanned_pd_div" data-product-id="{{ $tem->id }}">
                                                 @if ($index == 0)
                                                     <td class="ps-2 border border-slate-400 border-t-0 border-l-0">
                                                         {{ $i }}</td>

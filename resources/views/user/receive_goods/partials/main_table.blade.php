@@ -89,7 +89,7 @@
                         $color = check_color($tem->id);
                         ${'id' . $key} = $key;
                         ?>
-                        <tr class="h-10 main_pd_div">
+                        <tr class="h-10 main_pd_div" data-product-id="{{ $tem->id }}">
                             @if ($key == 0)
                                 <td class="ps-1 border border-slate-400 border-t-0 border-l-0 w-8">
                                     @if (

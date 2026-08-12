@@ -489,7 +489,7 @@
         </div>
     </div>
 
-    <div class="rg-table-grid grid grid-cols-1 2xl:grid-cols-2 gap-3 mt-4s 2xl:-mt-[50px]">
+    <div class="rg-table-grid grid grid-cols-1 lg:grid-cols-2 gap-3 mt-4s 2xl:-mt-[50px]">
         <div class="rg-scroll-panel rg-table-panel mt-5 border border-slate-400 rounded-md main_product_table"
             style="min-height: 83vh;max-height:83vh;width:100%;overflow-x:auto;overflow-y:auto">
             <div class="border border-b-slate-400 h-10 bg-sky-50">
@@ -1759,15 +1759,19 @@
                 $dc_staff = "{{ getAuth()->branch_id }}";
                 $dc_staff = $dc_staff.includes([17, 19, 20]) ? true : false;
 
-                function reload_page() {
+                function reload_page(latestProductId = null) {
                     let id = extractIdFromUrl(); // from current URL
-                    $.get(`/receive_goods/${id}/partial`, function(data) {
+                    return $.get(`/receive_goods/${id}/partial`, function(data) {
                         $('.main_table').html(data.main_table);
                         $('.scan_parent').html(data.scan_parent);
                         $('.excess_div').html(data.excess_div);
 
-                        $('.scanned_pd_div').eq(0).find('td').addClass('latest');
-                        $('.main_pd_div').eq(0).find('td').addClass('latest');
+                        if (latestProductId) {
+                            const selector = `[data-product-id="${latestProductId}"]`;
+                            $(`.main_pd_div${selector}, .scanned_pd_div${selector}`)
+                                .find('td')
+                                .addClass('latest');
+                        }
                     });
                 }
 
@@ -2719,8 +2723,8 @@
                                         if ($all_begin == '') {
                                             window.location.reload();
                                         }
-                                        $('#prev_scan').text(res.pd_code);
-                                        reload_page();
+                                        $('#prev_scan').text(res.pd_code || res.bar_code || $code);
+                                        reload_page(res.product_id);
                                         // }
                                     },
 
