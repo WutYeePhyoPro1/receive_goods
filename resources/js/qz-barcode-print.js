@@ -221,26 +221,29 @@ function halfLabel(labelX, top, payload) {
     const barcodeY = top + (hasTwoNameLines ? 29 : 18);
     const barcodeHeight = hasTwoNameLines ? 26 : 34;
     const detailsY = barcodeY + barcodeHeight + (hasTwoNameLines ? 2 : 3);
-    const dateY = hasTwoNameLines ? top + 70 : top + 68;
+    const productCodeWidth = dots(13);
+    const dateWidth = dots(14);
+    const unitWidth = dots(4);
     commands.push(ascii(`${barcode(labelX, barcodeY, barcodeHeight, payload.barcode)}\r\n`));
     commands.push(bitmapText(left, detailsY, payload.barcode, {
-        width: dots(25),
-        height: hasTwoNameLines ? 12 : 15,
-        fontSize: hasTwoNameLines ? 11 : 12,
+        width: productCodeWidth,
+        height: 12,
+        fontSize: 10,
         fontWeight: 500,
     }));
-    commands.push(bitmapText(labelX + dots(27.5), detailsY, payload.unit, {
-        width: dots(4),
-        height: hasTwoNameLines ? 12 : 15,
-        fontSize: hasTwoNameLines ? 10 : 11,
-        fontWeight: 500,
-    }));
-    commands.push(bitmapText(left, dateY, compactDate(payload.printedAt), {
-        width: textWidth,
-        height: hasTwoNameLines ? 12 : 14,
-        fontSize: hasTwoNameLines ? 10 : 11,
+    commands.push(bitmapText(left + productCodeWidth, detailsY, compactDate(payload.printedAt), {
+        width: dateWidth,
+        height: 12,
+        fontSize: 9,
         fontWeight: 400,
         textAlign: 'center',
+    }));
+    commands.push(bitmapText(left + productCodeWidth + dateWidth, detailsY, payload.unit, {
+        width: unitWidth,
+        height: 12,
+        fontSize: 10,
+        fontWeight: 500,
+        textAlign: 'right',
     }));
     return commands;
 }
