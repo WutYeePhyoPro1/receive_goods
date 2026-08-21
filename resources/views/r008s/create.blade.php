@@ -332,7 +332,7 @@
                                             <span>${product.gr_qty}<span>
                                         </div>
                                         <div id="physical_edit_${product.product_code}" hiddens class="w-24  ms-auto">
-                                            <input type="number" step="any" name="physical_qty[]" id="physical_qty_${product.gr_qty}" class="physical_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.gr_qty}">
+                                            <input type="number" step="any" name="physical_qty[]" id="physical_qty_${product.gr_qty}" class="physical_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.gr_qty}" readonly>
                                         </div>
                                     </td>
                                     <td class="py-1.5 px-3 text-right font-medium">
@@ -373,12 +373,14 @@
                                         </div>
                                     </td>
                                     <input type="hidden" name="r8item_ids[]" value="${idx++}" />
+                                    <input type="hidden" name="ref_list_no[]" value="${product.ref_list_no}" />
                                 </tr>
                             `;
                             $('#productTable tbody').append(html);
 
 
                             $('.physical_qty').on('input', function () {
+                                return;
                                 var qty = parseFloat($(this).val()) || 0;
                                 var rgqty = parseFloat(product.po_qty) || 0;
 

@@ -884,7 +884,7 @@ use Spatie\Permission\Models\Role;
 
     }
 
-    function updatePOStatus($data, $receive_good_document){
+    function updatePOStatus($data, $receive_good_document, $r008_datas=[]){
         $conn = DB::connection('master_product');
 
         $po_no = $receive_good_document->po_no;
@@ -912,7 +912,14 @@ use Spatie\Permission\Models\Role;
 
         foreach ($products as $product) {
             $listno = $product->listno;
-            $receivedQty = $received_sums[$product->bar_code][$listno] ?? 0;
+
+            if (empty($r008_datas)) {
+                $receivedQty = $received_sums[$product->bar_code][$listno] ?? 0;
+            }else{
+                // Start One PO, Two R008 ()
+                dd($r008_datas);
+                // End One PO, Two R008
+            }
 
             if ($receivedQty < $product->qty) {
                 $isComplete = false;
@@ -937,7 +944,8 @@ use Spatie\Permission\Models\Role;
         return $modified;
         
     }
-
+    // to comfirm r8_item_id RGLAN1251030-0019
+    
     function updatePOFull($data, $receive_good_document){
         $conn = DB::connection('master_product');
 
@@ -1036,6 +1044,7 @@ use Spatie\Permission\Models\Role;
         // dd($received_sums);
         return $received_sums;
     }
+
 
     function manager($data){
         $user = User::where(['id' => getAuthUser()->id, 'role_id' => $role->id])->first();
