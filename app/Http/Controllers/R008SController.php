@@ -144,21 +144,9 @@ class R008SController extends Controller
                     "sdqty" => $sd_qty[$i],
                     "remark" => $line_remark[$i],
                     "r8item_id" => $r8item_ids[$i],
+                    "ref_list_no" => $ref_list_no[$i],
                 ];
                 R008Product::create($data);
-
-                // Start One PO, Two R008
-                $r008_datas[] = collect($data)
-                ->only([
-                    'product_code',
-                    'product_name',
-                    'gr_qty',
-                    'physical_qty',
-                    'diff',
-                ])
-                ->put('ref_list_no', $ref_list_no[$i])
-                ->all();
-                // End One PO, Two R008
             }
             // End R008 Product
 
@@ -169,7 +157,7 @@ class R008SController extends Controller
 
             // Start PO Full Update
             $receive_good_document = $r008_document->receive_good_document();
-            $updated_po_document_count = updatePOStatus($request->all(),$receive_good_document, $r008_datas);
+            $updated_po_document_count = updatePOStatus($request->all(),$receive_good_document); // r008_created ဟုတ်၊မဟုတ် flag ထည့်လို့ရတယ်။
             // End PO Full Update
             
             // throw new \Exception("RG Document Update Error: ");

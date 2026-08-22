@@ -7,7 +7,10 @@ use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
 use App\Models\Product;
 use App\Models\PurchaseOrderItem;
+use App\Models\R008Document;
+use App\Models\R008Product;
 use App\Models\ReceiveGoodDocument;
+use App\Models\ReceiveGoodFile;
 use App\Models\ReceiveGoodProduct;
 use App\Models\RemoveTrack;
 use App\Models\ScanTrack;
@@ -884,7 +887,7 @@ use Spatie\Permission\Models\Role;
 
     }
 
-    function updatePOStatus($data, $receive_good_document, $r008_datas=[]){
+    function updatePOStatus($data, $receive_good_document){
         $conn = DB::connection('master_product');
 
         $po_no = $receive_good_document->po_no;
@@ -898,31 +901,27 @@ use Spatie\Permission\Models\Role;
 
         // => To Check total received products in both ERP and PORTAL  (we can update the latest status of PO)
         $received_sums = getReceivedSums($po_no);
-        // dd($received_sums);
+        
+        $r008_diffs = getR008Diffs($po_no);
+        // dd($received_sums,$r008_diffs);
 
-        if (!empty($r008_datas)) $r008_diffs = getR008Diffs($r008_datas);
 
         $isComplete = true;
 
         foreach ($products as $product) {
             $listno = $product->listno;
+           
+            // Start One PO, Two R008 ()
+            $receivedQty =($received_sums[$product->bar_code][$listno] ?? 0)
+                        - ($r008_diffs[$product->bar_code][$listno] ?? 0);
+            // End One PO, Two R008
 
-            if (empty($r008_datas)) {
-                $receivedQty = $received_sums[$product->bar_code][$listno] ?? 0;
-            }else{
-                // Start One PO, Two R008 ()
-                $receivedQty =($received_sums[$product->bar_code][$listno] ?? 0)
-                            - ($r008_diffs[$product->bar_code][$listno] ?? 0);
-                // End One PO, Two R008
-            }
             if ($receivedQty < $product->qty) {
                 $isComplete = false;
                 break;
             }
         }
-        dd($isComplete);
 
-        // dd($isComplete);
         if($isComplete){
             $modified = $conn->update("
                 update purchaseorder.po_purchaseorderhd set statusflag='F' where purchaseno='$po_no'; --- when PO full
@@ -1040,16 +1039,28 @@ use Spatie\Permission\Models\Role;
         return $received_sums;
     }
 
-    function getR008Diffs($r008_datas)
-    {
-        return collect($r008_datas)
-            ->groupBy(['product_code', 'ref_list_no'])
-            ->map(function ($productGroups) {
-                return $productGroups->map(function ($items) {
-                    return $items->sum('diff');
-                });
+    function getR008Diffs($po_no){
+        $rg_doc_ids = ReceiveGoodDocument::where('po_no',$po_no)->pluck('id');
+        $rg_doc_nos = ReceiveGoodFile::whereIn('receive_good_document_id',$rg_doc_ids)
+        ->where('name','Receive Good')->pluck('file');
+
+        // dd($rg_doc_nos);
+
+        $r008_doc_ids = R008Document::whereIn('rg_no',$rg_doc_nos)->whereNotIn('status',['Cancel'])->pluck('id');
+
+        $r008_diffs = R008Product::whereIn('r008_document_id', $r008_doc_ids)
+        ->orderBy('id','asc')
+        ->get()
+        ->groupBy(['product_code', 'ref_list_no'])
+        ->map(function ($productGroups) {
+            return $productGroups->map(function ($items) {
+                return $items->sum('diff');
             });
+        });
+        
+        return $r008_diffs;
     }
+
 
 
     function manager($data){
