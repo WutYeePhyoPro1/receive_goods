@@ -221,9 +221,9 @@ function halfLabel(labelX, top, payload) {
     const barcodeY = top + (hasTwoNameLines ? 29 : 18);
     const barcodeHeight = hasTwoNameLines ? 26 : 34;
     const detailsY = barcodeY + barcodeHeight + (hasTwoNameLines ? 2 : 3);
-    const productCodeWidth = dots(13);
-    const dateWidth = dots(14);
-    const unitWidth = dots(4);
+    const productCodeWidth = dots(12);
+    const dateWidth = dots(13);
+    const unitWidth = dots(6);
     commands.push(ascii(`${barcode(labelX, barcodeY, barcodeHeight, payload.barcode)}\r\n`));
     commands.push(bitmapText(left, detailsY, payload.barcode, {
         width: productCodeWidth,
