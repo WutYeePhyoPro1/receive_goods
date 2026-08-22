@@ -896,17 +896,11 @@ use Spatie\Permission\Models\Role;
             ->orderBy('id','desc')
             ->get();
 
-        // $rg_doc_ids = ReceiveGoodDocument::where('po_no',$po_no)->pluck('id');
-        // $received_sums = ReceiveGoodProduct::whereIn('receive_good_document_id', $rg_doc_ids)
-        //     ->selectRaw(
-        //         'product_code, SUM(gr_qty) as total_received'
-        //     )
-        //     ->groupBy('product_code')
-        //     ->pluck('total_received', 'product_code');
-
         // => To Check total received products in both ERP and PORTAL  (we can update the latest status of PO)
         $received_sums = getReceivedSums($po_no);
         // dd($received_sums);
+
+        if (!empty($r008_datas)) $r008_diffs = getR008Diffs($r008_datas);
 
         $isComplete = true;
 
@@ -917,15 +911,16 @@ use Spatie\Permission\Models\Role;
                 $receivedQty = $received_sums[$product->bar_code][$listno] ?? 0;
             }else{
                 // Start One PO, Two R008 ()
-                dd($r008_datas);
+                $receivedQty =($received_sums[$product->bar_code][$listno] ?? 0)
+                            - ($r008_diffs[$product->bar_code][$listno] ?? 0);
                 // End One PO, Two R008
             }
-
             if ($receivedQty < $product->qty) {
                 $isComplete = false;
                 break;
             }
         }
+        dd($isComplete);
 
         // dd($isComplete);
         if($isComplete){
@@ -1043,6 +1038,17 @@ use Spatie\Permission\Models\Role;
 
         // dd($received_sums);
         return $received_sums;
+    }
+
+    function getR008Diffs($r008_datas)
+    {
+        return collect($r008_datas)
+            ->groupBy(['product_code', 'ref_list_no'])
+            ->map(function ($productGroups) {
+                return $productGroups->map(function ($items) {
+                    return $items->sum('diff');
+                });
+            });
     }
 
 

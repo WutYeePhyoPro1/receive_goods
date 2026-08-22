@@ -177,8 +177,6 @@ class R008SController extends Controller
 
             $timer->check();
 
-            dd("hay");
-
             DB::commit();
             DB::connection('defective_product')->commit();
             DB::connection('master_product')->commit();
