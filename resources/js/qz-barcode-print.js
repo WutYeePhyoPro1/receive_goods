@@ -119,9 +119,10 @@ function bitmapText(x, y, value, options = {}) {
     context.font = fontString(fontSize, fontWeight);
     context.textBaseline = 'top';
     context.textAlign = options.textAlign || 'left';
+    const rightInset = options.rightInset || 0;
     const textX = context.textAlign === 'center'
         ? canvasWidth / 2
-        : (context.textAlign === 'right' ? width : 0);
+        : (context.textAlign === 'right' ? width - rightInset : 0);
     context.fillText(clean(value), textX, 0, width);
 
     const pixels = context.getImageData(0, 0, canvasWidth, height).data;
@@ -229,13 +230,13 @@ function halfLabel(labelX, top, payload) {
         width: productCodeWidth,
         height: 12,
         fontSize: 10,
-        fontWeight: 500,
+        fontWeight: 600,
     }));
     commands.push(bitmapText(left + productCodeWidth, detailsY, compactDate(payload.printedAt), {
         width: dateWidth,
         height: 12,
-        fontSize: 9,
-        fontWeight: 400,
+        fontSize: 10,
+        fontWeight: 500,
         textAlign: 'center',
     }));
     commands.push(bitmapText(left + productCodeWidth + dateWidth, detailsY, payload.unit, {
@@ -244,6 +245,7 @@ function halfLabel(labelX, top, payload) {
         fontSize: 10,
         fontWeight: 500,
         textAlign: 'right',
+        rightInset: dots(1),
     }));
     return commands;
 }
