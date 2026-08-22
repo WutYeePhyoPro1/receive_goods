@@ -23,6 +23,6 @@ class ReceiveGoodProduct extends Model
         "remark",
         "discount",
         "r8damqty",
-        "ref_list_no"
+        "ref_list_no",
     ];
 }

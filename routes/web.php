@@ -100,6 +100,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('r008s/{id}/approve','approve_form')->name('r8_dapprove_form');
 
             Route::get('r008s/{id}/print-pdf','printPDF')->name('r008s.print-pdf');
+
         });
 
         Route::group(['controller'=>ReceiveGoodRejectsController::class],function(){
@@ -171,6 +172,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             route::post('save_rg','save_rg')->name('save_rg');
 
             route::post('receive_r008','receive_r008')->name('receive_r008');
+
+            Route::post('receive_goods/products/{id}/remove','removeProduct')->name('rg_remove_product');
         });
 
         route::group(['controller'=>AdminController::class],function(){

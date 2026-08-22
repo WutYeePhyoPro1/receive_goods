@@ -584,7 +584,7 @@ class ActionController extends Controller
                 return $product->remaining_qty > 0;
             })
             ->filter(function ($product) use($r008_lists){
-                return !in_array($product->listno,$r008_lists);
+                return !in_array($product->listno,$r008_lists) || !$product->r008;
             })
             ->values(); // Reset keys
             // dd($filtered_products);
@@ -746,6 +746,22 @@ class ActionController extends Controller
         ->receive_good_products()
         // ->whereColumn('po_qty', '!=', 'gr_qty')
         ->get();
+
+        // Start Seperate RG or R008
+            $diff_product_lists = $receive_good_document
+                                ->receive_good_products()
+                                ->whereColumn('po_qty', '!=', 'gr_qty')
+                                ->pluck('ref_list_no');
+
+            $products = PurchaseOrderItem::where('document_id',$receive_good_document?->document?->id)
+                    ->whereNotNull('listno')
+                    ->orderBy('id','asc')
+                    ->update([
+                        'r008' => true,
+                    ]);
+
+        // End Seperate RG or R008
+
         return response()->json([
             'message' => 'success',
             'data' => [
@@ -793,10 +809,13 @@ class ActionController extends Controller
         $receive_good_file->save();
     }
 
-    public function rg_approve_form($receive_good_document_id){
-        dd('hay');
+    public function removeProduct(Request $request,string $id)
+    {
+        // dd($id);
+        return response()->json([
+            'success' => true,
+        ]);
     }
-
 
 
     //edit scan

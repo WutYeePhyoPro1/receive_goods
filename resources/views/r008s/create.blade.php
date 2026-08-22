@@ -298,7 +298,9 @@
                                     <td class="py-1.5 px-3">
                                         <button
                                             type="button"
-                                            class="h-8 w-8 rounded-md border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 inline-flex items-center justify-center  removeRow">
+                                            class="h-8 w-8 rounded-md border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 inline-flex items-center justify-center  removeRow"
+                                            data-rg-product-id="${product.id}"
+                                            >
                                             <i class='bx bx-trash'></i>
                                         </button>
                                     </td>
@@ -395,13 +397,33 @@
                                 diffView.text(diff);
                                 diffInput.val(signedDiff);
                             });
-                            
-
-                            $(document).on('click','.removeRow',function (e) {
-                                $(this).parent('td').parent('tr').remove();
-                            });
+                        
               
                         })
+
+                        $(document).on('click', '.removeRow', function () {
+                            const button = $(this);
+                            const rgProductId = button.data('rg-product-id');
+                            console.log(rgProductId);
+                            $.ajax({
+                                url: `/receive_goods/products/${rgProductId}/remove`,
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                },
+                                success: function (response) {
+
+                                    if (response.success) {
+                                        button.closest('tr').remove();
+                                    }
+
+                                },
+                                error: function (xhr) {
+                                    console.error(xhr.responseText);
+                                }
+                            });
+
+                        });
                     },
                     complete:function(){
                         // $(".loader").removeClass("show");
