@@ -230,13 +230,13 @@ function halfLabel(labelX, top, payload) {
         width: productCodeWidth,
         height: 12,
         fontSize: 10,
-        fontWeight: 500,
+        fontWeight: 600,
     }));
     commands.push(bitmapText(left + productCodeWidth, detailsY, compactDate(payload.printedAt), {
         width: dateWidth,
         height: 12,
-        fontSize: 9,
-        fontWeight: 400,
+        fontSize: 10,
+        fontWeight: 500,
         textAlign: 'center',
     }));
     commands.push(bitmapText(left + productCodeWidth + dateWidth, detailsY, payload.unit, {
