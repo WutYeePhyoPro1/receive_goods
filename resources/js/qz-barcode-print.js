@@ -253,7 +253,7 @@ function halfLabel(labelX, top, payload) {
 function buildPage(payload, pageItems, type) {
     // Keep a printable quiet area at each sticker's right edge, especially column three.
     const labelXs = type === 1 || type === 2
-        ? [dots(-1.0), dots(35.6), dots(72.4)]
+        ? [dots(-1.25), dots(35.6), dots(72.4)]
         : [dots(-1.5), dots(35.6), dots(73.2)];
     const centeredTop = dots(3.155);
     const commands = [ascii([
