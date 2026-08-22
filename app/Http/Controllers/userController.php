@@ -258,9 +258,19 @@ class userController extends Controller
         }
     }
 
-        public function receive_goods_partial($id)
+    public function receive_goods_partial($id)
     {
+        $startedAt = microtime(true);
+        $queryCount = 0;
+        $queryTimeMs = 0.0;
+
+        DB::listen(function ($query) use (&$queryCount, &$queryTimeMs) {
+            $queryCount++;
+            $queryTimeMs += $query->time;
+        });
+
         // Data Preparation
+        $dataStartedAt = microtime(true);
         $main = GoodsReceive::where('id', $id)->first();
         $document = Document::where('received_goods_id', $id)
             ->withMax('products', 'updated_at')
@@ -279,11 +289,35 @@ class userController extends Controller
         $product_barcode = Product::whereIn('document_id', $document_id)
             ->whereNull('not_scan_remark')
             ->pluck('bar_code')->toArray();
+        $dataTimeMs = (microtime(true) - $dataStartedAt) * 1000;
 
         // Render partials
+        $mainRenderStartedAt = microtime(true);
         $main_table_html = view('user.receive_goods.partials.main_table', compact('main', 'document','cur_driver','driver_last'))->render();
+        $mainRenderTimeMs = (microtime(true) - $mainRenderStartedAt) * 1000;
+
+        $scanRenderStartedAt = microtime(true);
         $scan_parent_html = view('user.receive_goods.partials.scan_parent', compact('cur_driver','scan_document','product_barcode'))->render();
+        $scanRenderTimeMs = (microtime(true) - $scanRenderStartedAt) * 1000;
+
+        $excessRenderStartedAt = microtime(true);
         $excess_div_html = view('user.receive_goods.partials.excess_div', compact('driver','document','main'))->render();
+        $excessRenderTimeMs = (microtime(true) - $excessRenderStartedAt) * 1000;
+
+        Logger::info('Receive goods partial performance', [
+            'received_goods_id' => (int) $id,
+            'user_id' => getAuth()->id,
+            'branch_id' => getAuth()->branch_id,
+            'document_count' => $document->count(),
+            'query_count' => $queryCount,
+            'query_time_ms' => round($queryTimeMs, 2),
+            'data_time_ms' => round($dataTimeMs, 2),
+            'main_render_ms' => round($mainRenderTimeMs, 2),
+            'scan_render_ms' => round($scanRenderTimeMs, 2),
+            'excess_render_ms' => round($excessRenderTimeMs, 2),
+            'response_size_bytes' => strlen($main_table_html) + strlen($scan_parent_html) + strlen($excess_div_html),
+            'total_time_ms' => round((microtime(true) - $startedAt) * 1000, 2),
+        ]);
 
         return response()->json([
             'main_table' => $main_table_html,
