@@ -34,27 +34,6 @@
             font-weight: bold;
         }
 
-        .company-header td {
-            vertical-align: top;
-        }
-
-        .company-name {
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .page-no {
-            text-align: right;
-            white-space: nowrap;
-        }
-
-        .title {
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            margin: 8px 0;
-        }
-
         .detail-table {
             margin-top: 5px;
         }
@@ -63,12 +42,6 @@
             padding: 1px 2px;
             vertical-align: top;
         }
-
-        /* .label {
-            width: 90px;
-            white-space: nowrap;
-        }
-        */
 
         .value {
             padding-left: 3px;
@@ -81,10 +54,6 @@
 
         .product-table thead {
             display: table-header-group;
-        }
-
-        .product-table tfoot {
-            display: table-row-group;
         }
 
         .product-table tr {
@@ -103,31 +72,6 @@
         .product-table td {
             padding: 3px;
         }
-
-        .qty {
-            text-align: right !important;
-        }
-
-        .total-row td {
-            border-top: 1px solid #000;
-            font-weight: bold;
-            padding-top: 5px;
-        }
-
-        .spacer-row td {
-            padding: 0;
-            line-height: 0;
-            font-size: 0;
-        }
-
-       
-        .myanmarfonts{
-            font-family: Tharlon, sans-serif !important;
-        }
-
-
-
-
 
         .summary {
             border-top: 1px dotted #555;
@@ -192,7 +136,6 @@
 
         .signature-info td {
             padding: 0;
-            border: 0;
             vertical-align: middle;
         }
 
@@ -207,11 +150,12 @@
             width: 60%;
             text-align: center;
             white-space: nowrap;
-
-            /* dotted ONLY under value */
-            border-bottom: 0.5pt dotted #555;
-
             padding-bottom: 2px !important;
+        }
+
+        .signature-name-cell {
+            border-bottom: 1px dotted #555;
+            padding-bottom: 2px;
         }
 
 
@@ -437,7 +381,7 @@
             <table class="signature-info">
                 <tr>
                     <td class="signature-label">Recorded By :</td>
-                    <td class="signature-value">Hnin Wai Phyo Hlaing</td>
+                    <td class="signature-value signature-name-cell">Hnin Wai Phyo Hlaing</td>
                 </tr>
                 <tr>
                     <td class="signature-label">User ID :</td>
@@ -458,7 +402,7 @@
             <table class="signature-info">
                 <tr>
                     <td class="signature-label">Checked By :</td>
-                    <td class="signature-value">Wai Phyo Aung</td>
+                    <td class="signature-value signature-name-cell">Wai Phyo Aung</td>
                 </tr>
                 <tr>
                     <td class="signature-label">User ID :</td>
@@ -479,7 +423,7 @@
             <table class="signature-info">
                 <tr>
                     <td class="signature-label">Approved By :</td>
-                    <td class="signature-value">Wai Phyo Aung</td>
+                    <td class="signature-value signature-name-cell">Wai Phyo Aung</td>
                 </tr>
                 <tr>
                     <td class="signature-label">User ID :</td>
