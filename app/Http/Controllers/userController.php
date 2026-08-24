@@ -591,22 +591,15 @@ class userController extends Controller
     }
 
     public function poPrintPDF(string $id){
-        dd('hay');
 
-        // $r008_document = R008Document::find($id);
-        // $conn = DB::connection('defective_product');
-        // $statuses = $conn->select("
-        //     SELECT * 
-        //     FROM public.r008_subject
-        //     ORDER BY subjectr008_id ASC
-        //     LIMIT 100
-        // ");
+        $po_document = Document::find($id);
+     
 
-        // view()->share(['r008_document' => $r008_document, 'statuses' => $statuses]);
-        // $pdf = MPDF::loadView('r008s.pdf');
+        view()->share(['po_document' => $po_document]);
+        $pdf = MPDF::loadView('user.receive_goods.documents.pdf');
 
-        // // return $pdf->download('invoice.pdf');
-        // return $pdf->stream('r008.pdf');
+        // return $pdf->download('invoice.pdf');
+        return $pdf->stream('po.pdf');
 
         
     }
