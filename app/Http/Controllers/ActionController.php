@@ -752,9 +752,11 @@ class ActionController extends Controller
                                 ->receive_good_products()
                                 ->whereColumn('po_qty', '!=', 'gr_qty')
                                 ->pluck('ref_list_no');
+            // dd($diff_product_lists);
 
             $products = PurchaseOrderItem::where('document_id',$receive_good_document?->document?->id)
                     ->whereNotNull('listno')
+                    ->whereIn('listno',$diff_product_lists)
                     ->orderBy('id','asc')
                     ->update([
                         'r008' => true,
@@ -812,6 +814,18 @@ class ActionController extends Controller
     public function removeProduct(Request $request,string $id)
     {
         // dd($id);
+        $receive_good_product = ReceiveGoodProduct::findOrFail($id);
+        $ref_list_no = $receive_good_product?->ref_list_no;
+
+        $receive_good_document_id = $receive_good_product?->receive_good_document_id;
+        $receive_good_document = ReceiveGoodDocument::where('id',$receive_good_document_id)->first();
+
+        $purchase_order_item = PurchaseOrderItem::where('document_id',$receive_good_document?->document?->id)->where('listno',$ref_list_no)->first();
+        // dd($purchase_order_item);
+        $purchase_order_item->update([
+            'r008' => false,
+        ]);
+
         return response()->json([
             'success' => true,
         ]);
