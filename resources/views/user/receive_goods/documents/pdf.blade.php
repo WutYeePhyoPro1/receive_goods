@@ -1,26 +1,517 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Purchase Order</title>
-<style>
-@page{margin:7mm 10mm 6mm}body{margin:0;color:#000;font-family:Arial,Helvetica,sans-serif;font-size:9.4px;line-height:1.28}table{width:100%;border-collapse:collapse}td,th{vertical-align:top}.right{text-align:right}.center{text-align:center}.bold{font-weight:bold}.header td{vertical-align:middle}.logo{width:72px}.company{font-size:13px;font-weight:bold}.branch{padding-left:8px;font-size:11px}.address{padding-top:4px;font-size:8.5px}.contact{margin-top:6px;font-size:8px}.doc-block{text-align:right}.barcode-space{height:25px;padding-top:3px;text-align:center;border-top:1px solid #000;letter-spacing:1px;font-weight:bold}.page-line{margin-top:1px;font-size:8px}.page-line span{margin-left:12px}.qr{width:48px;height:48px;margin-top:5px}.title{margin:2px 0 4px;text-align:center;font-size:14px;font-weight:normal}.rule{border-top:1px dotted #555}.details{margin-top:2px}.details td{padding:1.4px 2px}.label{width:13%;white-space:nowrap}.colon{width:2%;text-align:center}.left-value{width:39%}.right-label{width:13%;white-space:nowrap}.items{margin-top:5px}.items th{padding:3px;border-top:1px dotted #555;border-bottom:1px dotted #555;font-weight:normal;text-align:left}.items td{padding:4px 3px 1px}.items .num{text-align:right}.watermark-area{height:176px;text-align:center}.watermark{width:365px;height:175px}.summary{border-top:1px dotted #555;border-bottom:1px dotted #555}.summary td{padding:5px 3px}.sum-label{width:78%}.sum-colon{width:3%;text-align:center}.sum-value{text-align:right;font-weight:bold}.remark td{padding:4px 3px}.signatures{margin-top:34px;border:1px dotted #555}.signatures td{width:33.33%;border-right:1px dotted #555;padding:4px}.signatures td:last-child{border-right:0}.sign-line{border-bottom:1px dotted #555}.sign-row{margin-bottom:5px;font-size:8px}.approval-note{padding-top:3px;text-align:right;font-size:7px}.footer{margin-top:5px;font-size:8.5px}
-</style></head><body>
-<table class="header"><tr><td width="15%"><img class="logo" src="{{ public_path('image/background_img/finallogo.png') }}" alt="PRO 1"></td><td width="65%"><div><span class="company">PRO 1 GLOBAL COMPANY LIMITED</span><span class="branch">Lanthit</span></div><div class="address">No.76, Lanthit Street, Near Arleing Ngar Sint Pagoda, Insein Township, Yangon, Myanmar</div><table class="contact"><tr><td width="12%">Tel.</td><td width="58%">01-9640100, 9640110, 647730, 644832</td><td width="10%">Fax</td><td width="20%">Tax ID</td></tr></table></td><td width="20%" class="doc-block"><div class="barcode-space">PO-LAN1260824-001</div><div class="page-line">Pages <span>1/1</span></div>
-<img class="qr" src="{{ public_path('image/po-qr-placeholder.svg') }}" alt="QR code placeholder"></td></tr></table>
-<div class="title">Purchase Order (PO)</div><div class="rule"></div>
-<table class="details">
-<tr><td class="label">Vendor Code</td><td class="colon">:</td><td class="left-value">Z-0002</td><td class="right-label">Doc.No.</td><td class="colon">:</td><td>POLAN1260824-001</td></tr>
-<tr><td class="label">Vendor Name</td><td class="colon">:</td><td class="left-value bold">LULAT TOOLS COMPANY LIMITED</td><td class="right-label">Doc.Date</td><td class="colon">:</td><td>24/08/2026</td></tr>
-<tr><td class="label">Address</td><td class="colon">:</td><td class="left-value">NO.(21), Ground Flour, Shwedagon Pagoda Road. . . . .</td><td class="right-label">PR Doc.No.</td><td class="colon">:</td><td></td></tr>
-<tr><td></td><td></td><td></td><td class="right-label">PR Approval<br>Date</td><td class="colon">:</td><td></td></tr>
-<tr><td class="label">Tel.</td><td class="colon">:</td><td class="left-value">095163653,0973097377</td><td class="right-label">Credit Day</td><td class="colon">:</td><td>14</td></tr>
-<tr><td class="label">Fax</td><td class="colon">:</td><td class="left-value">-</td><td class="right-label">Delivery Date</td><td class="colon">:</td><td></td></tr></table>
-<table class="items"><thead><tr><th width="5%">No.</th><th width="16%">Product Code</th><th width="26%">ProductName</th><th width="9%" class="right">Quantity</th><th width="6%">Unit</th><th width="14%" class="right">Price</th><th width="11%" class="right">Discount</th><th width="13%" class="right">Amount</th></tr></thead><tbody>
-<tr><td>1</td><td>2000000312774</td><td>ZM Spanner 8x10mm</td><td class="num">10.00</td><td>PC</td><td class="num">10,400.00</td><td class="num">0.00</td><td class="num">104,000.00</td></tr>
-<tr><td>2</td><td>2000000312798</td><td>ZM Spanner 12x14mm</td><td class="num">10.00</td><td>PC</td><td class="num">14,400.00</td><td class="num">0.00</td><td class="num">144,000.00</td></tr>
-<tr><td>3</td><td>2000000312804</td><td>ZM Spanner 14x17mm</td><td class="num">10.00</td><td>PC</td><td class="num">17,000.00</td><td class="num">0.00</td><td class="num">170,000.00</td></tr>
-<tr><td>4</td><td>1101110021002</td><td>BL L Key star No.578</td><td class="num">6.00</td><td>PC</td><td class="num">18,000.00</td><td class="num">0.00</td><td class="num">108,000.00</td></tr></tbody></table>
-<div class="watermark-area"><img class="watermark" src="{{ public_path('image/po-watermark.svg') }}" alt=""></div>
-<table class="summary"><tr><td class="sum-label">Amount</td><td class="sum-colon">:</td><td class="sum-value">526,000.00</td></tr><tr><td>Product Discount (Amount)</td><td class="sum-colon">:</td><td class="sum-value">0.00</td></tr><tr><td>Base Amount</td><td class="sum-colon">:</td><td class="sum-value">526,000.00</td></tr><tr><td>Tax Amount</td><td class="sum-colon">:</td><td class="sum-value">0.00</td></tr><tr><td>Total Net Amount</td><td class="sum-colon">:</td><td class="sum-value">526,000.00</td></tr></table>
-<table class="remark"><tr><td style="width:80px">Remark</td><td style="width:9px">:</td><td>Stock Refill</td></tr></table>
-<table class="signatures"><tr><td><div class="sign-row">Recorded By : <span class="sign-line">Hnin Wai Phyo Hlaing</span></div><div class="sign-row">User ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <span class="sign-line">003-000838</span></div><div class="sign-row">PC Name&nbsp;&nbsp;&nbsp;: <span class="sign-line">PRO1MER-028</span></div><div class="sign-row">Recorded Date: <span class="sign-line">24/08/2026 10:35 AM</span></div></td><td><div class="sign-row">Checked By&nbsp;&nbsp;: <span class="sign-line">Wai Phyo Aung</span></div><div class="sign-row">User ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <span class="sign-line">001-000063</span></div><div class="sign-row">PC Name&nbsp;&nbsp;&nbsp;: <span class="sign-line">DESKTOP-PAHFRBP</span></div><div class="sign-row">Checked Date : <span class="sign-line">24/08/2026 10:47 AM</span></div></td><td><div class="sign-row">Approved By : <span class="sign-line">Wai Phyo Aung</span></div><div class="sign-row">User ID&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <span class="sign-line">001-000063</span></div><div class="sign-row">PC Name&nbsp;&nbsp;&nbsp;: <span class="sign-line">DESKTOP-PAHFRBP</span></div><div class="sign-row">Approved Date: <span class="sign-line">24/08/2026 10:49 AM</span></div><div class="approval-note">Approved via digital signature with authority</div></td></tr></table>
-<table class="footer"><tr><td style="width:90px">Print By :</td><td class="bold">Khine Mar Htun</td><td class="right">24/08/2026 11:05</td></tr></table>
-</body></html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Goods Receive</title>
+    <style>
+        @page {
+            margin: 10mm 12mm;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            color: #000;
+            margin: 0;
+            padding: 0;
+            line-height: 1.15;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right !important;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .company-header td {
+            vertical-align: top;
+        }
+
+        .company-name {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .page-no {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+
+        .detail-table {
+            margin-top: 5px;
+        }
+
+        .detail-table td {
+            padding: 1px 2px;
+            vertical-align: top;
+        }
+
+        /* .label {
+            width: 90px;
+            white-space: nowrap;
+        }
+        */
+
+        .value {
+            padding-left: 3px;
+        } 
+
+        .product-table {
+            margin-top: 8px;
+            page-break-inside: auto;
+        }
+
+        .product-table thead {
+            display: table-header-group;
+        }
+
+        .product-table tfoot {
+            display: table-row-group;
+        }
+
+        .product-table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        .product-table th {
+            border-top: 1px dotted #000;
+            border-bottom: 1px dotted #000;
+            padding: 3px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .product-table td {
+            padding: 3px;
+        }
+
+        .qty {
+            text-align: right !important;
+        }
+
+        .total-row td {
+            border-top: 1px solid #000;
+            font-weight: bold;
+            padding-top: 5px;
+        }
+
+        .spacer-row td {
+            padding: 0;
+            line-height: 0;
+            font-size: 0;
+        }
+
+       
+        .myanmarfonts{
+            font-family: Tharlon, sans-serif !important;
+        }
+
+
+
+
+
+        .summary {
+            border-top: 1px dotted #555;
+            border-bottom: 1px dotted #555;
+        }
+        .summary td {
+            padding: 5px 3px;
+        }
+        .sum-label {
+            width: 78%;
+        }
+        .sum-colon {
+            width: 3%;
+            text-align: center;
+        }
+        .sum-value {
+            text-align: right;
+            font-weight: bold;
+        }
+        .remark td {
+            padding: 4px 3px;
+        }
+
+        .signatures {
+            width: 100%;
+            margin-top: 34px;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
+        }
+
+        .signature-cell {
+            width: 33.33%;
+            padding: 5px 6px 4px;
+            vertical-align: top;
+
+            border-top: 1px dotted #555;
+            border-bottom: 1px dotted #555;
+        }
+
+        .signature-left {
+            border-left: 1px dotted #555;
+            border-right: 1px dotted #555;
+        }
+
+        .signature-middle {
+            border-right: 1px dotted #555;
+        }
+
+        .signature-right {
+            border-right: 1px dotted #555;
+        }
+
+
+        /* Inner signature table */
+        .signature-info {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
+        }
+
+        .signature-info td {
+            padding: 0;
+            border: 0;
+            vertical-align: middle;
+        }
+
+        .signature-label {
+            width: 40%;
+            text-align: left;
+            white-space: nowrap;
+            padding-right: 3px !important;
+        }
+
+        .signature-value {
+            width: 60%;
+            text-align: center;
+            white-space: nowrap;
+
+            /* dotted ONLY under value */
+            border-bottom: 0.5pt dotted #555;
+
+            padding-bottom: 2px !important;
+        }
+
+
+        /* Row height */
+        .signature-info tr td {
+            height: 25px;
+        }
+
+
+        /* Approval note */
+        .approval-note {
+            width: 100%;
+            margin-top: 2px;
+            border-collapse: collapse;
+        }
+
+        .approval-note td {
+            padding: 0;
+            border: 0;
+            text-align: right;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+        .footer {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+{{-- Header --}}
+<table class="header">
+    <tr>
+        <td width="15%">
+            <!-- <img src="{{ public_path('image/logo.png') }}"
+                 style="width:80px;"> -->
+            <div class="logo">
+                <img src="{{ public_path('image/background_img/finallogo.png') }}" width="150px" alt="">
+                <!-- <div class="logo_content">
+                    <span>PRO 1 Global Home Center</span>
+                </div> -->
+            </div>
+        </td>
+
+        <td width="70%" class="text-center">
+            <h2 style="margin:0;">
+                PRO 1 GLOBAL COMPANY LIMITED ({{ $po_document->branch->branch_name }})
+            </h2>
+
+            <!-- <div>
+                Ma.8/6, Theik Pan Rd, Bet: 62 & 63 St.,
+                Chanmyathazi Tsp., Mandalay, Myanmar
+            </div> -->
+            <div>
+                {{ 
+                    $po_document->branch?->branch_address
+                    ?? 'No.76, Lanthit Street, Near Arleing Ngar Sint Pagoda,
+                    Insein Township, Yangon, Myanmar' 
+                }}
+            </div>
+
+            <table style="margin-top:8px;">
+                <tr>
+                    <td width="33%">Tel.</td>
+                    <td width="33%">Fax</td>
+                    <td width="33%">Tax ID</td>
+                </tr>
+            </table>
+        </td>
+
+        <td width="15%" class="text-right">
+            Page {PAGENO}/{nbpg}
+        </td>
+    </tr>
+</table>
+
+<h2 class="text-center">
+    Purchase Order (PO)
+</h2>
+
+{{-- DETAIL --}}
+<table class="detail-table">
+
+    <tr>
+        <td class="label" width="15%">Vendor Code</td>
+        <td class="value" width="45%">: {{ $po_document->vendor_code }}</td>
+
+        <td class="label" width="15%">Doc.No.</td>
+        <td class="value" width="25%">: {{ $po_document->document_no }}</td>
+    </tr>
+
+    <tr>
+        <td class="label">Vendor Name</td>
+        <td class="value">: {{ $po_document?->vendor?->vendor_name }}</td>
+
+        <td class="label">Doc.Date</td>
+        <td class="value">: 
+            {{ \Carbon\Carbon::parse($po_document->purchasedate)->format('Y-m-d') }}
+        </td>
+    </tr>
+
+    <tr>
+        <td class="label">Address</td>
+        <td class="value">
+            : {{ $po_document?->vendor?->vendor_address }}  
+            <!-- Lorem Ipsum is simply dummy text of the printing and typesetting industry. -->
+        </td>
+
+        <td class="label">PR Doc No.</td>
+        <td class="value">: {{ $po_document?->document_no }}</td>
+    </tr>
+
+    <tr>
+        <td class="label">Tel.</td>
+        <td class="value">: {{ $po_document?->vendor?->vendor_ph }}</td>
+
+        <td class="label">PR Aproval Date Date</td>
+        <td class="value">: {{-- $po_document->delivery_date --}}</td>
+    </tr>
+
+    <tr>
+        <td class="label">Fax</td>
+        <td class="value">: {{-- 951-245401 --}}</td>
+
+         <td class="label">Credit Term</td>
+        <td class="value">: {{ $po_document->creditday }}</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td></td>
+
+        <td class="label">Delivery Date</td>
+        <td class="value">: {{-- $receive_good_document->document->creditday --}}</td>
+    </tr>
+
+</table>
+
+<table class="product-table">
+
+    <thead>
+        <tr>
+            <th width="6%">No.</th>
+            <th width="20%">Product Code</th>
+            <th>Product Name</th>
+            <th width="10%" class="text-right" style="text-align: right;">Quantity</th>
+            <th width="8%">Unit</th>
+            <th class="text-right" style="text-align: right;">Price</th>
+            <th class="text-right" style="text-align: right;">Discount</th>
+            <th class="text-right" style="text-align: right;">Amount</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+
+        <!-- <tr>
+            <td>1</td>
+            <td>1101020016005</td>
+            <td>TIGER Shear 700</td>
+            <td class="qty">24.00</td>
+            <td>PC</td>
+            <td class="text-right">10,400.00</td>
+            <td class="text-right">0.00</td>
+            <td class="text-right">10,400.00</td>
+        </tr> -->
+
+        @foreach($po_document->purchase_order_items()->whereNotNull('listno')->orderBy('id','asc')->get() as $idx=>$product)
+        <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
+            <td class="py-1.5 px-3 font-medium text-slate-400">{{ ++$idx }}</td>
+            <td class="py-1.5 px-3 font-mono font-medium text-slate-700">{{ $product->bar_code }}</td>
+            <td class="py-1.5 px-3 font-medium text-slate-400">{{ $product->supplier_name }}</td>
+            <td class="py-1.5 px-3 text-right font-medium">{{ number_format($product->qty) }}</td>
+            <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">{{ $product->unit ?? 'PC' }}</span></td>
+            <td class="py-1.5 px-3 text-right text-slate-500">{{ number_format($product->price,2) }}</td>
+            <td class="py-1.5 px-3 text-right text-slate-500">{{ number_format(0.00) }}</td>
+            <td class="py-1.5 px-3 text-right font-medium text-slate-700">{{ number_format($product->amount,2) }}</td>
+        </tr>                              
+        @endforeach
+
+    </tbody>
+
+</table>
+
+
+<table class="summary">
+    <tr>
+        <td class="sum-label">Amount</td>
+        <td class="sum-colon">:</td>
+        <td class="sum-value">526,000.00</td>
+    </tr>
+    <tr>
+        <td>Product Discount (Amount)</td>
+        <td class="sum-colon">:</td>
+        <td class="sum-value">0.00</td>
+    </tr>
+    <tr>
+        <td>Base Amount</td>
+        <td class="sum-colon">:</td>
+        <td class="sum-value">526,000.00</td>
+    </tr>
+    <tr>
+        <td>Tax Amount</td>
+        <td class="sum-colon">:</td>
+        <td class="sum-value">0.00</td>
+    </tr>
+    <tr>
+        <td>Total Net Amount</td>
+        <td class="sum-colon">:</td>
+        <td class="sum-value">526,000.00</td>
+    </tr>
+</table>
+<table class="remark">
+    <tr>
+        <td style="width: 80px">Remark</td>
+        <td style="width: 9px">:</td>
+        <td>Stock Refill</td>
+    </tr>
+</table>
+
+<table class="signatures">
+    <tr>
+        <td class="signature-cell signature-left">
+            <table class="signature-info">
+                <tr>
+                    <td class="signature-label">Recorded By :</td>
+                    <td class="signature-value">Hnin Wai Phyo Hlaing</td>
+                </tr>
+                <tr>
+                    <td class="signature-label">User ID :</td>
+                    <td class="signature-value">003-000838</td>
+                </tr>
+                <tr>
+                    <td class="signature-label">PC Name :</td>
+                    <td class="signature-value">PRO1MER-028</td>
+                </tr>
+                <tr>
+                    <td class="signature-label">Recorded Date :</td>
+                    <td class="signature-value">24/08/2026 10:35 AM</td>
+                </tr>
+            </table>
+        </td>
+
+        <td class="signature-cell signature-middle">
+            <table class="signature-info">
+                <tr>
+                    <td class="signature-label">Checked By :</td>
+                    <td class="signature-value">Wai Phyo Aung</td>
+                </tr>
+                <tr>
+                    <td class="signature-label">User ID :</td>
+                    <td class="signature-value">001-000063</td>
+                </tr>
+                <tr>
+                    <td class="signature-label">PC Name :</td>
+                    <td class="signature-value">DESKTOP-PAHFRBP</td>
+                </tr>
+                <tr>
+                    <td class="signature-label">Checked Date :</td>
+                    <td class="signature-value">24/08/2026 10:47 AM</td>
+                </tr>
+            </table>
+        </td>
+
+        <td class="signature-cell signature-right">
+            <table class="signature-info">
+                <tr>
+                    <td class="signature-label">Approved By :</td>
+                    <td class="signature-value">Wai Phyo Aung</td>
+                </tr>
+                <tr>
+                    <td class="signature-label">User ID :</td>
+                    <td class="signature-value">001-000063</td>
+                </tr>
+                <tr>
+                    <td class="signature-label">PC Name :</td>
+                    <td class="signature-value">DESKTOP-PAHFRBP</td>
+                </tr>
+                <tr>
+                    <td class="signature-label">Approved Date :</td>
+                    <td class="signature-value">24/08/2026 10:49 AM</td>
+                </tr>
+            </table>
+
+            <table class="approval-note">
+                <tr>
+                    <td>Approved via digital signature with authority</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<table class="footer">
+    <tr>
+        <td style="width: 90px">Print By :</td>
+        <td class="bold">Khine Mar Htun</td>
+        <td class="text-right">24/08/2026 11:05</td>
+    </tr>
+</table>
+
+
+
+</body>
+</html>
