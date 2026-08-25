@@ -36,6 +36,7 @@
 
         .detail-table {
             margin-top: 5px;
+            border-top: 1px dotted #000;
         }
 
         .detail-table td {
@@ -187,30 +188,42 @@
             font-family: Tharlon, sans-serif !important;
         }
 
-        .barcode-space {
+
+        .barcode-container {
             text-align: right;
             /* padding: 6px 0px; */
             padding-bottom: 6px;
         }
-
         .po-barcode {
             width: 55mm;
             height: 6mm;
+        }
+
+        /* QR Code (Positioned Right Side like Image) */
+        .qrcode-container {
+            position: absolute;
+            top: 28mm;
+            right: 10mm;
+        }
+        .po-qrcode {
+            width: 16mm;
+            height: 16mm;
         }
     </style>
 </head>
 <body>
 {{-- Header --}}
 
-<div class="barcode-space">
-    <img
-        src="{{ public_path($po_document->barcode_path) }}"
-        class="po-barcode"
-        alt="Barcode"
-    >
+<div class="barcode-container">
+    <img src="{{ public_path($po_document->barcode_path) }}" class="po-barcode" alt="Barcode">
 </div>
 
-<table class="header">
+<!-- QR Code Absolute Position (Top-Right under barcode) -->
+<div class="qrcode-container">
+    <img src="{{ public_path($po_document->qr_code_path) }}" class="po-qrcode" alt="QR Code">
+</div>
+
+<table class="header" style="width: 100%; border-collapse: collapse; table-layout: fixed;">
     <tr>
         <td width="15%">
             <!-- <img src="{{ public_path('image/logo.png') }}"
@@ -249,8 +262,10 @@
             </table>
         </td>
 
-        <td width="15%" class="text-right">
-            Page {PAGENO}/{nbpg}
+        <td width="20%" align="right" style="vertical-align: top; text-align: right;">
+            <span style="display: inline-block; white-space: nowrap;">
+                Page 1/1
+            </span>
         </td>
     </tr>
 </table>
