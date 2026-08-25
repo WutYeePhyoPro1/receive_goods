@@ -186,10 +186,30 @@
         .myanmarfonts{
             font-family: Tharlon, sans-serif !important;
         }
+
+        .barcode-space {
+            text-align: right;
+            /* padding: 6px 0px; */
+            padding-bottom: 6px;
+        }
+
+        .po-barcode {
+            width: 55mm;
+            height: 6mm;
+        }
     </style>
 </head>
 <body>
 {{-- Header --}}
+
+<div class="barcode-space">
+    <img
+        src="{{ public_path($po_document->barcode_path) }}"
+        class="po-barcode"
+        alt="Barcode"
+    >
+</div>
+
 <table class="header">
     <tr>
         <td width="15%">

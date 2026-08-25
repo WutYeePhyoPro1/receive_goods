@@ -11,12 +11,17 @@ use App\Models\PurchaseOrderItem;
 use App\Models\ScanTrack;
 use App\Models\Tracking;
 use App\Models\Vendor;
+use App\Services\DocumentCodeService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 Class ActionRepository implements ActionRepositoryInterface
 {
+    public function __construct(
+        private DocumentCodeService $codeService
+    ) {
+    }
     public function get_remain($id)
     {
         $doc   = Document::where('received_goods_id',$id)->pluck('id');
@@ -193,6 +198,13 @@ Class ActionRepository implements ActionRepositoryInterface
             'total_amount' => $total_amount,
             'branch_id' => $branch_id,
         ]);
+
+        if(!$document->barcode_path || !$document->qr_code_path){
+            $paths = $this->codeService->generate(
+                $document->document_no
+            );
+            $document->update($paths);
+        }
 
         $products = Product::where('document_id',$document->id)->get();
         foreach($purchase_orders as $purchase_order){

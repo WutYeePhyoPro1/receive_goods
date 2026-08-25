@@ -10,43 +10,52 @@ class DocumentCodeService
 {
     public function generate(string $documentNo): array
     {
-        $safeName = str_replace(['/', '\\'], '-', $documentNo);
+        $fname = basename($documentNo).".svg";
+        $imagenewname = uniqid().$fname;
+        $filepath = 'assets/img/documents/'.$imagenewname; 
 
+        $filename = public_path($filepath);
+        $dirname = dirname($filename);
+   
+        $qrCode = QrCode::format('svg')
+        ->size(300)
+        ->margin(0)
+        ->generate($documentNo);
+
+        if (!file_exists($dirname)) {
+            mkdir($dirname, 0755, true);
+        }
+        file_put_contents($filename, $qrCode);
+        
+        $codeArrs['qr_code_path'] = $filepath;
         /*
          * Barcode
-         */
+        */
+        $imagenewname = uniqid().$fname;
+        $filepath = 'assets/img/documents/'.$imagenewname; 
+
+        $filename = public_path($filepath);
+        $dirname = dirname($filename);
+   
+
         $barcodeGenerator = new BarcodeGeneratorSVG();
 
-        $barcodeSvg = $barcodeGenerator->getBarcode(
+        $barCode = $barcodeGenerator->getBarcode(
             $documentNo,
             BarcodeGeneratorSVG::TYPE_CODE_128
         );
 
-        $barcodePath = "barcodes/{$safeName}.svg";
+        if (!file_exists($dirname)) {
+            mkdir($dirname, 0755, true);
+        }
+        file_put_contents($filename, $barCode);
+        
+        $codeArrs['barcode_path'] = $filepath;
 
-        Storage::disk('public')->put(
-            $barcodePath,
-            $barcodeSvg
-        );
 
-        /*
-         * QR Code
-         */
-        $qrSvg = QrCode::format('svg')
-            ->size(300)
-            ->margin(0)
-            ->generate($documentNo);
-
-        $qrPath = "qrcodes/{$safeName}.svg";
-
-        Storage::disk('public')->put(
-            $qrPath,
-            $qrSvg
-        );
-
-        return [
-            'barcode_path' => $barcodePath,
-            'qr_code_path' => $qrPath,
-        ];
+        return $codeArrs;
+        
     }
+
+    
 }
