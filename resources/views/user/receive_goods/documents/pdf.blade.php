@@ -182,6 +182,10 @@
         .footer {
             margin-top: 5px;
         }
+
+        .myanmarfonts{
+            font-family: Tharlon, sans-serif !important;
+        }
     </style>
 </head>
 <body>
@@ -264,14 +268,14 @@
         </td>
 
         <td class="label">PR Doc No.</td>
-        <td class="value">: {{ $po_document?->document_no }}</td>
+        <td class="value">: {{-- $po_document?->document_no --}}</td>
     </tr>
 
     <tr>
         <td class="label">Tel.</td>
         <td class="value">: {{ $po_document?->vendor?->vendor_ph }}</td>
 
-        <td class="label">PR Aproval Date Date</td>
+        <td class="label">PR Aproval Date</td>
         <td class="value">: {{-- $po_document->delivery_date --}}</td>
     </tr>
 
@@ -371,7 +375,7 @@
     <tr>
         <td style="width: 80px">Remark</td>
         <td style="width: 9px">:</td>
-        <td>Stock Refill</td>
+        <td class="myanmarfonts">Stock Refill မြန်မာစာအစမ်း</td>
     </tr>
 </table>
 

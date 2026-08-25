@@ -22,7 +22,9 @@ class Document extends Model
         'status',
         'branch_id',
         "rejected_by",
-        "rejected_at"
+        "rejected_at",
+        'barcode_path',
+        'qr_code_path',
     ];
 
     public function received()
