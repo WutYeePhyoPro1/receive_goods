@@ -74,6 +74,12 @@
             padding: 3px;
         }
 
+        .product-spacer td {
+            padding: 0;
+            line-height: 0;
+            font-size: 0;
+        }
+
         .summary {
             border-top: 1px dotted #555;
             border-bottom: 1px dotted #555;
@@ -332,6 +338,23 @@
 
 </table>
 
+@php
+    $poItems = $po_document->purchase_order_items()
+        ->whereNotNull('listno')
+        ->orderBy('id', 'asc')
+        ->get();
+
+    $printedRowUnits = $poItems->sum(function ($product) {
+        $productName = trim((string) $product->supplier_name);
+        $wrappedLines = max(1, (int) ceil(mb_strlen($productName) / 34));
+        $manualLines = max(1, substr_count($productName, "\n") + 1);
+
+        return max($wrappedLines, $manualLines);
+    });
+
+    $productSpacerMm = max(0, 120 - ($printedRowUnits * 5));
+@endphp
+
 <table class="product-table">
 
     <thead>
@@ -361,7 +384,7 @@
             <td class="text-right">10,400.00</td>
         </tr> -->
 
-        @foreach($po_document->purchase_order_items()->whereNotNull('listno')->orderBy('id','asc')->get() as $idx=>$product)
+        @foreach($poItems as $idx=>$product)
         <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
             <td class="py-1.5 px-3 font-medium text-slate-400">{{ ++$idx }}</td>
             <td class="py-1.5 px-3 font-mono font-medium text-slate-700">{{ $product->bar_code }}</td>
@@ -373,6 +396,12 @@
             <td class="py-1.5 px-3 text-right font-medium text-slate-700">{{ number_format($product->amount,2) }}</td>
         </tr>                              
         @endforeach
+
+        @if($productSpacerMm > 0)
+        <tr class="product-spacer">
+            <td colspan="8" style="height: {{ $productSpacerMm }}mm;"></td>
+        </tr>
+        @endif
 
     </tbody>
 
