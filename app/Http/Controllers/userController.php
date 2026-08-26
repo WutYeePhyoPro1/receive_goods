@@ -827,7 +827,8 @@ class userController extends Controller
         $request['id'] = $po_document->received_goods_id;
 
         $isPoFetched = $po_document->purchase_order_items()->exists(); // PO Document မှလိုအပ်သော  dataများကိုဆွဲယူပြီးပြီလား။
-        if(!$isPoFetched) {                      
+        $hasPOEmployee = false; 
+        if(!$isPoFetched || !$hasPOEmployee) {                      
             $purchase_orders = getPODocument($purchaseno);
             if ($purchase_orders) {
                 $this->actionRepository->sync_doc($purchase_orders, $request);

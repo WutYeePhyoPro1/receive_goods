@@ -200,6 +200,42 @@ Class ActionRepository implements ActionRepositoryInterface
         ]);
 
 
+        // Start PO Employee
+        $employeecode= $purchase_orders->first()?->employeecode;
+        $employee_name= $purchase_orders->first()?->employee_name;
+        $emp_comname= $purchase_orders->first()?->emp_comname;
+        $time_emp= $purchase_orders->first()?->time_emp;
+ 
+        $emp_approve= $purchase_orders->first()?->emp_approve;
+        $approve_name= $purchase_orders->first()?->approve_name;
+        $approve_comname= $purchase_orders->first()?->approve_comname;
+        $time_approv= $purchase_orders->first()?->time_approv;
+
+        $check_emp= $purchase_orders->first()?->check_emp;
+        $check_name= $purchase_orders->first()?->check_name;
+        $chekc_comname= $purchase_orders->first()?->chekc_comname;
+        $time_check= $purchase_orders->first()?->time_check;
+
+
+        $document->update([
+            'employeecode' => $employeecode,
+            'employee_name' => $employee_name,
+            'emp_comname' => $emp_comname,
+            'time_emp' => $time_emp,
+
+            'emp_approve' => $emp_approve,
+            'approve_name' => $approve_name,
+            'approve_comname' => $approve_comname,
+            'time_approve' => $time_approv,
+
+            'check_emp' => $check_emp,
+            'check_name' => $check_name,
+            'chekc_comname' => $chekc_comname,
+            'time_check' => $time_check,
+        ]);
+        // End PO Employee
+
+
         $products = Product::where('document_id',$document->id)->get();
         foreach($purchase_orders as $purchase_order){
             $product = $products

@@ -513,15 +513,22 @@ use Spatie\Permission\Models\Role;
 
 
         $data = $conn->select("
-            select purchaseno,brchcode,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,vatrate,goodprice,bb.discount,bb.remark as lineremark,bb.sumgoodamnt,creditday,purchasedate,aa.remark,bb.listno
-            from purchaseorder.po_purchaseorderhd aa
-            inner join purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
-            left join master_data.master_branch br on aa.brchcode= br.branch_code
-            where statusflag <> 'C'
-            and statusflag in ('P','Y') 
-            $brch_con
-            and purchaseno= '$val'
-            order by listno
+            SELECT purchaseno,aa.brchcode,vendorcode,vendorname,productcode,productname,unitcount AS unit,goodqty,vatrate,goodprice,bb.discount,bb.remark AS lineremark,bb.sumgoodamnt,aa.sumgoodamnt AS tolamnt, creditday,purchasedate,aa.remark,bb.listno,emp_comname,time_emp,approve_comname,time_approve,chekc_comname,time_check,aa.employeecode,emp_create.employeename AS employee_name,aa.approvecode,emp_approve.employeename AS approve_name,aa.check_emp,emp_check.employeename AS check_name
+            FROM purchaseorder.po_purchaseorderhd aa
+            INNER JOIN purchaseorder.po_purchaseorderdt bb 
+                ON aa.purchaseid = bb.purchaseid
+            LEFT JOIN master_data.master_branch br 
+                ON aa.brchcode = br.branch_code
+            LEFT JOIN hremployee.employee emp_create
+                ON aa.employeecode = emp_create.employeecode
+            LEFT JOIN hremployee.employee emp_approve
+                ON aa.approvecode = emp_approve.employeecode
+            LEFT JOIN hremployee.employee emp_check
+                ON aa.check_emp = emp_check.employeecode
+            WHERE aa.statusflag <> 'C'
+            --and statusflag in ('P','Y') 
+            AND aa.purchaseno = '$val'
+            ORDER BY bb.listno;
         ");
         // dd($data);
         return $data;

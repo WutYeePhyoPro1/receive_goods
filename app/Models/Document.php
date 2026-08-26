@@ -25,7 +25,23 @@ class Document extends Model
         "rejected_at",
         'barcode_path',
         'qr_code_path',
+
+        'employeecode',
+        'employee_name',
+        'emp_comname',
+        'time_emp',
+
+        'emp_approve',
+        'approve_name',
+        'approve_comname',
+        'time_approve',
+
+        'check_emp',
+        'check_name',
+        'chekc_comname',
+        'time_check',
     ];
+
 
     public function received()
     {
