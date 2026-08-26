@@ -527,7 +527,6 @@ use Spatie\Permission\Models\Role;
         return $data;
     }
 
-
     function generateRGDocHeader($data, $receive_good_document){
         $conn = DB::connection('master_product');
 

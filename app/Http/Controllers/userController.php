@@ -25,8 +25,8 @@ use App\Models\User;
 use App\Models\UserBranch;
 use App\Repositories\ActionRepository;
 use App\Repositories\UserRepository;
+use App\Services\DocumentCodeService;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as MPDF;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as MPDF;
 use Milon\Barcode\DNS1D;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Models\Permission;
@@ -47,10 +48,11 @@ class userController extends Controller
     private UserRepositoryInterface $repository;
     private ActionRepositoryInterface $actionRepository;
 
-    public function __construct(UserRepository $repository, ActionRepository $actionRepository)
+    public function __construct(UserRepository $repository, ActionRepository $actionRepository, DocumentCodeService $codeService)
     {
         $this->repository = $repository;
         $this->actionRepository = $actionRepository;
+        $this->codeService = $codeService;
 
         $this->middleware('auth');
         $this->middleware(PermissionMiddleware::class . ':user-management')->only(['user', 'store_user', 'edit_user', 'update_user', 'del_user']);
@@ -820,20 +822,28 @@ class userController extends Controller
 
         $po_document = Document::find($id);
 
-        if(!$po_document->purchase_order_items()->exists()) {
-            // Logger::info("First Purchase Order Loaded");
-            // foreach($data as $item){
-                $purchaseno = $po_document->document_no;
-                $purchase_orders = getPODocument($purchaseno);
-                if ($purchase_orders) {
-                    $request['purchaseno'] = $purchaseno;
-                    $request['id'] = $po_document->received_goods_id;
+        $purchaseno = $po_document->document_no;
+        $request['purchaseno'] = $purchaseno;
+        $request['id'] = $po_document->received_goods_id;
 
-                    $this->actionRepository->sync_doc($purchase_orders, $request);
-                }
-            // }
+        $isPoFetched = $po_document->purchase_order_items()->exists(); // PO Document မှလိုအပ်သော  dataများကိုဆွဲယူပြီးပြီလား။
+        if(!$isPoFetched) {                      
+            $purchase_orders = getPODocument($purchaseno);
+            if ($purchase_orders) {
+                $this->actionRepository->sync_doc($purchase_orders, $request);
+            }
         }
 
+        // Start Code Generated
+        $barcodeExists = filled($po_document->barcode_path)
+            && file_exists(public_path($po_document->barcode_path));
+        $qrExists = filled($po_document->qr_code_path)
+            && file_exists(public_path($po_document->qr_code_path));
+
+        if (!$barcodeExists || !$qrExists) {
+            $this->actionRepository->generate_bar_qr($request);
+        }
+        // End Code Generated
 
         $po_document->refresh();
 

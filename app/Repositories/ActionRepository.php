@@ -199,12 +199,6 @@ Class ActionRepository implements ActionRepositoryInterface
             'branch_id' => $branch_id,
         ]);
 
-        if(!$document->barcode_path || !$document->qr_code_path){
-            $paths = $this->codeService->generate(
-                $document->document_no
-            );
-            $document->update($paths);
-        }
 
         $products = Product::where('document_id',$document->id)->get();
         foreach($purchase_orders as $purchase_order){
@@ -264,8 +258,18 @@ Class ActionRepository implements ActionRepositoryInterface
                 ]);
             }
         }
+    }
 
+    public function generate_bar_qr($data){
+        $id = $data->id;
+        $purchaseno = $data->purchaseno;
 
-       
+        $document = Document::where('document_no',$purchaseno)
+                    ->where('received_goods_id',$id)->latest()->first();
+
+        $paths = $this->codeService->generate(
+            $document->document_no
+        );
+        $document->update($paths);
     }
 }
