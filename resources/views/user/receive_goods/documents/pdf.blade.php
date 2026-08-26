@@ -413,11 +413,12 @@
         <td class="sum-value">526,000.00</td>
     </tr>
 </table>
+<div style="page-break-inside: avoid;">
 <table class="remark">
     <tr>
         <td style="width: 80px">Remark</td>
         <td style="width: 9px">:</td>
-        <td class="myanmarfonts">Stock Refill မြန်မာစာအစမ်း</td>
+        <td class="myanmarfonts">{{ $po_document->remark }}</td>
     </tr>
 </table>
 
@@ -496,10 +497,11 @@
 <table class="footer">
     <tr>
         <td style="width: 90px">Print By :</td>
-        <td class="bold">Khine Mar Htun</td>
-        <td class="text-right">24/08/2026 11:05</td>
+        <td class="bold">{{ $userdata->name }}</td>
+        <td class="text-right">{{ now() }}</td>
     </tr>
 </table>
+</div>
 
 
 
