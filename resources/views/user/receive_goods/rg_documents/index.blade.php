@@ -249,7 +249,7 @@
                                 </td>
 
                                 <!-- <td class="px-4 py-3">
-                                    {{ $item->good_receive->document_no }}
+                                    {{ $item?->good_receive?->document_no }}
                                 </td> -->
 
                                 <td class="px-4 py-3 font-semibold text-blue-700">
