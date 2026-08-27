@@ -119,9 +119,10 @@ function bitmapText(x, y, value, options = {}) {
     context.font = fontString(fontSize, fontWeight);
     context.textBaseline = 'top';
     context.textAlign = options.textAlign || 'left';
+    const rightInset = options.rightInset || 0;
     const textX = context.textAlign === 'center'
         ? canvasWidth / 2
-        : (context.textAlign === 'right' ? width : 0);
+        : (context.textAlign === 'right' ? width - rightInset : 0);
     context.fillText(clean(value), textX, 0, width);
 
     const pixels = context.getImageData(0, 0, canvasWidth, height).data;
@@ -221,21 +222,21 @@ function halfLabel(labelX, top, payload) {
     const barcodeY = top + (hasTwoNameLines ? 29 : 18);
     const barcodeHeight = hasTwoNameLines ? 26 : 34;
     const detailsY = barcodeY + barcodeHeight + (hasTwoNameLines ? 2 : 3);
-    const productCodeWidth = dots(13);
-    const dateWidth = dots(14);
-    const unitWidth = dots(4);
+    const productCodeWidth = dots(12);
+    const dateWidth = dots(13);
+    const unitWidth = dots(6);
     commands.push(ascii(`${barcode(labelX, barcodeY, barcodeHeight, payload.barcode)}\r\n`));
     commands.push(bitmapText(left, detailsY, payload.barcode, {
         width: productCodeWidth,
         height: 12,
         fontSize: 10,
-        fontWeight: 500,
+        fontWeight: 600,
     }));
     commands.push(bitmapText(left + productCodeWidth, detailsY, compactDate(payload.printedAt), {
         width: dateWidth,
         height: 12,
-        fontSize: 9,
-        fontWeight: 400,
+        fontSize: 10,
+        fontWeight: 500,
         textAlign: 'center',
     }));
     commands.push(bitmapText(left + productCodeWidth + dateWidth, detailsY, payload.unit, {
@@ -244,13 +245,16 @@ function halfLabel(labelX, top, payload) {
         fontSize: 10,
         fontWeight: 500,
         textAlign: 'right',
+        rightInset: dots(1),
     }));
     return commands;
 }
 
 function buildPage(payload, pageItems, type) {
     // Keep a printable quiet area at each sticker's right edge, especially column three.
-    const labelXs = [dots(-1.5), dots(35.6), dots(73.2)];
+    const labelXs = type === 1 || type === 2
+        ? [dots(-1.25), dots(35.6), dots(72.4)]
+        : [dots(-1.5), dots(35.6), dots(73.2)];
     const centeredTop = dots(3.155);
     const commands = [ascii([
         'SIZE 110 mm,26.924 mm',
