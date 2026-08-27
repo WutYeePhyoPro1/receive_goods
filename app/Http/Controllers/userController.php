@@ -595,7 +595,10 @@ class userController extends Controller
     public function poPrintPDF(string $id){
 
         $po_document = Document::find($id);
-     
+
+
+        // if vatrate=5, Base Amount=tolamnt/1.05 , Tax Amount= tolamnt-Base Amount
+        // if vatrate=0, Base Amount=0 , Tax Amount= 0
 
         view()->share(['po_document' => $po_document]);
         $pdf = MPDF::loadView('user.receive_goods.documents.pdf');

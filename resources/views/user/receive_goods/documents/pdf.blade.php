@@ -390,7 +390,7 @@
     <tr>
         <td class="sum-label">Amount</td>
         <td class="sum-colon">:</td>
-        <td class="sum-value">526,000.00</td>
+        <td class="sum-value">{{ number_format($po_document->total_amount,2) }}</td>
     </tr>
     <tr>
         <td>Product Discount (Amount)</td>
@@ -400,7 +400,7 @@
     <tr>
         <td>Base Amount</td>
         <td class="sum-colon">:</td>
-        <td class="sum-value">526,000.00</td>
+        <td class="sum-value">{{ number_format($po_document->total_amount,2) }}</td>
     </tr>
     <tr>
         <td>Tax Amount</td>
@@ -410,7 +410,7 @@
     <tr>
         <td>Total Net Amount</td>
         <td class="sum-colon">:</td>
-        <td class="sum-value">526,000.00</td>
+        <td class="sum-value">{{ number_format($po_document->total_amount,2) }}</td>
     </tr>
 </table>
 <div style="page-break-inside: avoid;">
@@ -428,19 +428,19 @@
             <table class="signature-info">
                 <tr>
                     <td class="signature-label">Recorded By :</td>
-                    <td class="signature-value signature-name-cell">Hnin Wai Phyo Hlaing</td>
+                    <td class="signature-value signature-name-cell">{{ $po_document->employee_name }}</td>
                 </tr>
                 <tr>
                     <td class="signature-label">User ID :</td>
-                    <td class="signature-value">003-000838</td>
+                    <td class="signature-value">{{ $po_document->employeecode }}</td>
                 </tr>
                 <tr>
                     <td class="signature-label">PC Name :</td>
-                    <td class="signature-value">PRO1MER-028</td>
+                    <td class="signature-value">{{ $po_document->emp_comname }}</td>
                 </tr>
                 <tr>
                     <td class="signature-label">Recorded Date :</td>
-                    <td class="signature-value">24/08/2026 10:35 AM</td>
+                    <td class="signature-value">{{ $po_document->time_emp }}</td>
                 </tr>
             </table>
         </td>
@@ -449,19 +449,19 @@
             <table class="signature-info">
                 <tr>
                     <td class="signature-label">Checked By :</td>
-                    <td class="signature-value signature-name-cell">Wai Phyo Aung</td>
+                    <td class="signature-value signature-name-cell">{{ $po_document->check_name }}</td>
                 </tr>
                 <tr>
                     <td class="signature-label">User ID :</td>
-                    <td class="signature-value">001-000063</td>
+                    <td class="signature-value">{{ $po_document->check_emp }}</td>
                 </tr>
                 <tr>
                     <td class="signature-label">PC Name :</td>
-                    <td class="signature-value">DESKTOP-PAHFRBP</td>
+                    <td class="signature-value">{{ $po_document->chekc_comname }}</td>
                 </tr>
                 <tr>
                     <td class="signature-label">Checked Date :</td>
-                    <td class="signature-value">24/08/2026 10:47 AM</td>
+                    <td class="signature-value">{{ $po_document->time_check }}</td>
                 </tr>
             </table>
         </td>
@@ -470,19 +470,19 @@
             <table class="signature-info">
                 <tr>
                     <td class="signature-label">Approved By :</td>
-                    <td class="signature-value signature-name-cell">Wai Phyo Aung</td>
+                    <td class="signature-value signature-name-cell">{{ $po_document->approve_name }}</td>
                 </tr>
                 <tr>
                     <td class="signature-label">User ID :</td>
-                    <td class="signature-value">001-000063</td>
+                    <td class="signature-value">{{ $po_document->approvecode }}</td>
                 </tr>
                 <tr>
                     <td class="signature-label">PC Name :</td>
-                    <td class="signature-value">DESKTOP-PAHFRBP</td>
+                    <td class="signature-value">{{ $po_document->approve_comname }}</td>
                 </tr>
                 <tr>
                     <td class="signature-label">Approved Date :</td>
-                    <td class="signature-value">24/08/2026 10:49 AM</td>
+                    <td class="signature-value">{{ $po_document->time_approve }}</td>
                 </tr>
             </table>
 

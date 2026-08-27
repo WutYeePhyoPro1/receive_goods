@@ -15,17 +15,17 @@ return new class extends Migration
             $table->string('employeecode')->nullable();
             $table->string('employee_name')->nullable();
             $table->string('emp_comname')->nullable();
-            $table->string('time_emp')->nullable();
+            $table->timestamp('time_emp')->nullable();
 
-            $table->string('emp_approve')->nullable();
+            $table->string('approvecode')->nullable();
             $table->string('approve_name')->nullable();
             $table->string('approve_comname')->nullable();
-            $table->string('time_approve')->nullable();
+            $table->timestamp('time_approve')->nullable();
 
             $table->string('check_emp')->nullable();
             $table->string('check_name')->nullable();
             $table->string('chekc_comname')->nullable();
-            $table->string('time_check')->nullable();
+            $table->timestamp('time_check')->nullable();
         });
     }
 
@@ -40,7 +40,7 @@ return new class extends Migration
             $table->dropColumn("emp_comname");
             $table->dropColumn("time_emp");
 
-            $table->dropColumn("emp_approve");
+            $table->dropColumn("approvecode");
             $table->dropColumn("approve_name");
             $table->dropColumn("approve_comname");
             $table->dropColumn("time_approve");

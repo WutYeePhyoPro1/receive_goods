@@ -31,7 +31,7 @@ class Document extends Model
         'emp_comname',
         'time_emp',
 
-        'emp_approve',
+        'approvecode',
         'approve_name',
         'approve_comname',
         'time_approve',
@@ -40,6 +40,8 @@ class Document extends Model
         'check_name',
         'chekc_comname',
         'time_check',
+
+        'vatrate'
     ];
 
 

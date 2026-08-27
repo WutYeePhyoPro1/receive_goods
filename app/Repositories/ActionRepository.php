@@ -179,7 +179,8 @@ Class ActionRepository implements ActionRepositoryInterface
         $vendor_name = $purchase_orders->first()?->vendorname;
         $vendor_code = $purchase_orders->first()?->vendorcode;
         $remark = $purchase_orders->first()?->remark;
-        $total_amount =  $purchase_orders->sum('sumgoodamnt');
+        // $total_amount =  $purchase_orders->sum('sumgoodamnt');
+        $total_amount = $purchase_orders->first()?->tolamnt;
         $brchcode = $purchase_orders->first()?->brchcode;
         $branch_id = Branch::where('branch_code',$brchcode)?->first()?->id;
 
@@ -206,15 +207,18 @@ Class ActionRepository implements ActionRepositoryInterface
         $emp_comname= $purchase_orders->first()?->emp_comname;
         $time_emp= $purchase_orders->first()?->time_emp;
  
-        $emp_approve= $purchase_orders->first()?->emp_approve;
+        // dd($purchase_orders->first());
+        $approvecode= $purchase_orders->first()?->approvecode;
         $approve_name= $purchase_orders->first()?->approve_name;
         $approve_comname= $purchase_orders->first()?->approve_comname;
-        $time_approv= $purchase_orders->first()?->time_approv;
+        $time_approve= $purchase_orders->first()?->time_approve;
 
         $check_emp= $purchase_orders->first()?->check_emp;
         $check_name= $purchase_orders->first()?->check_name;
         $chekc_comname= $purchase_orders->first()?->chekc_comname;
         $time_check= $purchase_orders->first()?->time_check;
+
+        $vatrate= $purchase_orders->first()?->vatrate;
 
 
         $document->update([
@@ -223,15 +227,17 @@ Class ActionRepository implements ActionRepositoryInterface
             'emp_comname' => $emp_comname,
             'time_emp' => $time_emp,
 
-            'emp_approve' => $emp_approve,
+            'approvecode' => $approvecode,
             'approve_name' => $approve_name,
             'approve_comname' => $approve_comname,
-            'time_approve' => $time_approv,
+            'time_approve' => $time_approve,
 
             'check_emp' => $check_emp,
             'check_name' => $check_name,
             'chekc_comname' => $chekc_comname,
             'time_check' => $time_check,
+
+            'vatrate' => $vatrate
         ]);
         // End PO Employee
 
