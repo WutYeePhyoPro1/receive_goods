@@ -567,34 +567,8 @@ class ActionController extends Controller
             
             $document = Document::where('document_no',$purchaseno)
                                 ->where('received_goods_id',$id)->first();
-            $products = PurchaseOrderItem::where('document_id',$document->id)
-                        ->whereNotNull('listno')
-                        ->orderBy('id','asc')
-                        ->get();
             
-            // => To Prevent Manual RG in ERP , (cuz we don't know user type rg in ERP)
-            $po_histories = collect(getPOHistory($purchaseno));
-            // dd($po_histories);
-            $received_sums = getReceivedSums($purchaseno,$po_histories);
-            $r008_lists = $po_histories->whereIn('status_r008',['N','F'])->pluck('ref_list_no')->toArray();
-            // dd($r008_lists);
-            
-            $filtered_products = $products->map(function ($product) use ($received_sums) {
-                $listno = $product->listno;
-                $received_qty = $received_sums[$product->bar_code][$listno] ?? 0;
-                // $product->remaining_qty = $product->qty - $received_qty;
-                $product->remaining_qty = (string) ($product->qty - $received_qty);
-                return $product;
-            })
-            ->filter(function ($product) {
-                return $product->remaining_qty > 0;
-            })
-            ->filter(function ($product) use($r008_lists){
-                return !in_array($product->listno,$r008_lists) || !$product->r008;
-            })
-            ->values(); // Reset keys
-            // dd($filtered_products);
-
+            $filtered_products = $this->getFilteredProduct($document);
 
             $purchase_orders = collect($purchase_orders);
             $document['vatrate'] = $purchase_orders->first()?->vatrate;
@@ -611,14 +585,60 @@ class ActionController extends Controller
         }
     }
 
+    public function getFilteredProduct($document){
+        $products = PurchaseOrderItem::where('document_id',$document->id)
+                        ->whereNotNull('listno')
+                        ->orderBy('id','asc')
+                        ->get();
+            
+        // => To Prevent Manual RG in ERP , (cuz we don't know user type rg in ERP)
+        $po_histories = collect(getPOHistory($document->document_no));
+        // dd($po_histories);
+        $received_sums = getReceivedSums($document->document_no,$po_histories);
+        $r008_lists = $po_histories->whereIn('status_r008',['N','F'])->pluck('ref_list_no')->toArray();
+        // dd($r008_lists);
+        
+        $filtered_products = $products->map(function ($product) use ($received_sums) {
+            $listno = $product->listno;
+            $received_qty = $received_sums[$product->bar_code][$listno] ?? 0;
+            // $product->remaining_qty = $product->qty - $received_qty;
+            $product->remaining_qty = (string) ($product->qty - $received_qty);
+            return $product;
+        })
+        ->filter(function ($product) {
+            return $product->remaining_qty > 0;
+        })
+        ->filter(function ($product) use($r008_lists){
+            return !in_array($product->listno,$r008_lists) || !$product->r008;
+        })
+        ->values(); // Reset keys
+        // dd($filtered_products);
+
+        return $filtered_products;
+    }
+
     public function save_rg(Request $request){
         // dd($request);
 
         $timer = new ExecutionTimer(55);
-        
+
         DB::beginTransaction();
         DB::connection('master_product')->beginTransaction();
         try {
+            // Start Prevent Two User Save RG
+            $document = Document::where('document_no',$request?->po_no)
+                    ->where('received_goods_id',$request?->scan_id)->first();
+            // dd($document);
+            
+            $filtered_products = $this->getFilteredProduct($document);
+            if ($filtered_products->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No products available for receiving.',
+                ], 422);
+            }
+            // End Prevent Two User Save RG
+
 
             $r008 = isset($request['r008']) ? true : false;
 
