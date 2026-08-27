@@ -596,17 +596,22 @@ class userController extends Controller
 
         $po_document = Document::find($id);
 
+        $productdisamnt = $po_document->purchase_order_items()->sum('discount');
+        $po_document['productdisamnt'] = $productdisamnt;
 
-        // if vatrate=5, Base Amount=tolamnt/1.05 , Tax Amount= tolamnt-Base Amount
-        // if vatrate=0, Base Amount=0 , Tax Amount= 0
+        if($po_document->vatrate == 5){
+            $po_document['baseamount'] = $po_document->total_amount / 1.05;
+        }else{
+            $po_document['baseamount'] = $po_document->total_amount;
+        }
+
+        if($po_document->vatrate == 5) $po_document['taxamount'] = $po_document->total_amount - $po_document?->baseamount;
 
         view()->share(['po_document' => $po_document]);
         $pdf = MPDF::loadView('user.receive_goods.documents.pdf');
 
         // return $pdf->download('invoice.pdf');
         return $pdf->stream('po.pdf');
-
-        
     }
 
     public function r008_rg($id){
@@ -829,9 +834,9 @@ class userController extends Controller
         $request['purchaseno'] = $purchaseno;
         $request['id'] = $po_document->received_goods_id;
 
-        $isPoFetched = $po_document->purchase_order_items()->exists(); // PO Document မှလိုအပ်သော  dataများကိုဆွဲယူပြီးပြီလား။
-        $hasPOEmployee = false; 
-        if(!$isPoFetched || !$hasPOEmployee) {                      
+        $isPoFetched = $po_document->purchase_order_items()->whereNotNull('listno')->exists(); // PO Document မှလိုအပ်သော  dataများကိုဆွဲယူပြီးပြီလား။
+        $hasPOEmployee = $po_document->employeecode; 
+        if(!$isPoFetched || !$hasPOEmployee) {          
             $purchase_orders = getPODocument($purchaseno);
             if ($purchase_orders) {
                 $this->actionRepository->sync_doc($purchase_orders, $request);

@@ -395,17 +395,17 @@
     <tr>
         <td>Product Discount (Amount)</td>
         <td class="sum-colon">:</td>
-        <td class="sum-value">0.00</td>
+        <td class="sum-value">{{ number_format($po_document->productdisamnt,2) }}</td>
     </tr>
     <tr>
         <td>Base Amount</td>
         <td class="sum-colon">:</td>
-        <td class="sum-value">{{ number_format($po_document->total_amount,2) }}</td>
+        <td class="sum-value">{{ number_format($po_document?->baseamount,2) }}</td>
     </tr>
     <tr>
         <td>Tax Amount</td>
         <td class="sum-colon">:</td>
-        <td class="sum-value">0.00</td>
+        <td class="sum-value">{{ number_format($po_document?->taxamount,2) }}</td>
     </tr>
     <tr>
         <td>Total Net Amount</td>

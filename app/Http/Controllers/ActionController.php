@@ -538,33 +538,30 @@ class ActionController extends Controller
     public function receive_po(Request $request){
         $purchaseno = $request->purchaseno;
         $id = $request->id;
-
+        
         $purchase_orders = getPODocument($purchaseno);
 
+
+        $po_document = Document::where('document_no',$purchaseno)
+                                ->where('received_goods_id',$id)->first();
+        $isPoFetched = $po_document->purchase_order_items()->whereNotNull('listno')->exists(); // PO Document မှလိုအပ်သော  dataများကိုဆွဲယူပြီးပြီလား။
+        $hasPOEmployee = $po_document->employeecode; 
+        if(!$isPoFetched || !$hasPOEmployee) {          
+            // $purchase_orders = getPODocument($purchaseno);
+            if ($purchase_orders) {
+                $this->repository->sync_doc($purchase_orders, $request);
+            }
+        }
+
         if ($purchase_orders) {
-            $this->repository->sync_doc($purchase_orders, $request);
+            // $this->repository->sync_doc($purchase_orders, $request);
+            
             $document = Document::where('document_no',$purchaseno)
                                 ->where('received_goods_id',$id)->first();
-            // $products = Product::where('document_id',$document->id)
-            //             ->orderBy('id','desc')
-            //             ->get();
             $products = PurchaseOrderItem::where('document_id',$document->id)
                         ->whereNotNull('listno')
                         ->orderBy('id','asc')
                         ->get();
-
-            // => Only know RG from portal
-            // // $rg_documents = ReceiveGoodDocument::where('po_no',$purchaseno)->get();
-            // $rg_doc_ids = ReceiveGoodDocument::where('po_no',$purchaseno)->pluck('id');
-            // // $rg_products = ReceiveGoodProduct::where('receive_good_document_id',$rg_doc_ids);
-
-            // // IMPORTANT
-            // $received_sums = ReceiveGoodProduct::whereIn('receive_good_document_id', $rg_doc_ids)
-            //                 ->select('product_code', \DB::raw('SUM(gr_qty) as total_received'))
-            //                 ->groupBy('product_code')
-            //                 ->pluck('total_received', 'product_code');
-            // dd($received_sums);
-
             
             // => To Prevent Manual RG in ERP , (cuz we don't know user type rg in ERP)
             $po_histories = collect(getPOHistory($purchaseno));
