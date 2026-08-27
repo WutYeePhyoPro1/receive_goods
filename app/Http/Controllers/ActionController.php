@@ -547,33 +547,30 @@ class ActionController extends Controller
     public function receive_po(Request $request){
         $purchaseno = $request->purchaseno;
         $id = $request->id;
-
+        
         $purchase_orders = getPODocument($purchaseno);
 
+
+        $po_document = Document::where('document_no',$purchaseno)
+                                ->where('received_goods_id',$id)->first();
+        $isPoFetched = $po_document->purchase_order_items()->whereNotNull('listno')->exists(); // PO Document မှလိုအပ်သော  dataများကိုဆွဲယူပြီးပြီလား။
+        $hasPOEmployee = $po_document->employeecode; 
+        if(!$isPoFetched || !$hasPOEmployee) {          
+            // $purchase_orders = getPODocument($purchaseno);
+            if ($purchase_orders) {
+                $this->repository->sync_doc($purchase_orders, $request);
+            }
+        }
+
         if ($purchase_orders) {
-            $this->repository->sync_doc($purchase_orders, $request);
+            // $this->repository->sync_doc($purchase_orders, $request);
+            
             $document = Document::where('document_no',$purchaseno)
                                 ->where('received_goods_id',$id)->first();
-            // $products = Product::where('document_id',$document->id)
-            //             ->orderBy('id','desc')
-            //             ->get();
             $products = PurchaseOrderItem::where('document_id',$document->id)
                         ->whereNotNull('listno')
                         ->orderBy('id','asc')
                         ->get();
-
-            // => Only know RG from portal
-            // // $rg_documents = ReceiveGoodDocument::where('po_no',$purchaseno)->get();
-            // $rg_doc_ids = ReceiveGoodDocument::where('po_no',$purchaseno)->pluck('id');
-            // // $rg_products = ReceiveGoodProduct::where('receive_good_document_id',$rg_doc_ids);
-
-            // // IMPORTANT
-            // $received_sums = ReceiveGoodProduct::whereIn('receive_good_document_id', $rg_doc_ids)
-            //                 ->select('product_code', \DB::raw('SUM(gr_qty) as total_received'))
-            //                 ->groupBy('product_code')
-            //                 ->pluck('total_received', 'product_code');
-            // dd($received_sums);
-
             
             // => To Prevent Manual RG in ERP , (cuz we don't know user type rg in ERP)
             $po_histories = collect(getPOHistory($purchaseno));
@@ -593,7 +590,7 @@ class ActionController extends Controller
                 return $product->remaining_qty > 0;
             })
             ->filter(function ($product) use($r008_lists){
-                return !in_array($product->listno,$r008_lists);
+                return !in_array($product->listno,$r008_lists) || !$product->r008;
             })
             ->values(); // Reset keys
             // dd($filtered_products);
@@ -755,6 +752,24 @@ class ActionController extends Controller
         ->receive_good_products()
         // ->whereColumn('po_qty', '!=', 'gr_qty')
         ->get();
+
+        // Start Seperate RG or R008
+            $diff_product_lists = $receive_good_document
+                                ->receive_good_products()
+                                ->whereColumn('po_qty', '!=', 'gr_qty')
+                                ->pluck('ref_list_no');
+            // dd($diff_product_lists);
+
+            $products = PurchaseOrderItem::where('document_id',$receive_good_document?->document?->id)
+                    ->whereNotNull('listno')
+                    ->whereIn('listno',$diff_product_lists)
+                    ->orderBy('id','asc')
+                    ->update([
+                        'r008' => true,
+                    ]);
+
+        // End Seperate RG or R008
+
         return response()->json([
             'message' => 'success',
             'data' => [
@@ -802,10 +817,25 @@ class ActionController extends Controller
         $receive_good_file->save();
     }
 
-    public function rg_approve_form($receive_good_document_id){
-        dd('hay');
-    }
+    public function removeProduct(Request $request,string $id)
+    {
+        // dd($id);
+        $receive_good_product = ReceiveGoodProduct::findOrFail($id);
+        $ref_list_no = $receive_good_product?->ref_list_no;
 
+        $receive_good_document_id = $receive_good_product?->receive_good_document_id;
+        $receive_good_document = ReceiveGoodDocument::where('id',$receive_good_document_id)->first();
+
+        $purchase_order_item = PurchaseOrderItem::where('document_id',$receive_good_document?->document?->id)->where('listno',$ref_list_no)->first();
+        // dd($purchase_order_item);
+        $purchase_order_item->update([
+            'r008' => false,
+        ]);
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
 
 
     //edit scan

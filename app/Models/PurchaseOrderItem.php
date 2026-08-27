@@ -21,7 +21,8 @@ class PurchaseOrderItem extends Model
         'amount',
         'rg_pulled_qty',
         'discount',
-        'listno'
+        'listno',
+        'r008'
     ];
 
     public function document(){

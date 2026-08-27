@@ -298,7 +298,9 @@
                                     <td class="py-1.5 px-3">
                                         <button
                                             type="button"
-                                            class="h-8 w-8 rounded-md border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 inline-flex items-center justify-center  removeRow">
+                                            class="h-8 w-8 rounded-md border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 inline-flex items-center justify-center  removeRow"
+                                            data-rg-product-id="${product.id}"
+                                            >
                                             <i class='bx bx-trash'></i>
                                         </button>
                                     </td>
@@ -332,7 +334,7 @@
                                             <span>${product.gr_qty}<span>
                                         </div>
                                         <div id="physical_edit_${product.product_code}" hiddens class="w-24  ms-auto">
-                                            <input type="number" step="any" name="physical_qty[]" id="physical_qty_${product.gr_qty}" class="physical_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.gr_qty}">
+                                            <input type="number" step="any" name="physical_qty[]" id="physical_qty_${product.gr_qty}" class="physical_qty w-20 h-7 px-1.5 text-right border border-slate-300 rounded focus:outline-none focus:border-amber-500" value="${product.gr_qty}" readonly>
                                         </div>
                                     </td>
                                     <td class="py-1.5 px-3 text-right font-medium">
@@ -373,12 +375,14 @@
                                         </div>
                                     </td>
                                     <input type="hidden" name="r8item_ids[]" value="${idx++}" />
+                                    <input type="hidden" name="ref_list_no[]" value="${product.ref_list_no}" />
                                 </tr>
                             `;
                             $('#productTable tbody').append(html);
 
 
                             $('.physical_qty').on('input', function () {
+                                return;
                                 var qty = parseFloat($(this).val()) || 0;
                                 var rgqty = parseFloat(product.po_qty) || 0;
 
@@ -393,13 +397,33 @@
                                 diffView.text(diff);
                                 diffInput.val(signedDiff);
                             });
-                            
-
-                            $(document).on('click','.removeRow',function (e) {
-                                $(this).parent('td').parent('tr').remove();
-                            });
+                        
               
                         })
+
+                        $(document).on('click', '.removeRow', function () {
+                            const button = $(this);
+                            const rgProductId = button.data('rg-product-id');
+                            console.log(rgProductId);
+                            $.ajax({
+                                url: `/receive_goods/products/${rgProductId}/remove`,
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                },
+                                success: function (response) {
+
+                                    if (response.success) {
+                                        button.closest('tr').remove();
+                                    }
+
+                                },
+                                error: function (xhr) {
+                                    console.error(xhr.responseText);
+                                }
+                            });
+
+                        });
                     },
                     complete:function(){
                         // $(".loader").removeClass("show");

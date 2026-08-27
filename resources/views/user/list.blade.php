@@ -168,6 +168,7 @@
                         @can('management-document')
                         <th class="whitespace-nowrap border border-slate-500 bg-slate-400 px-3 py-3 text-center">Action</th>
                         @endcan
+                        <th class="whitespace-nowrap border border-slate-500 bg-slate-400 px-3 py-3 text-center">User</th>
                         <th class="whitespace-nowrap bg-slate-400 px-3 py-3 text-center">Total Unload Time</th>
                     </tr>
                 </thead>
@@ -210,6 +211,7 @@
                                     {{-- <button class="bg-sky-500 hover:bg-sky-700 px-1 rounded-md mr-1 edit_btn" onclick="window.location.href = '/edit/'+{{$item->id}}"><i class='bx bxs-edit text-white mt-1'></i></button> --}}
                                 </td>
                             @endcan
+                            <td class="h-11 whitespace-nowrap border border-slate-300 px-3 text-center">{{ $item?->user?->name }}</td>
                             <td class="h-11 whitespace-nowrap border border-slate-300 px-3 text-center">{{ $item->total_duration }}</td>
                         </tr>
                     @endforeach

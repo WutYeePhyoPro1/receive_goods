@@ -129,6 +129,7 @@ class R008SController extends Controller
             $line_remark = $request['line_remark'];
             $r8item_ids = $request['r8item_ids'];
 
+            $ref_list_no = $request['ref_list_no'];
 
             for($i=0; $i<count($product_code);$i++){
                 $data = [
@@ -143,6 +144,7 @@ class R008SController extends Controller
                     "sdqty" => $sd_qty[$i],
                     "remark" => $line_remark[$i],
                     "r8item_id" => $r8item_ids[$i],
+                    "ref_list_no" => $ref_list_no[$i],
                 ];
                 R008Product::create($data);
             }
@@ -155,7 +157,7 @@ class R008SController extends Controller
 
             // Start PO Full Update
             $receive_good_document = $r008_document->receive_good_document();
-            $updated_po_document_count = updatePOFull($request->all(),$receive_good_document);
+            $updated_po_document_count = updatePOStatus($request->all(),$receive_good_document); // r008_created ဟုတ်၊မဟုတ် flag ထည့်လို့ရတယ်။
             // End PO Full Update
             
             // throw new \Exception("RG Document Update Error: ");

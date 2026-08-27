@@ -21,6 +21,7 @@ class R008Product extends Model
         "bdqty",
         "sdqty",
         "remark",
-        "r8item_id"
+        "r8item_id",
+        "ref_list_no"
     ];
 }

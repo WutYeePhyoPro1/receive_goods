@@ -101,7 +101,7 @@
         }
 
         .product-table td {
-            padding: 3px;
+            padding: 5px;
         }
 
         .qty {
@@ -131,7 +131,7 @@
         }
 
         .signature-table {
-            margin-top: 25px;
+            /* margin-top: 25px; */
             border: 1px dotted #000;
         }
 
@@ -295,6 +295,8 @@
     $emptyRows = max(0, $rowsPerPage - $lastPageRows);
     $spacerHeight = $emptyRows * 18;
 @endphp
+
+<div height="700">
 <table class="product-table">
 
     <thead>
@@ -303,7 +305,7 @@
             <th width="20%">Product Code</th>
             <th>Product Name</th>
             <th width="8%">Unit</th>
-            <th width="10%" class="text-right">Qty</th>
+            <th width="10%" class="text-right !important" align='right'>Qty</th>
             <th width="15%">Remark</th>
         </tr>
     </thead>
@@ -338,7 +340,6 @@
                 <td class="myanmarfonts">{{ $product->remark }}</td>
             </tr>
         @endforeach
-
         <tr class="total-row">
             <td colspan="4" class="text-right">
                 Total Quantity :
@@ -351,19 +352,14 @@
             <td></td>
         </tr>
 
-        @if($spacerHeight > 0)
-            <tr class="spacer-row">
-                <td colspan="6" style="height: {{ $spacerHeight }}px;">&nbsp;</td>
-            </tr>
-        @endif
-
     </tbody>
 
 </table>
+</div>
 
 <div class="footer-block">
     {{-- REMARK --}}
-    <div class="remark-section myanmarfonts">
+    <div class="remark-sections myanmarfonts">
         <span class="remark-title">Remark :</span>
 
             {{ $receive_good_document->remark }}

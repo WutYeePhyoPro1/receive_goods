@@ -22,8 +22,28 @@ class Document extends Model
         'status',
         'branch_id',
         "rejected_by",
-        "rejected_at"
+        "rejected_at",
+        'barcode_path',
+        'qr_code_path',
+
+        'employeecode',
+        'employee_name',
+        'emp_comname',
+        'time_emp',
+
+        'approvecode',
+        'approve_name',
+        'approve_comname',
+        'time_approve',
+
+        'check_emp',
+        'check_name',
+        'chekc_comname',
+        'time_check',
+
+        'vatrate'
     ];
+
 
     public function received()
     {

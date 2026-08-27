@@ -11,12 +11,17 @@ use App\Models\PurchaseOrderItem;
 use App\Models\ScanTrack;
 use App\Models\Tracking;
 use App\Models\Vendor;
+use App\Services\DocumentCodeService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 Class ActionRepository implements ActionRepositoryInterface
 {
+    public function __construct(
+        private DocumentCodeService $codeService
+    ) {
+    }
     public function get_remain($id)
     {
         $doc   = Document::where('received_goods_id',$id)->pluck('id');
@@ -174,7 +179,8 @@ Class ActionRepository implements ActionRepositoryInterface
         $vendor_name = $purchase_orders->first()?->vendorname;
         $vendor_code = $purchase_orders->first()?->vendorcode;
         $remark = $purchase_orders->first()?->remark;
-        $total_amount =  $purchase_orders->sum('sumgoodamnt');
+        // $total_amount =  $purchase_orders->sum('sumgoodamnt');
+        $total_amount = $purchase_orders->first()?->tolamnt;
         $brchcode = $purchase_orders->first()?->brchcode;
         $branch_id = Branch::where('branch_code',$brchcode)?->first()?->id;
 
@@ -193,6 +199,48 @@ Class ActionRepository implements ActionRepositoryInterface
             'total_amount' => $total_amount,
             'branch_id' => $branch_id,
         ]);
+
+
+        // Start PO Employee
+        $employeecode= $purchase_orders->first()?->employeecode;
+        $employee_name= $purchase_orders->first()?->employee_name;
+        $emp_comname= $purchase_orders->first()?->emp_comname;
+        $time_emp= $purchase_orders->first()?->time_emp;
+ 
+        // dd($purchase_orders->first());
+        $approvecode= $purchase_orders->first()?->approvecode;
+        $approve_name= $purchase_orders->first()?->approve_name;
+        $approve_comname= $purchase_orders->first()?->approve_comname;
+        $time_approve= $purchase_orders->first()?->time_approve;
+
+        $check_emp= $purchase_orders->first()?->check_emp;
+        $check_name= $purchase_orders->first()?->check_name;
+        $chekc_comname= $purchase_orders->first()?->chekc_comname;
+        $time_check= $purchase_orders->first()?->time_check;
+
+        $vatrate= $purchase_orders->first()?->vatrate;
+
+
+        $document->update([
+            'employeecode' => $employeecode,
+            'employee_name' => $employee_name,
+            'emp_comname' => $emp_comname,
+            'time_emp' => $time_emp,
+
+            'approvecode' => $approvecode,
+            'approve_name' => $approve_name,
+            'approve_comname' => $approve_comname,
+            'time_approve' => $time_approve,
+
+            'check_emp' => $check_emp,
+            'check_name' => $check_name,
+            'chekc_comname' => $chekc_comname,
+            'time_check' => $time_check,
+
+            'vatrate' => $vatrate
+        ]);
+        // End PO Employee
+
 
         $products = Product::where('document_id',$document->id)->get();
         foreach($purchase_orders as $purchase_order){
@@ -252,8 +300,18 @@ Class ActionRepository implements ActionRepositoryInterface
                 ]);
             }
         }
+    }
 
+    public function generate_bar_qr($data){
+        $id = $data->id;
+        $purchaseno = $data->purchaseno;
 
-       
+        $document = Document::where('document_no',$purchaseno)
+                    ->where('received_goods_id',$id)->latest()->first();
+
+        $paths = $this->codeService->generate(
+            $document->document_no
+        );
+        $document->update($paths);
     }
 }

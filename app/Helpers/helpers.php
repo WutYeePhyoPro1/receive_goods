@@ -7,7 +7,10 @@ use App\Models\DriverInfo;
 use App\Models\GoodsReceive;
 use App\Models\Product;
 use App\Models\PurchaseOrderItem;
+use App\Models\R008Document;
+use App\Models\R008Product;
 use App\Models\ReceiveGoodDocument;
+use App\Models\ReceiveGoodFile;
 use App\Models\ReceiveGoodProduct;
 use App\Models\RemoveTrack;
 use App\Models\ScanTrack;
@@ -510,20 +513,26 @@ use Spatie\Permission\Models\Role;
 
 
         $data = $conn->select("
-            select purchaseno,brchcode,vendorcode,vendorname,productcode,productname,unitcount as unit,goodqty,vatrate,goodprice,bb.discount,bb.remark as lineremark,bb.sumgoodamnt,creditday,purchasedate,aa.remark,bb.listno
-            from purchaseorder.po_purchaseorderhd aa
-            inner join purchaseorder.po_purchaseorderdt bb on aa.purchaseid= bb.purchaseid
-            left join master_data.master_branch br on aa.brchcode= br.branch_code
-            where statusflag <> 'C'
-            and statusflag in ('P','Y') 
-            $brch_con
-            and purchaseno= '$val'
-            order by listno
+            SELECT purchaseno,aa.brchcode,vendorcode,vendorname,productcode,productname,unitcount AS unit,goodqty,vatrate,goodprice,bb.discount,bb.remark AS lineremark,bb.sumgoodamnt,aa.sumgoodamnt AS tolamnt, creditday,purchasedate,aa.remark,bb.listno,emp_comname,time_emp,approve_comname,time_approve,chekc_comname,time_check,aa.employeecode,emp_create.employeename AS employee_name,aa.approvecode,emp_approve.employeename AS approve_name,aa.check_emp,emp_check.employeename AS check_name
+            FROM purchaseorder.po_purchaseorderhd aa
+            INNER JOIN purchaseorder.po_purchaseorderdt bb 
+                ON aa.purchaseid = bb.purchaseid
+            LEFT JOIN master_data.master_branch br 
+                ON aa.brchcode = br.branch_code
+            LEFT JOIN hremployee.employee emp_create
+                ON aa.employeecode = emp_create.employeecode
+            LEFT JOIN hremployee.employee emp_approve
+                ON aa.approvecode = emp_approve.employeecode
+            LEFT JOIN hremployee.employee emp_check
+                ON aa.check_emp = emp_check.employeecode
+            WHERE aa.statusflag <> 'C'
+            --and statusflag in ('P','Y') 
+            AND aa.purchaseno = '$val'
+            ORDER BY bb.listno;
         ");
         // dd($data);
         return $data;
     }
-
 
     function generateRGDocHeader($data, $receive_good_document){
         $conn = DB::connection('master_product');
@@ -896,23 +905,22 @@ use Spatie\Permission\Models\Role;
             ->orderBy('id','desc')
             ->get();
 
-        // $rg_doc_ids = ReceiveGoodDocument::where('po_no',$po_no)->pluck('id');
-        // $received_sums = ReceiveGoodProduct::whereIn('receive_good_document_id', $rg_doc_ids)
-        //     ->selectRaw(
-        //         'product_code, SUM(gr_qty) as total_received'
-        //     )
-        //     ->groupBy('product_code')
-        //     ->pluck('total_received', 'product_code');
-
         // => To Check total received products in both ERP and PORTAL  (we can update the latest status of PO)
         $received_sums = getReceivedSums($po_no);
-        // dd($received_sums);
+        
+        $r008_diffs = getR008Diffs($po_no);
+        // dd($received_sums,$r008_diffs);
+
 
         $isComplete = true;
 
         foreach ($products as $product) {
             $listno = $product->listno;
-            $receivedQty = $received_sums[$product->bar_code][$listno] ?? 0;
+           
+            // Start One PO, Two R008 ()
+            $receivedQty =($received_sums[$product->bar_code][$listno] ?? 0)
+                        - ($r008_diffs[$product->bar_code][$listno] ?? 0);
+            // End One PO, Two R008
 
             if ($receivedQty < $product->qty) {
                 $isComplete = false;
@@ -920,7 +928,6 @@ use Spatie\Permission\Models\Role;
             }
         }
 
-        // dd($isComplete);
         if($isComplete){
             $modified = $conn->update("
                 update purchaseorder.po_purchaseorderhd set statusflag='F' where purchaseno='$po_no'; --- when PO full
@@ -937,7 +944,8 @@ use Spatie\Permission\Models\Role;
         return $modified;
         
     }
-
+    // to comfirm r8_item_id RGLAN1251030-0019
+    
     function updatePOFull($data, $receive_good_document){
         $conn = DB::connection('master_product');
 
@@ -1036,6 +1044,30 @@ use Spatie\Permission\Models\Role;
         // dd($received_sums);
         return $received_sums;
     }
+
+    function getR008Diffs($po_no){
+        $rg_doc_ids = ReceiveGoodDocument::where('po_no',$po_no)->pluck('id');
+        $rg_doc_nos = ReceiveGoodFile::whereIn('receive_good_document_id',$rg_doc_ids)
+        ->where('name','Receive Good')->pluck('file');
+
+        // dd($rg_doc_nos);
+
+        $r008_doc_ids = R008Document::whereIn('rg_no',$rg_doc_nos)->whereNotIn('status',['Cancel'])->pluck('id');
+
+        $r008_diffs = R008Product::whereIn('r008_document_id', $r008_doc_ids)
+        ->orderBy('id','asc')
+        ->get()
+        ->groupBy(['product_code', 'ref_list_no'])
+        ->map(function ($productGroups) {
+            return $productGroups->map(function ($items) {
+                return $items->sum('diff');
+            });
+        });
+        
+        return $r008_diffs;
+    }
+
+
 
     function manager($data){
         $user = User::where(['id' => getAuthUser()->id, 'role_id' => $role->id])->first();
