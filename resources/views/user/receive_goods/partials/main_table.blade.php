@@ -83,7 +83,7 @@
         ?>
         @foreach ($document as $item)
             @if (count(search_pd($item->id)) > 0)
-                <tbody class="main_body">
+                <tbody class="main_body" data-document-id="{{ $item->id }}">
                     @foreach (search_pd($item->id) as $key => $tem)
                         <?php
                         $color = check_color($tem->id);

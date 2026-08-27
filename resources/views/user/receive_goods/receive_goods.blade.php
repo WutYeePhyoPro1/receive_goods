@@ -1759,18 +1759,62 @@
                 $dc_staff = "{{ getAuth()->branch_id }}";
                 $dc_staff = $dc_staff.includes([17, 19, 20]) ? true : false;
 
-                function reload_page(latestProductId = null) {
+                function replaceDocumentBodies(containerSelector, bodyClass, html, documentIds) {
+                    const $container = $(containerSelector).first();
+                    const $table = $container.find('table').first();
+                    const $rendered = $('<div>').html(html);
+
+                    documentIds.forEach(function(documentId) {
+                        $table.find(`tbody.${bodyClass}[data-document-id="${documentId}"]`).remove();
+                    });
+
+                    const $newBodies = $rendered.find(`tbody.${bodyClass}`).detach();
+                    const $firstBody = $table.children('tbody').first();
+                    if ($firstBody.length) {
+                        $newBodies.insertBefore($firstBody);
+                    } else {
+                        $table.append($newBodies);
+                    }
+                }
+
+                function renumberUpdatedTables() {
+                    $('.main_table').first().find('tbody.main_body').each(function(index) {
+                        $(this).find('tr').first().find('td.doc_times').text(index + 1);
+                    });
+                    $('.scan_parent').first().find('tbody.scan_body').each(function(index) {
+                        $(this).find('tr').first().children('td').eq(0).text(index + 1);
+                    });
+                    $('.excess_div').first().find('tbody.excess_body').each(function(index) {
+                        $(this).find('tr').first().children('td').eq(1).text(index + 1);
+                    });
+                }
+
+                function reload_page(latestProductId = null, documentIds = []) {
                     let id = extractIdFromUrl(); // from current URL
-                    return $.get(`/receive_goods/${id}/partial`, function(data) {
-                        $('.main_table').html(data.main_table);
-                        $('.scan_parent').html(data.scan_parent);
-                        $('.excess_div').html(data.excess_div);
+                    const targeted = Array.isArray(documentIds) && documentIds.length > 0;
+                    const requestData = targeted ? { document_ids: documentIds } : {};
+
+                    return $.get(`/receive_goods/${id}/partial`, requestData, function(data) {
+                        if (data.targeted) {
+                            replaceDocumentBodies('.main_table', 'main_body', data.main_table, documentIds);
+                            replaceDocumentBodies('.scan_parent', 'scan_body', data.scan_parent, documentIds);
+                            replaceDocumentBodies('.excess_div', 'excess_body', data.excess_div, documentIds);
+                            renumberUpdatedTables();
+                        } else {
+                            $('.main_table').html(data.main_table);
+                            $('.scan_parent').html(data.scan_parent);
+                            $('.excess_div').html(data.excess_div);
+                        }
 
                         if (latestProductId) {
                             const selector = `[data-product-id="${latestProductId}"]`;
                             $(`.main_pd_div${selector}, .scanned_pd_div${selector}`)
                                 .find('td')
                                 .addClass('latest');
+                        }
+                    }).fail(function() {
+                        if (targeted) {
+                            reload_page(latestProductId);
                         }
                     });
                 }
@@ -2724,7 +2768,7 @@
                                             window.location.reload();
                                         }
                                         $('#prev_scan').text(res.pd_code || res.bar_code || $code);
-                                        reload_page(res.product_id);
+                                        reload_page(res.product_id, res.document_ids || []);
                                         // }
                                     },
 
