@@ -271,8 +271,18 @@ class userController extends Controller
 
         // Data Preparation
         $dataStartedAt = microtime(true);
+        $requestedDocumentIds = collect(request()->input('document_ids', []))
+            ->map(fn ($documentId) => (int) $documentId)
+            ->filter()
+            ->unique()
+            ->values();
+        $isTargetedUpdate = $requestedDocumentIds->isNotEmpty();
+
         $main = GoodsReceive::where('id', $id)->first();
         $document = Document::where('received_goods_id', $id)
+            ->when($isTargetedUpdate, function ($query) use ($requestedDocumentIds) {
+                $query->whereIn('id', $requestedDocumentIds);
+            })
             ->withMax('products', 'updated_at')
             ->orderByDesc('products_max_updated_at')
             ->orderByDesc('updated_at')
@@ -284,7 +294,6 @@ class userController extends Controller
         ])->whereNull('duration')->first();
         $driver_last = DriverInfo::where('received_goods_id', $id)->orderBy('id', 'desc')->first();
         $scan_document = $document;
-        $scan_document_no = Document::where('received_goods_id', $id)->pluck('document_no');
         $document_id = Document::where('received_goods_id', $id)->pluck('id');
         $product_barcode = Product::whereIn('document_id', $document_id)
             ->whereNull('not_scan_remark')
@@ -308,6 +317,7 @@ class userController extends Controller
             'received_goods_id' => (int) $id,
             'user_id' => getAuth()->id,
             'branch_id' => getAuth()->branch_id,
+            'targeted' => $isTargetedUpdate,
             'document_count' => $document->count(),
             'query_count' => $queryCount,
             'query_time_ms' => round($queryTimeMs, 2),
@@ -319,12 +329,19 @@ class userController extends Controller
             'total_time_ms' => round((microtime(true) - $startedAt) * 1000, 2),
         ]);
 
-        return response()->json([
+        $response = [
             'main_table' => $main_table_html,
             'scan_parent' => $scan_parent_html,
             'excess_div' => $excess_div_html,
-            'product_barcode' => $product_barcode, // optional
-        ]);
+            'targeted' => $isTargetedUpdate,
+            'document_ids' => $document->pluck('id')->values(),
+        ];
+
+        if (!$isTargetedUpdate) {
+            $response['product_barcode'] = $product_barcode;
+        }
+
+        return response()->json($response);
     }
 
 

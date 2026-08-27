@@ -17,7 +17,7 @@
                                     <?php
                                     $i++;
                                     ?>
-                                    <tbody class="scan_body">
+                                    <tbody class="scan_body" data-document-id="{{ $item->id }}">
                                         @foreach (search_scanned_pd($item->id) as $index => $tem)
                                             <?php
                                             $color = check_scanned_color($tem->id);

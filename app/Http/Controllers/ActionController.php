@@ -354,6 +354,7 @@ class ActionController extends Controller
                 $per        = $qty;
                 $total_scan = $qty;
                 $count = 0;
+                $affectedDocumentIds = [];
                 if ($request->car == '') {
                     $driver_info = DriverInfo::where(['received_goods_id' => $id, 'user_id' => getAuth()->id])
                         ->whereNull('duration')
@@ -372,6 +373,7 @@ class ActionController extends Controller
                         'scann_count' => $scann_count,
                     ]);
                     $latestProductId = $product->id;
+                    $affectedDocumentIds[] = $product->document_id;
                     // product code တခုထက်ပို
                 } elseif (count($all_product) > 1) {
                     $full_pd = Product::whereIn('document_id', $doc_ids)
@@ -412,6 +414,7 @@ class ActionController extends Controller
                                     'scann_count' => $scann_count,
                                 ]);
                                 $latestProductId = $item->id;
+                                $affectedDocumentIds[] = $item->document_id;
                                 $pd_code = $this->repository->add_track($driver_info->id, $item->id, $total_scan, $item->document_id, $update_time, $unit, $per);
                                 $count++;
                                 break;
@@ -441,6 +444,7 @@ class ActionController extends Controller
                                     'scann_count' => $scann_count,
                                 ]);
                                 $latestProductId = $item->id;
+                                $affectedDocumentIds[] = $item->document_id;
 
                                 $pd_code = $this->repository->add_track($driver_info->id, $item->id, $added, $item->document_id, $update_time, $unit, $per);
                             } elseif ($index == count($all_product) - 1) {
@@ -459,6 +463,7 @@ class ActionController extends Controller
                                     'scann_count' => $scann_count,
                                 ]);
                                 $latestProductId = $item->id;
+                                $affectedDocumentIds[] = $item->document_id;
                                 $pd_code = $this->repository->add_track($driver_info->id, $item->id, $total_scan, $item->document_id, $update_time, $unit, $per);
                             }
 
@@ -477,6 +482,7 @@ class ActionController extends Controller
                                 'scanned_qty'   => $exceed_qty
                             ]);
                             $latestProductId = $exceed_pd->id;
+                            $affectedDocumentIds[] = $exceed_pd->document_id;
                         }
                     }
                 }
@@ -514,6 +520,9 @@ class ActionController extends Controller
                     'product_id' => $latestProductId ?? $product->id,
                     'bar_code' => $product->bar_code,
                     'pd_code' => $pd_code ?? $product->bar_code,
+                    'document_ids' => array_values(array_unique(
+                        $affectedDocumentIds ?: [$product->document_id]
+                    )),
                 ], 200);
 
                 // return response()->json([

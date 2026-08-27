@@ -66,7 +66,7 @@
 
                             @if (count($searchResult) > 0)
                                 <?php $i++; ?>
-                                <tbody class="excess_body">
+                                <tbody class="excess_body" data-document-id="{{ $item->id }}">
                                     @foreach ($searchResult as $index => $tem)
                                         <tr class="h-10">
                                             <td class="ps-1 border border-slate-400 border-t-0 border-l-0">
