@@ -25,7 +25,7 @@
                         <!-- Document No -->
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
-                                Document No (RG | PO)
+                                Document No (RG | PO | Remark)
                             </label>
 
                             <input
@@ -172,6 +172,10 @@
                                 R008 Doc No
                             </th>
 
+                            <th class="px-4 py-3 text-left font-bold">
+                                Remark
+                            </th>
+
                         </tr>
 
                     </thead>
@@ -311,6 +315,10 @@
 
                                 <td class="px-4 py-3">
                                     {{ $item->receive_good_files->where('name','R008')->first()?->file ?? "-" }}
+                                </td>
+
+                                 <td class="px-4 py-3">
+                                    {{Str::limit($item->remark,20)}}
                                 </td>
                             </tr>
 

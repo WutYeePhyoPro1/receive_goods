@@ -444,8 +444,8 @@ class userController extends Controller
                     $query->where('po_no', 'like', '%' . $docuno . '%')
                     ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
                         $q->where('file', 'like', '%' . $docuno . '%');
-                    });
-                    // ->orWhere('remark', 'like', '%' . $docuno . '%');
+                    })
+                    ->orWhere('remark', 'like', '%' . $docuno . '%');
             });
         }
         
