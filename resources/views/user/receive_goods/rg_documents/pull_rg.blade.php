@@ -8,7 +8,7 @@
             @csrf
             <!-- UNIFIED CARD CONTAINER -->
             <div class="bg-white rounded-lg shadow-sm border border-slate-200 text-slate-800 text-xs">
-                
+
                 <input type="hidden" id="receive_id" value="{{ $good_receive->id }}">
                 <!-- HEADER SECTION -->
                 <div class="p-4">
@@ -17,7 +17,7 @@
                             <i class='bx bx-receipt text-amber-500 text-base'></i> Receive Goods Header
                         </h2>
                     </div>
-                    
+
 
                     <!-- 3-Column Compact Grid for Inputs -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-2 items-end">
@@ -29,14 +29,14 @@
                                 </span>
 
                                 <span class="break-all font-semibold text-slate-800 sm:truncate">
-                                    {{ $good_receive->document_no }}
+                                    {{ $good_receive?->document_no }}
                                 </span>
                             </div>
 
-                            <input type="hidden" name="scan_document_no" value="{{ $good_receive->document_no }}">
-                            <input type="hidden" name="scan_id" value="{{ $good_receive->id }}">
+                            <input type="hidden" name="scan_document_no" value="{{ $good_receive?->document_no }}">
+                            <input type="hidden" name="scan_id" value="{{ $good_receive?->id }}">
                         </div>
-                        
+
                         <!-- Row 1 -->
                         <!-- <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Scan Document No. <span class="text-red-600">*</span></label>
@@ -44,13 +44,13 @@
                             <input type="text" name="scan_id" readonly hidden class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive->id }}">
                         </div> -->
 
-                       {{-- @dd(getMinDate()) --}} 
+                       {{-- @dd(getMinDate()) --}}
                         @php
                             $minDate = getMinDate();
                         @endphp
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Document Date<span class="text-red-600">*</span></label>
-                            <input name="form_doc_date" id="form_doc_date" type="date" class="w-full h-8 px-2 bg-slate-50s border border-slate-300 rounded focus:outline-none focus:border-amber-500" 
+                            <input name="form_doc_date" id="form_doc_date" type="date" class="w-full h-8 px-2 bg-slate-50s border border-slate-300 rounded focus:outline-none focus:border-amber-500"
                             value="{{ old('form_doc_date',$gettoday) }}"
                             min="{{ $minDate }}"
                             >
@@ -133,7 +133,7 @@
                             <label class="block font-medium text-slate-500 mb-0.5"> </label>
                             <input type="text" name="remark" readonlys id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-alloweds" placeholder="Enter remarks details here...">
                         </div>
-                        
+
                         {{-- Checkbox Controls Alignment --}}
                         <div class="md:col-span-3">
                             <div class="grid grid-cols-1 gap-3 pt-4s sm:grid-cols-2 xl:grid-cols-3 items-end xl:items-centers">
@@ -152,8 +152,8 @@
                                             @endforeach
                                     </select>
                                 </div>
-                                
-                          
+
+
                                 <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
                                     <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600 sm:shrink-0">
                                         <input name="r008" type="checkbox" class="h-4 w-4 rounded accent-amber-500">
@@ -168,7 +168,7 @@
                                 </div>
 
                                 <div class="hiddens xl:block">
-                               
+
                                 </div>
 
                             </div>
@@ -282,7 +282,7 @@
     </div>
 
 
-  
+
     @push('js')
     <script src="{{ asset('assets/libs/flatpickrv4/flatpickr.js') }}" type="text/javascript"></script>
 
@@ -348,7 +348,7 @@
             const recieve_id = $('#receive_id').val();
 
             // console.log(formatComma(10000000));
- 
+
             $('#po_no').change(function(){
                 const getpono = $(this).val();
                 $('#productTable tbody').html('');
@@ -366,7 +366,7 @@
                     dataType:"json",
                     beforeSend:function(){
                         // $(".loader").addClass("show");
-                        $(".loader").removeClass('hidden'); 
+                        $(".loader").removeClass('hidden');
                     },
                     success:function(response){
                         console.log(response);
@@ -445,7 +445,7 @@
 
                                 if(qty > poqty){
                                     $(this).val(poqty)
-                                    
+
                                     // $(`#amount_${key}`).html(formatComma(product.amount));
                                     // $(`#amount_${key}_input`).val(product.amount);
 
@@ -500,7 +500,7 @@
                         // $(".loader").removeClass("show");
                         $(".loader").addClass('hidden');
                     }
-                    
+
                 })
 
             });
@@ -540,7 +540,7 @@
                     $('#delivery_date_error').text('Delivery Date Required');
                     isValid = false;
                 }
-          
+
                 if(shipBy === '' || shipBy == null){
                     $('#ship_by_error').text('Ship By Required');
                     isValid = false;
@@ -636,7 +636,7 @@
                         if(result.isConfirmed)
                         {
 
-                            isSubmitting = true;                            
+                            isSubmitting = true;
                             $(".fullloader").removeClass("hidden");
                             // Swal.disableButtons();
                             $('#saveBtn').prop('disabled', true);
@@ -662,9 +662,9 @@
                                             title: "RG saved successfully!",
                                             text: data.message,
                                         });
-                                        
+
                                         const receive_good_document = data.data;
-                                        
+
                                         const recirectURL = "{{ route('rg_documents') }}";
                                         if(receive_good_document.r008){
                                             await Swal.fire({
@@ -678,16 +678,16 @@
                                             }).then((result) => {
                                                 if(result.isConfirmed){
                                                     window.open(`/receive_goods/rg_documents/${receive_good_document.id}/print-pdf`, '_blank');
-                                                    
+
                                                     // // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
                                                     window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}/r008`;
                                                 }
                                             })
-                                          
+
                                         }
                                         window.open(`/receive_goods/rg_documents/${receive_good_document.id}/print-pdf`, '_blank');
 
-                                        setTimeout(() => {                                            
+                                        setTimeout(() => {
                                             window.location.href="{{ route('rg_documents') }}";
                                         }, 3000);
 
@@ -718,7 +718,7 @@
                                 },
                                 // complete:function(resopnse){
                                 //     isSubmitting = false;
-                            
+
                                 //     $(".fullloader").addClass("hidden");
                                 //     console.log('complete');
                                 // }
@@ -731,7 +731,7 @@
             });
 
 
-           
+
 
         });
         </script>

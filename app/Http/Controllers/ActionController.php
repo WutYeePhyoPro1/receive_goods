@@ -547,15 +547,15 @@ class ActionController extends Controller
     public function receive_po(Request $request){
         $purchaseno = $request->purchaseno;
         $id = $request->id;
-        
+
         $purchase_orders = getPODocument($purchaseno);
 
 
         $po_document = Document::where('document_no',$purchaseno)
                                 ->where('received_goods_id',$id)->first();
         $isPoFetched = $po_document->purchase_order_items()->whereNotNull('listno')->exists(); // PO Document မှလိုအပ်သော  dataများကိုဆွဲယူပြီးပြီလား။
-        $hasPOEmployee = $po_document->employeecode; 
-        if(!$isPoFetched || !$hasPOEmployee) {          
+        $hasPOEmployee = $po_document->employeecode;
+        if(!$isPoFetched || !$hasPOEmployee) {
             // $purchase_orders = getPODocument($purchaseno);
             if ($purchase_orders) {
                 $this->repository->sync_doc($purchase_orders, $request);
@@ -564,10 +564,10 @@ class ActionController extends Controller
 
         if ($purchase_orders) {
             // $this->repository->sync_doc($purchase_orders, $request);
-            
+
             $document = Document::where('document_no',$purchaseno)
                                 ->where('received_goods_id',$id)->first();
-            
+
             $filtered_products = $this->getFilteredProduct($document);
 
             $purchase_orders = collect($purchase_orders);
@@ -590,14 +590,14 @@ class ActionController extends Controller
                         ->whereNotNull('listno')
                         ->orderBy('id','asc')
                         ->get();
-            
+
         // => To Prevent Manual RG in ERP , (cuz we don't know user type rg in ERP)
         $po_histories = collect(getPOHistory($document->document_no));
         // dd($po_histories);
         $received_sums = getReceivedSums($document->document_no,$po_histories);
         $r008_lists = $po_histories->whereIn('status_r008',['N','F'])->pluck('ref_list_no')->toArray();
         // dd($r008_lists);
-        
+
         $filtered_products = $products->map(function ($product) use ($received_sums) {
             $listno = $product->listno;
             $received_qty = $received_sums[$product->bar_code][$listno] ?? 0;
@@ -609,7 +609,7 @@ class ActionController extends Controller
             return $product->remaining_qty > 0;
         })
         ->filter(function ($product) use($r008_lists){
-            return !in_array($product->listno,$r008_lists) || !$product->r008;
+            return !in_array($product->listno,$r008_lists) || !$product->r008==true;
         })
         ->values(); // Reset keys
         // dd($filtered_products);
@@ -629,7 +629,7 @@ class ActionController extends Controller
             $document = Document::where('document_no',$request?->po_no)
                     ->where('received_goods_id',$request?->scan_id)->first();
             // dd($document);
-            
+
             $filtered_products = $this->getFilteredProduct($document);
             if ($filtered_products->isEmpty()) {
                 return response()->json([
@@ -655,7 +655,7 @@ class ActionController extends Controller
                 "delivery_date" => $request->delivery_date,
                 "ship_by" => $request->ship_by,
                 "receive_type" => $request->receive_type,
-                "r008" => $r008, 
+                "r008" => $r008,
                 "total_amount" => $request->total_amount,
                 "user_id" => $user_id,
                 "remark"=> $request->remark,
@@ -721,7 +721,7 @@ class ActionController extends Controller
                 'success' => true,
                 'message' => "Receive Good Document created in ERP software successfully!",
                 'data' => $receive_good_document,
-            ]);        
+            ]);
 
         }catch (RuntimeException $e) {
 
@@ -761,7 +761,7 @@ class ActionController extends Controller
 
         $conn = DB::connection('defective_product');
         $statuses = $conn->select("
-            SELECT * 
+            SELECT *
             FROM public.r008_subject
             ORDER BY subjectr008_id ASC
             LIMIT 100
@@ -830,7 +830,7 @@ class ActionController extends Controller
 
         // => Store RG Document No In Portal
         $rg_doc_no = $rg_document->receive_no;
-        $receive_good_file = new ReceiveGoodFile(); 
+        $receive_good_file = new ReceiveGoodFile();
         $receive_good_file->receive_good_document_id = $receive_good_document_id;
         $receive_good_file->name = 'Receive Good';
         $receive_good_file->file = $rg_doc_no;

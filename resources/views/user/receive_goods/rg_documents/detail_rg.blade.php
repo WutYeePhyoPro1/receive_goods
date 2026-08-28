@@ -3,7 +3,7 @@
 
 @section('content')
       <!-- MAIN CONTENT CONTAINER -->
-    @php 
+    @php
     $manager = isManager($receive_good_document);
     @endphp
     <div class="rg-readable md:w-[98%] pb-16 px-4 pt-4 mx-auto">
@@ -52,7 +52,7 @@
             <div id="btn_status"></div>
 
             <div class="bg-white rounded-lg shadow-sm border border-slate-200 text-slate-800 text-xs overflow-hidden">
-                
+
                 <input type="hidden" id="receive_id" value="{{-- $good_receive->id --}}">
                 <!-- HEADER SECTION -->
                 <div class="p-4">
@@ -72,19 +72,19 @@
                                 </span>
 
                                 <span class="break-all font-semibold text-slate-800 sm:truncate">
-                                    {{ $good_receive->document_no }}
+                                    {{ $good_receive?->document_no }}
                                 </span>
                             </div>
 
-                            <input type="hidden" name="scan_document_no" value="{{ $good_receive->document_no }}">
-                            <input type="hidden" name="scan_id" value="{{ $good_receive->id }}">
+                            <input type="hidden" name="scan_document_no" value="{{ $good_receive?->document_no }}">
+                            <input type="hidden" name="scan_id" value="{{ $good_receive?->id }}">
                         </div>
-                        
+
                         <!-- Row 1 -->
                         <!-- <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Scan Document No. <span class="text-red-600">*</span></label>
-                            <input type="text" name="scan_document_no" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive->document_no }}">
-                            <input type="text" name="scan_id" readonly hidden class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive->id }}">
+                            <input type="text" name="scan_document_no" readonly class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive?->document_no }}">
+                            <input type="text" name="scan_id" readonly hidden class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500" placeholder="Doc No..." value="{{ $good_receive?->id }}">
                         </div> -->
                         <div>
                             <label class="block font-medium text-slate-500 mb-0.5">Document Date<span class="text-red-600">*</span></label>
@@ -183,7 +183,7 @@
                             <label class="block font-medium text-slate-500 mb-0.5"> </label>
                             <input type="text" name="remark" readonly id="remark" class="w-full h-8 px-2 bg-slate-50 border border-slate-300 rounded focus:outline-none focus:border-amber-500 cursor-not-allowed" placeholder="Enter remarks details here..." value="{{ $receive_good_document->remark }}">
                         </div>
-                        
+
                         {{-- Checkbox Controls Alignment --}}
                         <div class="md:col-span-3">
                             <div class="grid grid-cols-1 gap-3 pt-4s sm:grid-cols-2 xl:grid-cols-3 items-end xl:items-centers">
@@ -205,7 +205,7 @@
                                             @endforeach
                                     </select>
                                 </div>
-                                
+
 
                                 <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
                                     <label class="flex min-h-9 items-center gap-2 cursor-pointer font-medium text-slate-600 sm:shrink-0">
@@ -235,9 +235,9 @@
                                 </div>
 
                                 <div class="flex min-w-0 flex-col gap-2 sm:col-span-2 sm:flex-row sm:items-center xl:col-span-1">
-                                 
+
                                     <span class="text-sm font-medium text-slate-600 sm:shrink-0">
-                                        RG No:    
+                                        RG No:
                                         <button
                                             type="button"
                                             class="ml-2 inline-flex items-center text-gray-400 hover:text-blue-600"
@@ -262,7 +262,7 @@
                                     </span>
                                     @endif
 
-                                    
+
                                 </div>
 
                             </div>
@@ -304,7 +304,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 bg-white">
-                      
+
                             </tbody>
                         </table>
                     </div>
@@ -319,7 +319,7 @@
                     </div>
 
                 </div>
-               
+
                 <div class="flex items-center gap-2 p-4">
 
                     <button type="button" class="h-9 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[12px] font-medium"
@@ -377,7 +377,7 @@
                         <div class="p-4">
                             <hr class="my-1" />
                             <h3 class="flex items-center gap-2 text-sm font-bold text-red-700 mb-2 my-2">
-                                <i class='bx bx-block text-red-500 text-base'></i> 
+                                <i class='bx bx-block text-red-500 text-base'></i>
                                 RG Cancel Request
                                 @php
                                     $status = strtolower($rejectRequest?->status ?? 'default');
@@ -407,7 +407,7 @@
 
                                     @if($manager && $receive_good_document->status !== "Cancel" && !in_array($receive_good_document->receive_good_reject->status,['Rejected','Accepted']))
                                     <div class="mt-2 flex justify-end gap-2">
-                                
+
                                         <button
                                             type="submit"
                                             name="btn_status"
@@ -482,7 +482,7 @@
                             </div> -->
 
                         </div>
-                    
+
                     </div>
 
             </div>
@@ -532,7 +532,7 @@
 
                     <div class="mb-4">
                         <label class="block font-medium text-slate-500 mb-0.5">Cancel Remark <span class="text-red-600">*</span></label>
-                        <textarea 
+                        <textarea
                             id="cancel_remark"
                             name="remark"
                             rows="4"
@@ -555,7 +555,7 @@
     </div>
 
 
-  
+
     @push('js')
     <script src="{{ asset('assets/libs/flatpickrv4/flatpickr.js') }}" type="text/javascript"></script>
 
@@ -714,10 +714,10 @@
                             calculateTotalAmount();
                         });
                     });
-            
+
 
                 }
-                
+
             })
 
         });
@@ -756,7 +756,7 @@
                 $('#delivery_date_error').text('Delivery Date Required');
                 isValid = false;
             }
-        
+
             if(shipBy === '' || shipBy == null){
                 $('#ship_by_error').text('Ship By Required');
                 isValid = false;
@@ -836,7 +836,7 @@
         //             if(result.isConfirmed)
         //             {
 
-        //                 isSubmitting = true;                            
+        //                 isSubmitting = true;
         //                 $(".fullloader").removeClass("hidden");
         //                 // Swal.disableButtons();
         //                 $('#saveBtn').prop('disabled', true)
@@ -862,7 +862,7 @@
         //                                 title: "RG saved successfully!",
         //                                 text: data.message,
         //                             });
-                                    
+
         //                             const receive_good_document = data.data;
         //                             if(receive_good_document.r008){
         //                                 // window.location.href = `/receive_goods/rg_documents/${receive_good_document.id}`
@@ -895,7 +895,7 @@
         //                     },
         //                     // complete:function(resopnse){
         //                     //     isSubmitting = false;
-                        
+
         //                     //     $(".fullloader").addClass("hidden");
         //                     //     console.log('complete');
         //                     // }
@@ -915,7 +915,7 @@
             products.forEach((product,idx) => {
                     // let key = `${product.bar_code}_${product.price}`;
                 let key = `${product.bar_code}_${idx}`;
-                
+
                 $('#total_amount').text(formatComma({{ $receive_good_document->total_amount }}));
 
                 let html = `
@@ -983,7 +983,7 @@
                 if(result.isConfirmed)
                 {
 
-                    isSubmitting = true;                            
+                    isSubmitting = true;
                     $(".fullloader").removeClass("hidden");
                     // Swal.disableButtons();
                     $('#approveBtn').prop('disabled', true)
@@ -996,7 +996,7 @@
             })
         });
 
-    
+
         const cancel_remark = document.querySelector('#cancel_remark');
         const errormessages = document.querySelector('#errormessages');
         $(document).on('submit', '#rg_cancel_form', function (e) {
@@ -1033,7 +1033,7 @@
         // </span>
         // </div>
 
-        
+
         function approveHandler(e,btn){
 
             e.preventDefault();
@@ -1042,7 +1042,7 @@
             const text = btn.textContent;
 
             // console.log(value,text);
-     
+
             Swal.fire({
                 icon: "question",
                 text: `Are you sure want to ${text} RG Cancel?`,
@@ -1056,13 +1056,13 @@
                     btn.disabled = true;
 
                     $('#rgreject_btn_status').append('<input type="hidden" name="status" value="' + value + '" /> ');
-                    
+
                     $('#receive_good_rejects_approve_form').submit();
                 }
             })
         }
 
-         
+
         //Start change-btn
         $(document).on("change",".change-btn",function(){
 
@@ -1091,7 +1091,7 @@
                             });
                             return;
                         }
-                    
+
                         Swal.fire({
                             title: "R008 Ticking Success!",
                             text: "R008 Status Updated Successfully",
@@ -1120,7 +1120,7 @@
         // End change btn
 
 
-        
+
     </script>
 
     <script type="text/javascript">
