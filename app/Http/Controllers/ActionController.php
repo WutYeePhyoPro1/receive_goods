@@ -609,7 +609,7 @@ class ActionController extends Controller
             return $product->remaining_qty > 0;
         })
         ->filter(function ($product) use($r008_lists){
-            return !in_array($product->listno,$r008_lists) || !$product->r008;
+            return !in_array($product->listno,$r008_lists) || $product->r008 === false;
         })
         ->values(); // Reset keys
         // dd($filtered_products);

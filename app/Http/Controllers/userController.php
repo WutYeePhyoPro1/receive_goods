@@ -492,11 +492,11 @@ class userController extends Controller
 
         if ($docuno) {
             $results = $results->where(function ($query) use ($docuno) {
-                    $query->where('po_no', 'like', '%' . $docuno . '%')
+                    $query->where('po_no', 'ilike', '%' . $docuno . '%')
                     ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
-                        $q->where('file', 'like', '%' . $docuno . '%');
+                        $q->where('file', 'ilike', '%' . $docuno . '%');
                     })
-                    ->orWhere('remark', 'like', '%' . $docuno . '%');
+                    ->orWhere('remark', 'ilike', '%' . $docuno . '%');
             });
         }
         
