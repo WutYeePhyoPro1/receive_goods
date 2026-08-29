@@ -178,8 +178,8 @@ function fullLabel(labelX, top, payload, type) {
     commands.push(ascii(`${barcode(labelX, barcodeY, barcodeHeight, payload.barcode)}\r\n`));
     commands.push(bitmapText(left, detailsY, payload.barcode, {
         width: dots(25),
-        fontSize: isBar1 ? 13 : 12,
-        fontWeight: 500,
+        fontSize: isBar1 ? 14 : 12,
+        fontWeight: isBar1 ? 700 : 500,
     }));
     commands.push(bitmapText(labelX + dots(27.5), detailsY, payload.unit, {
         width: dots(4),
@@ -193,7 +193,7 @@ function fullLabel(labelX, top, payload, type) {
         commands.push(ascii(`BOX ${labelX + dots(20)},${boxY},${labelX + dots(23)},${boxY + dots(3)},2\r\n`));
     }
 
-    const dateY = isBar1 ? detailsY + 17 : top + dots(17.8);
+    const dateY = isBar1 ? detailsY + 19 : top + dots(17.8);
     commands.push(bitmapText(left, dateY, compactDate(payload.printedAt), {
         width: textWidth,
         fontSize: isBar1 ? 12 : 11,
@@ -206,12 +206,13 @@ function fullLabel(labelX, top, payload, type) {
 function halfLabel(labelX, top, payload) {
     const left = labelX + dots(1.5);
     const textWidth = dots(31);
+    const contentTop = top + dots(1);
     const nameLines = wrapText(payload.name, textWidth, 12, 500, 2);
     const hasTwoNameLines = nameLines.length > 1;
     const commands = [];
 
     nameLines.forEach((line, index) => {
-        commands.push(bitmapText(left, top + (index * 14), line, {
+        commands.push(bitmapText(left, contentTop + (index * 14), line, {
             width: textWidth,
             height: 14,
             fontSize: 12,
@@ -219,7 +220,7 @@ function halfLabel(labelX, top, payload) {
         }));
     });
 
-    const barcodeY = top + (hasTwoNameLines ? 29 : 18);
+    const barcodeY = contentTop + (hasTwoNameLines ? 29 : 18);
     const barcodeHeight = hasTwoNameLines ? 26 : 34;
     const detailsY = barcodeY + barcodeHeight + (hasTwoNameLines ? 2 : 3);
     const productCodeWidth = dots(12);
@@ -228,9 +229,9 @@ function halfLabel(labelX, top, payload) {
     commands.push(ascii(`${barcode(labelX, barcodeY, barcodeHeight, payload.barcode)}\r\n`));
     commands.push(bitmapText(left, detailsY, payload.barcode, {
         width: productCodeWidth,
-        height: 12,
-        fontSize: 10,
-        fontWeight: 600,
+        height: 14,
+        fontSize: 11,
+        fontWeight: 700,
     }));
     commands.push(bitmapText(left + productCodeWidth, detailsY, compactDate(payload.printedAt), {
         width: dateWidth,
