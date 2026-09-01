@@ -223,7 +223,7 @@
 
                 </table>
                 {{-- $data->links('pagination::tailwind') --}}
-                {{ $data->links('vendors.pagination.custom-rg') }}
+                {{ $data->appends(request()->all())->links('vendors.pagination.custom-rg') }}
             </div>
         </div>
 
