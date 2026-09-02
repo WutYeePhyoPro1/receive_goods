@@ -130,6 +130,7 @@
             font-weight: bold;
             display: inline-block;
             width: 55px;
+            text-align: left;
         }
 
         .signature-table {
@@ -265,7 +266,7 @@
         <td class="value">: {{ Str::limit("+43 (1) 716130, +61-3-9825-2300, +32 2 287 62 11, (+359) 2 933 9222, +55 11 2345 5678",50) }}</td>
 
         <td class="label">Delivery Note</td>
-        <td class="value myanmarfonts">: Lorem Ipsum is simply dummy text of the printing and typesetting industry.</td>
+        <td class="value myanmarfonts">: {{ Str::limit("Lorem Ipsum is simply dummy text of the printing and typesetting industry.",25) }}</td>
     </tr>
 
     <tr>
@@ -362,8 +363,7 @@
     {{-- REMARK --}}
     <div class="remark-sections myanmarfonts">
         <span class="remark-title">Remark :</span>
-
-            {{ $receive_good_document->remark }} မြန်မာစာဖြင့်ရေးထားပါသည်။
+            {{ Str::limit("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library in London, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset's Body Type sheets.",100) }} 
     </div>
 
     {{-- SIGNATURE --}}

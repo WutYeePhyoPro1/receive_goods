@@ -72,7 +72,7 @@
 
         .value {
             padding-left: 3px;
-            text-align: justify;
+            text-align: left;
         } 
 
         .product-table {
@@ -252,7 +252,7 @@
     <tr>
         <td class="label">Address</td>
         <td class="value">
-            : {{ Str::limit($receive_good_document?->vendor?->vendor_address,100) }}  
+            : {{ Str::limit($receive_good_document?->vendor?->vendor_address,90) }}  
             <!-- Lorem Ipsum is simply dummy text of the printing and typesetting industry. -->
         </td>
 
@@ -265,7 +265,7 @@
         <td class="value">: {{ Str::limit($receive_good_document?->vendor?->vendor_ph,50) }}</td>
 
         <td class="label">Delivery Note</td>
-        <td class="value myanmarfonts">: {{ $receive_good_document->delivery_note }}</td>
+        <td class="value myanmarfonts">: {{ Str::limit($receive_good_document->delivery_note,25) }}</td>
     </tr>
 
     <tr>
@@ -363,7 +363,7 @@
     <div class="remark-sections myanmarfonts">
         <span class="remark-title">Remark :</span>
 
-            {{ $receive_good_document->remark }}
+            {{ Str::limit($receive_good_document->remark,100) }}
     </div>
 
     {{-- SIGNATURE --}}
