@@ -626,7 +626,7 @@ class userController extends Controller
             'employees' => $employees
         ]);
 
-        $pdf = MPDF::loadView('user.receive_goods.rg_documents.pdf');
+        $pdf = MPDF::loadView('user.receive_goods.rg_documents.pdftest');
 
         // return $pdf->download('invoice.pdf');
         return $pdf->stream('rg.pdf');

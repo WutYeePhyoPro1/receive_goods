@@ -39,8 +39,9 @@
         }
 
         .company-name {
-            font-size: 12px;
+            /* font-size: 12px; */
             font-weight: bold;
+            white-space: nowrap;
         }
 
         .page-no {
@@ -72,7 +73,7 @@
 
         .value {
             padding-left: 3px;
-            text-align: justify;
+            text-align: left;
         } 
 
         .product-table {
@@ -192,8 +193,8 @@
         </td>
 
         <td width="70%" class="text-center">
-            <h2 style="margin:0;">
-                PRO 1 GLOBAL COMPANY LIMITED ({{ $receive_good_document->branch->branch_name }})
+            <h2 style="margin:0; background:reds;white-space: nowrap;" class="company-name">
+                PRO 1 GLOBAL COMPANY LIMITED (PRO1 PLUS (Terminal M))
             </h2>
 
             <!-- <div>
@@ -224,7 +225,7 @@
 </table>
 
 <h2 class="text-center">
-    Goods Receive
+    Goods Receive Test
 </h2>
 
 {{-- DETAIL --}}
@@ -251,9 +252,8 @@
 
     <tr>
         <td class="label">Address</td>
-        <td class="value">
-            : {{ Str::limit($receive_good_document?->vendor?->vendor_address,100) }}  
-            <!-- Lorem Ipsum is simply dummy text of the printing and typesetting industry. -->
+        <td class="value vendor-address">
+            : {{ Str::limit("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library in London, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset's Body Type sheets.", 100) }}
         </td>
 
         <td class="label">PO No.</td>
@@ -262,10 +262,10 @@
 
     <tr>
         <td class="label">Tel.</td>
-        <td class="value">: {{ Str::limit($receive_good_document?->vendor?->vendor_ph,50) }}</td>
+        <td class="value">: {{ Str::limit("+43 (1) 716130, +61-3-9825-2300, +32 2 287 62 11, (+359) 2 933 9222, +55 11 2345 5678",50) }}</td>
 
         <td class="label">Delivery Note</td>
-        <td class="value myanmarfonts">: {{ $receive_good_document->delivery_note }}</td>
+        <td class="value myanmarfonts">: Lorem Ipsum is simply dummy text of the printing and typesetting industry.</td>
     </tr>
 
     <tr>
@@ -313,16 +313,16 @@
 
     <tbody>
 
-        <!-- <tr>
+        <tr>
             <td>1</td>
             <td>1101020016005</td>
-            <td>TIGER Shear 700</td>
+            <td>Lorem Ipsum is simply dummy text of the printing and typesetting</td>
             <td>PC</td>
             <td class="qty">24.00</td>
             <td></td>
         </tr>
 
-        <tr>
+        <!-- <tr>
             <td>2</td>
             <td>1101020016006</td>
             <td>TIGER Shear 702</td>
@@ -331,7 +331,7 @@
             <td></td>
         </tr> -->
 
-        @foreach($products as $idx=>$product)
+        <!-- @foreach($products as $idx=>$product)
             <tr>
                 <td>{{ ++$idx }}</td>
                 <td>{{ $product->product_code }}</td>
@@ -340,7 +340,7 @@
                 <td class="qty text-right">{{ $product->gr_qty }}</td>
                 <td class="myanmarfonts">{{ $product->remark }}</td>
             </tr>
-        @endforeach
+        @endforeach -->
         <tr class="total-row">
             <td colspan="4" class="text-right">
                 Total Quantity :
@@ -363,7 +363,7 @@
     <div class="remark-sections myanmarfonts">
         <span class="remark-title">Remark :</span>
 
-            {{ $receive_good_document->remark }}
+            {{ $receive_good_document->remark }} မြန်မာစာဖြင့်ရေးထားပါသည်။
     </div>
 
     {{-- SIGNATURE --}}
