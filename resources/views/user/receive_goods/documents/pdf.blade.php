@@ -304,7 +304,7 @@
     <tr>
         <td class="label">Address</td>
         <td class="value">
-            : {{ $po_document?->vendor?->vendor_address }}  
+            : {{ Str::limit($po_document?->vendor?->vendor_address,100) }}  
             <!-- Lorem Ipsum is simply dummy text of the printing and typesetting industry. -->
         </td>
 
