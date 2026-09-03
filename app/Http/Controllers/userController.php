@@ -485,6 +485,11 @@ class userController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
+        $hasFilter = collect($request->except('page'))
+        ->filter(fn ($value) => filled($value))
+        ->isNotEmpty();
+
+
         $user = auth()->user();
         $user_id = $user->id;
 
@@ -518,15 +523,16 @@ class userController extends Controller
         }
 
      
-
-        if($start_date || $end_date){
-            $start_date = $request->start_date
-                        ? Carbon::parse($request->start_date)->startOfDay()
-                        : Carbon::createFromTimestamp(0)->startOfDay();
-            $end_date = $request->end_date
-                        ? Carbon::parse($request->end_date)->endOfDay()
-                        : Carbon::today()->endOfDay();
-            $results = $results->whereBetween('created_at', [$start_date , $end_date]);
+        if ($hasFilter) {
+            if($start_date || $end_date){
+                $start_date = $request->start_date
+                            ? Carbon::parse($request->start_date)->startOfDay()
+                            : Carbon::createFromTimestamp(0)->startOfDay();
+                $end_date = $request->end_date
+                            ? Carbon::parse($request->end_date)->endOfDay()
+                            : Carbon::today()->endOfDay();
+                $results = $results->whereBetween('created_at', [$start_date , $end_date]);
+            }
         }else{
             $results->whereDate('created_at','>=',now()->subMonth());
         }
@@ -802,6 +808,10 @@ class userController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
+        $hasFilter = collect($request->except('page'))
+        ->filter(fn ($value) => filled($value))
+        ->isNotEmpty();
+
         $user = auth()->user();
         $user_id = $user->id;
 
@@ -811,7 +821,7 @@ class userController extends Controller
 
         if ($docuno) {
             $results = $results->where(function ($query) use ($docuno) {
-                    $query->where('document_no', 'like', '%' . $docuno . '%');
+                    $query->where('document_no', 'ilike', '%' . $docuno . '%');
                     // ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
                     //     $q->where('file', 'like', '%' . $docuno . '%');
                     // });
@@ -838,16 +848,47 @@ class userController extends Controller
             $results = $results->whereIn('branch_id',$branch_ids);
         }
 
-        if($start_date || $end_date){
-            $start_date = $request->start_date
-                        ? Carbon::parse($request->start_date)->startOfDay()
-                        : Carbon::createFromTimestamp(0)->startOfDay();
-            $end_date = $request->end_date
-                        ? Carbon::parse($request->end_date)->endOfDay()
-                        : Carbon::today()->endOfDay();
-            $results = $results->whereBetween('created_at', [$start_date , $end_date]);
-        }else{
-            $results->whereDate('created_at','>=',now()->subMonth());
+        // ္Filter Purchase Date by Document No. , cuz Purchase Date is Null in old (PO Document).
+        if ($hasFilter) {
+
+            if ($start_date || $end_date) {
+
+                $start_date = $request->start_date
+                    ? Carbon::parse($request->start_date)->startOfDay()
+                    : Carbon::createFromTimestamp(0)->startOfDay();
+
+                $end_date = $request->end_date
+                    ? Carbon::parse($request->end_date)->endOfDay()
+                    : Carbon::today()->endOfDay();
+
+                $results = $results->where(function ($query) use ($start_date, $end_date) {
+
+                    $query->whereBetween('purchasedate', [
+                        $start_date,
+                        $end_date,
+                    ])
+
+                    ->orWhere(function ($q) use ($start_date, $end_date) {
+
+                        $q->whereNull('purchasedate')
+                            ->whereRaw(
+                                "to_date(substring(document_no from '[0-9]{6}(?=-)'), 'YYMMDD') between ? and ?",
+                                [
+                                    $start_date->toDateString(),
+                                    $end_date->toDateString(),
+                                ]
+                            );
+                    });
+                });
+            }
+
+        } else {
+
+            $results = $results->whereDate(
+                'created_at',
+                '>=',
+                now()->subMonth()
+            );
         }
             
         if($status){

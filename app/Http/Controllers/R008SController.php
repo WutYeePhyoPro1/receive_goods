@@ -28,6 +28,10 @@ class R008SController extends Controller
         $start_date = $request->start_date;
         $end_date = $request->end_date;
 
+        $hasFilter = collect($request->except('page'))
+        ->filter(fn ($value) => filled($value))
+        ->isNotEmpty();
+
         $user = auth()->user();
         $user_id = $user->id;
 
@@ -61,19 +65,21 @@ class R008SController extends Controller
         }
 
 
-        if($start_date || $end_date){
-            $start_date = $request->start_date
-                        ? Carbon::parse($request->start_date)->startOfDay()
-                        : Carbon::createFromTimestamp(0)->startOfDay();
-            $end_date = $request->end_date
-                        ? Carbon::parse($request->end_date)->endOfDay()
-                        : Carbon::today()->endOfDay();
-            $results = $results->whereBetween('created_at', [$start_date , $end_date]);
+        if ($hasFilter) {
+            if($start_date || $end_date){
+                $start_date = $request->start_date
+                            ? Carbon::parse($request->start_date)->startOfDay()
+                            : Carbon::createFromTimestamp(0)->startOfDay();
+                $end_date = $request->end_date
+                            ? Carbon::parse($request->end_date)->endOfDay()
+                            : Carbon::today()->endOfDay();
+                $results = $results->whereBetween('document_date', [$start_date , $end_date]);
+            }
         }else{
-            $results->whereDate('created_at','>=',now()->subMonth());
+            $results->whereDate('document_date','>=',now()->subMonth());
         }
 
-        $data = $results->orderBy('created_at','desc')->paginate(15);
+        $data = $results->orderBy('document_date','desc')->paginate(15);
 
         return view('r008s.index',compact("data"));
     }

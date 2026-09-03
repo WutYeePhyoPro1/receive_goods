@@ -946,7 +946,7 @@
                             </div>
                         </td>
                         <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
-                        <td class="py-1.5 px-3 text-right font-medium">0</td>
+                        <td class="py-1.5 px-3 text-right font-medium">${formatComma(product.discount)}</td>
                         <td id="amount_${product.bar_code}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.amount)}</td>
 
                         <td class="py-1.5 px-3">

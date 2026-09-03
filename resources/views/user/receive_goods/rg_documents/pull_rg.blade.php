@@ -389,6 +389,9 @@
                             // let key = `${product.bar_code}_${product.price}`;
                             let key = `${product.bar_code}_${idx}`;
 
+                            let itemDiscount = document.status === 'Pending RG'
+                                                ? (product.discount ?? 0)
+                                                : 0;
                             let html = `
                                 <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
                                     <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
@@ -411,15 +414,15 @@
                                             <input name="unit[]" type="hidden" value="${product.unit}" disabled />
                                             <input name="po_qty[]" type="hidden" value="${product.remaining_qty}" disabled />
                                             <input name="price[]" type="hidden" value="${product.price}" disabled />
-                                            <input name="amount[]" id="amount_${key}_input" type="hidden" value="${product.price * product.remaining_qty}" disabled />
+                                            <input name="amount[]" id="amount_${key}_input" type="hidden" value="${(product.price * product.remaining_qty) - itemDiscount}" disabled />
                                             <input name="product_id[]" type="hidden" value="${product.id}" disabled />
                                             <input name="discount[]" type="hidden" value="${product.discount ?? 0}" disabled />
                                             <input name="ref_list_no[]" type="hidden" value="${product.listno}" disabled />
                                         </div>
                                     </td>
                                     <td class="py-1.5 px-3 text-right text-slate-500">${formatComma(product.price)}</td>
-                                    <td class="py-1.5 px-3 text-right">${product.discount}</td>
-                                    <td id="amount_${key}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma(product.price * product.remaining_qty)}</td>
+                                    <td class="py-1.5 px-3 text-right">${formatComma(product.discount)}</td>
+                                    <td id="amount_${key}" class="py-1.5 px-3 text-right font-medium text-slate-700">${formatComma((product.price * product.remaining_qty) - itemDiscount)}</td>
                                     <td class="py-1.5 px-3">
                                         <div id="lineremark_view_${key}" class="w-40 ms-auto line_view">
                                             <span>${product.remark ?? ''}<span>
@@ -440,7 +443,7 @@
                                 var poqty = parseFloat(product.remaining_qty);
                                 var price = parseFloat(product.price);
                                 // var amount = qty * price;
-                                var amount = parseFloat((qty * price).toFixed(2));
+                                var amount = parseFloat(((qty * price) - itemDiscount).toFixed(2));
                                 console.log(qty,poqty,price,amount);
 
                                 if(qty > poqty){
@@ -449,8 +452,8 @@
                                     // $(`#amount_${key}`).html(formatComma(product.amount));
                                     // $(`#amount_${key}_input`).val(product.amount);
 
-                                    $(`#amount_${key}`).html(formatComma(product.price * product.remaining_qty));
-                                    $(`#amount_${key}_input`).val(product.price * product.remaining_qty);
+                                    $(`#amount_${key}`).html(formatComma((product.price * product.remaining_qty) - itemDiscount));
+                                    $(`#amount_${key}_input`).val((product.price * product.remaining_qty) - itemDiscount);
                                 }else{
                                     $(`#amount_${key}`).html(formatComma(amount));
                                     $(`#amount_${key}_input`).val(amount);
@@ -595,14 +598,11 @@
 
                     let qty = parseFloat(row.find('.gr_qty').val()) || 0;
                     let price = parseFloat(row.find('[name="price[]"]').val()) || 0;
+                    let amount = parseFloat(row.find('[name="amount[]"]').val()) || 0;
 
 
-                    // let price = parseFloat(
-                    //     row.find('.price').data('price')
-                    // ) || 0;
-
-                    total += qty * price;
-
+                    // total += qty * price;
+                    total += amount;
                 });
 
                 $('#total_amount').text(formatComma(total));
