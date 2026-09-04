@@ -389,9 +389,11 @@
                             // let key = `${product.bar_code}_${product.price}`;
                             let key = `${product.bar_code}_${idx}`;
 
-                            let itemDiscount = document.status === 'Pending RG'
-                                                ? (product.discount ?? 0)
-                                                : 0;
+                            // let itemDiscount = document.status === 'Pending RG'
+                            //                     ? (product.discount ?? 0)
+                            //                     : 0;
+                            let itemDiscount = parseFloat(product.discount ?? 0);
+
                             let html = `
                                 <tr class="hover:bg-slate-50 transition-colors whitespace-nowrap">
                                     <td class="py-1.5 px-3 font-medium text-slate-400">${++idx}</td>
