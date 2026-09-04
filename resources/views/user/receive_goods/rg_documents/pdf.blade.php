@@ -240,7 +240,7 @@
 
     <tr>
         <td class="label">Vendor Name</td>
-        <td class="value">: {{ Str::limit($receive_good_document?->vendor?->vendor_name,45) }}</td>
+        <td class="value">: {{ Str::limit($receive_good_document?->vendor?->vendor_name,40) }}</td>
 
         <td class="label">Doc.Date</td>
         <td class="value">: 
