@@ -262,7 +262,7 @@
 
     <tr>
         <td class="label">Tel.</td>
-        <td class="value">: {{ Str::limit($receive_good_document?->vendor?->vendor_ph,50) }}</td>
+        <td class="value">: {{ Str::limit($receive_good_document?->vendor?->vendor_ph,40) }}</td>
 
         <td class="label">Delivery Note</td>
         <td class="value myanmarfonts">: {{ Str::limit($receive_good_document->delivery_note,25) }}</td>
