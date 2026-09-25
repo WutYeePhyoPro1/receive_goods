@@ -48,8 +48,30 @@ $app = require_once __DIR__.'/../bootstrap/app.php';
 
 $kernel = $app->make(Kernel::class);
 
-$response = $kernel->handle(
-    $request = Request::capture()
-)->send();
+// $response = $kernel->handle(
+//     $request = Request::capture()
+// )->send();
+
+// Start Request Logs
+$request = Request::capture();
+
+$start = microtime(true);
+
+$response = $kernel->handle($request);
+
+$duration = microtime(true) - $start;
+
+\Illuminate\Support\Facades\Log::info('HTTP Request', [
+    'method' => $request->method(),
+    'url' => $request->fullUrl(),
+    'path' => $request->path(),
+    'status' => $response->getStatusCode(),
+    'duration_sec' => round($duration, 2),
+    'ip' => $request->ip(),
+    'user_agent' => $request->userAgent(),
+]);
+
+$response->send();
+// End Request Logs
 
 $kernel->terminate($request, $response);
