@@ -192,14 +192,22 @@
         </td>
 
         <td width="70%" class="text-center">
-            <h2 style="margin:0;">
-                PRO 1 GLOBAL COMPANY LIMITED ({{ $receive_good_document->branch->branch_name }})
-            </h2>
+            @php
+                $branchNames = [
+                    'MM-112' => 'Terminal M',
+                ];
 
-            <!-- <div>
-                Ma.8/6, Theik Pan Rd, Bet: 62 & 63 St.,
-                Chanmyathazi Tsp., Mandalay, Myanmar
-            </div> -->
+                $branchCode = $receive_good_document->branch->branch_code;
+
+                $branchName = $branchNames[$branchCode]
+                    ?? $receive_good_document->branch->branch_name;
+            @endphp
+            <h2 style="margin:0;">
+                PRO 1 GLOBAL COMPANY LIMITED (
+                    <!-- {{ $receive_good_document->branch->branch_name }} -->
+                    {{ $branchName }}
+                )
+            </h2>
             <div>
                 {{ 
                     $receive_good_document->branch?->branch_address
@@ -228,7 +236,7 @@
 </h2>
 
 {{-- DETAIL --}}
-<table class="detail-table">
+<table class="detail-table" >
 
     <tr>
         <td class="label" width="15%">Vendor Code</td>
@@ -250,10 +258,13 @@
     </tr>
 
     <tr>
-        <td class="label">Address</td>
+        <td height="24" class="label">Address</td>
         <td class="value">
-            : {{ Str::limit($receive_good_document?->vendor?->vendor_address,90) }}  
-            <!-- Lorem Ipsum is simply dummy text of the printing and typesetting industry. -->
+            : {{ Str::limit($receive_good_document?->vendor?->vendor_address,90) }}
+            <!-- Test Address -->
+            <!-- :  
+            <br/> 
+            {{ Str::limit("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966,",90) }}  -->
         </td>
 
         <td class="label">PO No.</td>
@@ -261,11 +272,18 @@
     </tr>
 
     <tr>
-        <td class="label">Tel.</td>
+        <td class="label"  height="24">Tel.</td>
         <td class="value">: {{ Str::limit($receive_good_document?->vendor?->vendor_ph,40) }}</td>
+        <!-- Test Tel -->
+        <!-- <td class="value">: {{ Str::limit("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966,",80) }}</td> -->
 
         <td class="label">Delivery Note</td>
         <td class="value myanmarfonts">: {{ Str::limit($receive_good_document->delivery_note,25) }}</td>
+        <!-- Test Note -->
+        <!-- <td class="value myanmarfonts">: 
+            <br/>
+            {{ Str::limit("Lorem Ipsum is simply dummy text of the printing and typesetting industry.",40) }}
+        </td> -->
     </tr>
 
     <tr>
@@ -277,7 +295,7 @@
     </tr>
 
     <tr>
-        <td></td>
+        <td height="24"></td>
         <td></td>
 
         <td class="label">Credit Term</td>
@@ -297,7 +315,7 @@
     $spacerHeight = $emptyRows * 18;
 @endphp
 
-<div height="700">
+<div height="650" style="background-color:reds;">
 <table class="product-table">
 
     <thead>
@@ -360,10 +378,13 @@
 
 <div class="footer-block">
     {{-- REMARK --}}
-    <div class="remark-sections myanmarfonts">
+    <div height="24" class="remark-sections myanmarfonts">
         <span class="remark-title">Remark :</span>
-
-            {{ Str::limit($receive_good_document->remark,100) }}
+            {{ Str::limit($receive_good_document->remark,200) }}
+            <!-- Test Remark -->
+            <!-- <br/>
+            {{ Str::limit("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library in London, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset's Body Type sheets.",200) }}
+            -->
     </div>
 
     {{-- SIGNATURE --}}
