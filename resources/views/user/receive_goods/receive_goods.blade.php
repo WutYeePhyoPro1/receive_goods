@@ -2786,7 +2786,7 @@
                                             Swal.fire({
                                                 icon: 'error',
                                                 title: 'Warning',
-                                                text: 'Barcode မမှန်ပါ။ ရှေ့၊ နောက်နှင့် အလယ်တွင် space သို့မဟုတ် အပို character မပါရပါ။ Product code သည် နံပါတ်သီးသန့် သို့မဟုတ် ရှေ့ဆုံးတွင် S, M, L တစ်လုံးသာ ပါရပါမည်။'
+                                                text: 'Barcode Not found။ ရှေ့၊ နောက်နှင့် အလယ်တွင် space သို့မဟုတ် အပို character မပါရပါ။ Barcode သည် နံပါတ်သီးသန့် သို့မဟုတ် ရှေ့ဆုံးတွင် S, M, L တစ်လုံးသာ ပါရပါမည်။'
                                             });
                                         } else if ($msg == 'Not found') {
                                             // Swal.fire({
