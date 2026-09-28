@@ -2782,6 +2782,12 @@
                                                 title: 'Warning',
                                                 text: 'Something wrong, Connect SD HO'
                                             });
+                                        } else if ($msg == 'Invalid barcode') {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Warning',
+                                                text: 'Barcode မမှန်ပါ။ Product code သည် နံပါတ်သီးသန့် သို့မဟုတ် ရှေ့တွင် S, M, L တစ်လုံးသာ ပါရပါမည်။'
+                                            });
                                         } else if ($msg == 'Not found') {
                                             // Swal.fire({
                                             //     icon: 'error',
