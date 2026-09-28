@@ -293,7 +293,7 @@
 
     <tr>
         <td class="label">Vendor Name</td>
-        <td class="value">: {{ $po_document?->vendor?->vendor_name }}</td>
+        <td class="value">: {{  Str::limit($po_document?->vendor?->vendor_name,40) }}</td>
 
         <td class="label">Doc.Date</td>
         <td class="value">: 
@@ -376,7 +376,7 @@
             <td class="py-1.5 px-3 text-right font-medium">{{ number_format($product->qty) }}</td>
             <td class="py-1.5 px-3"><span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px]">{{ $product->unit ?? 'PC' }}</span></td>
             <td class="py-1.5 px-3 text-right text-slate-500">{{ number_format($product->price,2) }}</td>
-            <td class="py-1.5 px-3 text-right text-slate-500">{{ number_format(0.00) }}</td>
+            <td class="py-1.5 px-3 text-right text-slate-500">{{ number_format($product->discount,2) }}</td>
             <td class="py-1.5 px-3 text-right font-medium text-slate-700">{{ number_format($product->amount,2) }}</td>
         </tr>                              
         @endforeach

@@ -441,7 +441,8 @@ class userController extends Controller
             ->orderBy('updated_at', 'desc')
             ->get();
 
-        $conn = DB::connection('master_product');
+        // $conn = DB::connection('master_product');
+        $conn = DB::connection('read_master_product');
         $transportations = $conn->select("
             SELECT *
             FROM purchaseorder.po_transportation
@@ -552,13 +553,15 @@ class userController extends Controller
         ->orderBy('updated_at', 'desc')
         ->get();
 
-        $conn = DB::connection('master_product');
+        // $conn = DB::connection('master_product');
+        $conn = DB::connection('read_master_product');
         $transportations = $conn->select("
             SELECT *
             FROM purchaseorder.po_transportation
             ORDER BY transp_code DESC
             LIMIT 100
         ");
+        // dd()
 
         $receives = $conn->select("
             SELECT * FROM purchaseorder.receive_type
@@ -597,7 +600,8 @@ class userController extends Controller
         ->orderBy('updated_at', 'desc')
         ->get();
 
-        $conn = DB::connection('master_product');
+        // $conn = DB::connection('master_product');
+        $conn = DB::connection('read_master_product');
         $transportations = $conn->select("
             SELECT *
             FROM purchaseorder.po_transportation

@@ -249,9 +249,6 @@ class ActionController extends Controller
         Session::forget('first_time_search_' . $request->id);
         $all    = $request->data;
         $id     = $request->id;
-        $item   = preg_replace('/\D/', '', $all);
-        $unit   = preg_replace("/[^A-Za-z].*/", '', $all);
-        $unit   = $unit == '' ? 'S' : $unit;
         $poi    = false;
         $latestProductId = null;
         Logger::info(['AT' => 'hiii']);
@@ -301,6 +298,13 @@ class ActionController extends Controller
                 return response()->json(['message' => 'doc not found'], 404);
             }
         }
+        // Only strip a supported unit prefix; never repair an invalid product barcode.
+        if (!is_string($all) || !preg_match('/\A([SML]?)([0-9]+)\z/', $all, $barcodeParts)) {
+            return response()->json(['message' => 'Invalid barcode'], 422);
+        }
+
+        $item = $barcodeParts[2];
+        $unit = $barcodeParts[1] === '' ? 'S' : $barcodeParts[1];
         $doc_ids = Document::where('received_goods_id', $request->id)->pluck('id');
 
         $product = Product::whereIn('document_id', $doc_ids)
