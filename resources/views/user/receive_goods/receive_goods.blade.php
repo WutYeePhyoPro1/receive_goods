@@ -2782,6 +2782,12 @@
                                                 title: 'Warning',
                                                 text: 'Something wrong, Connect SD HO'
                                             });
+                                        } else if ($msg == 'Invalid barcode') {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Warning',
+                                                text: 'Barcode Not found။ ရှေ့၊ နောက်နှင့် အလယ်တွင် space သို့မဟုတ် အပို character မပါရပါ။ Barcode သည် နံပါတ်သီးသန့် သို့မဟုတ် ရှေ့ဆုံးတွင် S, M, L တစ်လုံးသာ ပါရပါမည်။'
+                                            });
                                         } else if ($msg == 'Not found') {
                                             // Swal.fire({
                                             //     icon: 'error',
