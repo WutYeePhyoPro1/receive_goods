@@ -197,12 +197,7 @@
                                     <label class="block font-medium text-slate-500 mb-0.5">GR By <span class="text-red-600">*</span> <span id="ship_by_error" class="text-red-500 text-[10px] ml-1"></span></label>
                                     <select id="gr_by" name="gr_by" class="w-full h-8 px-2s border border-slate-300 rounded focus:outline-none focus:border-amber-500 bg-white">
                                             <option value="">Choose GR Staff</option>
-                                            {{-- @foreach($users as $user)
-                                            <option value="{{ $user->id }}" {{ $user->id == $receive_good_document->gr_by ? 'selected' : '' }}>{{ $user->name }}</option>
-                                            @endforeach --}}
-                                            @foreach($employees as $employee)
-                                            <option value="{{ $employee->employeeid }}" {{ $employee->employeeid == $receive_good_document->gr_by ? 'selected' : '' }}>{{ $employee->employeename }} . ({{ $employee->employeecode }})</option>
-                                            @endforeach
+                                            <option value="{{ $grByEmployee->employeeid }}" {{ $grByEmployee->employeeid == $receive_good_document->gr_by ? 'selected' : '' }}>{{ $grByEmployee->employeename }} . ({{ $grByEmployee->employeecode }})</option>
                                     </select>
                                 </div>
                                 

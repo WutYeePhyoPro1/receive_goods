@@ -578,15 +578,10 @@ class userController extends Controller
         $user = auth()->user();
         $users = $user->getGRBy();
 
-        $branch_codes = $user->branches->pluck('branch_code')->toArray();
-        $branch_codes[] = $user->branch->branch_code;
-        $branch_codes = array_filter(array_unique($branch_codes));
-
-        $employees = $conn->table('hremployee.employee')
-        ->select('employeeid', 'employeecode', 'employeename')
-        // ->whereIn('brchcode', $branch_codes)
-        ->orderByDesc('employeeid')
-        ->lazy(500);
+        $grByEmployee = $conn->table('hremployee.employee')
+        ->select('employeeid', 'employeename','employeecode')
+        ->where('employeeid', $receive_good_document->gr_by)
+        ->first();
 
         return view('user.receive_goods.rg_documents.detail_rg',compact(
             'receive_good_document',
@@ -595,7 +590,7 @@ class userController extends Controller
             'transportations',
             'receives',
             'users',
-            'employees'
+            'grByEmployee'
         ));
     }
 
