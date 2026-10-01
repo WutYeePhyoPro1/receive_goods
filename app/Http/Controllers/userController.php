@@ -470,10 +470,6 @@ class userController extends Controller
         ->select('employeeid', 'employeecode', 'employeename')
         // ->whereIn('brchcode', $branch_codes)
         ->orderByDesc('employeeid')
-        ->orderByDesc('employeecode')
-        ->orderByDesc('employeename')
-        ->orderByDesc('emptype')
-        ->orderByDesc('empstatus')
         ->lazy(500);
         // End Employee Fetch
 
@@ -590,10 +586,6 @@ class userController extends Controller
         ->select('employeeid', 'employeecode', 'employeename')
         // ->whereIn('brchcode', $branch_codes)
         ->orderByDesc('employeeid')
-        ->orderByDesc('employeecode')
-        ->orderByDesc('employeename')
-        ->orderByDesc('emptype')
-        ->orderByDesc('empstatus')
         ->lazy(500);
 
         return view('user.receive_goods.rg_documents.detail_rg',compact(
