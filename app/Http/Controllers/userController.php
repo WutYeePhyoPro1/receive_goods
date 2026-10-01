@@ -461,11 +461,21 @@ class userController extends Controller
         $user = auth()->user();
         $users = $user->getGRBy();
 
-        $employees = $conn->select("
-            SELECT * FROM hremployee.employee
-            ORDER BY employeeid DESC, employeecode DESC, employeename DESC, emptype DESC, empstatus DESC 
-        ");
-        // dd($employees);
+        // Start Employee Fetch
+        $branch_codes = $user->branches->pluck('branch_code')->toArray();
+        $branch_codes[] = $user->branch->branch_code;
+        $branch_codes = array_filter(array_unique($branch_codes));
+
+        $employees = $conn->table('hremployee.employee')
+        ->select('employeeid', 'employeecode', 'employeename')
+        // ->whereIn('brchcode', $branch_codes)
+        ->orderByDesc('employeeid')
+        ->orderByDesc('employeecode')
+        ->orderByDesc('employeename')
+        ->orderByDesc('emptype')
+        ->orderByDesc('empstatus')
+        ->lazy(500);
+        // End Employee Fetch
 
         $gettoday = Carbon::today()->format("Y-m-d");
         return view('user.receive_goods.rg_documents.pull_rg', compact(
@@ -572,10 +582,19 @@ class userController extends Controller
         $user = auth()->user();
         $users = $user->getGRBy();
 
-        $employees = $conn->select("
-            SELECT * FROM hremployee.employee
-            ORDER BY employeeid DESC, employeecode DESC, employeename DESC, emptype DESC, empstatus DESC 
-        ");
+        $branch_codes = $user->branches->pluck('branch_code')->toArray();
+        $branch_codes[] = $user->branch->branch_code;
+        $branch_codes = array_filter(array_unique($branch_codes));
+
+        $employees = $conn->table('hremployee.employee')
+        ->select('employeeid', 'employeecode', 'employeename')
+        // ->whereIn('brchcode', $branch_codes)
+        ->orderByDesc('employeeid')
+        ->orderByDesc('employeecode')
+        ->orderByDesc('employeename')
+        ->orderByDesc('emptype')
+        ->orderByDesc('empstatus')
+        ->lazy(500);
 
         return view('user.receive_goods.rg_documents.detail_rg',compact(
             'receive_good_document',
@@ -615,11 +634,10 @@ class userController extends Controller
             LIMIT 100
         ");
 
-        $employees = $conn->select("
-            SELECT * FROM hremployee.employee
-            ORDER BY employeeid DESC, employeecode DESC, employeename DESC, emptype DESC, empstatus DESC 
-        ");
-        $employees = collect($employees)->keyBy('employeeid');
+        $grByEmployee = $conn->table('hremployee.employee')
+        ->select('employeeid', 'employeename')
+        ->where('employeeid', $receive_good_document->gr_by)
+        ->first();
 
         view()->share([
             'receive_good_document' => $receive_good_document,
@@ -627,7 +645,7 @@ class userController extends Controller
             'documents' => $documents,
             'transportations' => $transportations,
             'receives' => $receives,
-            'employees' => $employees
+            'grByEmployee' => $grByEmployee
         ]);
 
         $pdf = MPDF::loadView('user.receive_goods.rg_documents.pdf');
@@ -726,7 +744,7 @@ class userController extends Controller
                     ]);
 
                     $document = $receive_good_document->document;
-                    $document->update(['status'=>'PO Partial']);
+                    $document?->update(['status'=>'PO Partial']);
                 }
 
                 // Start RG Cancel In ERP
