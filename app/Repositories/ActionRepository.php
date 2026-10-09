@@ -100,6 +100,7 @@ Class ActionRepository implements ActionRepositoryInterface
     public function add_doc($data,$id)
     {
 
+        // dd($data);
         $receive = GoodsReceive::where('id', $id)->first();
 
             if (!$receive->vendor_name) {
@@ -130,38 +131,30 @@ Class ActionRepository implements ActionRepositoryInterface
             ],[
                 'updated_at' => now()
             ]);
-            $dub_pd = [];
+
+            $groupedData = collect($data)
+            ->groupBy(function ($item) {
+                return $item->productcode ?? $item->product_code;
+            })
+            ->map(function ($items) {
+                return $items->sum(function ($item) {
+                    return (float) ($item->goodqty ?? $item->qty);
+                });
+            });
+
             for($i = 0 ; $i < count($data) ; $i++){
-                if(!in_array($data[$i]->productcode ?? $data[$i]->product_code,$dub_pd))
-                {
-                    // $pd_code                = new Product();
-                    // $pd_code->document_id   = $doc->id;
-                    // $pd_code->bar_code       = $data[$i]->productcode ?? $data[$i]->product_code;
-                    // $pd_code->supplier_name = $data[$i]->productname ?? $data[$i]->product_name;
-                    // $pd_code->qty           = (float)($data[$i]->goodqty ?? $data[$i]->qty);
-                    // $pd_code->scanned_qty   = 0;
-                    // $pd_code->unit          = $data[$i]->unit;
-                    // $pd_code->save();
-                    $pd_code = Product::updateOrCreate(
-                        [
-                            'document_id' => $doc->id,
-                            'bar_code'    => $data[$i]->productcode ?? $data[$i]->product_code,
-                            'qty'         => (float)($data[$i]->goodqty ?? $data[$i]->qty),
-                        ],
-                        [
-                            'supplier_name' => $data[$i]->productname ?? $data[$i]->product_name,
-                            'scanned_qty'   => 0,
-                            'unit'          => $data[$i]->unit ?? null
-                        ]
-                    );
-                    $dub_pd[]    = $data[$i]->productcode ?? $data[$i]->product_code;
-                }else{
-                    $search_dub = Product::where(['document_id'=>$doc->id,'bar_code'=>$data[$i]->productcode])->first();
-                    $qty = $search_dub->qty;
-                    $search_dub->update([
-                        'qty'   => $qty+(int)($data[$i]->goodqty)
-                    ]);
-                }
+                $pd_code = Product::updateOrCreate(
+                    [
+                        'document_id' => $doc->id,
+                        'bar_code'    => $data[$i]->productcode ?? $data[$i]->product_code,
+                    ],
+                    [
+                        'supplier_name' => $data[$i]->productname ?? $data[$i]->product_name,
+                        'qty'           => (float)($groupedData[$data[$i]->productcode ?? $data[$i]->product_code] ?? 0),
+                        'scanned_qty'   => 0,
+                        'unit'          => $data[$i]->unit ?? null
+                    ]
+                );
             }
     }
 

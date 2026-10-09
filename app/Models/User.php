@@ -93,5 +93,9 @@ class User extends Authenticatable
         return $users;
     }
 
+    function branches(){
+        return $this->belongsToMany(Branch::class,'user_branches','user_id','branch_id');
+    }
+
 
 }

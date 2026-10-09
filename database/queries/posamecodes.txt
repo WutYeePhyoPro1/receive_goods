@@ -1,0 +1,14 @@
+SELECT 
+    hd.purchaseid,
+    hd.purchaseno,
+    dt.productcode,
+    COUNT(*) AS product_count
+FROM purchaseorder.po_purchaseorderhd AS hd
+INNER JOIN purchaseorder.po_purchaseorderdt AS dt
+    ON dt.purchaseid = hd.purchaseid
+WHERE hd.brchcode = 'MM-505' and hd.statusflag in ('Y','N') 
+GROUP BY 
+    hd.purchaseid,
+    hd.purchaseno,
+    dt.productcode
+HAVING COUNT(*) >= 2;

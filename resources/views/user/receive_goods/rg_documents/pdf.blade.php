@@ -399,9 +399,7 @@
         <tr>
             <td><span  class="user-label">{{ $receive_good_document->user->name }}</span></td>
 
-            @php
-                $grByEmployee = $employees->get($receive_good_document->gr_by);
-            @endphp
+  
             @if($grByEmployee?->employeename)
                 <td><span class="user-label">{{ $grByEmployee?->employeename }}</span></td>
             @else
