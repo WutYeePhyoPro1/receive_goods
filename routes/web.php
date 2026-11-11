@@ -35,7 +35,7 @@ route::group(['controller'=>authenticateController::class],function(){
     route::post('logout','logout')->name('logout');
 });
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum','active'])->group(function () {
         Route::get('/qz/certificate', [QzSecurityController::class, 'certificate'])
             ->name('qz.certificate');
         Route::post('/qz/sign', [QzSecurityController::class, 'sign'])

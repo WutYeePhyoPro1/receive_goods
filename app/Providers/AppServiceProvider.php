@@ -3,6 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Branch;
+use App\Services\Ums\ReceiveGoodsUserLifecycle;
+use App\Services\Ums\ReceiveGoodsUserAccessChecker;
+use Pro1\UmsIntegration\Contracts\UserLifecycle;
+use Pro1\UmsIntegration\Contracts\UserAccessChecker;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
@@ -15,7 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(UserLifecycle::class, ReceiveGoodsUserLifecycle::class);
+        $this->app->bind(UserAccessChecker::class, ReceiveGoodsUserAccessChecker::class);
     }
 
     /**
