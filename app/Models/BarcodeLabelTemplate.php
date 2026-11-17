@@ -15,14 +15,11 @@ class BarcodeLabelTemplate extends Model
         'settings',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'settings' => 'array',
-            'width_mm' => 'decimal:2',
-            'height_mm' => 'decimal:2',
-        ];
-    }
+    protected $casts = [
+        'settings' => 'array',
+        'width_mm' => 'decimal:2',
+        'height_mm' => 'decimal:2',
+    ];
 
     public function user(): BelongsTo
     {

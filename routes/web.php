@@ -37,25 +37,23 @@ route::group(['controller' => authenticateController::class], function () {
 });
 
 Route::middleware(['auth:sanctum', 'active'])->group(function () {
-    Route::get(
-        '/barcode-labels/create',
-        [BarcodeLabelController::class, 'create']
-    )->name('barcode-labels.create');
+    Route::get('/barcode-labels', [BarcodeLabelController::class, 'index'])
+        ->name('barcode-labels.index');
 
-    Route::post(
-        '/barcode-labels',
-        [BarcodeLabelController::class, 'store']
-    )->name('barcode-labels.store');
+    Route::get('/barcode-labels/create', [BarcodeLabelController::class, 'create'])
+        ->name('barcode-labels.create');
 
-    Route::get(
-        '/barcode-labels/{template}/edit',
-        [BarcodeLabelController::class, 'edit']
-    )->name('barcode-labels.edit');
+    Route::post('/barcode-labels', [BarcodeLabelController::class, 'store'])
+        ->name('barcode-labels.store');
 
-    Route::put(
-        '/barcode-labels/{template}',
-        [BarcodeLabelController::class, 'update']
-    )->name('barcode-labels.update');
+    Route::get('/barcode-labels/{template}/edit', [BarcodeLabelController::class, 'edit'])
+        ->name('barcode-labels.edit');
+
+    Route::put('/barcode-labels/{template}', [BarcodeLabelController::class, 'update'])
+        ->name('barcode-labels.update');
+
+    Route::delete('/barcode-labels/{template}', [BarcodeLabelController::class, 'destroy'])
+        ->name('barcode-labels.destroy');
 
 
 
