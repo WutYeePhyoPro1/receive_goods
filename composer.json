@@ -80,15 +80,19 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "repositories": [
-        {
+    "repositories": {
+        "ums-integration": {
+            "type": "vcs",
+            "url": "git@github.com:WutYeePhyoPro1/ums-integration.git"
+        },
+        "0": {
             "name": "ums-integration",
             "type": "vcs",
             "url": "git@github.com:WutYeePhyoPro1/ums-integration.git"
         },
-        {
+        "1": {
             "type": "vcs",
             "url": "git@github.com:WutYeePhyoPro1/ums-integration.git"
         }
-    ]
+    }
 }
