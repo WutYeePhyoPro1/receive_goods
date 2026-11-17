@@ -632,6 +632,23 @@ document.addEventListener("DOMContentLoaded", () => {
     $("printButton").addEventListener("click", () => {
         updateSettingsInput();
 
+        document.getElementById("printLabel")?.remove();
+
+        const printLabel = document.createElement("div");
+        printLabel.id = "printLabel";
+        printLabel.style.width = `${getLabelWidth()}mm`;
+        printLabel.style.height = `${getLabelHeight()}mm`;
+        printLabel.style.boxSizing = "border-box";
+
+        Array.from(canvas.children).forEach((elementNode) => {
+            const clone = elementNode.cloneNode(true);
+            clone.classList.remove("selected");
+            clone.querySelector(".resize-handle")?.remove();
+            printLabel.appendChild(clone);
+        });
+
+        document.body.appendChild(printLabel);
+
         const style = document.createElement("style");
 
         style.id = "dynamic-print-style";
@@ -654,10 +671,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const previewObserver = new ResizeObserver(fitCanvasToPreview);
     previewObserver.observe(canvas.parentElement);
     window.addEventListener("resize", fitCanvasToPreview);
-    window.addEventListener("beforeprint", () => {
-        canvas.style.transform = "none";
+    window.addEventListener("afterprint", () => {
+        document.getElementById("printLabel")?.remove();
+        document.getElementById("dynamic-print-style")?.remove();
+        fitCanvasToPreview();
     });
-    window.addEventListener("afterprint", fitCanvasToPreview);
 
     renderCanvas();
     selectElement(null);
