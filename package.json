@@ -17,8 +17,12 @@
     "dependencies": {
         "bootstrap": "^5.3.3",
         "boxicons": "^2.1.4",
+        "jsbarcode": "^3.12.3",
         "qz-tray": "^2.2.6",
         "sweetalert2": "^11.6.13",
         "tom-select": "^2.3.1"
+    },
+    "allowScripts": {
+        "esbuild@0.20.2": true
     }
 }
