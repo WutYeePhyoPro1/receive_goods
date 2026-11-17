@@ -171,6 +171,10 @@
             display: none;
         }
 
+        #printLabel {
+            display: none;
+        }
+
         @media (max-width: 1000px) {
             .designer-layout {
                 grid-template-columns: 1fr;
@@ -195,27 +199,21 @@
                 background: white !important;
             }
 
-            .preview-area {
-                position: static !important;
+            body > * {
+                display: none !important;
             }
 
-            body * {
-                visibility: hidden !important;
-            }
-
-            #labelCanvas,
-            #labelCanvas * {
-                visibility: visible !important;
-            }
-
-            #labelCanvas {
+            body > #printLabel {
+                display: block !important;
                 position: absolute !important;
                 left: 0 !important;
                 top: 0 !important;
-                transform: none !important;
+                overflow: hidden !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 border: 0 !important;
                 box-shadow: none !important;
-                margin: 0 !important;
+                background: white !important;
             }
 
             .label-element {
