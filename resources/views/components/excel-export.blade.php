@@ -13,6 +13,9 @@
 @endphp
 
 <a href="{{ $exportUrl }}"
+    data-no-page-loader
+    target="_blank"
+    rel="noopener"
     {{ $attributes->merge([
         'class' => 'inline-flex items-center gap-2 px-4 py-2
                        bg-green-600 hover:bg-green-700

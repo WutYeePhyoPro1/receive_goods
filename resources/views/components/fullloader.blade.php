@@ -87,7 +87,8 @@
 
             if (!link || event.defaultPrevented || event.button !== 0 ||
                 event.ctrlKey || event.metaKey || event.shiftKey || event.altKey ||
-                link.target === '_blank' || link.hasAttribute('download')) {
+                link.target === '_blank' || link.hasAttribute('download') ||
+                link.hasAttribute('data-no-page-loader')) {
                 return;
             }
 
