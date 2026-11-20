@@ -31,12 +31,61 @@
     @endif
     
         <style>
+        .information-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(15, 23, 42, 0.55);
+        }
+
+        .information-modal.is-open {
+            display: flex;
+        }
+
+        .information-dialog {
+            width: min(100%, 520px);
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            border-radius: 16px;
+            background: white;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .information-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-top: 1px solid #e2e8f0;
+            padding: 14px 0;
+            color: #334155;
+        }
+
+        .information-row > i {
+            width: 20px;
+            flex: 0 0 20px;
+            color: #d97706;
+            font-size: 1.25rem;
+        }
+
+        .information-trigger {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+            text-align: left;
+        }
+
         @media (max-width: 767px) {
             .content {
                 left: 0;
                 top: 96px;
                 width: 100%;
-                padding-bottom: 140px;
             }
 
             .side_bar {
@@ -70,34 +119,6 @@
                 display: none;
             }
 
-            .footer {
-                height: auto;
-                min-height: 76px;
-                flex-wrap: wrap;
-                gap: 8px;
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-
-            .logo {
-                margin-left: 0;
-                line-height: 32px;
-            }
-
-            .logo::before {
-                display: none;
-            }
-
-            .logo > img {
-                height: 24px;
-                margin-top: 4px;
-            }
-
-            .footer .flexv {
-                width: 100%;
-                overflow-x: auto;
-                line-height: 24px !important;
-            }
         }
     </style>
     @yield('css')
@@ -260,6 +281,14 @@
                 </div>
             </li>
 
+            <li class="sidebar_items" id="information_trigger" role="button" tabindex="0"
+                aria-haspopup="dialog" aria-controls="information_modal">
+                <div class="sidebar_text information-trigger">
+                    <i class='bx bx-info-circle' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
+                    <span>Information</span>
+                </div>
+            </li>
+
             <!-- <li style="margin:50px 0;border-bottom:1px solid rgb(110, 109, 109)">
             </li> -->
 
@@ -274,58 +303,67 @@
             </li>
         </ul>
     </div>
-    <div class="content pb-16 p-2">
+    <div class="content p-2">
         @yield('content')
     </div>
-    <div class="footer flex justify-between align-items-center">
-        <div class="logo">
-            <img src="{{ asset('image/background_img/finallogo.png') }}" alt="">
-            <div class="logo_content">
-                <span>PRO 1 Global Home Center</span>
+    <div class="information-modal" id="information_modal" role="dialog" aria-modal="true"
+        aria-labelledby="information_title" aria-hidden="true">
+        <section class="information-dialog">
+            <div class="mb-4 flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <img src="{{ asset('image/background_img/finallogo.png') }}" alt=""
+                        class="h-10 w-auto object-contain">
+                    <div>
+                        <h2 class="text-lg font-semibold text-slate-800" id="information_title">PRO 1 Global Home Center</h2>
+                        <a href="{{ getAuth()->employee_code == 'superadmin@mail.com' ? route('changelogs.index') : url('whatsnews?status=read') }}"
+                            target="_blank" rel="noopener noreferrer"
+                            class="text-sm font-medium text-amber-700 hover:text-amber-800">What is News?</a>
+                    </div>
+                </div>
+                <button type="button" id="close_information_modal"
+                    class="rounded-md px-2 py-1 text-xl leading-none text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                    aria-label="Close information">&times;</button>
             </div>
-        </div>
 
-        <div>
-            @if(getAuth()->employee_code == "superadmin@mail.com")
-                <a href="{{ route('changelogs.index')  }}" target="_blank" class="nav-link">What is News?</a>
-            @else
-                <a href="{{ url('whatsnews?status=read')  }}" target="_blank" class="nav-link">What is News?</a>
-            @endif  
-        </div>
-
-        <div class="flexv whitespace-nowrap" style="line-height: 60px">
-            <span class="mr-4"><i class='bx bxs-user-account mr-1' style="transform: translateY(2px)"></i> User :
-                {{ getAuth()->name }}</span> |&nbsp;&nbsp;
-            <span class="mr-4"><i class='bx bx-user-voice mr-1' style="transform: translateY(2px)"></i> Role :
-                {{ getAuth()->roleName() }}</span> |&nbsp;&nbsp;
-            <span class="mr-4 relative"><i class='bx bx-store-alt mr-1' style="transform: translateY(2px)"></i> Branch :
-                <span
-                    class=" {{ count(multi_br()) > 1 ? 'bg-amber-200 p-2 cursor-pointer rounded ch_br' : '' }} ">{{ getAuth()->branch->branch_name }}</span>
-                @if (count(multi_br()) > 1)
-                    <ul
-    id="change_br"
-    class="fixed z-[9999] hidden max-h-48 w-40 overflow-y-auto rounded-lg bg-rose-600 shadow-lg"
->
-                        @foreach (multi_br() as $item)
-                            @if (getAuth()->branch_id != $item->branch_id)
-                                <li class="ps-2 bg-amber-200 hover:bg-white cursor-pointer py-0"
-                                    onclick="javascript:window.location.href='/change_branch/{{ $item->branch_id }}'">
-                                    {{ $item->branch->branch_name }}</li>
-                            @endif
-                        @endforeach
-                    </ul>
-                @endif
-            </span> |&nbsp;&nbsp;
-            {{-- <span class="mr-4"><i class='bx bx-signal-5 mr-1' style="transform: translateY(2px)"></i> Server Link :
-                   @if (isset($_SERVER['SERVER_ADDR']))
-                        {{ $_SERVER['SERVER_ADDR'] }}
-                   @else
-                       server is not set.
-                   @endif
-               </span> |&nbsp;&nbsp; --}}
-            <span class="mr-4"><i class='bx bx-server mr-1' style="transform: translateY(2px)"></i> IP Computer :
-                {{ request()->ip() }}</span>
-        </div>
+            <div class="information-row">
+                <i class='bx bxs-user-account'></i>
+                <div><span class="font-medium">User</span><div>{{ getAuth()->name }}</div></div>
+            </div>
+            <div class="information-row">
+                <i class='bx bx-user-voice'></i>
+                <div><span class="font-medium">Role</span><div>{{ getAuth()->roleName() }}</div></div>
+            </div>
+            <div class="information-row">
+                <i class='bx bx-store-alt'></i>
+                <div class="relative">
+                    <span class="font-medium">Branch</span>
+                    <div>
+                        <span class="{{ count(multi_br()) > 1 ? 'bg-amber-100 px-2 py-1 rounded ch_br cursor-pointer' : '' }}"
+                            @if (count(multi_br()) > 1) role="button" tabindex="0" aria-haspopup="listbox" @endif>
+                            {{ getAuth()->branch->branch_name }}
+                        </span>
+                    </div>
+                    @if (count(multi_br()) > 1)
+                        <ul id="change_br"
+                            class="fixed z-[9999] hidden max-h-48 w-48 overflow-y-auto rounded-lg bg-rose-600 shadow-lg"
+                            role="listbox" aria-label="Choose branch">
+                            @foreach (multi_br() as $item)
+                                @if (getAuth()->branch_id != $item->branch_id)
+                                    <li class="cursor-pointer bg-amber-200 px-2 py-1 hover:bg-white"
+                                        role="option"
+                                        onclick="javascript:window.location.href='/change_branch/{{ $item->branch_id }}'">
+                                        {{ $item->branch->branch_name }}</li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            </div>
+            <div class="information-row">
+                <i class='bx bx-server'></i>
+                <div><span class="font-medium">IP Computer</span><div>{{ request()->ip() }}</div></div>
+            </div>
+        </section>
     </div>
 
 
@@ -358,6 +396,37 @@
 <script>
     $(document).ready(function(e) {
         var token = $("meta[name='__token']").attr('content');
+        const informationModal = $('#information_modal');
+
+        function openInformationModal() {
+            informationModal.addClass('is-open').attr('aria-hidden', 'false');
+            $('body').css('overflow', 'hidden');
+            $('#close_information_modal').trigger('focus');
+        }
+
+        function closeInformationModal() {
+            informationModal.removeClass('is-open').attr('aria-hidden', 'true');
+            $('#change_br').hide();
+            $('body').css('overflow', '');
+            $('#information_trigger').trigger('focus');
+        }
+
+        $('#information_trigger').on('click', openInformationModal).on('keydown', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openInformationModal();
+            }
+        });
+        $('#close_information_modal').on('click', closeInformationModal);
+        informationModal.on('click', function(event) {
+            if (event.target === this) closeInformationModal();
+        });
+        $(document).on('keydown', function(event) {
+            if (event.key === 'Escape' && informationModal.hasClass('is-open')) {
+                closeInformationModal();
+            }
+        });
+
         $(document).on('keypress', '#driver_phone', function(e) {
             let filter = true;
 
