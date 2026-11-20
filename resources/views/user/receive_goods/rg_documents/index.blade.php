@@ -23,7 +23,7 @@
             <form action="{{ route('rg_documents') }}" method="GET">
                 <div class="p-4 border-b border-slate-100 bg-slate-50/40">
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-end">
 
                         <!-- Document No -->
                         <div>
@@ -38,7 +38,7 @@
                                 placeholder="Search Document..." value="{{ request('form_doc_no') }}" />
                         </div>
 
-                        <!-- From Date -->
+                        <!-- Created Date From -->
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                                 From Date
@@ -51,7 +51,7 @@
                                 value="{{ request('start_date') }}" />
                         </div>
 
-                        <!-- To Date -->
+                        <!-- Created Date To -->
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                                 To Date
@@ -62,6 +62,32 @@
                                     focus:outline-none focus:ring-2 focus:ring-amber-400/30
                                     focus:border-amber-500 bg-white"
                                 value="{{ request('end_date') }}">
+                        </div>
+
+                        <!-- Back Date From -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                                Back Date From
+                            </label>
+
+                            <input type="date" name="back_date_from"
+                                class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
+                                    focus:outline-none focus:ring-2 focus:ring-amber-400/30
+                                    focus:border-amber-500 bg-white"
+                                value="{{ request('back_date_from') }}" />
+                        </div>
+
+                        <!-- Back Date To -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                                Back Date To
+                            </label>
+
+                            <input type="date" name="back_date_to"
+                                class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
+                                    focus:outline-none focus:ring-2 focus:ring-amber-400/30
+                                    focus:border-amber-500 bg-white"
+                                value="{{ request('back_date_to') }}">
                         </div>
 
                         <!-- Branch -->
@@ -143,6 +169,10 @@
 
                             <th class="px-4 py-3 text-left font-bold">
                                 Document Date
+                            </th>
+
+                            <th class="px-4 py-3 text-left font-bold">
+                                Back Date
                             </th>
 
                             <th class="px-4 py-3 text-left font-bold">
@@ -284,6 +314,10 @@
 
                                 <td class="px-4 py-3">
                                     {{ $item->created_at->format('Y-m-d') }}
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    {{ $item->date?->format('Y-m-d') ?? '-' }}
                                 </td>
 
                                 <td class="px-4 py-3">

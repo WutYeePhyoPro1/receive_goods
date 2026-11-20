@@ -35,6 +35,17 @@ class ReceiveGoodsFilterRequest extends FormRequest
                 'date',
                 'after_or_equal:start_date',
             ],
+
+            'back_date_from' => [
+                'nullable',
+                'date',
+            ],
+
+            'back_date_to' => [
+                'nullable',
+                'date',
+                'after_or_equal:back_date_from',
+            ],
         ];
     }
 }

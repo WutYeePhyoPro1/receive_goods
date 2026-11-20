@@ -49,6 +49,10 @@ class ReceiveGoodsQuery
             ->except('page')
             ->contains(fn ($value) => filled($value));
 
+        $hasFilter = collect($filters)
+            ->except('page')
+            ->contains(fn ($value) => filled($value));
+
         if (filled($filters['start_date'] ?? null) || filled($filters['end_date'] ?? null)) {
             $startDate = filled($filters['start_date'] ?? null)
                 ? \Carbon\Carbon::parse($filters['start_date'])->startOfDay()
@@ -58,7 +62,17 @@ class ReceiveGoodsQuery
                 : \Carbon\Carbon::today()->endOfDay();
 
             $query->whereBetween('created_at', [$startDate, $endDate]);
-        } elseif (!$hasFilter) {
+        }
+
+        if (filled($filters['back_date_from'] ?? null)) {
+            $query->whereDate('date', '>=', $filters['back_date_from']);
+        }
+
+        if (filled($filters['back_date_to'] ?? null)) {
+            $query->whereDate('date', '<=', $filters['back_date_to']);
+        }
+
+        if (!$hasFilter) {
             $query->whereDate('created_at', '>=', now()->subMonth());
         }
 

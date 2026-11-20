@@ -28,6 +28,7 @@ class ReceiveGoodsExport extends BaseExport
             'RG Doc No',
             'PO Doc No',
             'Document Date',
+            'Back Date',
             'Branch',
             'Vendor Name',
             'R008',
@@ -42,6 +43,7 @@ class ReceiveGoodsExport extends BaseExport
             $row->receive_good_files->first()?->file ?? '',
             $row->po_no,
             $row->created_at,
+            $row->date,
             $row->branch?->branch_name ?? '',
             $row->vendor?->vendor_name ?? '',
             $row->r008 ? 'Yes' : 'No',
@@ -59,6 +61,7 @@ class ReceiveGoodsExport extends BaseExport
     {
         return [
             'C' => 'yyyy-mm-dd',
+            'D' => 'yyyy-mm-dd',
         ];
     }
 }

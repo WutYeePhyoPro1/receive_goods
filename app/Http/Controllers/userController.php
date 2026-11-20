@@ -453,7 +453,7 @@ class userController extends Controller
 
         $receives = $conn->select("
             SELECT * FROM purchaseorder.receive_type
-            ORDER BY remark_id DESC 
+            ORDER BY remark_id DESC
             LIMIT 100
         ");
 
@@ -493,6 +493,8 @@ class userController extends Controller
             'branch_id',
             'start_date',
             'end_date',
+            'back_date_from',
+            'back_date_to',
         ]);
         $data = $query->build($filters, $request->user())
             ->orderByDesc('created_at')
@@ -507,7 +509,7 @@ class userController extends Controller
 
         $document_id = $receive_good_document->document_id;
         $good_receive = GoodsReceive::where('id', $document_id)->first();
-        
+
         $documents = Document::where('received_goods_id', $id)
         ->orderBy('updated_at', 'desc')
         ->get();
@@ -524,7 +526,7 @@ class userController extends Controller
 
         $receives = $conn->select("
             SELECT * FROM purchaseorder.receive_type
-            ORDER BY remark_id DESC 
+            ORDER BY remark_id DESC
             LIMIT 100
         ");
 
@@ -554,7 +556,7 @@ class userController extends Controller
 
         $document_id = $receive_good_document->document_id;
         $good_receive = GoodsReceive::where('id', $document_id)->first();
-        
+
         $documents = Document::where('received_goods_id', $id)
         ->orderBy('updated_at', 'desc')
         ->get();
@@ -570,7 +572,7 @@ class userController extends Controller
 
         $receives = $conn->select("
             SELECT * FROM purchaseorder.receive_type
-            ORDER BY remark_id DESC 
+            ORDER BY remark_id DESC
             LIMIT 100
         ");
 
@@ -598,7 +600,7 @@ class userController extends Controller
         // $r008_document = R008Document::find($id);
         // $conn = DB::connection('defective_product');
         // $statuses = $conn->select("
-        //     SELECT * 
+        //     SELECT *
         //     FROM public.r008_subject
         //     ORDER BY subjectr008_id ASC
         //     LIMIT 100
@@ -642,7 +644,7 @@ class userController extends Controller
     }
 
     public function approve_form($id,Request $request){
-        
+
         DB::beginTransaction();
         DB::connection('master_product')->beginTransaction();
         try {
@@ -668,15 +670,15 @@ class userController extends Controller
                     DB::connection('master_product')->rollBack();
 
                     return back()->with('fails', "This RG have VC Invoice '$vcdocuno'. Please cancel VC Invoice first.");
-                }else{  
+                }else{
                     // dd('do not has vc');
                 }
 
                 $origianl_status = $receive_good_document->status;
                 $receive_good_document->update(['status' => $request->status]);
-                
+
                 if ($origianl_status == 'Default') {
-                   
+
 
                     $receive_good_document->update([
                         'rejected_by'=> $user_id,
@@ -694,7 +696,7 @@ class userController extends Controller
             }
             // throw new \Exception("RG Document Update Error: ");
 
-                
+
             DB::commit();
             DB::connection('master_product')->commit();
             return back();
@@ -712,7 +714,7 @@ class userController extends Controller
     //     $category = Category::findOrFail($request["id"]);
     //     $category->status_id = $request["status_id"];
     //     $category->save();
-    
+
     //     return response()->json(["success"=>"Status Change Successfully"]);
     // }
 
@@ -790,12 +792,12 @@ class userController extends Controller
                     // ->orWhere('remark', 'like', '%' . $docuno . '%');
             });
         }
-        
+
         if ($branch) {
             $results = $results->where(function ($q) use ($branch) {
                 $q->where('branch_id', $branch);
             });
-        } 
+        }
 
 
         $role = Role::where('name','admin')->first();
@@ -852,7 +854,7 @@ class userController extends Controller
                 now()->subMonth()
             );
         }
-            
+
         if($status){
             $results = $results->where(function ($q) use ($status) {
                 $q->where('status', $status);
@@ -873,7 +875,7 @@ class userController extends Controller
         //         $this->actionRepository->sync_doc($purchase_orders, $request);
         //     }
         // }
-          
+
 
         return view('user.receive_goods.documents.index',compact("data"));
 
@@ -889,8 +891,8 @@ class userController extends Controller
         $request['id'] = $po_document->received_goods_id;
 
         $isPoFetched = $po_document->purchase_order_items()->whereNotNull('listno')->exists(); // PO Document မှလိုအပ်သော  dataများကိုဆွဲယူပြီးပြီလား။
-        $hasPOEmployee = $po_document->employeecode; 
-        if(!$isPoFetched || !$hasPOEmployee) {          
+        $hasPOEmployee = $po_document->employeecode;
+        if(!$isPoFetched || !$hasPOEmployee) {
             $purchase_orders = getPODocument($purchaseno);
             if ($purchase_orders) {
                 $this->actionRepository->sync_doc($purchase_orders, $request);
@@ -975,9 +977,9 @@ class userController extends Controller
 
                 $origianl_status = $po_document->status;
                 $po_document->update(['status' => $request->status]);
-                
+
                 // if ($origianl_status == 'Default') {
-                
+
                     $po_document->update([
                         'rejected_by'=> $user_id,
                         'rejected_at' => now()
@@ -990,7 +992,7 @@ class userController extends Controller
             }
             // throw new \Exception("PO Document Update Error: ");
 
-                
+
             DB::commit();
             DB::connection('master_product')->commit();
             return back();
