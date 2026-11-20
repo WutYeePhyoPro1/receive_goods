@@ -1,7 +1,6 @@
 @extends('layout.layout')
 
 @section('content')
-
     <div class="rg-readable md:w-[100%] mx-auto px-4 pt-4 pb-10">
         <!-- PAGE CARD -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
@@ -16,6 +15,10 @@
                 </div>
             </div>
 
+            <div class="flex justify-end p-4 pb-0">
+                <x-excel-export :url="route('r008s.export')" />
+            </div>
+
             <!-- SEARCH FILTER -->
             <form action="{{ route('r008s.index') }}" method="GET">
                 <div class="p-4 border-b border-slate-100 bg-slate-50/40">
@@ -28,15 +31,11 @@
                                 Document No (R008 | RG)
                             </label>
 
-                            <input
-                                type="text"
-                                name="form_doc_no"
+                            <input type="text" name="form_doc_no"
                                 class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
                                     focus:outline-none focus:ring-2 focus:ring-amber-400/30
                                     focus:border-amber-500 bg-white"
-                                placeholder="Search Document..."
-                                value="{{ request('form_doc_no') }}"
-                            />
+                                placeholder="Search Document..." value="{{ request('form_doc_no') }}" />
                         </div>
 
                         <!-- From Date -->
@@ -45,14 +44,11 @@
                                 From Date
                             </label>
 
-                            <input
-                                type="date"
-                                name="start_date"
+                            <input type="date" name="start_date"
                                 class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
                                     focus:outline-none focus:ring-2 focus:ring-amber-400/30
                                     focus:border-amber-500 bg-white"
-                                value="{{ request('start_date') }}"
-                            />
+                                value="{{ request('start_date') }}" />
                         </div>
 
                         <!-- To Date -->
@@ -61,14 +57,11 @@
                                 To Date
                             </label>
 
-                            <input
-                                type="date"
-                                name="end_date"
+                            <input type="date" name="end_date"
                                 class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
                                     focus:outline-none focus:ring-2 focus:ring-amber-400/30
                                     focus:border-amber-500 bg-white"
-                                value="{{ request('end_date') }}"
-                            >
+                                value="{{ request('end_date') }}">
                         </div>
 
                         <!-- Branch -->
@@ -79,41 +72,37 @@
 
                             <div class="flex gap-2">
 
-                                <select
-                                    name="branch_id"
+                                <select name="branch_id"
                                     class="w-full h-9 px-3 border border-slate-300 rounded-lg text-[13px]
                                     focus:outline-none focus:ring-2 focus:ring-amber-400/30
-                                    focus:border-amber-500 bg-white"
-                                >
+                                    focus:border-amber-500 bg-white">
                                     <option value="" selected disabled>Choose User Branch</option>
-                                    @foreach($assigned_branches as $branch)
-                                        <option value="{{ $branch->id }}" {{ request()->get('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->branch_name }}</option>
+                                    @foreach ($assigned_branches as $branch)
+                                        <option value="{{ $branch->id }}"
+                                            {{ request()->get('branch_id') == $branch->id ? 'selected' : '' }}>
+                                            {{ $branch->branch_name }}</option>
                                     @endforeach
                                 </select>
 
                                 <!-- <input
-                                    type="text"
-                                    readonly
-                                    value="User Branch"
-                                    class="w-full h-9 px-3 bg-slate-100 border border-slate-300
+                                        type="text"
+                                        readonly
+                                        value="User Branch"
+                                        class="w-full h-9 px-3 bg-slate-100 border border-slate-300
                                         rounded-lg text-[13px] text-slate-500 cursor-not-allowed"
-                                > -->
+                                    > -->
 
-                                <button
-                                    type="submit"
+                                <button type="submit"
                                     class="h-9 px-4 rounded-lg bg-amber-500 hover:bg-amber-600
                                         text-white text-[12px] font-semibold shadow-sm
-                                        whitespace-nowrap transition"
-                                >
+                                        whitespace-nowrap transition">
                                     Search
                                 </button>
 
-                                @if(request()->query())
-                                    <a href="{{ url()->current() }}"
-                                        style="text-decoration: none;"
+                                @if (request()->query())
+                                    <a href="{{ url()->current() }}" style="text-decoration: none;"
                                         class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-400 bg-slate-500 text-white shadow-sm transition hover:bg-slate-600 hover:text-white"
-                                        title="Reset"
-                                    >
+                                        title="Reset">
                                         <i class="bx bx-refresh text-lg"></i>
                                     </a>
                                 @endif
@@ -166,58 +155,58 @@
 
                     <!-- TABLE BODY -->
                     <tbody class="divide-y divide-slate-100 text-[13px] text-slate-700">
-                        @foreach ($data as $idx=>$item)
-                        <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer"  onClick='window.location.href = "{{ route("r008s.show",$item->id) }}"' >
-                            <td class="px-4 py-3 font-medium text-slate-500">
-                                {{$idx + $data->firstItem()}}
-                            </td>
+                        @foreach ($data as $idx => $item)
+                            <tr class="hover:bg-amber-50/40 transition whitespace-nowrap cursor-pointer"
+                                onClick='window.location.href = "{{ route('r008s.show', $item->id) }}"'>
+                                <td class="px-4 py-3 font-medium text-slate-500">
+                                    {{ $idx + $data->firstItem() }}
+                                </td>
 
-                            <td class="px-4 py-3 font-semibold text-blue-700">
-                                {{ $item->r008_files->first()->file }}
+                                <td class="px-4 py-3 font-semibold text-blue-700">
+                                    {{ $item->r008_files->first()->file }}
 
 
-                                <button
-                                    type="button"
-                                    class="ms-2 inline-flex items-center text-gray-400 hover:text-blue-600"
-                                    onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $item->r008_files->first()->file }}')"
-                                    title="Copy"
-                                >
-                                    <i class="fa-regular fa-copy"></i>
-                                </button>
+                                    <button type="button"
+                                        class="ms-2 inline-flex items-center text-gray-400 hover:text-blue-600"
+                                        onclick="event.stopPropagation(); copyDocumentNo(this, '{{ $item->r008_files->first()->file }}')"
+                                        title="Copy">
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
 
-                                @php
-                                    $status = strtolower($item->status ?? 'Default');
-                                @endphp
-                                @if($status == 'cancel')
-                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
-                                    {{ $item->status }}
-                                </span>
-                                @endif
-                            </td>
+                                    @php
+                                        $status = strtolower($item->status ?? 'Default');
+                                    @endphp
+                                    @if ($status == 'cancel')
+                                        <span
+                                            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ms-4 {{ $statusClasses[$status] }}">
+                                            {{ $item->status }}
+                                        </span>
+                                    @endif
+                                </td>
 
-                            <td class="px-4 py-3">
-                                {{ $item->document_date  }}
-                            </td>
+                                <td class="px-4 py-3">
+                                    {{ $item->document_date }}
+                                </td>
 
-                            <td class="px-4 py-3">
-                                {{ $item->branch?->branch_name  }}
-                            </td>
+                                <td class="px-4 py-3">
+                                    {{ $item->branch?->branch_name }}
+                                </td>
 
-                            <td class="px-4 py-3">
-                                {{ $item->vendor_code }}
-                            </td>
+                                <td class="px-4 py-3">
+                                    {{ $item->vendor_code }}
+                                </td>
 
-                            <td class="px-4 py-3">
-                                {{ $item->rg_no }}
-                            </td>
+                                <td class="px-4 py-3">
+                                    {{ $item->rg_no }}
+                                </td>
 
-                            <td class="px-4 py-3">
-                                {{ $item->receive_good_document()->delivery_note }}
-                            </td>
+                                <td class="px-4 py-3">
+                                    {{ $item->receive_good_document()->delivery_note }}
+                                </td>
 
-                        </tr>
+                            </tr>
                         @endforeach
-                       
+
 
                     </tbody>
 
@@ -229,9 +218,7 @@
 
     </div>
     @push('js')
-        <script type="text/javascript">
-           
-        </script>
+        <script type="text/javascript"></script>
     @endpush
 @endsection
 

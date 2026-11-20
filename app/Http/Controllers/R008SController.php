@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ExecutionTimer;
+use App\Exports\R008\R008DocumentExport;
 use App\Models\R008Document;
 use App\Models\R008DocumentFile;
 use App\Models\R008Product;
 use App\Models\ReceiveGoodDocument;
 use App\Models\ReceiveGoodFile;
+use App\Http\Requests\R008DocumentFilterRequest;
+use App\Services\Excel\ExcelExportService;
+use App\Services\R008\R008DocumentQuery;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
@@ -21,67 +25,24 @@ use Spatie\Permission\Models\Role;
 class R008SController extends Controller
 {
 
-    public function index(Request $request)
+    public function index(R008DocumentFilterRequest $request, R008DocumentQuery $query)
     {
-        $docuno =  $request->form_doc_no;
-        $branch = $request->branch_id;
-        $start_date = $request->start_date;
-        $end_date = $request->end_date;
-
-        $hasFilter = collect($request->except('page'))
-        ->filter(fn ($value) => filled($value))
-        ->isNotEmpty();
-
-        $user = auth()->user();
-        $user_id = $user->id;
-
-
-        $results = R008Document::query();
-        if ($docuno) {
-            $results = $results->where(function ($query) use ($docuno) {
-                    $query->where('rg_no', 'like', '%' . $docuno . '%')
-                    ->orWhereHas('r008_files', function ($q) use ($docuno) {
-                        $q->where('file', 'like', '%' . $docuno . '%');
-                    });
-                    // ->orWhere('remark', 'like', '%' . $docuno . '%');
-            });
-        }
-        
-        if ($branch) {
-            $results = $results->where(function ($q) use ($branch) {
-                $q->where('branch_id', $branch);
-            });
-        } 
-
-        $role = Role::where('name','admin')->first();
-        $role_id = $role->id;
-        if($user->role != $role_id && !isDCUser()){
-            $user_branches = $user->user_branches;
-            $branch_ids = $user_branches->pluck('branch_id');
-            $branch_ids[] = $user->branch_id;
-            // dd($branch_ids);
-
-            $results = $results->whereIn('branch_id',$branch_ids);
-        }
-
-
-        if ($hasFilter) {
-            if($start_date || $end_date){
-                $start_date = $request->start_date
-                            ? Carbon::parse($request->start_date)->startOfDay()
-                            : Carbon::createFromTimestamp(0)->startOfDay();
-                $end_date = $request->end_date
-                            ? Carbon::parse($request->end_date)->endOfDay()
-                            : Carbon::today()->endOfDay();
-                $results = $results->whereBetween('document_date', [$start_date , $end_date]);
-            }
-        }else{
-            $results->whereDate('document_date','>=',now()->subMonth());
-        }
-
-        $data = $results->orderBy('document_date','desc')->paginate(15);
+        $data = $query->build($request->validated())
+            ->orderByDesc('document_date')
+            ->paginate(15)
+            ->withQueryString();
 
         return view('r008s.index',compact("data"));
+    }
+
+    public function export(
+        R008DocumentFilterRequest $request,
+        ExcelExportService $excel
+    ) {
+        return $excel->download(
+            new R008DocumentExport($request->validated()),
+            'r008-documents-' . now()->format('Ymd-His')
+        );
     }
 
     public function create()

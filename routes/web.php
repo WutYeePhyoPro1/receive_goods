@@ -108,6 +108,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         // Route::resource("r008s",StudentsController::class);
 
         Route::get('r008s', 'index')->name('r008s.index');
+        Route::get('r008s/export', 'export')->name('r008s.export');
         Route::get('r008s/create', 'create')->name('r008s.create');
         Route::post('r008s', 'store')->name('r008s.store');
         Route::get('r008s/{id}', 'show')->name('r008s.show');
