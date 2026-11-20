@@ -56,6 +56,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
     // route::group(['controller'=>])
     route::get('/home', [authenticateController::class, 'home'])->name('home');
+        Route::view('/barcode-designer', 'user.barcode_designer')->name('barcode.designer');
 
     Route::group(['prefix' => '/unavailable_scanned_products', 'controller' => UnavailableScannedProductController::class, 'as' => 'unavailable_scanned_products.'], function () {
         Route::get('/', 'index')->name('get');

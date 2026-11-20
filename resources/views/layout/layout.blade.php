@@ -163,6 +163,18 @@
                 </li>
             @endcan
 
+            <li class="sidebar_items" onclick="javascript:window.location.href='{{ route('barcode.designer') }}'">
+                @if (request()->routeIs('barcode.designer'))
+                    <div class=""
+                        style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
+                    </div>
+                @endif
+                <div class="sidebar_text">
+                    <i class='bx bx-barcode' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
+                    <span>Barcode Designer</span>
+                </div>
+            </li>
+
             <li class="sidebar_items" onclick="javascript:window.location.href='/list'">
                 @if (request()->is('list'))
                     <div class=""
