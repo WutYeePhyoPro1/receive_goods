@@ -1586,6 +1586,8 @@ class userController extends Controller
                     $scann_count = [];
                     $scann_pause = [];
                     $barcode_equal = [];
+                    $scan_units = [];
+                    $scan_barcode_htmls = [];
 
                     foreach ($search_scaned_pd as $scan_pd_data) {
                         if($input_barcode_no) {
@@ -1599,6 +1601,12 @@ class userController extends Controller
                                 $scann_count[] = $scan_pd_data->scann_count;
                                 $scann_pause[] = $scan_pd_data->scann_pause;
                                 $barcode_equal[] = barcode_equal($product_barcode,$scan_pd_data->bar_code);
+                                $scan_units[] = $scan_pd_data->unit;
+                                $scan_barcode_htmls[] = [
+                                    'bar_stick1' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 50),
+                                    'bar_stick2' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 22),
+                                    'bar_stick3' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 50)
+                                ];
                             }
                         } else {
                             $scan_id[] = $scan_pd_data->id;
@@ -1610,6 +1618,12 @@ class userController extends Controller
                             $scann_count[] = $scan_pd_data->scann_count;
                             $scann_pause[] = $scan_pd_data->scann_pause;
                             $barcode_equal[] = barcode_equal($product_barcode,$scan_pd_data->bar_code);
+                            $scan_units[] = $scan_pd_data->unit;
+                            $scan_barcode_htmls[] = [
+                                'bar_stick1' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 50),
+                                'bar_stick2' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 22),
+                                'bar_stick3' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 50)
+                            ];
                         }
                     }
 
@@ -1628,7 +1642,9 @@ class userController extends Controller
                         'scann_count' => $scann_count,
                         'scan_id' => $scan_id,
                         'scann_pause' => $scann_pause,
-                        'barcode_equal' => $barcode_equal
+                        'barcode_equal' => $barcode_equal,
+                        'unit' => $scan_units,
+                        'barcode_htmls' => $scan_barcode_htmls
                     ];
                     $scan_response[] = $scan_merged_data;
                 }
