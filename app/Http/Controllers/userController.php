@@ -26,6 +26,7 @@ use App\Models\UserBranch;
 use App\Repositories\ActionRepository;
 use App\Repositories\UserRepository;
 use App\Services\DocumentCodeService;
+use App\Services\ReceiveGoods\ReceiveGoodsQuery;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -486,66 +487,18 @@ class userController extends Controller
         ));
     }
 
-    public function rg_documents(Request $request){
-        $docuno =  $request->form_doc_no;
-        $branch = $request->branch_id;
-        $start_date = $request->start_date;
-        $end_date = $request->end_date;
+    public function rg_documents(Request $request, ReceiveGoodsQuery $query){
+        $filters = $request->only([
+            'form_doc_no',
+            'branch_id',
+            'start_date',
+            'end_date',
+        ]);
+        $data = $query->build($filters, $request->user())
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(15);
 
-        $hasFilter = collect($request->except('page'))
-        ->filter(fn ($value) => filled($value))
-        ->isNotEmpty();
-
-
-        $user = auth()->user();
-        $user_id = $user->id;
-
-        $results = ReceiveGoodDocument::query();
-
-        if ($docuno) {
-            $results = $results->where(function ($query) use ($docuno) {
-                    $query->where('po_no', 'ilike', '%' . $docuno . '%')
-                    ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
-                        $q->where('file', 'ilike', '%' . $docuno . '%');
-                    })
-                    ->orWhere('remark', 'ilike', '%' . $docuno . '%');
-            });
-        }
-        
-        if ($branch) {
-            $results = $results->where(function ($q) use ($branch) {
-                $q->where('branch_id', $branch);
-            });
-        } 
-
-        $role = Role::where('name','admin')->first();
-        $role_id = $role->id;
-        if($user->role != $role_id && !isDCUser()){
-            $user_branches = $user->user_branches;
-            $branch_ids = $user_branches->pluck('branch_id');
-            $branch_ids[] = $user->branch_id;
-            // dd($branch_ids);
-
-            $results = $results->whereIn('branch_id',$branch_ids);
-        }
-
-     
-        if ($hasFilter) {
-            if($start_date || $end_date){
-                $start_date = $request->start_date
-                            ? Carbon::parse($request->start_date)->startOfDay()
-                            : Carbon::createFromTimestamp(0)->startOfDay();
-                $end_date = $request->end_date
-                            ? Carbon::parse($request->end_date)->endOfDay()
-                            : Carbon::today()->endOfDay();
-                $results = $results->whereBetween('created_at', [$start_date , $end_date]);
-            }
-        }else{
-            $results->whereDate('created_at','>=',now()->subMonth());
-        }
-            
-
-        $data = $results->orderBy('created_at','desc')->paginate(15);
         return view('user.receive_goods.rg_documents.index',compact("data"));
     }
 
