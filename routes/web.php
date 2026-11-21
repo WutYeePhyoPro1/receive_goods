@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BarcodeLabelTemplateController;
 use App\Http\Controllers\authenticateController;
 use App\Http\Controllers\R008SController;
 use App\Http\Controllers\ReceiveGoodRejectsController;
@@ -56,7 +57,17 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
     // route::group(['controller'=>])
     route::get('/home', [authenticateController::class, 'home'])->name('home');
-        Route::view('/barcode-designer', 'user.barcode_designer')->name('barcode.designer');
+    Route::view('/barcode-designer', 'user.barcode_designer')->name('barcode.designer');
+    Route::get('/barcode-templates', [BarcodeLabelTemplateController::class, 'index'])
+        ->name('barcode.templates.index');
+    Route::post('/barcode-templates', [BarcodeLabelTemplateController::class, 'store'])
+        ->name('barcode.templates.store');
+    Route::get('/barcode-templates/{barcodeTemplate}', [BarcodeLabelTemplateController::class, 'show'])
+        ->name('barcode.templates.show');
+    Route::put('/barcode-templates/{barcodeTemplate}', [BarcodeLabelTemplateController::class, 'update'])
+        ->name('barcode.templates.update');
+    Route::delete('/barcode-templates/{barcodeTemplate}', [BarcodeLabelTemplateController::class, 'destroy'])
+        ->name('barcode.templates.destroy');
 
     Route::group(['prefix' => '/unavailable_scanned_products', 'controller' => UnavailableScannedProductController::class, 'as' => 'unavailable_scanned_products.'], function () {
         Route::get('/', 'index')->name('get');

@@ -157,6 +157,64 @@
             border-color: #d97706;
         }
 
+        #barcode-designer .template-library {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: end;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        #barcode-designer .template-library label {
+            flex: 1 1 220px;
+            margin: 0;
+        }
+
+        #barcode-designer .template-library-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        #barcode-designer .template-library-button {
+            padding: 9px 12px;
+            color: #334155;
+            background: #f1f5f9;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        #barcode-designer .template-library-button.primary {
+            color: #fff;
+            background: #d97706;
+        }
+
+        #barcode-designer .template-library-button.danger {
+            color: #b91c1c;
+            background: #fef2f2;
+        }
+
+        #barcode-designer .template-library-button:disabled {
+            cursor: not-allowed;
+            opacity: .5;
+        }
+
+        #barcode-designer .template-status {
+            flex: 1 0 100%;
+            min-height: 18px;
+            margin: 0;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        #barcode-designer .template-status.error {
+            color: #b91c1c;
+        }
+
+        #barcode-designer .template-status.success {
+            color: #047857;
+        }
+
         #barcode-designer .canvas-wrap {
             display: flex;
             justify-content: center;
@@ -294,6 +352,22 @@
             border-color: #d97706;
         }
 
+        #barcode-designer .property-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 14px;
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        #barcode-designer .property-checkbox input {
+            flex: 0 0 auto;
+            margin-top: 2px;
+            accent-color: #d97706;
+        }
+
         #barcode-designer input[type="range"] {
             width: 100%;
             accent-color: #d97706;
@@ -375,6 +449,22 @@
             </div>
         </header>
 
+        <section class="designer-panel template-library" aria-label="Shared templates"
+                data-templates-url="{{ route('barcode.templates.index') }}">
+                <label class="property-label" for="shared-template-select">Shared label templates
+                    <select class="property-input" id="shared-template-select">
+                        <option value="">Loading shared templates...</option>
+                    </select>
+                </label>
+                <div class="template-library-actions">
+                    <button class="template-library-button" type="button" id="load-shared-template">Load template</button>
+                    <button class="template-library-button primary" type="button" id="save-shared-template">Save as new</button>
+                    <button class="template-library-button" type="button" id="update-shared-template" disabled>Update selected</button>
+                    <button class="template-library-button danger" type="button" id="delete-shared-template" disabled>Delete selected</button>
+                </div>
+                <p class="template-status" id="template-status" role="status" aria-live="polite"></p>
+        </section>
+
         <div class="designer-grid">
             <section class="designer-panel">
                 <h2 class="panel-heading">Elements</h2>
@@ -439,6 +529,14 @@
             const widthInput = document.getElementById('label-width');
             const heightInput = document.getElementById('label-height');
             const sizeReadout = document.getElementById('label-size-readout');
+            const templateLibrary = document.querySelector('.template-library');
+            const templateSelect = document.getElementById('shared-template-select');
+            const templateStatus = document.getElementById('template-status');
+            const loadTemplateButton = document.getElementById('load-shared-template');
+            const saveTemplateButton = document.getElementById('save-shared-template');
+            const updateTemplateButton = document.getElementById('update-shared-template');
+            const deleteTemplateButton = document.getElementById('delete-shared-template');
+            const templatesUrl = templateLibrary.dataset.templatesUrl;
             const templateSize = { width: 70, height: 42 };
             const labels = {
                 productName: 'Product name',
@@ -459,6 +557,7 @@
                     align: 'left',
                     fontSize: 18,
                     fontWeight: 700,
+                    fixedSize: false,
                 },
                 barcode: {
                     text: '',
@@ -513,6 +612,7 @@
             let nextId = 1;
             let activeDrag = null;
             let dragFrame = null;
+            let activeTemplateId = null;
 
             function resizeCanvas() {
                 const styles = getComputedStyle(canvasWrap);
@@ -639,7 +739,31 @@
                         render();
                     });
                     canvas.appendChild(node);
+                    if (element.type === 'productName' && element.fixedSize) {
+                        fitTextToElement(node, element.fontSize, 'px');
+                    }
                 });
+            }
+
+            function fitTextToElement(node, maxFontSize, unit) {
+                let min = 1;
+                let max = Math.max(min, maxFontSize);
+                let bestFit = min;
+
+                for (let attempt = 0; attempt < 12; attempt++) {
+                    const candidate = (min + max) / 2;
+                    node.style.fontSize = `${unit === 'pt' ? candidate : candidate * (96 / 72) *
+                        (canvas.clientHeight / (templateSize.height * 96 / 25.4))}${unit}`;
+                    if (node.scrollWidth <= node.clientWidth && node.scrollHeight <= node.clientHeight) {
+                        bestFit = candidate;
+                        min = candidate;
+                    } else {
+                        max = candidate;
+                    }
+                }
+
+                node.style.fontSize = `${unit === 'pt' ? bestFit : bestFit * (96 / 72) *
+                    (canvas.clientHeight / (templateSize.height * 96 / 25.4))}${unit}`;
             }
 
             function barcodeValue() {
@@ -686,6 +810,28 @@
                     hint.textContent = element.type === 'barcode' ? 'Code 128 auto uses the barcode value element.' :
                         'This field displays the current local date or time.';
                     properties.appendChild(hint);
+                }
+
+                if (element.type === 'productName') {
+                    const fixedSizeLabel = document.createElement('label');
+                    fixedSizeLabel.className = 'property-checkbox';
+                    const fixedSizeInput = document.createElement('input');
+                    fixedSizeInput.type = 'checkbox';
+                    fixedSizeInput.id = 'selected-element-fixed-size';
+                    fixedSizeInput.checked = Boolean(element.fixedSize);
+                    const fixedSizeText = document.createElement('span');
+                    fixedSizeText.textContent = 'Fit text to fixed box (shrink font to fit)';
+                    fixedSizeLabel.append(fixedSizeInput, fixedSizeText);
+                    fixedSizeInput.addEventListener('change', () => {
+                        element.fixedSize = fixedSizeInput.checked;
+                        renderCanvas();
+                    });
+                    properties.appendChild(fixedSizeLabel);
+                    const fixedSizeHint = document.createElement('p');
+                    fixedSizeHint.className = 'panel-hint';
+                    fixedSizeHint.style.margin = '5px 0 0';
+                    fixedSizeHint.textContent = 'The box dimensions stay fixed. Font size is reduced as needed to fit the product name.';
+                    properties.appendChild(fixedSizeHint);
                 }
 
                 if (textTypes.includes(element.type)) {
@@ -943,7 +1089,188 @@
                     ...defaults[type]
                 }));
                 render();
+                activeTemplateId = null;
+                updateTemplateButtonState();
             });
+
+            function setTemplateStatus(message, state = '') {
+                templateStatus.textContent = message;
+                templateStatus.className = `template-status${state ? ` ${state}` : ''}`;
+            }
+
+            function updateTemplateButtonState() {
+                const selectedId = templateSelect.value;
+                loadTemplateButton.disabled = !selectedId;
+                deleteTemplateButton.disabled = !selectedId;
+                updateTemplateButton.disabled = !activeTemplateId || selectedId !== String(activeTemplateId);
+            }
+
+            async function templateRequest(url, options = {}) {
+                const headers = {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="__token"]').content,
+                    ...options.headers,
+                };
+                if (options.body) headers['Content-Type'] = 'application/json';
+
+                const response = await fetch(url, {
+                    credentials: 'same-origin',
+                    ...options,
+                    headers,
+                });
+                if (response.status === 204) return null;
+
+                const result = await response.json();
+                if (!response.ok) {
+                    const validationMessage = result.errors
+                        ? Object.values(result.errors).flat().join(' ')
+                        : '';
+                    throw new Error(validationMessage || result.message || 'The template request failed.');
+                }
+                return result.data;
+            }
+
+            async function refreshTemplateList(preferredId = activeTemplateId) {
+                try {
+                    const templates = await templateRequest(templatesUrl);
+                    templateSelect.replaceChildren();
+                    const placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.textContent = templates.length ? 'Choose a shared template' : 'No shared templates yet';
+                    templateSelect.appendChild(placeholder);
+
+                    templates.forEach(template => {
+                        const option = document.createElement('option');
+                        option.value = String(template.id);
+                        option.textContent = template.name;
+                        templateSelect.appendChild(option);
+                    });
+
+                    if (preferredId && templates.some(template => String(template.id) === String(preferredId))) {
+                        templateSelect.value = String(preferredId);
+                    } else {
+                        templateSelect.value = '';
+                        if (preferredId && String(preferredId) === String(activeTemplateId)) {
+                            activeTemplateId = null;
+                        }
+                    }
+                    updateTemplateButtonState();
+                    return true;
+                } catch (error) {
+                    templateSelect.replaceChildren();
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'Could not load shared templates';
+                    templateSelect.appendChild(option);
+                    updateTemplateButtonState();
+                    setTemplateStatus(error.message, 'error');
+                    return false;
+                }
+            }
+
+            function applyTemplateLayout(layout) {
+                templateSize.width = Number(layout.width);
+                templateSize.height = Number(layout.height);
+                widthInput.value = String(templateSize.width);
+                heightInput.value = String(templateSize.height);
+                sizeReadout.textContent = `${templateSize.width} × ${templateSize.height} mm`;
+                elements = layout.elements.map(element => ({ ...element }));
+                const numericIds = elements.map(element => Number(element.id)).filter(Number.isInteger);
+                nextId = Math.max(0, ...numericIds) + 1;
+                selectedId = null;
+                resizeCanvas();
+                render();
+            }
+
+            function currentTemplateLayout() {
+                return {
+                    width: templateSize.width,
+                    height: templateSize.height,
+                    elements: elements.map(element => ({ ...element })),
+                };
+            }
+
+            templateSelect.addEventListener('change', updateTemplateButtonState);
+            loadTemplateButton.addEventListener('click', async () => {
+                if (!templateSelect.value) return;
+                loadTemplateButton.disabled = true;
+                try {
+                    const template = await templateRequest(`${templatesUrl}/${encodeURIComponent(templateSelect.value)}`);
+                    applyTemplateLayout(template.layout);
+                    activeTemplateId = template.id;
+                    templateSelect.value = String(template.id);
+                    updateTemplateButtonState();
+                    setTemplateStatus(`Loaded "${template.name}".`, 'success');
+                } catch (error) {
+                    setTemplateStatus(error.message, 'error');
+                    updateTemplateButtonState();
+                }
+            });
+
+            saveTemplateButton.addEventListener('click', async () => {
+                const name = window.prompt('Name this shared label template:');
+                if (name === null) return;
+                if (!name.trim()) {
+                    setTemplateStatus('Enter a template name before saving.', 'error');
+                    return;
+                }
+                saveTemplateButton.disabled = true;
+                try {
+                    const template = await templateRequest(templatesUrl, {
+                        method: 'POST',
+                        body: JSON.stringify({ name: name.trim(), layout: currentTemplateLayout() }),
+                    });
+                    activeTemplateId = template.id;
+                    if (await refreshTemplateList(template.id)) {
+                        setTemplateStatus(`Saved "${template.name}" for all users.`, 'success');
+                    }
+                } catch (error) {
+                    setTemplateStatus(error.message, 'error');
+                } finally {
+                    saveTemplateButton.disabled = false;
+                }
+            });
+
+            updateTemplateButton.addEventListener('click', async () => {
+                if (!activeTemplateId || templateSelect.value !== String(activeTemplateId)) return;
+                updateTemplateButton.disabled = true;
+                try {
+                    const template = await templateRequest(
+                        `${templatesUrl}/${encodeURIComponent(activeTemplateId)}`,
+                        {
+                            method: 'PUT',
+                            body: JSON.stringify({ name: templateSelect.selectedOptions[0].textContent, layout: currentTemplateLayout() }),
+                        }
+                    );
+                    if (await refreshTemplateList(template.id)) {
+                        setTemplateStatus(`Updated "${template.name}" for all users.`, 'success');
+                    }
+                } catch (error) {
+                    setTemplateStatus(error.message, 'error');
+                    updateTemplateButtonState();
+                }
+            });
+
+            deleteTemplateButton.addEventListener('click', async () => {
+                if (!templateSelect.value) return;
+                const templateId = templateSelect.value;
+                const templateName = templateSelect.selectedOptions[0].textContent;
+                if (!window.confirm(`Delete the shared template "${templateName}" for all users?`)) return;
+                deleteTemplateButton.disabled = true;
+                try {
+                    await templateRequest(`${templatesUrl}/${encodeURIComponent(templateId)}`, { method: 'DELETE' });
+                    if (String(activeTemplateId) === templateId) activeTemplateId = null;
+                    const refreshed = await refreshTemplateList();
+                    updateTemplateButtonState();
+                    if (refreshed) setTemplateStatus(`Deleted "${templateName}".`, 'success');
+                } catch (error) {
+                    setTemplateStatus(error.message, 'error');
+                    updateTemplateButtonState();
+                }
+            });
+
+            refreshTemplateList();
+
             function printLabel() {
                 if (canvas.querySelector('.barcode-error')) {
                     window.alert('Fix the barcode value before printing this label.');
@@ -1003,6 +1330,10 @@
                     node.querySelector('svg')?.setAttribute('preserveAspectRatio', 'none');
                 });
                 printDocument.body.appendChild(printCanvas);
+                printCanvas.querySelectorAll('.canvas-element[data-type="productName"]').forEach(node => {
+                    const element = elements.find(item => item.id === node.dataset.id);
+                    if (element?.fixedSize) fitTextToElement(node, element.fontSize, 'pt');
+                });
 
                 let cleaned = false;
                 const cleanup = () => {
