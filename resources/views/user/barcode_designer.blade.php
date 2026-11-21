@@ -630,6 +630,9 @@
                     if (element && textTypes.includes(element.type)) {
                         node.style.fontSize = `${element.fontSize * (96 / 72) *
                             (canvas.clientHeight / (templateSize.height * 96 / 25.4))}px`;
+                        if (element.type === 'productName' && element.fixedSize) {
+                            fitTextToElement(node, element.fontSize, 'px');
+                        }
                     }
                 });
             }
@@ -830,7 +833,7 @@
                     const fixedSizeHint = document.createElement('p');
                     fixedSizeHint.className = 'panel-hint';
                     fixedSizeHint.style.margin = '5px 0 0';
-                    fixedSizeHint.textContent = 'The box dimensions stay fixed. Font size is reduced as needed to fit the product name.';
+                    fixedSizeHint.textContent = 'The box stays fixed. When printing, the product name font automatically fits its content to this box.';
                     properties.appendChild(fixedSizeHint);
                 }
 
@@ -1332,7 +1335,7 @@
                 printDocument.body.appendChild(printCanvas);
                 printCanvas.querySelectorAll('.canvas-element[data-type="productName"]').forEach(node => {
                     const element = elements.find(item => item.id === node.dataset.id);
-                    if (element?.fixedSize) fitTextToElement(node, element.fontSize, 'pt');
+                    if (element) fitTextToElement(node, element.fontSize, 'pt');
                 });
 
                 let cleaned = false;

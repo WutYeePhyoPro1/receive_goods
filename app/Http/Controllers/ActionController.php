@@ -6,6 +6,7 @@ use App\Customize\Common;
 use App\Helpers\ExecutionTimer;
 use App\Interfaces\ActionRepositoryInterface;
 use App\Models\AddProductTrack;
+use App\Models\BarcodeLabelTemplate;
 use App\Models\changeTruckProduct;
 use App\Models\Document;
 use App\Models\DriverInfo;
@@ -34,6 +35,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Milon\Barcode\DNS1D;
 use RuntimeException;
 
@@ -1239,8 +1241,43 @@ class ActionController extends Controller
     {
         $data = $request->validate([
             'qty' => ['required', 'integer', 'min:1', 'max:500'],
-            'type' => ['required', 'integer', 'in:1,2,3'],
+            'type' => ['required', 'string', Rule::in(['1', '2', '3', 'template'])],
+            'template_id' => ['required_if:type,template', 'integer', 'exists:barcode_label_templates,id'],
         ]);
+
+        if ($data['type'] === 'template') {
+            $template = BarcodeLabelTemplate::findOrFail($data['template_id']);
+            $printedAt = now();
+            $barcode = new DNS1D();
+            $barcodeHtml = $barcode->getBarcodeSVG(
+                (string) ($id->bar_code ?: '1'),
+                'C128',
+                5,
+                70,
+                'black',
+                false,
+                true
+            );
+            $barcodeHtml = preg_replace_callback('/<svg\b([^>]*)>/', function (array $matches): string {
+                preg_match('/\bwidth="([0-9.]+)"/', $matches[1], $width);
+                preg_match('/\bheight="([0-9.]+)"/', $matches[1], $height);
+                if (!isset($width[1], $height[1])) {
+                    throw new RuntimeException('Unable to determine generated barcode dimensions.');
+                }
+
+                return '<svg' . $matches[1] . ' viewBox="0 0 ' . $width[1] . ' ' . $height[1]
+                    . '" preserveAspectRatio="none">';
+            }, $barcodeHtml, 1);
+
+            return view('user.receive_goods.barcode_template_print', [
+                'product' => $id,
+                'quantity' => (int) $data['qty'],
+                'template' => $template,
+                'barcodeHtml' => $barcodeHtml,
+                'printedAt' => $printedAt,
+                'autoPrint' => true,
+            ]);
+        }
 
         $barcode = new DNS1D();
         $barcodeHeight = (int) $data['type'] === 2 ? 14 : ((int) $data['type'] === 3 ? 27 : 28);

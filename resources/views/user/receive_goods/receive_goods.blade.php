@@ -1028,11 +1028,13 @@
                     </div>
                     <div class="">
                         <Select class="w-full border border-slate-300 py-3 ps-2 bg-white rounded-lg appearance-none"
-                            id="bar_type">
+                            id="bar_type"
+                            data-templates-url="{{ route('barcode.templates.index') }}">
                             <option value="1">Bar 1</option>
                             <option value="2">Bar 2</option>
                             <option value="3">Bar 3</option>
                         </Select>
+                        <small id="barcode_template_status" class="mt-1 block text-slate-500" aria-live="polite"></small>
                         <Select class="w-full border border-slate-300 py-3 ps-2 bg-white rounded-lg appearance-none mt-2"
                             id="reason">
                             @foreach ($reason as $item)
@@ -2143,6 +2145,68 @@
 
                         // })
 
+                        let barcodeTemplatesLoaded = false;
+                        let barcodeTemplatesLoading = false;
+                        let barcodeTemplatesFailed = false;
+
+                        async function loadBarcodeTemplates() {
+                            if (barcodeTemplatesLoaded || barcodeTemplatesLoading) return;
+                            barcodeTemplatesLoading = true;
+                            const $status = $('#barcode_template_status');
+                            $status.removeClass('text-rose-600').addClass('text-slate-500')
+                                .text('Loading shared templates...');
+
+                            try {
+                                const response = await fetch($('#bar_type').data('templates-url'), {
+                                    headers: { Accept: 'application/json' },
+                                    credentials: 'same-origin'
+                                });
+                                if (!response.ok) throw new Error(`Template request failed (${response.status}).`);
+                                const result = await response.json();
+                                const select = document.getElementById('bar_type');
+                                const group = document.createElement('optgroup');
+                                group.label = 'Shared Templates';
+                                group.dataset.templateOptions = 'true';
+                                (result.data || []).forEach((template) => {
+                                    const option = document.createElement('option');
+                                    option.value = `template:${template.id}`;
+                                    option.textContent = template.name;
+                                    option.dataset.templateOption = 'true';
+                                    group.appendChild(option);
+                                });
+                                select.appendChild(group);
+                                barcodeTemplatesLoaded = true;
+                                barcodeTemplatesFailed = false;
+                                updateBarcodeTemplateOptions();
+                            } catch (error) {
+                                barcodeTemplatesFailed = true;
+                                $status.removeClass('text-slate-500').addClass('text-rose-600')
+                                    .text('Unable to load shared templates. Close and reopen the print dialog to retry.');
+                                console.error('Unable to load barcode templates', error);
+                            } finally {
+                                barcodeTemplatesLoading = false;
+                            }
+                        }
+
+                        function updateBarcodeTemplateOptions() {
+                            const directMode = $('#barcode_print_mode').val() === 'direct';
+                            $('#bar_type option[data-template-option]').prop('disabled', directMode);
+                            const selectedType = String($('#bar_type').val() || '');
+                            const $status = $('#barcode_template_status');
+
+                            if (directMode && selectedType.startsWith('template:')) {
+                                $('#bar_type').val('1');
+                                $status.removeClass('text-rose-600').addClass('text-slate-500')
+                                    .text('Shared templates are available with Browser Print only.');
+                                return;
+                            }
+                            if (barcodeTemplatesFailed) return;
+                            const count = $('#bar_type option[data-template-option]').length;
+                            $status.removeClass('text-rose-600').addClass('text-slate-500')
+                                .text(count ? 'Shared templates are available with Browser Print only.' :
+                                    (barcodeTemplatesLoaded ? 'No shared templates are available.' : ''));
+                        }
+
                         function showPrintModal(product, maxQty) {
                             $('#print_count').val('');
                             $('#print_no').data('print-product', product);
@@ -2152,6 +2216,7 @@
                             $('#qz_server_host').val(window.receivedGoodsQz?.getServerHost() || '');
                             const printMode = window.receivedGoodsQz?.getMode() || 'browser';
                             $('#barcode_print_mode').val(printMode).trigger('change');
+                            loadBarcodeTemplates();
                         }
 
                         $(document).on('click', '.sticker', function(e) {
@@ -2227,8 +2292,11 @@
                             const mode = $(this).val();
                             window.receivedGoodsQz?.setMode(mode);
                             $('#qz_printer_settings').toggleClass('hidden', mode !== 'direct');
+                            updateBarcodeTemplateOptions();
                             if (mode === 'direct' && window.receivedGoodsQz) refreshQzPrinters(false);
                         });
+
+                        $(document).on('change', '#bar_type', updateBarcodeTemplateOptions);
 
                         $(document).on('change', '#qz_printer', function() {
                             window.receivedGoodsQz?.setPrinter($(this).val());
@@ -2283,9 +2351,18 @@
                             $unit = product.unit;
                             $name = product.name;
                             $id = product.id;
-                            $type = $('#bar_type').val();
+                            $type = String($('#bar_type').val());
                             $reason = $('#reason').val();
                             if ($qty > 0 && $qty != '') {
+                                const isTemplate = $type.startsWith('template:');
+                                if (isTemplate && $('#barcode_print_mode').val() === 'direct') {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Browser Print required',
+                                        text: 'Shared templates are not supported by QZ Direct Print. Select Browser Print to continue.',
+                                    });
+                                    return;
+                                }
                                 $td = new Date();
                                 $date = [String($td.getDate()).padStart(2, '0'), String($td.getMonth() + 1)
                                     .padStart(2, '0'), $td.getFullYear()
@@ -2328,9 +2405,12 @@
                                     .replace('__PRODUCT_ID__', encodeURIComponent($id));
                                 const barcodePrintParams = new URLSearchParams({
                                     qty: $qty,
-                                    type: $type,
+                                    type: isTemplate ? 'template' : $type,
                                     v: Date.now()
                                 });
+                                if (isTemplate) {
+                                    barcodePrintParams.set('template_id', $type.substring('template:'.length));
+                                }
 
                                 // Print the fixed-size vector PDF, following the reward system's
                                 // iframe/PDF approach. This avoids browser HTML scaling and keeps
