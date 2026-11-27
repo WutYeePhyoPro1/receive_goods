@@ -60,12 +60,12 @@ class BarcodeLabelTemplateController extends Controller
             'layout.elements' => ['required', 'array', 'min:1', 'max:100'],
             'layout.elements.*' => [
                 'required',
-                'array:id,type,text,x,y,width,height,align,fontSize,fontWeight,fixedSize',
+                'array:id,type,text,x,y,width,height,align,verticalAlign,fontSize,fontWeight,fixedSize',
             ],
             'layout.elements.*.id' => ['required', 'string', 'max:100'],
             'layout.elements.*.type' => [
                 'required',
-                Rule::in(['productName', 'barcode', 'barcodeValue', 'date', 'time', 'text']),
+                Rule::in(['productName', 'barcode', 'barcodeValue', 'date', 'time', 'text', 'rectangle']),
             ],
             'layout.elements.*.text' => ['present', 'nullable', 'string', 'max:500'],
             'layout.elements.*.x' => ['required', 'numeric', 'between:0,100'],
@@ -73,6 +73,7 @@ class BarcodeLabelTemplateController extends Controller
             'layout.elements.*.width' => ['required', 'numeric', 'gt:0', 'lte:100'],
             'layout.elements.*.height' => ['required', 'numeric', 'gt:0', 'lte:100'],
             'layout.elements.*.align' => ['sometimes', Rule::in(['left', 'center', 'right'])],
+            'layout.elements.*.verticalAlign' => ['sometimes', Rule::in(['top', 'center', 'bottom'])],
             'layout.elements.*.fontSize' => ['sometimes', 'numeric', 'between:1,72'],
             'layout.elements.*.fontWeight' => ['sometimes', Rule::in([300, 400, 500, 600, 700, 800, 900])],
             'layout.elements.*.fixedSize' => ['sometimes', 'boolean'],
@@ -121,7 +122,7 @@ class BarcodeLabelTemplateController extends Controller
                     );
                 }
 
-                if (($element['type'] ?? null) === 'barcode') {
+                if (in_array(($element['type'] ?? null), ['barcode', 'rectangle'], true)) {
                     continue;
                 }
 
@@ -139,6 +140,9 @@ class BarcodeLabelTemplateController extends Controller
         $validated = $validator->validate();
         foreach ($validated['layout']['elements'] as &$element) {
             $element['text'] = $element['text'] ?? '';
+            if (!in_array(($element['type'] ?? null), ['barcode', 'rectangle'], true)) {
+                $element['verticalAlign'] = $element['verticalAlign'] ?? 'top';
+            }
         }
         unset($element);
 

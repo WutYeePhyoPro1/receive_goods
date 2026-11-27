@@ -1249,25 +1249,36 @@ class ActionController extends Controller
             $template = BarcodeLabelTemplate::findOrFail($data['template_id']);
             $printedAt = now();
             $barcode = new DNS1D();
+            $moduleWidthUnits = 5;
+            $quietZoneUnits = 20;
             $barcodeHtml = $barcode->getBarcodeSVG(
                 (string) ($id->bar_code ?: '1'),
                 'C128',
-                5,
+                $moduleWidthUnits,
                 70,
                 'black',
                 false,
                 true
             );
-            $barcodeHtml = preg_replace_callback('/<svg\b([^>]*)>/', function (array $matches): string {
-                preg_match('/\bwidth="([0-9.]+)"/', $matches[1], $width);
-                preg_match('/\bheight="([0-9.]+)"/', $matches[1], $height);
-                if (!isset($width[1], $height[1])) {
-                    throw new RuntimeException('Unable to determine generated barcode dimensions.');
-                }
+            $barcodeHtml = preg_replace_callback(
+                '/<svg\b([^>]*)>/',
+                function (array $matches) use ($quietZoneUnits): string {
+                    preg_match('/\bwidth="([0-9.]+)"/', $matches[1], $width);
+                    preg_match('/\bheight="([0-9.]+)"/', $matches[1], $height);
+                    if (!isset($width[1], $height[1])) {
+                        throw new RuntimeException('Unable to determine generated barcode dimensions.');
+                    }
 
-                return '<svg' . $matches[1] . ' viewBox="0 0 ' . $width[1] . ' ' . $height[1]
-                    . '" preserveAspectRatio="none">';
-            }, $barcodeHtml, 1);
+                    $attributes = preg_replace('/\bwidth="[^"]+"/', 'width="100%"', $matches[1], 1);
+                    $attributes = preg_replace('/\bheight="[^"]+"/', 'height="100%"', $attributes, 1);
+                    $viewBoxWidth = (float) $width[1] + ($quietZoneUnits * 2);
+
+                    return '<svg' . $attributes . ' viewBox="-' . $quietZoneUnits . ' 0 ' . $viewBoxWidth . ' ' . $height[1]
+                        . '" preserveAspectRatio="none" style="display:block;width:100%;height:100%;">';
+                },
+                $barcodeHtml,
+                1
+            );
 
             return view('user.receive_goods.barcode_template_print', [
                 'product' => $id,

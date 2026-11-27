@@ -285,6 +285,15 @@
             background-color: rgba(255, 251, 235, .35);
         }
 
+        #barcode-designer .canvas-element[data-type="rectangle"] {
+            border: 1px solid #000;
+            background: transparent;
+        }
+
+        #barcode-designer .canvas-element[data-type="rectangle"].is-selected {
+            outline: 1px dashed #d97706;
+        }
+
         #barcode-designer .canvas-element[data-type="productName"] {
             font-size: 16px;
             font-weight: 700;
@@ -482,6 +491,8 @@
                             class="bx bx-time"></i> Time</button>
                     <button type="button" class="palette-item" draggable="true" data-element-type="text"><i
                             class="bx bx-text"></i> Text</button>
+                    <button type="button" class="palette-item" draggable="true" data-element-type="rectangle"><i
+                            class="bx bx-square"></i> Rectangle</button>
                 </div>
             </section>
 
@@ -545,6 +556,7 @@
                 date: 'Date',
                 time: 'Time',
                 text: 'Text',
+                rectangle: 'Rectangle',
             };
             const textTypes = ['productName', 'barcodeValue', 'date', 'time', 'text'];
             const defaults = {
@@ -555,6 +567,7 @@
                     width: 90,
                     height: 18,
                     align: 'left',
+                    verticalAlign: 'top',
                     fontSize: 18,
                     fontWeight: 700,
                     fixedSize: false,
@@ -573,6 +586,7 @@
                     width: 70,
                     height: 12,
                     align: 'center',
+                    verticalAlign: 'top',
                     fontSize: 12,
                     fontWeight: 400,
                 },
@@ -583,6 +597,7 @@
                     width: 40,
                     height: 12,
                     align: 'left',
+                    verticalAlign: 'top',
                     fontSize: 10,
                     fontWeight: 400,
                 },
@@ -593,6 +608,7 @@
                     width: 38,
                     height: 12,
                     align: 'left',
+                    verticalAlign: 'top',
                     fontSize: 10,
                     fontWeight: 400,
                 },
@@ -603,8 +619,16 @@
                     width: 84,
                     height: 12,
                     align: 'left',
+                    verticalAlign: 'top',
                     fontSize: 14,
                     fontWeight: 400,
+                },
+                rectangle: {
+                    text: '',
+                    x: 30,
+                    y: 40,
+                    width: 40,
+                    height: 20,
                 },
             };
             let elements = [];
@@ -630,7 +654,7 @@
                     if (element && textTypes.includes(element.type)) {
                         node.style.fontSize = `${element.fontSize * (96 / 72) *
                             (canvas.clientHeight / (templateSize.height * 96 / 25.4))}px`;
-                        if (element.type === 'productName' && element.fixedSize) {
+                        if (element.type !== 'productName' || element.fixedSize) {
                             fitTextToElement(node, element.fontSize, 'px');
                         }
                     }
@@ -727,8 +751,21 @@
                             message.textContent = error.message || 'Unable to generate barcode.';
                             node.replaceChildren(message);
                         }
+                    } else if (element.type === 'rectangle') {
+                        node.style.border = '1px solid #000';
+                        node.style.background = 'transparent';
                     } else {
-                        node.textContent = currentText(element);
+                        const content = document.createElement('span');
+                        content.textContent = currentText(element);
+                        content.style.width = '100%';
+                        node.replaceChildren(content);
+                        node.style.display = 'flex';
+                        node.style.flexDirection = 'column';
+                        node.style.justifyContent = {
+                            top: 'flex-start',
+                            center: 'center',
+                            bottom: 'flex-end',
+                        }[element.verticalAlign || 'top'];
                         node.style.fontSize = `${element.fontSize * (96 / 72) *
                             (canvas.clientHeight / (templateSize.height * 96 / 25.4))}px`;
                         node.style.lineHeight = '1.15';
@@ -742,7 +779,8 @@
                         render();
                     });
                     canvas.appendChild(node);
-                    if (element.type === 'productName' && element.fixedSize) {
+                    if (textTypes.includes(element.type) &&
+                        (element.type !== 'productName' || element.fixedSize)) {
                         fitTextToElement(node, element.fontSize, 'px');
                     }
                 });
@@ -757,7 +795,12 @@
                     const candidate = (min + max) / 2;
                     node.style.fontSize = `${unit === 'pt' ? candidate : candidate * (96 / 72) *
                         (canvas.clientHeight / (templateSize.height * 96 / 25.4))}${unit}`;
-                    if (node.scrollWidth <= node.clientWidth && node.scrollHeight <= node.clientHeight) {
+                    const content = node.firstElementChild;
+                    if (
+                        content &&
+                        content.scrollWidth <= node.clientWidth &&
+                        content.scrollHeight <= node.clientHeight
+                    ) {
                         bestFit = candidate;
                         min = candidate;
                     } else {
@@ -810,7 +853,10 @@
                     const hint = document.createElement('p');
                     hint.className = 'panel-hint';
                     hint.style.margin = '10px 0';
-                    hint.textContent = element.type === 'barcode' ? 'Code 128 auto uses the barcode value element.' :
+                    hint.textContent = element.type === 'barcode' ?
+                        'Code 128 auto uses the barcode value element.' :
+                        element.type === 'rectangle' ?
+                        'Outline marker. Use the width and height controls to resize it.' :
                         'This field displays the current local date or time.';
                     properties.appendChild(hint);
                 }
@@ -861,6 +907,30 @@
                         renderCanvas();
                     });
                     properties.append(alignmentLabel, alignmentInput);
+
+                    const verticalAlignmentLabel = document.createElement('label');
+                    verticalAlignmentLabel.className = 'property-label';
+                    verticalAlignmentLabel.htmlFor = 'selected-element-vertical-alignment';
+                    verticalAlignmentLabel.textContent = 'Vertical alignment';
+                    const verticalAlignmentInput = document.createElement('select');
+                    verticalAlignmentInput.className = 'property-input';
+                    verticalAlignmentInput.id = 'selected-element-vertical-alignment';
+                    [
+                        ['top', 'Top'],
+                        ['center', 'Center'],
+                        ['bottom', 'Bottom'],
+                    ].forEach(([value, label]) => {
+                        const option = document.createElement('option');
+                        option.value = value;
+                        option.textContent = label;
+                        verticalAlignmentInput.appendChild(option);
+                    });
+                    verticalAlignmentInput.value = element.verticalAlign || 'top';
+                    verticalAlignmentInput.addEventListener('change', () => {
+                        element.verticalAlign = verticalAlignmentInput.value;
+                        renderCanvas();
+                    });
+                    properties.append(verticalAlignmentLabel, verticalAlignmentInput);
 
                     const fontSizeLabel = document.createElement('label');
                     fontSizeLabel.className = 'property-label';
@@ -1086,7 +1156,7 @@
                 templateSize.height = 42;
                 sizeReadout.textContent = '70 × 42 mm';
                 resizeCanvas();
-                Object.keys(defaults).forEach(type => elements.push({
+                Object.keys(defaults).filter(type => type !== 'rectangle').forEach(type => elements.push({
                     id: String(nextId++),
                     type,
                     ...defaults[type]
@@ -1177,7 +1247,12 @@
                 widthInput.value = String(templateSize.width);
                 heightInput.value = String(templateSize.height);
                 sizeReadout.textContent = `${templateSize.width} × ${templateSize.height} mm`;
-                elements = layout.elements.map(element => ({ ...element }));
+                elements = layout.elements.map(element => ({
+                    ...element,
+                    ...(textTypes.includes(element.type) ? {
+                        verticalAlign: element.verticalAlign || 'top'
+                    } : {}),
+                }));
                 const numericIds = elements.map(element => Number(element.id)).filter(Number.isInteger);
                 nextId = Math.max(0, ...numericIds) + 1;
                 selectedId = null;
@@ -1307,6 +1382,7 @@
                         body { color: #000; background: #fff; font-family: Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                         .label-canvas { position: relative; display: block; width: ${width}mm; height: ${height}mm; overflow: hidden; border: 0; box-shadow: none; background: #fff; }
                         .canvas-element { position: absolute; min-width: 0; min-height: 0; padding: 0; overflow: hidden; border: 0; color: #000; font-family: Arial, sans-serif; line-height: 1.15; overflow-wrap: anywhere; }
+                        .canvas-element[data-type="rectangle"] { border: 1px solid #000; background: transparent; }
                         .canvas-element[data-type="barcode"] { background: #fff; }
                         .canvas-element[data-type="barcode"] svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: crispEdges; }
                         .canvas-element[data-type="barcodeValue"] { text-align: center; font-family: monospace; letter-spacing: .25mm; }
@@ -1322,9 +1398,9 @@
                 printCanvas.querySelector('.canvas-empty')?.remove();
                 printCanvas.querySelectorAll('.canvas-element').forEach(node => {
                     node.classList.remove('is-selected', 'is-dragging');
-                    node.style.border = '0';
-                    node.style.background = 'transparent';
                     const element = elements.find(item => item.id === node.dataset.id);
+                    node.style.border = element?.type === 'rectangle' ? '1px solid #000' : '0';
+                    node.style.background = 'transparent';
                     if (element && textTypes.includes(element.type)) {
                         node.style.fontSize = `${element.fontSize}pt`;
                         node.style.textAlign = element.align;
@@ -1333,9 +1409,15 @@
                     node.querySelector('svg')?.setAttribute('preserveAspectRatio', 'none');
                 });
                 printDocument.body.appendChild(printCanvas);
-                printCanvas.querySelectorAll('.canvas-element[data-type="productName"]').forEach(node => {
+                printCanvas.querySelectorAll('.canvas-element').forEach(node => {
                     const element = elements.find(item => item.id === node.dataset.id);
-                    if (element) fitTextToElement(node, element.fontSize, 'pt');
+                    if (
+                        element &&
+                        textTypes.includes(element.type) &&
+                        (element.type !== 'productName' || element.fixedSize)
+                    ) {
+                        fitTextToElement(node, element.fontSize, 'pt');
+                    }
                 });
 
                 let cleaned = false;
@@ -1368,7 +1450,7 @@
                 }
             });
 
-            Object.keys(defaults).forEach(type => elements.push({
+            Object.keys(defaults).filter(type => type !== 'rectangle').forEach(type => elements.push({
                 id: String(nextId++),
                 type,
                 ...defaults[type]
