@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/boxicons.min.css') }}">
     <link rel="icon" href="{{ asset('image/background_img/package.png') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <script src="{{ asset('js/jquery.min.js') }}"></script>  
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('css')
@@ -26,11 +26,11 @@
     <link rel="stylesheet" href="{{ asset('css/selectize.bootstrap3.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}">
 
-    @if(!\Route::is('pull_rg','detail_rg','r008s.create','r008s.show'))
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    @if (!\Route::is('pull_rg', 'detail_rg', 'r008s.create', 'r008s.show'))
+        <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     @endif
-    
-        <style>
+
+    <style>
         .information-modal {
             position: fixed;
             inset: 0;
@@ -65,7 +65,7 @@
             color: #334155;
         }
 
-        .information-row > i {
+        .information-row>i {
             width: 20px;
             flex: 0 0 20px;
             color: #d97706;
@@ -114,8 +114,8 @@
                 margin-bottom: 0;
             }
 
-            .sidebar_text > span,
-            .side_bar:hover .sidebar_text > span {
+            .sidebar_text>span,
+            .side_bar:hover .sidebar_text>span {
                 display: none;
             }
 
@@ -151,7 +151,10 @@
 
             @can('barcode-scan')
                 <li class="sidebar_items" onclick="javascript:window.location.href='/car_info'">
-                    @if (request()->is('receive_goodss*') || request()->is('car_info*') || request()->is('view_goods*') || request()->routeIs('receive_goods'))
+                    @if (request()->is('receive_goodss*') ||
+                            request()->is('car_info*') ||
+                            request()->is('view_goods*') ||
+                            request()->routeIs('receive_goods'))
                         <div class=""
                             style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                         </div>
@@ -163,17 +166,19 @@
                 </li>
             @endcan
 
-            <li class="sidebar_items" onclick="javascript:window.location.href='{{ route('barcode.designer') }}'">
-                @if (request()->routeIs('barcode.designer'))
-                    <div class=""
-                        style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
+            @can('user-management')
+                <li class="sidebar_items" onclick="javascript:window.location.href='{{ route('barcode.designer') }}'">
+                    @if (request()->routeIs('barcode.designer'))
+                        <div class=""
+                            style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
+                        </div>
+                    @endif
+                    <div class="sidebar_text">
+                        <i class='bx bx-barcode' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
+                        <span>Barcode Designer</span>
                     </div>
-                @endif
-                <div class="sidebar_text">
-                    <i class='bx bx-barcode' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
-                    <span>Barcode Designer</span>
-                </div>
-            </li>
+                </li>
+            @endcan
 
             <li class="sidebar_items" onclick="javascript:window.location.href='/list'">
                 @if (request()->is('list'))
@@ -200,14 +205,16 @@
             </li>
 
             <li class="sidebar_items" onclick="javascript:window.location.href='/receive_goods/rg_documents/list'">
-                @if (request()->routeIs('rg_documents.index', 'rg_documents.*','rg_documents','detail_rg'))
+                @if (request()->routeIs('rg_documents.index', 'rg_documents.*', 'rg_documents', 'detail_rg'))
                     <div class=""
                         style="height:40px;background-color: rgb(255, 255, 255);width: 5px;position: absolute;top: 4px;left: -10px;">
                     </div>
                 @endif
                 <div class="sidebar_text">
-                    <svg style="font-size: 2rem;margin: 10px 0 0 10px;" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-boxes" viewBox="0 0 16 16">
-                    <path d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z"/>
+                    <svg style="font-size: 2rem;margin: 10px 0 0 10px;" xmlns="http://www.w3.org/2000/svg"
+                        width="26" height="26" fill="currentColor" class="bi bi-boxes" viewBox="0 0 16 16">
+                        <path
+                            d="M7.752.066a.5.5 0 0 1 .496 0l3.75 2.143a.5.5 0 0 1 .252.434v3.995l3.498 2A.5.5 0 0 1 16 9.07v4.286a.5.5 0 0 1-.252.434l-3.75 2.143a.5.5 0 0 1-.496 0l-3.502-2-3.502 2.001a.5.5 0 0 1-.496 0l-3.75-2.143A.5.5 0 0 1 0 13.357V9.071a.5.5 0 0 1 .252-.434L3.75 6.638V2.643a.5.5 0 0 1 .252-.434zM4.25 7.504 1.508 9.071l2.742 1.567 2.742-1.567zM7.5 9.933l-2.75 1.571v3.134l2.75-1.571zm1 3.134 2.75 1.571v-3.134L8.5 9.933zm.508-3.996 2.742 1.567 2.742-1.567-2.742-1.567zm2.242-2.433V3.504L8.5 5.076V8.21zM7.5 8.21V5.076L4.75 3.504v3.134zM5.258 2.643 8 4.21l2.742-1.567L8 1.076zM15 9.933l-2.75 1.571v3.134L15 13.067zM3.75 14.638v-3.134L1 9.933v3.134z" />
                     </svg>
                     <span>RG Documents</span>
                 </div>
@@ -220,10 +227,12 @@
                     </div>
                 @endif
                 <div class="sidebar_text">
-                    <svg style="font-size: 2rem;margin: 10px 0 0 10px;"  xmlns="http://www.w3.org/2000/svg" width="24" height="24"  
-                    fill="currentColor" viewBox="0 0 24 24" >
-                    <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
-                    <path d="M4.93 4.93C3.04 6.82 2 9.33 2 12s1.04 5.18 2.93 7.07c1.95 1.95 4.51 2.92 7.07 2.92s5.12-.97 7.07-2.92S22 14.67 22 12s-1.04-5.18-2.93-7.07c-3.9-3.9-10.24-3.9-14.14 0M12 4.01c1.73 0 3.46.56 4.9 1.68l-4.9 4.9-4.9-4.9A7.97 7.97 0 0 1 12 4.01m-8 8c0-1.8.6-3.5 1.68-4.9l4.9 4.9-4.9 4.9A7.92 7.92 0 0 1 4 12.01m3.1 6.32 4.9-4.9 4.9 4.9a8.014 8.014 0 0 1-9.8 0m11.22-1.41-4.9-4.9 4.9-4.9c1.09 1.4 1.68 3.1 1.68 4.9s-.6 3.5-1.68 4.9"></path>
+                    <svg style="font-size: 2rem;margin: 10px 0 0 10px;" xmlns="http://www.w3.org/2000/svg"
+                        width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                        <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
+                        <path
+                            d="M4.93 4.93C3.04 6.82 2 9.33 2 12s1.04 5.18 2.93 7.07c1.95 1.95 4.51 2.92 7.07 2.92s5.12-.97 7.07-2.92S22 14.67 22 12s-1.04-5.18-2.93-7.07c-3.9-3.9-10.24-3.9-14.14 0M12 4.01c1.73 0 3.46.56 4.9 1.68l-4.9 4.9-4.9-4.9A7.97 7.97 0 0 1 12 4.01m-8 8c0-1.8.6-3.5 1.68-4.9l4.9 4.9-4.9 4.9A7.92 7.92 0 0 1 4 12.01m3.1 6.32 4.9-4.9 4.9 4.9a8.014 8.014 0 0 1-9.8 0m11.22-1.41-4.9-4.9 4.9-4.9c1.09 1.4 1.68 3.1 1.68 4.9s-.6 3.5-1.68 4.9">
+                        </path>
                     </svg>
                     <span>RG Cancel Requests</span>
                 </div>
@@ -236,8 +245,11 @@
                     </div>
                 @endif
                 <div class="sidebar_text">
-                    <svg style="font-size: 2rem;margin: 10px 0 0 10px;" xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-shield-slash-fill" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M1.093 3.093c-.465 4.275.885 7.46 2.513 9.589a11.8 11.8 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7 7 0 0 0 1.048-.625 11.3 11.3 0 0 0 1.733-1.525zm12.215 8.215L3.128 1.128A61 61 0 0 1 5.073.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.483 3.626-.332 6.491-1.551 8.616m.338 3.046-13-13 .708-.708 13 13z"/>
+                    <svg style="font-size: 2rem;margin: 10px 0 0 10px;" xmlns="http://www.w3.org/2000/svg"
+                        width="26" height="26" fill="currentColor" class="bi bi-shield-slash-fill"
+                        viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M1.093 3.093c-.465 4.275.885 7.46 2.513 9.589a11.8 11.8 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7 7 0 0 0 1.048-.625 11.3 11.3 0 0 0 1.733-1.525zm12.215 8.215L3.128 1.128A61 61 0 0 1 5.073.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.483 3.626-.332 6.491-1.551 8.616m.338 3.046-13-13 .708-.708 13 13z" />
                     </svg>
                     <span>R008 Documents</span>
                 </div>
@@ -293,8 +305,8 @@
                 </div>
             </li>
 
-            <li class="sidebar_items" id="information_trigger" role="button" tabindex="0"
-                aria-haspopup="dialog" aria-controls="information_modal">
+            <li class="sidebar_items" id="information_trigger" role="button" tabindex="0" aria-haspopup="dialog"
+                aria-controls="information_modal">
                 <div class="sidebar_text information-trigger">
                     <i class='bx bx-info-circle' style="font-size: 2rem;margin: 10px 0 0 10px;"></i>
                     <span>Information</span>
@@ -326,7 +338,8 @@
                     <img src="{{ asset('image/background_img/finallogo.png') }}" alt=""
                         class="h-10 w-auto object-contain">
                     <div>
-                        <h2 class="text-lg font-semibold text-slate-800" id="information_title">PRO 1 Global Home Center</h2>
+                        <h2 class="text-lg font-semibold text-slate-800" id="information_title">PRO 1 Global Home
+                            Center</h2>
                         <a href="{{ getAuth()->employee_code == 'superadmin@mail.com' ? route('changelogs.index') : url('whatsnews?status=read') }}"
                             target="_blank" rel="noopener noreferrer"
                             class="text-sm font-medium text-amber-700 hover:text-amber-800">What is News?</a>
@@ -339,18 +352,23 @@
 
             <div class="information-row">
                 <i class='bx bxs-user-account'></i>
-                <div><span class="font-medium">User</span><div>{{ getAuth()->name }}</div></div>
+                <div><span class="font-medium">User</span>
+                    <div>{{ getAuth()->name }}</div>
+                </div>
             </div>
             <div class="information-row">
                 <i class='bx bx-user-voice'></i>
-                <div><span class="font-medium">Role</span><div>{{ getAuth()->roleName() }}</div></div>
+                <div><span class="font-medium">Role</span>
+                    <div>{{ getAuth()->roleName() }}</div>
+                </div>
             </div>
             <div class="information-row">
                 <i class='bx bx-store-alt'></i>
                 <div class="relative">
                     <span class="font-medium">Branch</span>
                     <div>
-                        <span class="{{ count(multi_br()) > 1 ? 'bg-amber-100 px-2 py-1 rounded ch_br cursor-pointer' : '' }}"
+                        <span
+                            class="{{ count(multi_br()) > 1 ? 'bg-amber-100 px-2 py-1 rounded ch_br cursor-pointer' : '' }}"
                             @if (count(multi_br()) > 1) role="button" tabindex="0" aria-haspopup="listbox" @endif>
                             {{ getAuth()->branch->branch_name }}
                         </span>
@@ -361,8 +379,7 @@
                             role="listbox" aria-label="Choose branch">
                             @foreach (multi_br() as $item)
                                 @if (getAuth()->branch_id != $item->branch_id)
-                                    <li class="cursor-pointer bg-amber-200 px-2 py-1 hover:bg-white"
-                                        role="option"
+                                    <li class="cursor-pointer bg-amber-200 px-2 py-1 hover:bg-white" role="option"
                                         onclick="javascript:window.location.href='/change_branch/{{ $item->branch_id }}'">
                                         {{ $item->branch->branch_name }}</li>
                                 @endif
@@ -373,7 +390,9 @@
             </div>
             <div class="information-row">
                 <i class='bx bx-server'></i>
-                <div><span class="font-medium">IP Computer</span><div>{{ request()->ip() }}</div></div>
+                <div><span class="font-medium">IP Computer</span>
+                    <div>{{ request()->ip() }}</div>
+                </div>
             </div>
         </section>
     </div>
