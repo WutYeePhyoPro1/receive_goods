@@ -3,10 +3,12 @@
 use App\Http\Controllers\ActionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BarcodeLabelTemplateController;
 use App\Http\Controllers\authenticateController;
 use App\Http\Controllers\BarcodeLabelController;
 use App\Http\Controllers\R008SController;
 use App\Http\Controllers\ReceiveGoodRejectsController;
+use App\Http\Controllers\ReceiveGoodsController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\QzSecurityController;
 use App\Http\Controllers\UnavailableScannedProductController;
@@ -31,32 +33,22 @@ Route::get('login', function () {
 
 Route::redirect('/', 'login');
 
+
 route::group(['controller' => authenticateController::class], function () {
     route::post('login', 'login')->name('login');
     route::post('logout', 'logout')->name('logout');
 });
 
 Route::middleware(['auth:sanctum', 'active'])->group(function () {
-    Route::get('/barcode-labels', [BarcodeLabelController::class, 'index'])
-        ->name('barcode-labels.index');
+    Route::get(
+        '/receive-goods',
+        [ReceiveGoodsController::class, 'index']
+    )->name('receive-goods.index');
 
-    Route::get('/barcode-labels/create', [BarcodeLabelController::class, 'create'])
-        ->name('barcode-labels.create');
-
-    Route::post('/barcode-labels', [BarcodeLabelController::class, 'store'])
-        ->name('barcode-labels.store');
-
-    Route::get('/barcode-labels/{template}/edit', [BarcodeLabelController::class, 'edit'])
-        ->name('barcode-labels.edit');
-
-    Route::put('/barcode-labels/{template}', [BarcodeLabelController::class, 'update'])
-        ->name('barcode-labels.update');
-
-    Route::delete('/barcode-labels/{template}', [BarcodeLabelController::class, 'destroy'])
-        ->name('barcode-labels.destroy');
-
-
-
+    Route::get(
+        '/receive-goods/export',
+        [ReceiveGoodsController::class, 'export']
+    )->name('receive-goods.export');
 
     Route::get('/qz/certificate', [QzSecurityController::class, 'certificate'])
         ->name('qz.certificate');
@@ -66,6 +58,17 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
 
     // route::group(['controller'=>])
     route::get('/home', [authenticateController::class, 'home'])->name('home');
+    Route::view('/barcode-designer', 'user.barcode_designer')->name('barcode.designer');
+    Route::get('/barcode-templates', [BarcodeLabelTemplateController::class, 'index'])
+        ->name('barcode.templates.index');
+    Route::post('/barcode-templates', [BarcodeLabelTemplateController::class, 'store'])
+        ->name('barcode.templates.store');
+    Route::get('/barcode-templates/{barcodeTemplate}', [BarcodeLabelTemplateController::class, 'show'])
+        ->name('barcode.templates.show');
+    Route::put('/barcode-templates/{barcodeTemplate}', [BarcodeLabelTemplateController::class, 'update'])
+        ->name('barcode.templates.update');
+    Route::delete('/barcode-templates/{barcodeTemplate}', [BarcodeLabelTemplateController::class, 'destroy'])
+        ->name('barcode.templates.destroy');
 
     Route::group(['prefix' => '/unavailable_scanned_products', 'controller' => UnavailableScannedProductController::class, 'as' => 'unavailable_scanned_products.'], function () {
         Route::get('/', 'index')->name('get');
@@ -118,6 +121,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         // Route::resource("r008s",StudentsController::class);
 
         Route::get('r008s', 'index')->name('r008s.index');
+        Route::get('r008s/export', 'export')->name('r008s.export');
         Route::get('r008s/create', 'create')->name('r008s.create');
         Route::post('r008s', 'store')->name('r008s.store');
         Route::get('r008s/{id}', 'show')->name('r008s.show');

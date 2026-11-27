@@ -30,6 +30,10 @@ class ReceiveGoodDocument extends Model
         "gr_by"
     ];
 
+    protected $casts = [
+        "date" => "date",
+    ];
+
     public function user(){
         return $this->belongsTo(User::class);
     }

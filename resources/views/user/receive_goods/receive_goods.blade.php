@@ -450,7 +450,7 @@
         </div> --}}
 
         <div class="rg-search-actions w-full xl:w-1/2 lg:px-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between my-4">
-           <a href="{{ route('pull_rg', $main->id ?? '' ) }}" 
+           <a href="{{ route('pull_rg', $main->id ?? '' ) }}"
             class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 active:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 rounded-lg no-underline transition-colors duration-200 ease-in-out">
             Go To RG
             </a>
@@ -1023,14 +1023,18 @@
                             </svg>
                         </button>
                     </div>
+                    <div class="px-4 pb-2 text-slate-700">
+                        Barcode Number: <strong id="print_barcode_number" class="select-all"></strong>
+                    </div>
                     <div class="">
-                        <input type="hidden" id="print_eq">
                         <Select class="w-full border border-slate-300 py-3 ps-2 bg-white rounded-lg appearance-none"
-                            id="bar_type">
+                            id="bar_type"
+                            data-templates-url="{{ route('barcode.templates.index') }}">
                             <option value="1">Bar 1</option>
                             <option value="2">Bar 2</option>
                             <option value="3">Bar 3</option>
                         </Select>
+                        <small id="barcode_template_status" class="mt-1 block text-slate-500" aria-live="polite"></small>
                         <Select class="w-full border border-slate-300 py-3 ps-2 bg-white rounded-lg appearance-none mt-2"
                             id="reason">
                             @foreach ($reason as $item)
@@ -1565,6 +1569,8 @@
                                         var scannId = scanDocument.scan_id;
                                         var scannPause = scanDocument.scann_pause;
                                         var barcodEqual = scanDocument.barcode_equal;
+                                        let scanUnits = scanDocument.unit;
+                                        let scanBarcodeHtmls = scanDocument.barcode_htmls;
 
                                         for (let j = 0; j < sanbarCodes.length; j++) {
                                             var buttonHtml = '';
@@ -1576,6 +1582,11 @@
 
                                             let qty = Number(sanqtys[j]);
                                             let scannedQty = Number(sanscannedQtys[j]);
+                                            let scanBarcodeHtml = scanBarcodeHtmls[j] || {
+                                                bar_stick1: '',
+                                                bar_stick2: '',
+                                                bar_stick3: ''
+                                            };
                                             let rowHtmltwo = `<tr class="h-10 scanned_pd_div">
                                                 ${j === 0 ? `<td class="ps-2 border border-slate-400 border-t-0 ">${i + 1}</td>` : '<td class="ps-2 border border-slate-400 border-t-0"></td>'}
                                                 ${j === 0 ? `<td class="td-container ps-2 border border-slate-400 border-t-0 border-l-0 ${allScanned ? 'bg-green-200 text-green-600' : ''}">
@@ -1594,11 +1605,21 @@
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]}">${sansupplierNames[j]}</td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 ">
-                                                    ${scannedQty > qty ? qty : scannedQty}
+                                                    <span class="scanned-product-sticker cursor-pointer hover:underline hover:font-semibold select-none" data-max-qty="${Math.min(scannedQty, qty)}">${Math.min(scannedQty, qty)}</span>
+                                                    <input type="hidden" class="pd_unit">
+                                                    <input type="hidden" class="pd_name">
+                                                    <input type="hidden" class="pd_id">
+                                                    <div class="px-5 bar_stick1 hidden">${scanBarcodeHtml.bar_stick1}</div>
+                                                    <div class="px-5 bar_stick2 hidden">${scanBarcodeHtml.bar_stick2}</div>
+                                                    <div class="px-5 bar_stick3 hidden">${scanBarcodeHtml.bar_stick3}</div>
                                                 </td>
                                                 <td class="ps-2 border border-slate-400 border-t-0 ${scanColor[j]} border-r-0 no">${scannCount[j]}</td>
                                             </tr>`;
-                                            $('.search_scan_body').append(rowHtmltwo);
+                                            const $row = $(rowHtmltwo);
+                                            $('.search_scan_body').append($row);
+                                            $row.find('.pd_unit').val(scanUnits[j] || '');
+                                            $row.find('.pd_name').val(sansupplierNames[j]);
+                                            $row.find('.pd_id').val(scannId[j]);
                                         }
                                     });
                                 }
@@ -2124,20 +2145,111 @@
 
                         // })
 
-                        $(document).on('click', '.sticker', function(e) {
-                            $('#print_eq').val('');
+                        let barcodeTemplatesLoaded = false;
+                        let barcodeTemplatesLoading = false;
+                        let barcodeTemplatesFailed = false;
+
+                        async function loadBarcodeTemplates() {
+                            if (barcodeTemplatesLoaded || barcodeTemplatesLoading) return;
+                            barcodeTemplatesLoading = true;
+                            const $status = $('#barcode_template_status');
+                            $status.removeClass('text-rose-600').addClass('text-slate-500')
+                                .text('Loading shared templates...');
+
+                            try {
+                                const response = await fetch($('#bar_type').data('templates-url'), {
+                                    headers: { Accept: 'application/json' },
+                                    credentials: 'same-origin'
+                                });
+                                if (!response.ok) throw new Error(`Template request failed (${response.status}).`);
+                                const result = await response.json();
+                                const select = document.getElementById('bar_type');
+                                const group = document.createElement('optgroup');
+                                group.label = 'Shared Templates';
+                                group.dataset.templateOptions = 'true';
+                                (result.data || []).forEach((template) => {
+                                    const option = document.createElement('option');
+                                    option.value = `template:${template.id}`;
+                                    option.textContent = template.name;
+                                    option.dataset.templateOption = 'true';
+                                    group.appendChild(option);
+                                });
+                                select.appendChild(group);
+                                barcodeTemplatesLoaded = true;
+                                barcodeTemplatesFailed = false;
+                                updateBarcodeTemplateOptions();
+                            } catch (error) {
+                                barcodeTemplatesFailed = true;
+                                $status.removeClass('text-slate-500').addClass('text-rose-600')
+                                    .text('Unable to load shared templates. Close and reopen the print dialog to retry.');
+                                console.error('Unable to load barcode templates', error);
+                            } finally {
+                                barcodeTemplatesLoading = false;
+                            }
+                        }
+
+                        function updateBarcodeTemplateOptions() {
+                            const directMode = $('#barcode_print_mode').val() === 'direct';
+                            $('#bar_type option[data-template-option]').prop('disabled', directMode);
+                            const selectedType = String($('#bar_type').val() || '');
+                            const $status = $('#barcode_template_status');
+
+                            if (directMode && selectedType.startsWith('template:')) {
+                                $('#bar_type').val('1');
+                                $status.removeClass('text-rose-600').addClass('text-slate-500')
+                                    .text('Shared templates are available with Browser Print only.');
+                                return;
+                            }
+                            if (barcodeTemplatesFailed) return;
+                            const count = $('#bar_type option[data-template-option]').length;
+                            $status.removeClass('text-rose-600').addClass('text-slate-500')
+                                .text(count ? 'Shared templates are available with Browser Print only.' :
+                                    (barcodeTemplatesLoaded ? 'No shared templates are available.' : ''));
+                        }
+
+                        function showPrintModal(product, maxQty) {
                             $('#print_count').val('');
+                            $('#print_no').data('print-product', product);
+                            $('#print_no').data('max-qty', Number(maxQty));
+                            $('#print_barcode_number').text(product.barcode || '');
                             $('#print_no').show();
-                            $('#print_eq').val($(this).data('index'));
                             $('#qz_server_host').val(window.receivedGoodsQz?.getServerHost() || '');
                             const printMode = window.receivedGoodsQz?.getMode() || 'browser';
                             $('#barcode_print_mode').val(printMode).trigger('change');
+                            loadBarcodeTemplates();
+                        }
+
+                        $(document).on('click', '.sticker', function(e) {
+                            const $cell = $(this).closest('.qty');
+                            const $row = $(this).closest('tr');
+                            showPrintModal({
+                                barcode: $row.find('.bar_code span').first().text().trim(),
+                                name: $cell.find('.pd_name').val(),
+                                unit: $cell.find('.pd_unit').val(),
+                                id: $cell.find('.pd_id').val(),
+                                bar_stick1: $cell.find('.bar_stick1').html(),
+                                bar_stick2: $cell.find('.bar_stick2').html(),
+                                bar_stick3: $cell.find('.bar_stick3').html()
+                            }, $(this).text());
+                        });
+
+                        $(document).on('click', '.scanned-product-sticker', function(e) {
+                            const $cell = $(this).closest('td');
+                            const $row = $(this).closest('tr');
+                            showPrintModal({
+                                barcode: $row.find('.td-barcode-container span').first().text().trim(),
+                                name: $cell.find('.pd_name').val(),
+                                unit: $cell.find('.pd_unit').val(),
+                                id: $cell.find('.pd_id').val(),
+                                bar_stick1: $cell.find('.bar_stick1').html(),
+                                bar_stick2: $cell.find('.bar_stick2').html(),
+                                bar_stick3: $cell.find('.bar_stick3').html()
+                            }, $(this).data('max-qty'));
                         })
 
                         $(document).on("input", '#print_count', function(e) {
                             $val = $(this).val();
-                            $eq = $('#print_eq').val();
-                            $qty = $('.sticker').eq($eq).text();
+                            $qty = $('#print_no').data('max-qty');
                             if ($val > 500) {
                                 $(this).val(500);
                             } else if ($val > parseInt($qty)) {
@@ -2180,8 +2292,11 @@
                             const mode = $(this).val();
                             window.receivedGoodsQz?.setMode(mode);
                             $('#qz_printer_settings').toggleClass('hidden', mode !== 'direct');
+                            updateBarcodeTemplateOptions();
                             if (mode === 'direct' && window.receivedGoodsQz) refreshQzPrinters(false);
                         });
+
+                        $(document).on('change', '#bar_type', updateBarcodeTemplateOptions);
 
                         $(document).on('change', '#qz_printer', function() {
                             window.receivedGoodsQz?.setPrinter($(this).val());
@@ -2230,15 +2345,24 @@
                         }
 
                         $(document).on('click', '#final_print', async function(e) {
-                            $index = $('#print_eq').val();
-                            $pd_code = $('.bar_code').eq($index).text();
+                            const product = $('#print_no').data('print-product');
                             $qty = $('#print_count').val();
-                            $unit = $('.pd_unit').eq($index).val();
-                            $name = $('.pd_name').eq($index).val();
-                            $id = $('.pd_id').eq($index).val();
-                            $type = $('#bar_type').val();
+                            $pd_code = product.barcode;
+                            $unit = product.unit;
+                            $name = product.name;
+                            $id = product.id;
+                            $type = String($('#bar_type').val());
                             $reason = $('#reason').val();
                             if ($qty > 0 && $qty != '') {
+                                const isTemplate = $type.startsWith('template:');
+                                if (isTemplate && $('#barcode_print_mode').val() === 'direct') {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Browser Print required',
+                                        text: 'Shared templates are not supported by QZ Direct Print. Select Browser Print to continue.',
+                                    });
+                                    return;
+                                }
                                 $td = new Date();
                                 $date = [String($td.getDate()).padStart(2, '0'), String($td.getMonth() + 1)
                                     .padStart(2, '0'), $td.getFullYear()
@@ -2281,9 +2405,12 @@
                                     .replace('__PRODUCT_ID__', encodeURIComponent($id));
                                 const barcodePrintParams = new URLSearchParams({
                                     qty: $qty,
-                                    type: $type,
+                                    type: isTemplate ? 'template' : $type,
                                     v: Date.now()
                                 });
+                                if (isTemplate) {
+                                    barcodePrintParams.set('template_id', $type.substring('template:'.length));
+                                }
 
                                 // Print the fixed-size vector PDF, following the reward system's
                                 // iframe/PDF approach. This avoids browser HTML scaling and keeps
@@ -2327,7 +2454,7 @@
 
 
                                 if ($type == 1) {
-                                    $bar = $('.bar_stick1').eq($index).html();
+                                    $bar = product.bar_stick1;
                                     // $name = $name.length > 80 ? $name.substring(0, 78) + '..' : $name;
                                     // $name = $name.length > 60 ? $name.substring(0, 30) + "<br/>" + $name
                                     //     .substring(30, 60) + "<br/>" + $name.substring(60) :
@@ -2381,7 +2508,7 @@
                                     }
                                     new_pr.document.write("</div></body></html>");
                                 } else if ($type == 2) {
-                                    $bar = $('.bar_stick2').eq($index).html();
+                                    $bar = product.bar_stick2;
                                     // $name = $name.length > 80 ? $name.substring(0, 78) + '..' : $name;
                                     // $name = $name.length > 40 ? $name.substring(0, 40) + "<br/>" + $name
                                     //     .substring(40) : $name;
@@ -2414,7 +2541,7 @@
                                     }
                                     new_pr.document.write("</div></body></html>");
                                 } else if ($type == 3) {
-                                    $bar = $('.bar_stick3').eq($index).html();
+                                    $bar = product.bar_stick3;
 
                                     new_pr.document.write(
                                         `<html><head><style>${barcodePrintPageStyle(44)}#per_div{display: grid;grid-template-columns:33% 33% 33%;margin-left:30px;gap:10px}`

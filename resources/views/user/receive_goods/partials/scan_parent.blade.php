@@ -98,7 +98,15 @@
 
                                                 <td
                                                     class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0">
-                                                    {{ $tem->scanned_qty > $tem->qty ? $tem->qty : $tem->scanned_qty }}
+                                                    <span
+                                                        class="scanned-product-sticker cursor-pointer hover:underline hover:font-semibold select-none"
+                                                        data-max-qty="{{ min($tem->qty, $tem->scanned_qty) }}">{{ min($tem->qty, $tem->scanned_qty) }}</span>
+                                                    <input type="hidden" class="pd_unit" value="{{ $tem->unit }}">
+                                                    <input type="hidden" class="pd_name" value="{{ $tem->supplier_name }}">
+                                                    <input type="hidden" class="pd_id" value="{{ $tem->id }}">
+                                                    <div class="px-5 bar_stick1 hidden">{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 50) !!}</div>
+                                                    <div class="px-5 bar_stick2 hidden">{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 22) !!}</div>
+                                                    <div class="px-5 bar_stick3 hidden">{!! DNS1D::getBarcodeHTML($tem->bar_code ?? '1', 'C128', 2, 50) !!}</div>
                                                 </td>
                                                 <td
                                                     class="ps-2 border border-slate-400 border-t-0 {{ $color }} border-r-0 no">

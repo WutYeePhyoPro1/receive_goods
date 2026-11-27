@@ -26,6 +26,7 @@ use App\Models\UserBranch;
 use App\Repositories\ActionRepository;
 use App\Repositories\UserRepository;
 use App\Services\DocumentCodeService;
+use App\Services\ReceiveGoods\ReceiveGoodsQuery;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -452,7 +453,7 @@ class userController extends Controller
 
         $receives = $conn->select("
             SELECT * FROM purchaseorder.receive_type
-            ORDER BY remark_id DESC 
+            ORDER BY remark_id DESC
             LIMIT 100
         ");
 
@@ -486,66 +487,20 @@ class userController extends Controller
         ));
     }
 
-    public function rg_documents(Request $request){
-        $docuno =  $request->form_doc_no;
-        $branch = $request->branch_id;
-        $start_date = $request->start_date;
-        $end_date = $request->end_date;
+    public function rg_documents(Request $request, ReceiveGoodsQuery $query){
+        $filters = $request->only([
+            'form_doc_no',
+            'branch_id',
+            'start_date',
+            'end_date',
+            'back_date_from',
+            'back_date_to',
+        ]);
+        $data = $query->build($filters, $request->user())
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(15);
 
-        $hasFilter = collect($request->except('page'))
-        ->filter(fn ($value) => filled($value))
-        ->isNotEmpty();
-
-
-        $user = auth()->user();
-        $user_id = $user->id;
-
-        $results = ReceiveGoodDocument::query();
-
-        if ($docuno) {
-            $results = $results->where(function ($query) use ($docuno) {
-                    $query->where('po_no', 'ilike', '%' . $docuno . '%')
-                    ->orWhereHas('receive_good_files', function ($q) use ($docuno) {
-                        $q->where('file', 'ilike', '%' . $docuno . '%');
-                    })
-                    ->orWhere('remark', 'ilike', '%' . $docuno . '%');
-            });
-        }
-        
-        if ($branch) {
-            $results = $results->where(function ($q) use ($branch) {
-                $q->where('branch_id', $branch);
-            });
-        } 
-
-        $role = Role::where('name','admin')->first();
-        $role_id = $role->id;
-        if($user->role != $role_id && !isDCUser()){
-            $user_branches = $user->user_branches;
-            $branch_ids = $user_branches->pluck('branch_id');
-            $branch_ids[] = $user->branch_id;
-            // dd($branch_ids);
-
-            $results = $results->whereIn('branch_id',$branch_ids);
-        }
-
-     
-        if ($hasFilter) {
-            if($start_date || $end_date){
-                $start_date = $request->start_date
-                            ? Carbon::parse($request->start_date)->startOfDay()
-                            : Carbon::createFromTimestamp(0)->startOfDay();
-                $end_date = $request->end_date
-                            ? Carbon::parse($request->end_date)->endOfDay()
-                            : Carbon::today()->endOfDay();
-                $results = $results->whereBetween('created_at', [$start_date , $end_date]);
-            }
-        }else{
-            $results->whereDate('created_at','>=',now()->subMonth());
-        }
-            
-
-        $data = $results->orderBy('created_at','desc')->paginate(15);
         return view('user.receive_goods.rg_documents.index',compact("data"));
     }
 
@@ -554,7 +509,7 @@ class userController extends Controller
 
         $document_id = $receive_good_document->document_id;
         $good_receive = GoodsReceive::where('id', $document_id)->first();
-        
+
         $documents = Document::where('received_goods_id', $id)
         ->orderBy('updated_at', 'desc')
         ->get();
@@ -571,7 +526,7 @@ class userController extends Controller
 
         $receives = $conn->select("
             SELECT * FROM purchaseorder.receive_type
-            ORDER BY remark_id DESC 
+            ORDER BY remark_id DESC
             LIMIT 100
         ");
 
@@ -601,7 +556,7 @@ class userController extends Controller
 
         $document_id = $receive_good_document->document_id;
         $good_receive = GoodsReceive::where('id', $document_id)->first();
-        
+
         $documents = Document::where('received_goods_id', $id)
         ->orderBy('updated_at', 'desc')
         ->get();
@@ -617,7 +572,7 @@ class userController extends Controller
 
         $receives = $conn->select("
             SELECT * FROM purchaseorder.receive_type
-            ORDER BY remark_id DESC 
+            ORDER BY remark_id DESC
             LIMIT 100
         ");
 
@@ -645,7 +600,7 @@ class userController extends Controller
         // $r008_document = R008Document::find($id);
         // $conn = DB::connection('defective_product');
         // $statuses = $conn->select("
-        //     SELECT * 
+        //     SELECT *
         //     FROM public.r008_subject
         //     ORDER BY subjectr008_id ASC
         //     LIMIT 100
@@ -689,7 +644,7 @@ class userController extends Controller
     }
 
     public function approve_form($id,Request $request){
-        
+
         DB::beginTransaction();
         DB::connection('master_product')->beginTransaction();
         try {
@@ -715,15 +670,15 @@ class userController extends Controller
                     DB::connection('master_product')->rollBack();
 
                     return back()->with('fails', "This RG have VC Invoice '$vcdocuno'. Please cancel VC Invoice first.");
-                }else{  
+                }else{
                     // dd('do not has vc');
                 }
 
                 $origianl_status = $receive_good_document->status;
                 $receive_good_document->update(['status' => $request->status]);
-                
+
                 if ($origianl_status == 'Default') {
-                   
+
 
                     $receive_good_document->update([
                         'rejected_by'=> $user_id,
@@ -741,7 +696,7 @@ class userController extends Controller
             }
             // throw new \Exception("RG Document Update Error: ");
 
-                
+
             DB::commit();
             DB::connection('master_product')->commit();
             return back();
@@ -759,7 +714,7 @@ class userController extends Controller
     //     $category = Category::findOrFail($request["id"]);
     //     $category->status_id = $request["status_id"];
     //     $category->save();
-    
+
     //     return response()->json(["success"=>"Status Change Successfully"]);
     // }
 
@@ -837,12 +792,12 @@ class userController extends Controller
                     // ->orWhere('remark', 'like', '%' . $docuno . '%');
             });
         }
-        
+
         if ($branch) {
             $results = $results->where(function ($q) use ($branch) {
                 $q->where('branch_id', $branch);
             });
-        } 
+        }
 
 
         $role = Role::where('name','admin')->first();
@@ -899,7 +854,7 @@ class userController extends Controller
                 now()->subMonth()
             );
         }
-            
+
         if($status){
             $results = $results->where(function ($q) use ($status) {
                 $q->where('status', $status);
@@ -920,7 +875,7 @@ class userController extends Controller
         //         $this->actionRepository->sync_doc($purchase_orders, $request);
         //     }
         // }
-          
+
 
         return view('user.receive_goods.documents.index',compact("data"));
 
@@ -936,8 +891,8 @@ class userController extends Controller
         $request['id'] = $po_document->received_goods_id;
 
         $isPoFetched = $po_document->purchase_order_items()->whereNotNull('listno')->exists(); // PO Document မှလိုအပ်သော  dataများကိုဆွဲယူပြီးပြီလား။
-        $hasPOEmployee = $po_document->employeecode; 
-        if(!$isPoFetched || !$hasPOEmployee) {          
+        $hasPOEmployee = $po_document->employeecode;
+        if(!$isPoFetched || !$hasPOEmployee) {
             $purchase_orders = getPODocument($purchaseno);
             if ($purchase_orders) {
                 $this->actionRepository->sync_doc($purchase_orders, $request);
@@ -1022,9 +977,9 @@ class userController extends Controller
 
                 $origianl_status = $po_document->status;
                 $po_document->update(['status' => $request->status]);
-                
+
                 // if ($origianl_status == 'Default') {
-                
+
                     $po_document->update([
                         'rejected_by'=> $user_id,
                         'rejected_at' => now()
@@ -1037,7 +992,7 @@ class userController extends Controller
             }
             // throw new \Exception("PO Document Update Error: ");
 
-                
+
             DB::commit();
             DB::connection('master_product')->commit();
             return back();
@@ -1631,6 +1586,8 @@ class userController extends Controller
                     $scann_count = [];
                     $scann_pause = [];
                     $barcode_equal = [];
+                    $scan_units = [];
+                    $scan_barcode_htmls = [];
 
                     foreach ($search_scaned_pd as $scan_pd_data) {
                         if($input_barcode_no) {
@@ -1644,6 +1601,12 @@ class userController extends Controller
                                 $scann_count[] = $scan_pd_data->scann_count;
                                 $scann_pause[] = $scan_pd_data->scann_pause;
                                 $barcode_equal[] = barcode_equal($product_barcode,$scan_pd_data->bar_code);
+                                $scan_units[] = $scan_pd_data->unit;
+                                $scan_barcode_htmls[] = [
+                                    'bar_stick1' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 50),
+                                    'bar_stick2' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 22),
+                                    'bar_stick3' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 50)
+                                ];
                             }
                         } else {
                             $scan_id[] = $scan_pd_data->id;
@@ -1655,6 +1618,12 @@ class userController extends Controller
                             $scann_count[] = $scan_pd_data->scann_count;
                             $scann_pause[] = $scan_pd_data->scann_pause;
                             $barcode_equal[] = barcode_equal($product_barcode,$scan_pd_data->bar_code);
+                            $scan_units[] = $scan_pd_data->unit;
+                            $scan_barcode_htmls[] = [
+                                'bar_stick1' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 50),
+                                'bar_stick2' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 22),
+                                'bar_stick3' => $d->getBarcodeHTML($scan_pd_data->bar_code ?? '1', 'C128', 2, 50)
+                            ];
                         }
                     }
 
@@ -1673,7 +1642,9 @@ class userController extends Controller
                         'scann_count' => $scann_count,
                         'scan_id' => $scan_id,
                         'scann_pause' => $scann_pause,
-                        'barcode_equal' => $barcode_equal
+                        'barcode_equal' => $barcode_equal,
+                        'unit' => $scan_units,
+                        'barcode_htmls' => $scan_barcode_htmls
                     ];
                     $scan_response[] = $scan_merged_data;
                 }
