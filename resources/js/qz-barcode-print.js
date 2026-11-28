@@ -334,9 +334,8 @@ async function connect() {
 
 async function listPrinters() {
     await connect();
-    const printers = await qz.printers.find();
-     return printers.filter((name) => /gainscha|ge-?2406|gs-?2406|tsc|ttp-?247/i.test(name));
-    // return printers.filter((name) => /gainscha|ge-?2406|gs-?2406/i.test(name));/gainscha|ge-?2406|gs-?2406|tsc|ttp-?247/i
+    // Queue names can be customized and need not contain the printer brand/model.
+    return qz.printers.find();
 }
 
 function getPrinter() {

@@ -1055,7 +1055,7 @@
                             <div class="flex gap-2">
                                 <select id="qz_printer"
                                     class="min-w-0 flex-1 border border-slate-300 py-2 ps-2 rounded-lg">
-                                    <option value="">Gainscha printer ရွေးပါ</option>
+                                    <option value="">TSPL barcode printer ရွေးပါ (Gainscha / TSC)</option>
                                 </select>
                                 <button type="button" id="qz_refresh_printers"
                                     class="rounded-md bg-sky-500 px-3 py-1 text-white">Refresh</button>
@@ -2159,7 +2159,7 @@
                                 const serverHost = window.receivedGoodsQz.getServerHost();
                                 const printers = await window.receivedGoodsQz.listPrinters();
                                 const savedPrinter = window.receivedGoodsQz.getPrinter();
-                                $printer.empty().append('<option value="">Gainscha printer ရွေးပါ</option>');
+                                $printer.empty().append('<option value="">TSPL barcode printer ရွေးပါ (Gainscha / TSC)</option>');
                                 printers.forEach((printer) => {
                                     $('<option>').val(printer).text(printer).appendTo($printer);
                                 });
@@ -2167,7 +2167,7 @@
                                 $status.removeClass('text-slate-500').addClass('text-emerald-600')
                                     .text(printers.length
                                         ? `${serverHost || 'Local PC'} မှာ ${printers.length} printer(s) တွေ့သည်။`
-                                        : `${serverHost || 'Local PC'} မှာ Gainscha printer မတွေ့ပါ။`);
+                                        : `${serverHost || 'Local PC'} မှာ printer မတွေ့ပါ။ QZ Tray run နေသောစက်မှာ printer driver တင်ထားခြင်းနှင့် printer queue ရှိခြင်းကို စစ်ပါ။`);
                             } catch (error) {
                                 const serverHost = window.receivedGoodsQz.getServerHost();
                                 $status.removeClass('text-slate-500').addClass('text-rose-600')
